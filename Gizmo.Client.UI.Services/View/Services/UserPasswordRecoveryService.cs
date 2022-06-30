@@ -1,14 +1,17 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Gizmo.Client.UI.View.Services
 {
-    public sealed class UserPasswordRecoveryService : ViewStateServiceBase<UserPasswordRecoveryViewState>
+    [Register()]
+    public sealed class UserPasswordRecoveryService : ClientViewServiceBase<UserPasswordRecoveryViewState>
     {
         #region CONTRUCTOR
         public UserPasswordRecoveryService(UserPasswordRecoveryViewState viewState,
             UserPasswordRecoveryMethodViewState methodState,
-            ILogger<UserPasswordRecoveryService> logger) : base(viewState, logger)
+            ILogger<UserPasswordRecoveryService> logger,
+            IServiceProvider serviceProvider) : base(viewState, logger,serviceProvider)
         {
             _passwordRecoveryMethodState = methodState;
         }
@@ -20,6 +23,11 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task StartAsync()
         {
+            if(_passwordRecoveryMethodState.Method == UserPasswordRecoveryMethod.Email)
+            {
+                return Task.CompletedTask;
+            }
+
             return Task.CompletedTask;
         }
 

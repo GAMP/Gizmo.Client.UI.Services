@@ -5,20 +5,19 @@ using System.Collections.Concurrent;
 
 namespace Gizmo.Client.UI.View.Services
 {
-    public sealed class UserCartService : ViewStateServiceBase<UserCartViewState>
+    [Register()]
+    public sealed class UserCartService : ClientViewServiceBase<UserCartViewState>
     {
         #region CONSTRUCTOR
         public UserCartService(UserCartViewState viewState,
-            IServiceProvider serviceProvider,
-            ILogger<UserCartService> logger) : base(viewState,logger)
+            ILogger<UserCartService> logger,
+            IServiceProvider serviceProvider) : base(viewState,logger,serviceProvider)
         {
-            _serviceProvider = serviceProvider;
         }
         #endregion
 
         #region FIELDS
         private readonly ConcurrentDictionary<int, int> _products = new();
-        private readonly IServiceProvider _serviceProvider;
         #endregion
 
         #region PROPERTIES
@@ -28,7 +27,7 @@ namespace Gizmo.Client.UI.View.Services
         
         public Task AddProductAsyc(int productId, int quantity = 1)
         {
-            var productState = _serviceProvider.GetRequiredService<UserCartProductViewState>();
+            var productState = ServiceProvider.GetRequiredService<UserCartProductViewState>();
             productState.ProductName = "Some product";
             productState.ProductId = productId;
             return Task.CompletedTask;
@@ -62,10 +61,5 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
-
-        public override Task IntializeAsync(CancellationToken ct)
-        {
-            return base.IntializeAsync(ct);
-        }
     }
 }

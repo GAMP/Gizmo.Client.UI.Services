@@ -1,13 +1,16 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Gizmo.Client.UI.View.Services
 {
-    public sealed class UserPasswordRecoveryMethodService : ViewStateServiceBase<UserPasswordRecoveryMethodViewState>
+    [Register()]
+    public sealed class UserPasswordRecoveryMethodService : ClientViewServiceBase<UserPasswordRecoveryMethodViewState>
     {
         #region CONSTRUCTOR
         public UserPasswordRecoveryMethodService(UserPasswordRecoveryMethodViewState viewState,
-           ILogger<UserPasswordRecoveryMethodService> logger) : base(viewState, logger)
+           ILogger<UserPasswordRecoveryMethodService> logger,
+           IServiceProvider serviceProvider) : base(viewState, logger,serviceProvider)
         {
 
         }

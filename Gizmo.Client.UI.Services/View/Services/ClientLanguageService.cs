@@ -1,12 +1,16 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Gizmo.Client.UI.View.Services
 {
-    public sealed class ClientLanguageService : ViewStateServiceBase<ClientConnectionViewState>
+    [Register()]
+    public sealed class ClientLanguageService : ClientViewServiceBase<ClientConnectionViewState>
     {
         #region CONSTRUCTOR
-        public ClientLanguageService(ClientConnectionViewState viewState, ILogger<ClientLanguageService> logger) : base(viewState, logger)
+        public ClientLanguageService(ClientConnectionViewState viewState, 
+            ILogger<ClientLanguageService> logger,
+            IServiceProvider serviceProvider) : base(viewState, logger,serviceProvider)
         {
         } 
         #endregion
@@ -17,11 +21,6 @@ namespace Gizmo.Client.UI.View.Services
                 Logger.LogError("Invalid language id {lcid} specified.", lcid);
 
             return Task.CompletedTask;
-        }
-
-        public override Task IntializeAsync(CancellationToken ct)
-        {
-            return base.IntializeAsync(ct);
         }
     }
 }

@@ -1,13 +1,19 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Components.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel;
 
 namespace Gizmo.Client.UI.View.Services
 {
-    public sealed class UserLoginService : ViewStateServiceBase<UserLoginViewState>, IDisposable
+    [Register()]
+    public sealed class UserLoginService : ClientViewServiceBase<UserLoginViewState>, IDisposable
     {
         #region CONSTRUCTOR
-        public UserLoginService(UserLoginViewState viewState,ILogger<UserLoginService> logger):base(viewState, logger)
+        public UserLoginService(UserLoginViewState viewState,
+            ILogger<UserLoginService> logger,
+            IServiceProvider serviceProvider) :base(viewState, logger,serviceProvider)
         {
             _editContext = new EditContext(viewState);
             _validationMessageStore = new ValidationMessageStore(_editContext);
@@ -37,8 +43,9 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task SubmitAsync()
         {
-          //  Model.IsValid = EditContext.Validate();
-
+            //  Model.IsValid = EditContext.Validate();
+            ViewState.LoginName = $"Count {count++}";
+            DebounceViewStateChange();
             return Task.CompletedTask;
         }
 
@@ -64,21 +71,25 @@ namespace Gizmo.Client.UI.View.Services
         {
             //Model.IsValid = EditContext.Validate();
         }
-
-        public override Task IntializeAsync(CancellationToken ct)
+        int count;
+        protected override void OnLocationChanged(object? sender, LocationChangedEventArgs e)
         {
-            ViewState.PropertyChanged += ViewState_PropertyChanged;
-            return base.IntializeAsync(ct);
+            Logger.LogInformation("Navigated to {base}", new Uri(e.Location).LocalPath);
+            base.OnLocationChanged(sender, e);
+
         }
 
-        private void ViewState_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        protected override void OnViewStatePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            base.OnViewStatePropertyChanged(sender, e);
+
             EditContext.Validate();
         }
 
-        public override void Dispose()
+        protected override  void OnDisposing(bool dis)
         {
-            ViewState.PropertyChanged += ViewState_PropertyChanged;
+            base.OnDisposing(dis);
+
             _editContext.OnFieldChanged -= _editContext_OnFieldChanged;
             _editContext.OnValidationStateChanged -= _editContext_OnValidationStateChanged;
             _editContext.OnValidationRequested -= _editContext_OnValidationRequested;

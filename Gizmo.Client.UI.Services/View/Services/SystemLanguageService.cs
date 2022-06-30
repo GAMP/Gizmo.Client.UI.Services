@@ -1,20 +1,23 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 
 namespace Gizmo.Client.UI.View.Services
 {
-    public sealed class SystemLanguageService : ViewStateServiceBase<SystemLanguageViewState>
+    [Register()]
+    public sealed class SystemLanguageService : ClientViewServiceBase<SystemLanguageViewState>
     {
         #region CONSTRUCTOR
-        public SystemLanguageService(SystemLanguageViewState viewState, ILogger<SystemLanguageService> logger) : base(viewState, logger)
+        public SystemLanguageService(SystemLanguageViewState viewState,
+            ILogger<SystemLanguageService> logger, 
+            IServiceProvider serviceProvider) : base(viewState, logger,serviceProvider)
         {
         }
         #endregion
 
         #region FIELDS
         private readonly bool _isWebAssembly = RuntimeInformation.IsOSPlatform(OSPlatform.Create("WEBASSEMBLY"));
-        private System.Threading.Timer _timer;
         #endregion
 
         public Task SetCurrentLanguageAsync(int lcid)
@@ -28,13 +31,13 @@ namespace Gizmo.Client.UI.View.Services
             return Task.CompletedTask;
         }
 
-        public override Task IntializeAsync(CancellationToken ct)
+        protected override Task OnInitializing(CancellationToken ct)
         {
             //since our application can run in web browser
             //we need to check if system language selection is possible based on the platform
             //and provide the information to the view state
 
-            if(_isWebAssembly)
+            if (_isWebAssembly)
             {
                 return Task.CompletedTask;
             }
@@ -42,14 +45,7 @@ namespace Gizmo.Client.UI.View.Services
             {
 
             }
-            _timer = new Timer(CB, null, 1000, 1000);
-            return base.IntializeAsync(ct);
-        }
-
-        private void CB(object? s)
-        {
-            ViewState.SelectedLanguage = new LanguageViewState() { NativeName = DateTime.Now.ToString() };
-            ViewState.RaiseChanged();
+            return base.OnInitializing(ct);
         }
     }
 }
