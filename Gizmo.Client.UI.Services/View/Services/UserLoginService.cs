@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.ComponentModel;
+using System.Reactive.Linq;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -13,20 +13,26 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public UserLoginService(UserLoginViewState viewState,
             ILogger<UserLoginService> logger,
-            IServiceProvider serviceProvider) :base(viewState, logger,serviceProvider)
+            IServiceProvider serviceProvider,
+            IGizmoClient gizmoClient) :base(viewState, logger,serviceProvider)
         {
-            _editContext = new EditContext(viewState);
-            _validationMessageStore = new ValidationMessageStore(_editContext);
+            _gizmoClient = gizmoClient;
 
-            _editContext.OnFieldChanged += _editContext_OnFieldChanged;
-            _editContext.OnValidationStateChanged += _editContext_OnValidationStateChanged;
-            _editContext.OnValidationRequested += _editContext_OnValidationRequested;
+            _editContext = new EditContext(viewState); 
+            
+            _validationMessageStore = new ValidationMessageStore(_editContext);           
+
+            _fieldChangedObservable = Observable.FromEventPattern<FieldChangedEventArgs>(e => _editContext.OnFieldChanged += e,
+                e => _editContext.OnFieldChanged -= e)
+                .Throttle(TimeSpan.FromMilliseconds(100));       
         }      
         #endregion
 
         #region READ ONLY FIELDS
         private readonly EditContext _editContext;
         private readonly ValidationMessageStore _validationMessageStore;
+        private readonly IGizmoClient _gizmoClient;
+        private readonly IObservable<System.Reactive.EventPattern<FieldChangedEventArgs>> _fieldChangedObservable;
         #endregion
 
         #region PROPERTIES
@@ -38,61 +44,91 @@ namespace Gizmo.Client.UI.View.Services
         {
             get { return _editContext; }
         }
-        
+
         #endregion
 
-        public Task SubmitAsync()
+        int count;
+        public async Task SubmitAsync()
         {
-            //  Model.IsValid = EditContext.Validate();
+            //model validation is pending, we cant proceed
+            if (ViewState.IsValid !=true)
+                return;
+
+            await Task.Delay(0);
+
             ViewState.LoginName = $"Count {count++}";
             DebounceViewStateChange();
-            return Task.CompletedTask;
         }
 
-        private void _editContext_OnValidationRequested(object? sender, ValidationRequestedEventArgs e)
+        private void OnEditContextValidationRequested(object? sender, ValidationRequestedEventArgs e)
         {
+            _validationMessageStore.Clear();
+            if (string.IsNullOrWhiteSpace(ViewState.LoginName))
+            {
+                _validationMessageStore.Add(() => ViewState.LoginName, "Add some username mate!");
+            }
+            if (string.IsNullOrWhiteSpace(ViewState.Password))
+            {
+                _validationMessageStore.Add(() => ViewState.Password, "Add some password mate!");
+            }
+        }
+
+        private void OnEditContextValidationStateChanged(object? sender, ValidationStateChangedEventArgs e)
+        {
+            //check if validation have occured
+            if (ViewState.IsValid == null)
+                return;
             
-            //_validationMessageStore.Clear();
-            //if(Model.LoginName == null)
-            //{
-            //    _validationMessageStore.Add(()=>Model.LoginName,"Add some username mate!");
-            //}
-            //else if(Model.Password == null)
-            //{
-            //    _validationMessageStore.Add(() => Model.Password, "Add some password mate!");
-            //}
+            var currentErrorMessage = EditContext.GetValidationMessages();
+            ViewState.IsValid = !currentErrorMessage.Any();
+            ViewState.RaiseChanged();
         }
 
-        private void _editContext_OnValidationStateChanged(object? sender, ValidationStateChangedEventArgs e)
+        private async void FieldChange(FieldChangedEventArgs args)
         {
-        }
+            Logger.LogInformation("cng");
+            ViewState.IsValidating = true;
+            ViewState.RaiseChanged();
 
-        private void _editContext_OnFieldChanged(object? sender, FieldChangedEventArgs e)
-        {
-            //Model.IsValid = EditContext.Validate();
+           await Task.Delay(10000);
+
+            //once a property changes state looses its validity and becomes pending
+            ViewState.IsValid = EditContext.Validate();
+            
+            ViewState.IsValidating = false;
+
+            DebounceViewStateChange();
+             
         }
-        int count;
+       
         protected override void OnLocationChanged(object? sender, LocationChangedEventArgs e)
         {
             Logger.LogInformation("Navigated to {base}", new Uri(e.Location).LocalPath);
             base.OnLocationChanged(sender, e);
 
+            //reset the state to default values
+            ViewState.SetDefaultsIfDirty();
+
+            DebounceViewStateChange();
         }
 
-        protected override void OnViewStatePropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            base.OnViewStatePropertyChanged(sender, e);
+        protected override Task OnInitializing(CancellationToken ct)
+        {        
+            _editContext.EnableDataAnnotationsValidation();
+            _fieldChangedObservable.Subscribe(e => FieldChange(e.EventArgs));
 
-            EditContext.Validate();
+            _editContext.OnValidationStateChanged += OnEditContextValidationStateChanged;
+            _editContext.OnValidationRequested += OnEditContextValidationRequested;
+
+            return base.OnInitializing(ct);
         }
 
         protected override  void OnDisposing(bool dis)
         {
             base.OnDisposing(dis);
-
-            _editContext.OnFieldChanged -= _editContext_OnFieldChanged;
-            _editContext.OnValidationStateChanged -= _editContext_OnValidationStateChanged;
-            _editContext.OnValidationRequested -= _editContext_OnValidationRequested;
+           
+            _editContext.OnValidationStateChanged -= OnEditContextValidationStateChanged;
+            _editContext.OnValidationRequested -= OnEditContextValidationRequested;
         }
     }
 }

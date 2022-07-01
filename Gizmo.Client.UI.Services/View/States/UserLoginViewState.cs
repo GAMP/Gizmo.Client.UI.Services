@@ -6,9 +6,11 @@ namespace Gizmo.Client.UI.View.States
     [Register()]
     public sealed class UserLoginViewState : ValidatingViewState
     {
+        #region FIELDS
         private UserLoginType _userLoginType;
         private string? _loginName;
-        private string? _password;
+        private string? _password; 
+        #endregion
 
         #region PROPERTIES
 

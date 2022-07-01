@@ -17,6 +17,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task SetMethodAsync(UserRegistrationMethod method)
         {
+            ViewState.Method = UserPasswordRecoveryMethod.MobilePhone;
             return Task.CompletedTask;
         }
 
