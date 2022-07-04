@@ -30,7 +30,7 @@ namespace Gizmo.Client.UI.View.Services
             var productState = ServiceProvider.GetRequiredService<UserCartProductViewState>();
             productState.ProductName = "Some product";
             productState.ProductId = productId;
-            return Task.CompletedTask;
+            return Task.CompletedTask;   
         }
 
         public Task RemoveProductAsync(int productId, int? quantity)

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel;
 using System.Reactive.Linq;
 
 namespace Gizmo.Client.UI.View.Services
@@ -13,26 +14,22 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public UserLoginService(UserLoginViewState viewState,
             ILogger<UserLoginService> logger,
-            IServiceProvider serviceProvider,
-            IGizmoClient gizmoClient) :base(viewState, logger,serviceProvider)
+            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
-            _gizmoClient = gizmoClient;
-
-            _editContext = new EditContext(viewState); 
-            
-            _validationMessageStore = new ValidationMessageStore(_editContext);           
-
+            PropertyChangedDebounceBufferTime = 5000;
+            _editContext = new EditContext(viewState);
+            _validationMessageStore = new ValidationMessageStore(_editContext);
             _fieldChangedObservable = Observable.FromEventPattern<FieldChangedEventArgs>(e => _editContext.OnFieldChanged += e,
                 e => _editContext.OnFieldChanged -= e)
-                .Throttle(TimeSpan.FromMilliseconds(100));       
-        }      
+                .Throttle(TimeSpan.FromMilliseconds(100));
+        }
         #endregion
 
         #region READ ONLY FIELDS
         private readonly EditContext _editContext;
         private readonly ValidationMessageStore _validationMessageStore;
-        private readonly IGizmoClient _gizmoClient;
         private readonly IObservable<System.Reactive.EventPattern<FieldChangedEventArgs>> _fieldChangedObservable;
+        private IDisposable? _dataAnnotationsRegistration;
         #endregion
 
         #region PROPERTIES
@@ -50,19 +47,29 @@ namespace Gizmo.Client.UI.View.Services
         int count;
         public async Task SubmitAsync()
         {
+            if (ViewState.IsValid == null)
+            {
+                ViewState.IsValid = EditContext.Validate();
+            }
+
             //model validation is pending, we cant proceed
-            if (ViewState.IsValid !=true)
+            if (ViewState.IsValid != true)
                 return;
 
             await Task.Delay(0);
 
-            ViewState.LoginName = $"Count {count++}";
+            using (ViewState.PropertyChangedLock())
+            {
+                ViewState.LoginName = $"Count {count++}";
+            }
+
             DebounceViewStateChange();
         }
 
         private void OnEditContextValidationRequested(object? sender, ValidationRequestedEventArgs e)
         {
             _validationMessageStore.Clear();
+
             if (string.IsNullOrWhiteSpace(ViewState.LoginName))
             {
                 _validationMessageStore.Add(() => ViewState.LoginName, "Add some username mate!");
@@ -78,43 +85,49 @@ namespace Gizmo.Client.UI.View.Services
             //check if validation have occured
             if (ViewState.IsValid == null)
                 return;
-            
+
             var currentErrorMessage = EditContext.GetValidationMessages();
             ViewState.IsValid = !currentErrorMessage.Any();
             ViewState.RaiseChanged();
         }
 
-        private async void FieldChange(FieldChangedEventArgs args)
+        protected override void OnViewStatePropertyChangedDebounced(object sender, PropertyChangedEventArgs e)
         {
-            Logger.LogInformation("cng");
-            ViewState.IsValidating = true;
-            ViewState.RaiseChanged();
+            base.OnViewStatePropertyChangedDebounced(sender, e);
 
-           await Task.Delay(10000);
-
-            //once a property changes state looses its validity and becomes pending
+              //once a property changes state looses its validity and becomes pending
             ViewState.IsValid = EditContext.Validate();
-            
-            ViewState.IsValidating = false;
+   
+            if (e.PropertyName == nameof(ViewState.LoginName) && ViewState.LoginName?.Length > 5)
+            {
+                var newName = ViewState.LoginName[..5];
+                ViewState.LoginName = newName;                
+            }
 
             DebounceViewStateChange();
-             
         }
-       
+
+        protected override void OnViewStatePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            base.OnViewStatePropertyChanged(sender, e);          
+        }
+
+        private void FieldChange(FieldChangedEventArgs args)
+        {
+            ////once a property changes state looses its validity and becomes pending
+            //ViewState.IsValid = EditContext.Validate();
+            //DebounceViewStateChange();
+        }
+
         protected override void OnLocationChanged(object? sender, LocationChangedEventArgs e)
         {
             Logger.LogInformation("Navigated to {base}", new Uri(e.Location).LocalPath);
             base.OnLocationChanged(sender, e);
-
-            //reset the state to default values
-            ViewState.SetDefaultsIfDirty();
-
-            DebounceViewStateChange();
         }
 
         protected override Task OnInitializing(CancellationToken ct)
-        {        
-            _editContext.EnableDataAnnotationsValidation();
+        {
+            _dataAnnotationsRegistration = _editContext.EnableDataAnnotationsValidation();
             _fieldChangedObservable.Subscribe(e => FieldChange(e.EventArgs));
 
             _editContext.OnValidationStateChanged += OnEditContextValidationStateChanged;
@@ -123,10 +136,11 @@ namespace Gizmo.Client.UI.View.Services
             return base.OnInitializing(ct);
         }
 
-        protected override  void OnDisposing(bool dis)
+        protected override void OnDisposing(bool dis)
         {
             base.OnDisposing(dis);
-           
+
+            _dataAnnotationsRegistration?.Dispose();
             _editContext.OnValidationStateChanged -= OnEditContextValidationStateChanged;
             _editContext.OnValidationRequested -= OnEditContextValidationRequested;
         }
