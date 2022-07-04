@@ -69,6 +69,12 @@ namespace Gizmo.Client.UI.View.Services
         {
             _validationMessageStore.Clear();
 
+            var loginNameFieldIdentifier = _editContext.Field(nameof(ViewState.LoginName));
+            var passwordFieldIdentifier = _editContext.Field(nameof(ViewState.Password));
+
+            Gizmo.Client.UI.Services.Extensions.DataAnnotationsValidator.Validate(loginNameFieldIdentifier, _validationMessageStore);
+            Gizmo.Client.UI.Services.Extensions.DataAnnotationsValidator.Validate(passwordFieldIdentifier, _validationMessageStore);
+
             if (string.IsNullOrWhiteSpace(ViewState.LoginName))
             {
                 _validationMessageStore.Add(() => ViewState.LoginName, "Add some username mate!");
@@ -128,7 +134,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnInitializing(CancellationToken ct)
         {
-            _dataAnnotationsRegistration = _editContext.EnableDataAnnotationsValidation();
+            //_dataAnnotationsRegistration = _editContext.EnableDataAnnotationsValidation();
             _fieldChangedObservable.Subscribe(e => FieldChange(e.EventArgs));
 
             _editContext.OnValidationStateChanged += OnEditContextValidationStateChanged;
