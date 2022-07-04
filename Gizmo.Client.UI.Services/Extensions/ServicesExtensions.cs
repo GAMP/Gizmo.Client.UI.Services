@@ -112,5 +112,24 @@ namespace Gizmo.Client.UI.Services
         {
             return AddViewServices(services, Assembly.GetExecutingAssembly());
         }
+
+        /// <summary>
+        /// Initializes view services.
+        /// </summary>
+        /// <param name="serviceProvider">Service provider.</param>
+        /// <param name="ct">Cancellation token.</param>
+        /// <returns>Associated task.</returns>
+        public static async Task InitializeViewsServices(this IServiceProvider serviceProvider,CancellationToken ct=default)
+        {
+            //get view services
+            var viewServices = serviceProvider.GetServices<IViewService>();
+
+            //initialize view services
+            foreach (var service in viewServices)
+            {
+                await service.IntializeAsync(ct);
+            }
+        }
+
     }
 }

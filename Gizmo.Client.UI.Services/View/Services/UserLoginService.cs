@@ -16,7 +16,6 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserLoginService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
-            PropertyChangedDebounceBufferTime = 5000;
             _editContext = new EditContext(viewState);
             _validationMessageStore = new ValidationMessageStore(_editContext);
             _fieldChangedObservable = Observable.FromEventPattern<FieldChangedEventArgs>(e => _editContext.OnFieldChanged += e,
