@@ -77,6 +77,8 @@ namespace Gizmo.Client.UI.View.Services
             {
                 _validationMessageStore.Add(() => ViewState.Password, "Add some password mate!");
             }
+
+            _editContext.NotifyValidationStateChanged();
         }
 
         private void OnEditContextValidationStateChanged(object? sender, ValidationStateChangedEventArgs e)
@@ -108,7 +110,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override void OnViewStatePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            base.OnViewStatePropertyChanged(sender, e);          
+            base.OnViewStatePropertyChanged(sender, e);
         }
 
         private void FieldChange(FieldChangedEventArgs args)
