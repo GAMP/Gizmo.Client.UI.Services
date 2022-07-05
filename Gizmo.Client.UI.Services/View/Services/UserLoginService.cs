@@ -65,26 +65,53 @@ namespace Gizmo.Client.UI.View.Services
             DebounceViewStateChange();
         }
 
-        private void OnEditContextValidationRequested(object? sender, ValidationRequestedEventArgs e)
+        //Clear all errors and mark ViewState as non validated.
+        private void ResetValidationErrors()
         {
+            ViewState.IsValid = null;
             _validationMessageStore.Clear();
+            _editContext.NotifyValidationStateChanged();
+        }
 
-            var loginNameFieldIdentifier = _editContext.Field(nameof(ViewState.LoginName));
-            var passwordFieldIdentifier = _editContext.Field(nameof(ViewState.Password));
+        //Validate specified property. If null all properties will be validated.
+        private void ValidateProperties(string propertyName = null)
+        {
+            //_validationMessageStore.Clear();
 
-            Gizmo.Client.UI.Services.Extensions.DataAnnotationsValidator.Validate(loginNameFieldIdentifier, _validationMessageStore);
-            Gizmo.Client.UI.Services.Extensions.DataAnnotationsValidator.Validate(passwordFieldIdentifier, _validationMessageStore);
-
-            if (string.IsNullOrWhiteSpace(ViewState.LoginName))
+            if (string.IsNullOrEmpty(propertyName) || propertyName == nameof(ViewState.LoginName))
             {
-                _validationMessageStore.Add(() => ViewState.LoginName, "Add some username mate!");
+                var loginNameFieldIdentifier = _editContext.Field(nameof(ViewState.LoginName));
+
+                _validationMessageStore.Clear(loginNameFieldIdentifier);
+
+                Gizmo.Client.UI.Services.Extensions.DataAnnotationsValidator.Validate(loginNameFieldIdentifier, _validationMessageStore);
+
+                if (string.IsNullOrWhiteSpace(ViewState.LoginName))
+                {
+                    _validationMessageStore.Add(() => ViewState.LoginName, "Add some username mate!");
+                }
             }
-            if (string.IsNullOrWhiteSpace(ViewState.Password))
+
+            if (string.IsNullOrEmpty(propertyName) || propertyName == nameof(ViewState.Password))
             {
-                _validationMessageStore.Add(() => ViewState.Password, "Add some password mate!");
+                var passwordFieldIdentifier = _editContext.Field(nameof(ViewState.Password));
+
+                _validationMessageStore.Clear(passwordFieldIdentifier);
+
+                Gizmo.Client.UI.Services.Extensions.DataAnnotationsValidator.Validate(passwordFieldIdentifier, _validationMessageStore);
+
+                if (string.IsNullOrWhiteSpace(ViewState.Password))
+                {
+                    _validationMessageStore.Add(() => ViewState.Password, "Add some password mate!");
+                }
             }
 
             _editContext.NotifyValidationStateChanged();
+        }
+
+        private void OnEditContextValidationRequested(object? sender, ValidationRequestedEventArgs e)
+        {
+            ValidateProperties();
         }
 
         private void OnEditContextValidationStateChanged(object? sender, ValidationStateChangedEventArgs e)
@@ -102,9 +129,10 @@ namespace Gizmo.Client.UI.View.Services
         {
             base.OnViewStatePropertyChangedDebounced(sender, e);
 
-              //once a property changes state looses its validity and becomes pending
-            ViewState.IsValid = EditContext.Validate();
-   
+            //once a property changes state looses its validity and becomes pending
+            //ViewState.IsValid = EditContext.Validate();
+            ValidateProperties(e.PropertyName);
+
             if (e.PropertyName == nameof(ViewState.LoginName) && ViewState.LoginName?.Length > 5)
             {
                 var newName = ViewState.LoginName[..5];
