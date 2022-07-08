@@ -4,8 +4,13 @@ using System.Reflection;
 
 namespace Gizmo.Client.UI.Services
 {
+    /// <summary>
+    /// View services extensions.
+    /// </summary>
     public static class ServicesExtensions
     {
+        #region FUNCTIONS
+        
         /// <summary>
         /// Registers view states in the di container.
         /// </summary>
@@ -14,7 +19,7 @@ namespace Gizmo.Client.UI.Services
         /// <exception cref="ArgumentNullException">if <paramref name="services"/> equals to null.</exception>
         public static IServiceCollection AddViewStates(this IServiceCollection services)
         {
-            return AddViewStates(services,Assembly.GetExecutingAssembly());
+            return AddViewStates(services, Assembly.GetExecutingAssembly());
         }
 
         /// <summary>
@@ -26,7 +31,7 @@ namespace Gizmo.Client.UI.Services
         /// <exception cref="ArgumentNullException">if <paramref name="assembly"/> or <paramref name="services"/> equals to null.</exception>
         public static IServiceCollection AddViewStates(this IServiceCollection services, Assembly assembly)
         {
-            if(services==null)
+            if (services == null)
                 throw new ArgumentNullException(nameof(services));
 
             if (assembly == null)
@@ -35,13 +40,13 @@ namespace Gizmo.Client.UI.Services
             var viewStates = assembly
                 .GetTypes()
                 .Where(type => type.IsAbstract == false && type.GetInterfaces().Contains(typeof(IViewState)))
-                .Select(type=> new { Type= type, Attribute= type.GetCustomAttribute<RegisterAttribute>()})
-                .Where(result=>result.Attribute!=null)
+                .Select(type => new { Type = type, Attribute = type.GetCustomAttribute<RegisterAttribute>() })
+                .Where(result => result.Attribute != null)
                 .ToList();
 
-            foreach(var viewState in viewStates)
+            foreach (var viewState in viewStates)
             {
-                if(viewState?.Attribute?.Scope== RegisterScope.Scoped)
+                if (viewState?.Attribute?.Scope == RegisterScope.Scoped)
                 {
                     services.AddScoped(viewState.Type);
                 }
@@ -95,7 +100,7 @@ namespace Gizmo.Client.UI.Services
                 else if (viewService?.Attribute?.Scope == RegisterScope.Transient)
                 {
                     services.AddTransient(viewService.Type);
-                    services.AddTransient(sp=>(IViewService)sp.GetRequiredService(viewService.Type));
+                    services.AddTransient(sp => (IViewService)sp.GetRequiredService(viewService.Type));
                 }
             }
 
@@ -119,7 +124,7 @@ namespace Gizmo.Client.UI.Services
         /// <param name="serviceProvider">Service provider.</param>
         /// <param name="ct">Cancellation token.</param>
         /// <returns>Associated task.</returns>
-        public static async Task InitializeViewsServices(this IServiceProvider serviceProvider,CancellationToken ct=default)
+        public static async Task InitializeViewsServices(this IServiceProvider serviceProvider, CancellationToken ct = default)
         {
             //get view services
             var viewServices = serviceProvider.GetServices<IViewService>();
@@ -129,7 +134,14 @@ namespace Gizmo.Client.UI.Services
             {
                 await service.IntializeAsync(ct);
             }
+        } 
+
+        public static IServiceCollection AddUIServices(this IServiceCollection services)
+        {
+            services.AddSingleton<NavigationService>();
+            return services;
         }
 
+        #endregion
     }
 }

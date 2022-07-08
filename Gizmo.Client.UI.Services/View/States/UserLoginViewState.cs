@@ -26,6 +26,7 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets or sets username,email or mobile phone used for login.
         /// </summary>
+        [ValidatingProperty()]
         [Required()]
         public string? LoginName 
         {
@@ -36,6 +37,7 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets or sets user password.
         /// </summary>
+        [ValidatingProperty()]
         [Required()]
         public string? Password 
         {
@@ -44,5 +46,17 @@ namespace Gizmo.Client.UI.View.States
         }
 
         #endregion
+
+        public override void SetDefaults()
+        {
+            using(PropertyChangedLock())
+            {
+                LoginName = null;
+                Password = null;
+                LoginType = UserLoginType.UsernameOrEmail;
+            }
+
+            base.SetDefaults();
+        }
     }
 }

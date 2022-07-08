@@ -8,9 +8,10 @@ namespace Microsoft.AspNetCore.Components
     {
         #region READONLY FIELDS
         private static readonly string STATE_HAS_CHANGED_METHOD_NAME = "StateHasChanged";
+        private static readonly string INVOKE_ASYNC_METHOD_NAME = "InvokeAsync";
         private static readonly Type COMPONENT_TYPE = typeof(ComponentBase);
         private static readonly MethodInfo? STATE_HAS_CHANGED_METHOD = COMPONENT_TYPE.GetMethod(STATE_HAS_CHANGED_METHOD_NAME, BindingFlags.NonPublic | BindingFlags.Instance);
-        private static readonly object?[] DEFAULT_PARAMETERS = Array.Empty<object>();
+        private static readonly MethodInfo? INVOKE_ASYNC_METHOD = COMPONENT_TYPE.GetMethod(INVOKE_ASYNC_METHOD_NAME, BindingFlags.NonPublic | BindingFlags.Instance , new Type[] {typeof(Action)});
         private static readonly ConcurrentDictionary<ComponentBase, EventHandler> _delegates = new();
         #endregion
 
@@ -32,7 +33,15 @@ namespace Microsoft.AspNetCore.Components
 
             //create or get event handler for the component
             var eventHandler = _delegates.GetOrAdd(component, new EventHandler((object? sender, EventArgs e) => {
-                STATE_HAS_CHANGED_METHOD?.Invoke(component, DEFAULT_PARAMETERS);
+
+                if (STATE_HAS_CHANGED_METHOD is not null)
+                {
+                    var STATE_CHANGED_DELEGATE = Delegate.CreateDelegate(typeof(Action), component, STATE_HAS_CHANGED_METHOD);
+                    if (INVOKE_ASYNC_METHOD is not null)
+                    {
+                        INVOKE_ASYNC_METHOD?.Invoke(component, new object[] { STATE_CHANGED_DELEGATE });
+                    }
+                }
             }));
 
             //remove any previous handler

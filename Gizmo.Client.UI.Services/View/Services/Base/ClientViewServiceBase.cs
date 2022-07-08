@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Gizmo.Client.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -7,30 +7,30 @@ namespace Gizmo.Client.UI.View.Services
     /// <summary>
     /// Client UI specific view service base.
     /// </summary>
-    /// <typeparam name="TState">View state type.</typeparam>
-    public abstract class ClientViewServiceBase<TState> : ViewStateServiceBase<TState> where TState : IViewState
+    /// <typeparam name="TViewState">View state type.</typeparam>
+    public abstract class ClientViewServiceBase<TViewState> : ViewStateServiceBase<TViewState> where TViewState : IViewState
     {
         #region CONSTRUCTOR
-        public ClientViewServiceBase(TState viewState, 
+        public ClientViewServiceBase(TViewState viewState, 
             ILogger logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
-            _navigationManager = serviceProvider.GetRequiredService<NavigationManager>();
+            _navigationService = serviceProvider.GetRequiredService<NavigationService>();
         } 
         #endregion
 
         #region FIELDS
-        private readonly NavigationManager _navigationManager;
+        private readonly NavigationService _navigationService;
         #endregion
 
         #region PROPERTIES
         
         /// <summary>
-        /// Gets navigation manager.
+        /// Gets navigation service.
         /// </summary>
-        protected NavigationManager NavigationManager
+        protected NavigationService NavigationService
         {
-            get { return _navigationManager; }
+            get { return _navigationService; }
         }
 
         #endregion
@@ -39,13 +39,13 @@ namespace Gizmo.Client.UI.View.Services
         
         protected override Task OnInitializing(CancellationToken ct)
         {
-            NavigationManager.LocationChanged += OnLocationChanged;
+            NavigationService.LocationChanged += OnLocationChanged;
             return base.OnInitializing(ct);
         }
 
         protected override void OnDisposing(bool isDisposing)
         {
-            NavigationManager.LocationChanged -= OnLocationChanged;
+            NavigationService.LocationChanged -= OnLocationChanged;
             base.OnDisposing(isDisposing);
         } 
 
