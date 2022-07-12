@@ -1,4 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI.View.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
@@ -6,7 +7,7 @@ using System.Runtime.InteropServices;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    public sealed class SystemLanguageService : ClientViewServiceBase<SystemLanguageViewState>
+    public sealed class SystemLanguageService : ViewStateServiceBase<SystemLanguageViewState>
     {
         #region CONSTRUCTOR
         public SystemLanguageService(SystemLanguageViewState viewState,

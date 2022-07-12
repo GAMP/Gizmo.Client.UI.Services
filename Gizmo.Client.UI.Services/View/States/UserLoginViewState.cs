@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Gizmo.UI;
+using Gizmo.UI.View.States;
+using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel.DataAnnotations;
 
 namespace Gizmo.Client.UI.View.States
 {
     [Register()]
-    public sealed class UserLoginViewState : ValidatingViewState
+    public sealed class UserLoginViewState : ValidatingViewStateBase
     {
         #region FIELDS
         private UserLoginType _userLoginType;

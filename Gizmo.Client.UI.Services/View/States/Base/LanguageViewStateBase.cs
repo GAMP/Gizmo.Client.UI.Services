@@ -1,4 +1,6 @@
-﻿namespace Gizmo.Client.UI.View.States
+﻿using Gizmo.UI.View.States;
+
+namespace Gizmo.Client.UI.View.States
 {
     /// <summary>
     /// Base view state exposing language related state.

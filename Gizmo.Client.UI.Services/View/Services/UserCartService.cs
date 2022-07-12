@@ -1,4 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI.View.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
@@ -6,7 +7,7 @@ using System.Collections.Concurrent;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    public sealed class UserCartService : ClientViewServiceBase<UserCartViewState>
+    public sealed class UserCartService : ViewStateServiceBase<UserCartViewState>
     {
         #region CONSTRUCTOR
         public UserCartService(UserCartViewState viewState,

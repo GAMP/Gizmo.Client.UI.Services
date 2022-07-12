@@ -1,6 +1,9 @@
-﻿namespace Gizmo.Client.UI.View.States
+﻿using Gizmo.Client.UI;
+using Gizmo.UI.View.States;
+
+namespace Gizmo.Client.UI.View.States
 {
-    public class UserPasswordRecoveryConfirmationViewState : ValidatingViewState
+    public class UserPasswordRecoveryConfirmationViewState : ValidatingViewStateBase
     {
         #region FIELDS
         private string _confirmationCode = string.Empty;

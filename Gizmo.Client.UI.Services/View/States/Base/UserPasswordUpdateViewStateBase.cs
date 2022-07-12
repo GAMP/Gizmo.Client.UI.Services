@@ -1,9 +1,10 @@
-﻿using System.ComponentModel;
+﻿using Gizmo.UI.View.States;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Gizmo.Client.UI.View.States
 {
-    public abstract class UserPasswordUpdateViewStateBase : ValidatingViewState
+    public abstract class UserPasswordUpdateViewStateBase : ValidatingViewStateBase
     {
         #region FIELDS
         private string _password = string.Empty;
