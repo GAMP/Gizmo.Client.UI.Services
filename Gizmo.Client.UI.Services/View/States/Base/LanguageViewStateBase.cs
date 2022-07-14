@@ -10,6 +10,7 @@ namespace Gizmo.Client.UI.View.States
         #region FIELDS
         private LanguageViewState? _selectedLanguage;
         private readonly List<LanguageViewState> _languages = new();
+        private readonly List<RegionViewState> _regions = new();
         #endregion
 
         #region PROPERTIES
@@ -30,6 +31,14 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _languages; }
         } 
+
+        /// <summary>
+        /// Gets available regions.
+        /// </summary>
+        public List<RegionViewState> Regions
+        {
+            get { return _regions; }
+        }
         
         #endregion
     }

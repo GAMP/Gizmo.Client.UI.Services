@@ -1,7 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System.Reflection;
-using Microsoft.AspNetCore.Components;
+using Gizmo.UI.Services;
+using Microsoft.Extensions.Options;
+using Gizmo.UI;
 
 namespace Gizmo.Client.UI.Services
 {
@@ -11,10 +12,10 @@ namespace Gizmo.Client.UI.Services
     public sealed class WebAssemblyComponentDiscoveryService : ComponentDiscoveryServiceBase
     {
         #region CONSTRUCTOR
-        public WebAssemblyComponentDiscoveryService(IConfiguration configuration,
-              IServiceProvider serviceProvider,
-              IHttpClientFactory httpClientFactory,
-              ILogger<WebAssemblyComponentDiscoveryService> logger) : base(configuration, logger, serviceProvider)
+        public WebAssemblyComponentDiscoveryService(IOptionsMonitor<UICompositionOptions> optionsMonitor,
+            IServiceProvider serviceProvider,
+            IHttpClientFactory httpClientFactory,
+            ILogger<WebAssemblyComponentDiscoveryService> logger) : base(optionsMonitor, logger, serviceProvider)
         {
             _httpClientFactory = httpClientFactory;
         }
@@ -35,7 +36,7 @@ namespace Gizmo.Client.UI.Services
 
         #region OVERRIDES
 
-        protected async override Task<Assembly> LoadAssemblyAsync(string assemblyName, bool isAdditional = true, CancellationToken ct = default)
+        protected async override Task<Assembly> LoadAssemblyAsync(string assemblyName, CancellationToken ct = default)
         {
             if (string.IsNullOrWhiteSpace(assemblyName))
                 throw new ArgumentNullException(nameof(assemblyName));
@@ -50,20 +51,9 @@ namespace Gizmo.Client.UI.Services
                 //load the external assembly into app domain
                 var assembly = AppDomain.CurrentDomain.Load(externallib);
 
-                //check if this is additional assembly
-                if (isAdditional)
-                {
-                    //on sucess add the assembly to additional assemblies list
-                    _addtionalAssemblies.Add(assembly);
-                }
-
+                //return loaded assembly
                 return assembly;
             }
-        }
-
-        protected override IEnumerable<string> GetRoutes(Type type)
-        {
-            return type.GetCustomAttributes<RouteAttribute>().Select(attribute => attribute.Template).ToArray();
         }
 
         #endregion

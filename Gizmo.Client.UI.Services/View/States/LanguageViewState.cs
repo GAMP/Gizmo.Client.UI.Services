@@ -9,8 +9,9 @@ namespace Gizmo.Client.UI.View.States
     {
         #region FIELDS
         private string _nativeName = string.Empty;
-        private string _threeLetterName = string.Empty;
         private int _lcid = 0;
+        private string _twoLetterName = string.Empty;
+        private string _englishName = string.Empty;
         #endregion
 
         #region PROPERTIES
@@ -26,13 +27,23 @@ namespace Gizmo.Client.UI.View.States
         }
 
         /// <summary>
-        /// Gets three letter name.
+        /// Gets two letter name.
         /// </summary>
         [DefaultValue(DefaultValues.EMPTY_STRING_VALUE)]
-        public string ThreeLetterName
+        public string TwoLetterName
         {
-            get { return _threeLetterName; }
-            internal set { SetProperty(ref _threeLetterName, value); }
+            get { return _twoLetterName; }
+            internal set { SetProperty(ref _twoLetterName, value); }
+        }
+
+        /// <summary>
+        /// Gets English name.
+        /// </summary>
+        [DefaultValue(DefaultValues.EMPTY_STRING_VALUE)]
+        public string EnglishName
+        {
+            get { return _englishName; }
+            internal set { SetProperty(ref _englishName, value); }
         }
 
         /// <summary>
