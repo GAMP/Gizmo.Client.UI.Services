@@ -1,4 +1,4 @@
-﻿using Gizmo.UI.Services;
+﻿using Gizmo.Shared.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gizmo.Client.UI.Services

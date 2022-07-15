@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.Client.UI.View.States;
+using Gizmo.Shared.UI.Services;
 
 namespace Gizmo.Client.UI.View.Services
 {

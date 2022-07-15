@@ -27,6 +27,7 @@
 		<PackageReference Include="Microsoft.Extensions.Localization" Version="6.0.7" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
 		<PackageReference Include="System.Reactive" Version="5.0.0" />
+		<ProjectReference Include="..\..\Gizmo.Client.Shared\Gizmo.Client.Shared\Gizmo.Client.Shared.csproj" />
 		<ProjectReference Include="..\..\Gizmo.Client.UI.Resources\Gizmo.Client.UI.Resources\Gizmo.Client.UI.Resources.csproj" />
 		<ProjectReference Include="..\..\Gizmo.Shared\Gizmo.Shared.csproj" />
 		<ProjectReference Include="..\..\Gizmo.UI\Gizmo.UI\Gizmo.UI.csproj" />

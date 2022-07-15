@@ -1,4 +1,4 @@
-﻿using Gizmo.UI.Services;
+﻿using Gizmo.Shared.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using System.Reflection;
