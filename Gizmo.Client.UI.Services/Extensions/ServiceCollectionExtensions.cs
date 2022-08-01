@@ -40,6 +40,9 @@ namespace Gizmo.Client.UI.Services
         /// <returns>Service collection.</returns>
         private static IServiceCollection AddClientUIServices(this IServiceCollection services)
         {
+            //add js interop service
+            services.AddScoped<JSInteropService>();
+
             //add localization with default options
             services.AddLocalization(opt =>
             {

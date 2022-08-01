@@ -16,12 +16,5 @@ namespace Gizmo.Client.UI.View.Services
 
         }
         #endregion
-
-        public Task SetMethodAsync(UserPasswordRecoveryMethod method)
-        {
-            ViewState.Method = method;
-            ViewState.RaiseChanged();
-            return Task.CompletedTask;
-        }
     }
 }
