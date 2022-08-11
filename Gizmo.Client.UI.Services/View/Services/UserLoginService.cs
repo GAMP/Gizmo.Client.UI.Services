@@ -13,7 +13,7 @@ namespace Gizmo.Client.UI.View.Services
         public UserLoginService(UserLoginViewState viewState,
             ILogger<UserLoginService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
-        {         
+        {
         }
         #endregion
 
@@ -46,9 +46,9 @@ namespace Gizmo.Client.UI.View.Services
             ResetValidationErrors();
 
             NavigationService.NavigateTo("/home");
-        }  
+        }
 
-        public Task LogutAsync()
+        public Task LogοutAsync()
         {
             NavigationService.NavigateTo("/");
             return Task.CompletedTask;

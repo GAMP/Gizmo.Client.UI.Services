@@ -6,23 +6,22 @@ using System.ComponentModel.DataAnnotations;
 namespace Gizmo.Client.UI.View.States
 {
     [Register]
-    public class UserPasswordRecoveryConfirmationViewState : ValidatingViewStateBase
+    public class UserRegistrationStep2ViewState : ValidatingViewStateBase
     {
         #region FIELDS
-        private string _confirmationCode = string.Empty;
+        private string _homePhone = string.Empty;
         #endregion
 
         #region PROPERTIES
 
         /// <summary>
-        /// Gets or sets confirmation code.
+        /// Gets or sets home phone.
         /// </summary>
         [ValidatingProperty()]
-        [Required()]
-        public string ConfirmationCode
+        public string HomePhone
         {
-            get { return _confirmationCode; }
-            set { SetProperty(ref _confirmationCode, value); }
+            get { return _homePhone; }
+            set { SetProperty(ref _homePhone, value); }
         }
 
         #endregion

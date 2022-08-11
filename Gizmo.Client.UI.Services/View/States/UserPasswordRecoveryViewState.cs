@@ -1,10 +1,12 @@
-﻿using Gizmo.UI.View.States;
+﻿using Gizmo.UI;
+using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel.DataAnnotations;
 
 namespace Gizmo.Client.UI.View.States
 {
     [Register]
-    public class UserPasswordRecoveryViewState : ViewStateBase
+    public class UserPasswordRecoveryViewState : ValidatingViewStateBase
     {
         #region FIELDS
         private string _mobilePhone = string.Empty;
@@ -12,21 +14,21 @@ namespace Gizmo.Client.UI.View.States
         #endregion
 
         #region PROPERTIES
-        
+
+        [ValidatingProperty()]
         public string MobilePhone
         {
             get { return _mobilePhone; }
-            set
-            {
-                SetProperty(ref _mobilePhone, value);
-            }
+            set { SetProperty(ref _mobilePhone, value); }
         }
 
+        [ValidatingProperty()]
+        [Required()]
         public string Email
         {
             get { return _email; }
             set { SetProperty(ref _email, value); }
-        } 
+        }
 
         #endregion
     }

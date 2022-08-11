@@ -6,10 +6,10 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    public sealed class UserPasswordRecoveryService : ValidatingViewStateServiceBase<UserPasswordRecoveryViewState>
+    public sealed class UserPasswordRecoveryConfirmationService : ValidatingViewStateServiceBase<UserPasswordRecoveryConfirmationViewState>
     {
         #region CONTRUCTOR
-        public UserPasswordRecoveryService(UserPasswordRecoveryViewState viewState,
+        public UserPasswordRecoveryConfirmationService(UserPasswordRecoveryConfirmationViewState viewState,
             UserPasswordRecoveryMethodViewState methodState,
             ILogger<UserPasswordRecoveryService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
@@ -29,12 +29,7 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return Task.CompletedTask;
 
-            if (_passwordRecoveryMethodState.Method == UserPasswordRecoveryMethod.Email)
-            {
-                return Task.CompletedTask;
-            }
-
-            NavigationService.NavigateTo("/passwordrecoveryconfirmation");
+            NavigationService.NavigateTo("/passwordrecoverysetnewpassword");
             return Task.CompletedTask;
         }
     }
