@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Gizmo.Client.UI.View.States
 {
     [Register]
-    public class UserRegistrationStep2ViewState : ValidatingViewStateBase
+    public sealed class UserRegistrationAdditionalFieldsViewState : ValidatingViewStateBase
     {
         #region FIELDS
         private string _homePhone = string.Empty;

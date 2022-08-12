@@ -6,10 +6,10 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    public sealed class UserRegistrationMethodService : ViewStateServiceBase<UserRegistrationMethodViewState>
+    public sealed class UserRegistrationMethodService : ViewStateServiceBase<UserRegistrationConfirmationMethodViewState>
     {
         #region CONSTRUCTOR
-        public UserRegistrationMethodService(UserRegistrationMethodViewState viewState,
+        public UserRegistrationMethodService(UserRegistrationConfirmationMethodViewState viewState,
             ILogger<UserRegistrationMethodService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger,serviceProvider)
         {
@@ -18,7 +18,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task SetMethodAsync(UserRegistrationMethod method)
         {
-            ViewState.Method = UserPasswordRecoveryMethod.MobilePhone;
+            ViewState.ConfirmationMethod = method;
             return Task.CompletedTask;
         }
 

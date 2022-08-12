@@ -6,12 +6,12 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    public sealed class UserRegistrationService : ValidatingViewStateServiceBase<UserRegistrationViewState>
+    public sealed class UserRegistrationBasicFieldsService : ValidatingViewStateServiceBase<UserRegistrationBasicFieldsViewState>
     {
         #region CONSTRUCTOR
-        public UserRegistrationService(UserRegistrationViewState viewState,
-            ILogger<UserRegistrationService> logger,
-            IServiceProvider serviceProvider) : base(viewState, logger,serviceProvider)
+        public UserRegistrationBasicFieldsService(UserRegistrationBasicFieldsViewState viewState,
+            ILogger<UserRegistrationBasicFieldsService> logger,
+            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
         }
         #endregion
@@ -23,7 +23,7 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return Task.CompletedTask;
 
-            NavigationService.NavigateTo("/registrationstep2");
+            NavigationService.NavigateTo("/registrationadditionalfields");
             return Task.CompletedTask;
         }
     }

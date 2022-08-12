@@ -2,7 +2,8 @@
 {
     public enum UserRegistrationMethod
     {
-        MobilePhone=0,
-        Email=1,
+        None = 0,
+        Email = 1,
+        MobilePhone = 3
     }
 }

@@ -17,7 +17,7 @@ namespace Gizmo.Client.UI.View.Services
         }
         #endregion
 
-        public async Task SubmitAsync()
+        public async Task LoginAsync()
         {
             //always validate state on submission
             ViewState.IsValid = EditContext.Validate();
@@ -46,6 +46,12 @@ namespace Gizmo.Client.UI.View.Services
             ResetValidationErrors();
 
             NavigationService.NavigateTo("/home");
+        }
+
+        public Task OpenRegistration()
+        {
+            NavigationService.NavigateTo("/registrationconfirmationmethod");
+            return Task.CompletedTask;
         }
 
         public Task LogοutAsync()

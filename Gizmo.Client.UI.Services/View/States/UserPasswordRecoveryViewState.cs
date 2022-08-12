@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Gizmo.Client.UI.View.States
 {
     [Register]
-    public class UserPasswordRecoveryViewState : ValidatingViewStateBase
+    public sealed class UserPasswordRecoveryViewState : ValidatingViewStateBase
     {
         #region FIELDS
         private string _mobilePhone = string.Empty;

@@ -16,8 +16,8 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _method; }
             internal set { SetProperty(ref _method, value); }
-        } 
-        
+        }
+
         #endregion
     }
 }
