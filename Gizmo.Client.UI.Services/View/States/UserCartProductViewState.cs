@@ -7,9 +7,12 @@ namespace Gizmo.Client.UI.View.States
     public sealed class UserCartProductViewState : ViewStateBase
     {
         #region FIELDS
+        private int _productId;
         private string _productName = string.Empty;
         private int _quantity;
-        private int _productId;
+        private decimal _unitPrice;
+        private int? _unitPointsPrice;
+        private int? _unitPointsAward;
         #endregion
 
         #region PROPERTIES
@@ -42,8 +45,50 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _quantity; }
             internal set { SetProperty(ref _quantity, value); }
-        } 
-        
+        }
+
+        public decimal UnitPrice
+        {
+            get { return _unitPrice; }
+            internal set { SetProperty(ref _unitPrice, value); }
+        }
+
+        public int? UnitPointsPrice
+        {
+            get { return _unitPointsPrice; }
+            internal set { SetProperty(ref _unitPointsPrice, value); }
+        }
+
+        public int? UnitPointsAward
+        {
+            get { return _unitPointsAward; }
+            internal set { SetProperty(ref _unitPointsAward, value); }
+        }
+
+        public decimal TotalPrice
+        {
+            get
+            {
+                return UnitPrice * Quantity;
+            }
+        }
+
+        public int? TotalPointsPrice
+        {
+            get
+            {
+                return UnitPointsPrice.HasValue ? UnitPointsPrice.Value * Quantity : null;
+            }
+        }
+
+        public int? TotalUnitPointsAward
+        {
+            get
+            {
+                return UnitPointsAward.HasValue ? UnitPointsAward.Value * Quantity : null;
+            }
+        }
+
         #endregion
     }
 }

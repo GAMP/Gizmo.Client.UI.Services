@@ -28,14 +28,44 @@ namespace Gizmo.Client.UI.View.Services
         
         public Task AddProductAsyc(int productId, int quantity = 1)
         {
-            var productState = ServiceProvider.GetRequiredService<UserCartProductViewState>();
-            productState.ProductName = "Some product";
-            productState.ProductId = productId;
+            var existingProductState = ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault();
+            if (existingProductState != null)
+            {
+                existingProductState.Quantity += quantity;
+            }
+            else
+            {
+                //TODO: A FIND THE REAL PRODUCT.
+                var productState = ServiceProvider.GetRequiredService<UserCartProductViewState>();
+                productState.ProductName = "Some product";
+                productState.ProductId = productId;
+                productState.Quantity = quantity;
+
+                ViewState.Products.Add(productState);
+            }
+
+            ViewState.RaiseChanged();
+
             return Task.CompletedTask;   
         }
 
         public Task RemoveProductAsync(int productId, int? quantity)
         {
+            var existingProductState = ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault();
+            if (existingProductState != null)
+            {
+                if (quantity.HasValue && quantity.Value < existingProductState.Quantity)
+                {
+                    existingProductState.Quantity -= quantity.Value;
+                }
+                else
+                {
+                    ViewState.Products.Remove(existingProductState);
+                }
+            }
+
+            ViewState.RaiseChanged();
+
             return Task.CompletedTask;
         }
 

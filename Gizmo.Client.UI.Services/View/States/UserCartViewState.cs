@@ -17,7 +17,7 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets current user cart product states.
         /// </summary>
-        public IEnumerable<UserCartProductViewState> Products
+        public List<UserCartProductViewState> Products
         {
             get { return _products; }
         }
