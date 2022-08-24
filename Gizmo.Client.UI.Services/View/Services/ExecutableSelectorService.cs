@@ -6,11 +6,11 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    public sealed class ApplicationDetailsPageService : ViewStateServiceBase<ApplicationDetailsPageViewState>
+    public sealed class ExecutableSelectorService : ViewStateServiceBase<ExecutableSelectorViewState>
     {
         #region CONSTRUCTOR
-        public ApplicationDetailsPageService(ApplicationDetailsPageViewState viewState,
-            ILogger<ApplicationDetailsPageService> logger,
+        public ExecutableSelectorService(ExecutableSelectorViewState viewState,
+            ILogger<ExecutableSelectorService> logger,
             IServiceProvider serviceProvider, IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
@@ -42,14 +42,12 @@ namespace Gizmo.Client.UI.View.Services
                 DateAdded = new DateTime(2021, 3, 12),
             }).FirstOrDefault();
 
-            if (ViewState.Application.Id > 1)
+            ViewState.Application.Executables = _gizmoClient.GetExecutables().Select(a=> new ExecutableViewState()
             {
-                ViewState.Application.Executables = _gizmoClient.GetExecutables().Select(a => new ExecutableViewState()
-                {
-                    Id = a.Id,
-                    Caption = a.Caption
-                }).ToList();
-            }
+                Id = a.Id,
+                Caption = a.Caption,
+                Image = "_content/Gizmo.Client.UI/img/Chrome-icon 1.png"
+            }).ToList();
         }
 
         #endregion

@@ -19,7 +19,7 @@ namespace Gizmo.Client.UI.View.Services
 
             viewState.NewApplications = _gizmoClient.GetApplications().Select(a => new ApplicationViewState()
             {
-                Id = a.Id, 
+                Id = a.Id,
                 Title = a.Title,
                 Image = "Battle-net.png",
                 Ratings = random.Next(0, 100),
@@ -27,6 +27,18 @@ namespace Gizmo.Client.UI.View.Services
                 ReleaseDate = new DateTime(2019, 10, 22),
                 DateAdded = new DateTime(2021, 3, 12),
             }).ToList();
+
+            foreach (var item in viewState.NewApplications)
+            {
+                if (item.Id > 1)
+                {
+                    item.Executables = _gizmoClient.GetExecutables().Select(a => new ExecutableViewState()
+                    {
+                        Id = a.Id,
+                        Caption = a.Caption
+                    }).ToList();
+                }
+            }
         }
         #endregion
 

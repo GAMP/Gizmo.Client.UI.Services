@@ -22,7 +22,7 @@ namespace Gizmo.Client.UI.View.States
             internal set { SetProperty(ref _id, value); }        
         }
 
-        public string Name
+        public string Caption
         {
             get { return _name; }
             internal set { SetProperty(ref _name, value); }

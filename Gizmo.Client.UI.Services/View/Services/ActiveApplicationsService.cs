@@ -18,7 +18,7 @@ namespace Gizmo.Client.UI.View.Services
             viewState.Executables = _gizmoClient.GetExecutables().Select(a => new ExecutableViewState()
             {
                 Id = a.Id,
-                Name = a.Caption,
+                Caption = a.Caption,
                 Image = "_content/Gizmo.Client.UI/img/Chrome-icon 1.png"
             }).ToList();
         }
