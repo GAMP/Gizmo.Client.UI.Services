@@ -16,22 +16,22 @@ namespace Gizmo.Client
             return new UserLogoutResult();
         }
 
-        public IEnumerable<ProductGroup> GetProductGroups(ProductGroupsFilter filter)
+        public Task<PagedList<ProductGroup>> GetProductGroupsAsync(ProductGroupsFilter filter)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Product> GetProducts(ProductsFilter filter)
+        public Task<PagedList<Product>> GetProductsAsync(ProductsFilter filter)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Application> GetApplications(ApplicationsFilter filter)
+        public Task<PagedList<Application>> GetApplicationsAsync(ApplicationsFilter filter)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<ApplicationExecutable> GetApplicationExecutables(ApplicationExecutablesFilter filter)
+        public Task<PagedList<ApplicationExecutable>> GetApplicationExecutablesAsync(ApplicationExecutablesFilter filter)
         {
             throw new NotImplementedException();
         }

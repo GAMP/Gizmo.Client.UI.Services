@@ -16,26 +16,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             _gizmoClient = gizmoClient;
 
-            viewState.ProductGroups = _gizmoClient.GetProductGroups(new ProductGroupsFilter()).Select(a => new ProductGroupViewState()
-            {
-                Id = a.Id,
-                Name = a.Name
-            }).ToList();
-
-            viewState.Products = _gizmoClient.GetProducts(new ProductsFilter()).Select(a => new ProductViewState()
-            {
-                Id = a.Id,
-                ProductGroupId = a.ProductGroupId,
-                Name = a.Name,
-                Description = a.Description,
-                UnitPrice = a.Price,
-                UnitPointsAward = a.Points,
-                UnitPointsPrice = a.PointsPrice,
-                Image = "Cola.png",
-                ProductType = a.ProductType
-            }).ToList();
-
-            _gizmoClient.GetProducts(new ProductsFilter());
+            _gizmoClient.GetProductsAsync(new ProductsFilter());
         }
         #endregion
 
@@ -51,5 +32,31 @@ namespace Gizmo.Client.UI.View.Services
         #region FUNCTIONS
 
         #endregion
+
+        protected override async Task OnInitializing(CancellationToken ct)
+        {
+            await base.OnInitializing(ct);
+
+            var productGroups = await _gizmoClient.GetProductGroupsAsync(new ProductGroupsFilter());
+            ViewState.ProductGroups = productGroups.Data.Select(a => new ProductGroupViewState()
+            {
+                Id = a.Id,
+                Name = a.Name
+            }).ToList();
+
+            var products = await _gizmoClient.GetProductsAsync(new ProductsFilter());
+            ViewState.Products = products.Data.Select(a => new ProductViewState()
+            {
+                Id = a.Id,
+                ProductGroupId = a.ProductGroupId,
+                Name = a.Name,
+                Description = a.Description,
+                UnitPrice = a.Price,
+                UnitPointsAward = a.Points,
+                UnitPointsPrice = a.PointsPrice,
+                Image = "Cola.png",
+                ProductType = a.ProductType
+            }).ToList();
+        }
     }
 }

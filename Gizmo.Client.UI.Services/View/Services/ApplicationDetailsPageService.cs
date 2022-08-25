@@ -28,11 +28,12 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public void SetApplication(int id)
+        public async Task LoadApplicationAsync(int id)
         {
             Random random = new Random();
 
-            ViewState.Application = _gizmoClient.GetApplications(new ApplicationsFilter()).Where(a => a.Id == id).Select(a => new ApplicationViewState()
+            var applications = await _gizmoClient.GetApplicationsAsync(new ApplicationsFilter());
+            ViewState.Application = applications.Data.Where(a => a.Id == id).Select(a => new ApplicationViewState()
             {
                 Id = a.Id,
                 Title = a.Title,
@@ -43,9 +44,10 @@ namespace Gizmo.Client.UI.View.Services
                 DateAdded = new DateTime(2021, 3, 12),
             }).FirstOrDefault();
 
+            var executables = await _gizmoClient.GetApplicationExecutablesAsync(new ApplicationExecutablesFilter());
             if (ViewState.Application.Id > 1)
             {
-                ViewState.Application.Executables = _gizmoClient.GetApplicationExecutables(new ApplicationExecutablesFilter()).Select(a => new ExecutableViewState()
+                ViewState.Application.Executables = executables.Data.Select(a => new ExecutableViewState()
                 {
                     Id = a.Id,
                     Caption = a.Caption

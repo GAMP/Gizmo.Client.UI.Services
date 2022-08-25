@@ -15,19 +15,6 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider, IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
-
-            viewState.Executables = _gizmoClient.GetApplicationExecutables(new ApplicationExecutablesFilter()).Select(a => new ExecutableViewState()
-            {
-                Id = a.Id,
-                Caption = a.Caption,
-                Image = "_content/Gizmo.Client.UI/img/Chrome-icon 1.png"
-            }).ToList();
-
-            ViewState.Executables[0].State = 0;
-            ViewState.Executables[1].State = 1;
-            ViewState.Executables[2].State = 2;
-            ViewState.Executables[2].StatePercentage = 43.5m;
-            ViewState.Executables[3].State = 3;
         }
         #endregion
 
@@ -43,5 +30,24 @@ namespace Gizmo.Client.UI.View.Services
         #region FUNCTIONS
 
         #endregion
+
+        protected override async Task OnInitializing(CancellationToken ct)
+        {
+            await base.OnInitializing(ct);
+
+            var executables = await _gizmoClient.GetApplicationExecutablesAsync(new ApplicationExecutablesFilter());
+            ViewState.Executables = executables.Data.Select(a => new ExecutableViewState()
+            {
+                Id = a.Id,
+                Caption = a.Caption,
+                Image = "_content/Gizmo.Client.UI/img/Chrome-icon 1.png"
+            }).ToList();
+
+            ViewState.Executables[0].State = 0;
+            ViewState.Executables[1].State = 1;
+            ViewState.Executables[2].State = 2;
+            ViewState.Executables[2].StatePercentage = 43.5m;
+            ViewState.Executables[3].State = 3;
+        }
     }
 }
