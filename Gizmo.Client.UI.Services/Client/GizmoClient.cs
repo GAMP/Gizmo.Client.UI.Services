@@ -1,4 +1,4 @@
-﻿using Gizmo.Shared.Client.UI.ViewModels;
+﻿using Gizmo.Web.Api.Models;
 
 namespace Gizmo.Client
 {
@@ -16,22 +16,22 @@ namespace Gizmo.Client
             return new UserLogoutResult();
         }
 
-        public IEnumerable<ProductGroupViewModel> GetProductGroups()
+        public IEnumerable<ProductGroup> GetProductGroups(ProductGroupsFilter filter)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<ProductViewModel> GetProducts()
+        public IEnumerable<Product> GetProducts(ProductsFilter filter)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<ApplicationViewModel> GetApplications()
+        public IEnumerable<Application> GetApplications(ApplicationsFilter filter)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<ExecutableViewModel> GetExecutables()
+        public IEnumerable<ApplicationExecutable> GetApplicationExecutables(ApplicationExecutablesFilter filter)
         {
             throw new NotImplementedException();
         }

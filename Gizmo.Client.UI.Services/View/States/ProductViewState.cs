@@ -8,6 +8,7 @@ namespace Gizmo.Client.UI.View.States
     {
         #region FIELDS
         private int _id;
+        private ProductType _productType;
         private int _productGroupId;
         private string _name = string.Empty;
         private string _description = string.Empty;
@@ -23,6 +24,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _id; }
             internal set { SetProperty(ref _id, value); }        
+        }
+
+        public ProductType ProductType
+        {
+            get { return _productType; }
+            internal set { SetProperty(ref _productType, value); }
         }
 
         public int ProductGroupId

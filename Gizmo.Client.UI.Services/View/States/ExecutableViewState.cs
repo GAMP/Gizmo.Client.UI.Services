@@ -10,8 +10,8 @@ namespace Gizmo.Client.UI.View.States
         private int _id;
         private string _name = string.Empty;
         private string _image = string.Empty;
-        private bool _installing;
-        private decimal _installingPercentage;
+        private int _state;
+        private decimal _statePercentage;
         #endregion
 
         #region PROPERTIES
@@ -34,16 +34,16 @@ namespace Gizmo.Client.UI.View.States
             internal set { SetProperty(ref _image, value); }
         }
 
-        public bool Installing
+        public int State
         {
-            get { return _installing; }
-            internal set { SetProperty(ref _installing, value); }
+            get { return _state; }
+            internal set { SetProperty(ref _state, value); }
         }
 
-        public decimal InstallingPercentage
+        public decimal StatePercentage
         {
-            get { return _installingPercentage; }
-            internal set { SetProperty(ref _installingPercentage, value); }
+            get { return _statePercentage; }
+            internal set { SetProperty(ref _statePercentage, value); }
         }
 
         #endregion

@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -31,7 +32,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             Random random = new Random();
 
-            ViewState.Application = _gizmoClient.GetApplications().Where(a => a.Id == id).Select(a => new ApplicationViewState()
+            ViewState.Application = _gizmoClient.GetApplications(new ApplicationsFilter()).Where(a => a.Id == id).Select(a => new ApplicationViewState()
             {
                 Id = a.Id,
                 Title = a.Title,
@@ -44,7 +45,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (ViewState.Application.Id > 1)
             {
-                ViewState.Application.Executables = _gizmoClient.GetExecutables().Select(a => new ExecutableViewState()
+                ViewState.Application.Executables = _gizmoClient.GetApplicationExecutables(new ApplicationExecutablesFilter()).Select(a => new ExecutableViewState()
                 {
                     Id = a.Id,
                     Caption = a.Caption

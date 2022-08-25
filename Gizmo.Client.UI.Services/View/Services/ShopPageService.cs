@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -15,13 +16,13 @@ namespace Gizmo.Client.UI.View.Services
         {
             _gizmoClient = gizmoClient;
 
-            viewState.ProductGroups = _gizmoClient.GetProductGroups().Select(a => new ProductGroupViewState()
+            viewState.ProductGroups = _gizmoClient.GetProductGroups(new ProductGroupsFilter()).Select(a => new ProductGroupViewState()
             {
                 Id = a.Id,
                 Name = a.Name
             }).ToList();
 
-            viewState.Products = _gizmoClient.GetProducts().Select(a => new ProductViewState()
+            viewState.Products = _gizmoClient.GetProducts(new ProductsFilter()).Select(a => new ProductViewState()
             {
                 Id = a.Id,
                 ProductGroupId = a.ProductGroupId,
@@ -30,10 +31,11 @@ namespace Gizmo.Client.UI.View.Services
                 UnitPrice = a.Price,
                 UnitPointsAward = a.Points,
                 UnitPointsPrice = a.PointsPrice,
-                Image = "Cola.png"
+                Image = "Cola.png",
+                ProductType = a.ProductType
             }).ToList();
 
-            _gizmoClient.GetProducts();
+            _gizmoClient.GetProducts(new ProductsFilter());
         }
         #endregion
 

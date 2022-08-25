@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -15,12 +16,18 @@ namespace Gizmo.Client.UI.View.Services
         {
             _gizmoClient = gizmoClient;
 
-            viewState.Executables = _gizmoClient.GetExecutables().Select(a => new ExecutableViewState()
+            viewState.Executables = _gizmoClient.GetApplicationExecutables(new ApplicationExecutablesFilter()).Select(a => new ExecutableViewState()
             {
                 Id = a.Id,
                 Caption = a.Caption,
                 Image = "_content/Gizmo.Client.UI/img/Chrome-icon 1.png"
             }).ToList();
+
+            ViewState.Executables[0].State = 0;
+            ViewState.Executables[1].State = 1;
+            ViewState.Executables[2].State = 2;
+            ViewState.Executables[2].StatePercentage = 43.5m;
+            ViewState.Executables[3].State = 3;
         }
         #endregion
 
