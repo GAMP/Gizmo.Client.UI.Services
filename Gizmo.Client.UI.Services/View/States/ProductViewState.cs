@@ -16,6 +16,7 @@ namespace Gizmo.Client.UI.View.States
         private int? _unitPointsPrice;
         private int? _unitPointsAward;
         private string _image = string.Empty;
+        private PurchaseOptionType _purchaseOptions;
         #endregion
 
         #region PROPERTIES
@@ -72,6 +73,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _image; }
             internal set { SetProperty(ref _image, value); }
+        }
+
+        public PurchaseOptionType PurchaseOptions
+        {
+            get { return _purchaseOptions; }
+            internal set { SetProperty(ref _purchaseOptions, value); }
         }
 
         #endregion

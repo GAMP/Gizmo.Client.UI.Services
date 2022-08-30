@@ -55,7 +55,8 @@ namespace Gizmo.Client.UI.View.Services
                 UnitPointsAward = a.Points,
                 UnitPointsPrice = a.PointsPrice,
                 Image = "Cola.png",
-                ProductType = a.ProductType
+                ProductType = a.ProductType,
+                PurchaseOptions = a.PurchaseOptions
             }).ToList();
         }
     }

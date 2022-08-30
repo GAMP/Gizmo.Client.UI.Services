@@ -24,20 +24,6 @@ namespace Gizmo.Client.UI.View.Services
         }
         #endregion
 
-        public Task LockAsync()
-        {
-            ViewState.IsLocked = true;
-            ViewState.RaiseChanged();
-            return Task.CompletedTask;
-        }
-
-        public Task UnlockAsync()
-        {
-            ViewState.IsLocked = false;
-            ViewState.RaiseChanged();
-            return Task.CompletedTask;
-        }
-
         public Task LogοutAsync()
         {
             NavigationService.NavigateTo("/");

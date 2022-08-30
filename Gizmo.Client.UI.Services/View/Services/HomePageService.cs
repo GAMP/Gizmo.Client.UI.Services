@@ -42,7 +42,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 Id = a.Id,
                 Title = a.Title,
-                Image = "Battle-net.png",
+                Image = "Apex.png",
                 Ratings = random.Next(0, 100),
                 Rate = ((decimal)random.Next(1, 50)) / 10,
                 ReleaseDate = new DateTime(2019, 10, 22),

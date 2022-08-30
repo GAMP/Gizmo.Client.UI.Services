@@ -13,6 +13,7 @@ namespace Gizmo.Client.UI.View.States
         private decimal _unitPrice;
         private int? _unitPointsPrice;
         private int? _unitPointsAward;
+        private PurchaseOptionType _purchaseOptions;
         #endregion
 
         #region PROPERTIES
@@ -63,6 +64,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _unitPointsAward; }
             internal set { SetProperty(ref _unitPointsAward, value); }
+        }
+
+        public PurchaseOptionType PurchaseOptions
+        {
+            get { return _purchaseOptions; }
+            internal set { SetProperty(ref _purchaseOptions, value); }
         }
 
         public decimal TotalPrice

@@ -68,12 +68,6 @@ namespace Gizmo.Client.UI.View.States
             internal set { SetProperty(ref _picture, value); }
         }
 
-        public bool IsLocked
-        {
-            get { return _isLocked; }
-            internal set { SetProperty(ref _isLocked, value); }
-        }
-
         #endregion
     }
 }

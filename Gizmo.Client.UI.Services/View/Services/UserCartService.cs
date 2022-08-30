@@ -30,6 +30,8 @@ namespace Gizmo.Client.UI.View.Services
         
         public Task AddProductAsyc(int productId, int quantity = 1)
         {
+            Random random = new Random();
+
             var existingProductState = ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault();
             if (existingProductState != null)
             {
@@ -42,6 +44,7 @@ namespace Gizmo.Client.UI.View.Services
                 productState.ProductName = "Some product";
                 productState.ProductId = productId;
                 productState.Quantity = quantity;
+                productState.PurchaseOptions = (PurchaseOptionType)random.Next(0, 2);
 
                 ViewState.Products.Add(productState);
             }
