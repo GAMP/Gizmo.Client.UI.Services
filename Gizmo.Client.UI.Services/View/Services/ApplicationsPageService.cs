@@ -38,6 +38,13 @@ namespace Gizmo.Client.UI.View.Services
 
             Random random = new Random();
 
+            var applicationGroups = await _gizmoClient.GetApplicationGroupsAsync(new ApplicationGroupsFilter());
+            ViewState.ApplicationGroups = applicationGroups.Data.Select(a => new ApplicationGroupViewState()
+            {
+                Id = a.Id,
+                Name = a.Name
+            }).ToList();
+
             var applications = await _gizmoClient.GetApplicationsAsync(new ApplicationsFilter());
             ViewState.Applications = applications.Data.Select(a => new ApplicationViewState()
             {
@@ -47,7 +54,7 @@ namespace Gizmo.Client.UI.View.Services
                 Ratings = random.Next(0, 100),
                 Rate = ((decimal)random.Next(1, 50)) / 10,
                 ReleaseDate = new DateTime(2019, 10, 22),
-                DateAdded = new DateTime(2021, 3, 12),
+                DateAdded = new DateTime(2021, 3, 12)
             }).ToList();
 
             var executables = await _gizmoClient.GetApplicationExecutablesAsync(new ApplicationExecutablesFilter());

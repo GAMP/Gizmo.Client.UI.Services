@@ -7,10 +7,17 @@ namespace Gizmo.Client.UI.View.States
     public sealed class ApplicationsPageViewState : ViewStateBase
     {
         #region FIELDS
+        private List<ApplicationGroupViewState> _applicationGroups = new();
         private List<ApplicationViewState> _applications = new();
         #endregion
 
         #region PROPERTIES
+
+        public List<ApplicationGroupViewState> ApplicationGroups
+        {
+            get { return _applicationGroups; }
+            internal set { _applicationGroups = value; }
+        }
 
         public List<ApplicationViewState> Applications
         {
