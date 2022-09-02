@@ -46,10 +46,14 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task ClearResultsAsync()
         {
+            ViewState.ShowAll = false;
             ViewState.IsLoading = false;
             ViewState.SearchPattern = String.Empty;
             ViewState.ApplicationResults.Clear();
             ViewState.ProductResults.Clear();
+
+            ViewState.RaiseChanged();
+
             return Task.CompletedTask;
         }
 
@@ -57,6 +61,8 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.IsLoading = true;
             ViewState.SearchPattern = searchPattern;
+
+            ViewState.RaiseChanged();
 
             await Task.Delay(500);
 
@@ -66,6 +72,7 @@ namespace Gizmo.Client.UI.View.Services
             var tmpApplications = applications.Data.Select(a => new ApplicationViewState()
             {
                 Id = a.Id,
+                ApplicationGroupId = a.ApplicationCategoryId,
                 Title = a.Title,
                 Image = "Apex.png",
                 Ratings = random.Next(0, 100),
@@ -100,6 +107,8 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             ViewState.IsLoading = false;
+
+            ViewState.RaiseChanged();
         }
 
         #endregion

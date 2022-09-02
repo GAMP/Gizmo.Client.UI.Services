@@ -49,6 +49,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Applications = applications.Data.Select(a => new ApplicationViewState()
             {
                 Id = a.Id,
+                ApplicationGroupId = a.ApplicationCategoryId,
                 Title = a.Title,
                 Image = "Apex.png",
                 Ratings = random.Next(0, 100),
