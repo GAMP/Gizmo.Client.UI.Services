@@ -40,6 +40,11 @@ namespace Gizmo.Client
         {
             throw new NotImplementedException();
         }
+
+        public Task<PagedList<PaymentMethod>> GetPaymentMethodsAsync(PaymentMethodsFilter filter)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class UserLoginResult

@@ -28,9 +28,9 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public Task LoadAllResultsAsync(SearchResultTypes type)
+        public Task LoadAllResultsAsync(SearchResultTypes searchResultTypes)
         {
-            if (type == SearchResultTypes.Application)
+            if (searchResultTypes == SearchResultTypes.Application)
             {
                 NavigationService.NavigateTo("/apps");
             }
@@ -41,12 +41,24 @@ namespace Gizmo.Client.UI.View.Services
 
             ViewState.ShowAll = true;
 
+            ViewState.RaiseChanged();
+
+            return Task.CompletedTask;
+        }
+
+        public Task LoadAllResultsLocallyAsync()
+        {
+            ViewState.ShowAllLocally = true;
+
+            ViewState.RaiseChanged();
+
             return Task.CompletedTask;
         }
 
         public Task ClearResultsAsync()
         {
             ViewState.ShowAll = false;
+            ViewState.ShowAllLocally = false;
             ViewState.IsLoading = false;
             ViewState.SearchPattern = String.Empty;
             ViewState.ApplicationResults.Clear();
@@ -57,7 +69,7 @@ namespace Gizmo.Client.UI.View.Services
             return Task.CompletedTask;
         }
 
-        public async Task SearchAsync(string searchPattern)
+        public async Task SearchAsync(string searchPattern, SearchResultTypes? searchResultTypes = null)
         {
             ViewState.IsLoading = true;
             ViewState.SearchPattern = searchPattern;
@@ -68,42 +80,48 @@ namespace Gizmo.Client.UI.View.Services
 
             Random random = new Random();
 
-            var applications = await _gizmoClient.GetApplicationsAsync(new ApplicationsFilter());
-            var tmpApplications = applications.Data.Select(a => new ApplicationViewState()
+            if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Application)
             {
-                Id = a.Id,
-                ApplicationGroupId = a.ApplicationCategoryId,
-                Title = a.Title,
-                Image = "Apex.png",
-                Ratings = random.Next(0, 100),
-                Rate = ((decimal)random.Next(1, 50)) / 10,
-                ReleaseDate = new DateTime(2019, 10, 22),
-                DateAdded = new DateTime(2021, 3, 12),
-            }).ToList();
+                var applications = await _gizmoClient.GetApplicationsAsync(new ApplicationsFilter());
+                var tmpApplications = applications.Data.Select(a => new ApplicationViewState()
+                {
+                    Id = a.Id,
+                    ApplicationGroupId = a.ApplicationCategoryId,
+                    Title = a.Title,
+                    Image = "Apex.png",
+                    Ratings = random.Next(0, 100),
+                    Rate = ((decimal)random.Next(1, 50)) / 10,
+                    ReleaseDate = new DateTime(2019, 10, 22),
+                    DateAdded = new DateTime(2021, 3, 12),
+                }).ToList();
 
-            foreach (var app in tmpApplications.Where(a => a.Title.Contains(searchPattern, StringComparison.InvariantCultureIgnoreCase)))
-            {
-                ViewState.ApplicationResults.Add(new SearchResultViewState() { Type = SearchResultTypes.Application, Id = app.Id, Name = app.Title, Image = app.Image });
+                foreach (var app in tmpApplications.Where(a => a.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    ViewState.ApplicationResults.Add(new SearchResultViewState() { Type = SearchResultTypes.Application, Id = app.Id, Name = app.Title, Image = app.Image });
+                }
             }
 
-            var products = await _gizmoClient.GetProductsAsync(new ProductsFilter());
-            var tmpProducts = products.Data.Select(a => new ProductViewState()
+            if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Product)
             {
-                Id = a.Id,
-                ProductGroupId = a.ProductGroupId,
-                Name = a.Name,
-                Description = a.Description,
-                UnitPrice = a.Price,
-                UnitPointsAward = a.Points,
-                UnitPointsPrice = a.PointsPrice,
-                Image = "Cola.png",
-                ProductType = a.ProductType,
-                PurchaseOptions = a.PurchaseOptions
-            }).ToList();
+                var products = await _gizmoClient.GetProductsAsync(new ProductsFilter());
+                var tmpProducts = products.Data.Select(a => new ProductViewState()
+                {
+                    Id = a.Id,
+                    ProductGroupId = a.ProductGroupId,
+                    Name = a.Name,
+                    Description = a.Description,
+                    UnitPrice = a.Price,
+                    UnitPointsAward = a.Points,
+                    UnitPointsPrice = a.PointsPrice,
+                    Image = "Cola.png",
+                    ProductType = a.ProductType,
+                    PurchaseOptions = a.PurchaseOptions
+                }).ToList();
 
-            foreach (var product in tmpProducts.Where(a => a.Name.Contains(searchPattern, StringComparison.InvariantCultureIgnoreCase)))
-            {
-                ViewState.ProductResults.Add(new SearchResultViewState() { Type = SearchResultTypes.Product, Id = product.Id, Name = product.Name, Image = product.Image });
+                foreach (var product in tmpProducts.Where(a => a.Name.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    ViewState.ProductResults.Add(new SearchResultViewState() { Type = SearchResultTypes.Product, Id = product.Id, Name = product.Name, Image = product.Image });
+                }
             }
 
             ViewState.IsLoading = false;

@@ -9,6 +9,7 @@ namespace Gizmo.Client.UI.View.States
         #region FIELDS
         private bool _isLoading;
         private bool _showAll;
+        private bool _showAllLocally;
         private string _searchPattern = string.Empty;
         private List<SearchResultViewState> _applicationResults = new();
         private List<SearchResultViewState> _productResults = new();
@@ -26,6 +27,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _showAll; }
             internal set { _showAll = value; }
+        }
+
+        public bool ShowAllLocally
+        {
+            get { return _showAllLocally; }
+            internal set { _showAllLocally = value; }
         }
 
         public string SearchPattern
