@@ -17,6 +17,7 @@ namespace Gizmo.Client.UI.View.States
         private int? _unitPointsAward;
         private string _image = string.Empty;
         private PurchaseOptionType _purchaseOptions;
+        private List<ProductViewState> _bundledProducts;
         #endregion
 
         #region PROPERTIES
@@ -24,7 +25,7 @@ namespace Gizmo.Client.UI.View.States
         public int Id
         {
             get { return _id; }
-            internal set { SetProperty(ref _id, value); }        
+            internal set { SetProperty(ref _id, value); }
         }
 
         public ProductType ProductType
@@ -79,6 +80,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _purchaseOptions; }
             internal set { SetProperty(ref _purchaseOptions, value); }
+        }
+
+        public List<ProductViewState> BundledProducts
+        {
+            get { return _bundledProducts; }
+            internal set { SetProperty(ref _bundledProducts, value); }
         }
 
         #endregion

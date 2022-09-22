@@ -12,12 +12,14 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public UserCartService(UserCartViewState viewState,
             ILogger<UserCartService> logger,
-            IServiceProvider serviceProvider) : base(viewState,logger,serviceProvider)
+            IServiceProvider serviceProvider, IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
+            _gizmoClient = gizmoClient;
         }
         #endregion
 
         #region FIELDS
+        private readonly IGizmoClient _gizmoClient;
         private readonly ConcurrentDictionary<int, int> _products = new();
         #endregion
 
@@ -27,31 +29,46 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region FUNCTIONS
-        
+
         public Task AddProductAsyc(int productId, int quantity = 1)
         {
             Random random = new Random();
 
-            var existingProductState = ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault();
-            if (existingProductState != null)
+            var existingProductViewState = ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault();
+            if (existingProductViewState != null)
             {
-                existingProductState.Quantity += quantity;
+                existingProductViewState.Quantity += quantity;
             }
             else
             {
-                //TODO: A FIND THE REAL PRODUCT.
-                var productState = ServiceProvider.GetRequiredService<UserCartProductViewState>();
-                productState.ProductName = "Some product";
-                productState.ProductId = productId;
-                productState.Quantity = quantity;
-                productState.PurchaseOptions = (PurchaseOptionType)random.Next(0, 2);
+                var shopPageViewState = ServiceProvider.GetRequiredService<ShopPageViewState>();
 
-                ViewState.Products.Add(productState);
+                var product = shopPageViewState.Products.Where(a => a.Id == productId).FirstOrDefault();
+
+                if (product != null)
+                {
+                    var productViewState = ServiceProvider.GetRequiredService<UserCartProductViewState>();
+                    productViewState.Quantity = quantity;
+                    productViewState.ProductId = product.Id;
+                    productViewState.ProductName = product.Name;
+                    productViewState.UnitPrice = product.UnitPrice;
+                    productViewState.UnitPointsPrice = product.UnitPointsPrice;
+                    productViewState.UnitPointsAward = product.UnitPointsAward;
+                    productViewState.PurchaseOptions = product.PurchaseOptions;
+                    productViewState.PayType = productViewState.PurchaseOptions == PurchaseOptionType.And ? OrderLinePayType.Mixed : OrderLinePayType.Cash;
+                    //TODO: A CALCULATE PAY TYPE
+
+                    ViewState.Products.Add(productViewState);
+                }
+                else
+                {
+                    //TODO: A ERROR?
+                }
             }
 
             ViewState.RaiseChanged();
 
-            return Task.CompletedTask;   
+            return Task.CompletedTask;
         }
 
         public Task RemoveProductAsync(int productId, int? quantity)
@@ -76,9 +93,22 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task DeleteProduct(int productId)
         {
-            if(_products.TryGetValue(productId, out var product))
+            if (_products.TryGetValue(productId, out var product))
             {
             }
+            return Task.CompletedTask;
+        }
+
+        public Task ChangeProductPayType(int productId, OrderLinePayType payType)
+        {
+            var existingProductState = ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault();
+            if (existingProductState != null)
+            {
+                existingProductState.PayType = payType;
+            }
+
+            ViewState.RaiseChanged();
+
             return Task.CompletedTask;
         }
 
@@ -91,6 +121,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (_products.TryGetValue(productId, out var productViewState))
                 return true;
+
             await Task.Delay(1000);
 
             return false;

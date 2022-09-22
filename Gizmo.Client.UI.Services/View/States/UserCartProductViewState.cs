@@ -14,6 +14,7 @@ namespace Gizmo.Client.UI.View.States
         private int? _unitPointsPrice;
         private int? _unitPointsAward;
         private PurchaseOptionType _purchaseOptions;
+        private OrderLinePayType _payType;
         #endregion
 
         #region PROPERTIES
@@ -72,6 +73,11 @@ namespace Gizmo.Client.UI.View.States
             internal set { SetProperty(ref _purchaseOptions, value); }
         }
 
+        public OrderLinePayType PayType
+        {
+            get { return _payType; }
+            internal set { SetProperty(ref _payType, value); }
+        }
         public decimal TotalPrice
         {
             get

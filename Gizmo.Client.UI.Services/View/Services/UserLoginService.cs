@@ -39,11 +39,17 @@ namespace Gizmo.Client.UI.View.Services
 
             }
 
+            ViewState.IsLogginIn = true;
+            ViewState.RaiseChanged();
+
             //simulate task
             await Task.Delay(1000);
 
             ViewState.SetDefaults();
             ResetValidationErrors();
+
+            ViewState.IsLogginIn = false;
+            ViewState.RaiseChanged();
 
             NavigationService.NavigateTo("/home");
         }

@@ -14,6 +14,7 @@ namespace Gizmo.Client.UI.View.States
         private string _image = string.Empty;
         private int _ratings;
         private decimal _rate;
+        private string _publisher;
         private DateTime? _releaseDate;
         private DateTime _dateAdded;
 
@@ -62,6 +63,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _rate; }
             internal set { _rate = value; }
+        }
+
+        public string Publisher
+        {
+            get { return _publisher; }
+            internal set { _publisher = value; }
         }
 
         public DateTime? ReleaseDate

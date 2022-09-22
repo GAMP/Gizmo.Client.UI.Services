@@ -26,6 +26,11 @@ namespace Gizmo.Client
             throw new NotImplementedException();
         }
 
+        public Task<PagedList<BundledProduct>> GetBundledProducts(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<PagedList<ApplicationGroup>> GetApplicationGroupsAsync(ApplicationGroupsFilter filter)
         {
             throw new NotImplementedException();

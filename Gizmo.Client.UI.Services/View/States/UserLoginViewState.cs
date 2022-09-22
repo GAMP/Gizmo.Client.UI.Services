@@ -9,12 +9,19 @@ namespace Gizmo.Client.UI.View.States
     public sealed class UserLoginViewState : ValidatingViewStateBase
     {
         #region FIELDS
+        private bool _isLogginIn;
         private UserLoginType _userLoginType;
         private string? _loginName;
-        private string? _password; 
+        private string? _password;
         #endregion
 
         #region PROPERTIES
+
+        public bool IsLogginIn
+        {
+            get { return _isLogginIn; }
+            set { SetProperty(ref _isLogginIn, value); }
+        }
 
         /// <summary>
         /// Gets or sets login type.

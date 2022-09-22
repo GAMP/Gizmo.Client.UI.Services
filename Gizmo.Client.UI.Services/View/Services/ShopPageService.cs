@@ -58,6 +58,17 @@ namespace Gizmo.Client.UI.View.Services
                 ProductType = a.ProductType,
                 PurchaseOptions = a.PurchaseOptions
             }).ToList();
+
+            foreach (var product in ViewState.Products)
+            {
+                var bundledProducts = await _gizmoClient.GetBundledProducts(product.Id);
+
+                product.BundledProducts = bundledProducts.Data.Select(a => new ProductViewState()
+                {
+                    Id = a.Id,
+                    Image = "Cola.png"
+                }).ToList();
+            }
         }
     }
 }

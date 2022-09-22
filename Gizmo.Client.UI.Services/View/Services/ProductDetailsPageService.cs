@@ -34,34 +34,11 @@ namespace Gizmo.Client.UI.View.Services
         {
             Random random = new Random();
 
-            var products = await _gizmoClient.GetProductsAsync(new ProductsFilter());
-            ViewState.Product = products.Data.Where(a => a.Id == id).Select(a => new ProductViewState()
-            {
-                Id = a.Id,
-                ProductGroupId = a.ProductGroupId,
-                Name = a.Name,
-                Description = a.Description,
-                UnitPrice = a.Price,
-                UnitPointsAward = a.Points,
-                UnitPointsPrice = a.PointsPrice,
-                Image = "Cola.png",
-                ProductType = a.ProductType,
-                PurchaseOptions = a.PurchaseOptions
-            }).FirstOrDefault();
+            var shopPageViewState = ServiceProvider.GetRequiredService<ShopPageViewState>();
 
-            ViewState.RelatedProducts = products.Data.Where(a => a.Id == id).Select(a => new ProductViewState()
-            {
-                Id = a.Id,
-                ProductGroupId = a.ProductGroupId,
-                Name = a.Name,
-                Description = a.Description,
-                UnitPrice = a.Price,
-                UnitPointsAward = a.Points,
-                UnitPointsPrice = a.PointsPrice,
-                Image = "Cola.png",
-                ProductType = a.ProductType,
-                PurchaseOptions = a.PurchaseOptions
-            }).ToList();
+            ViewState.Product = shopPageViewState?.Products?.Where(a => a.Id == id).FirstOrDefault();
+
+            ViewState.RelatedProducts = shopPageViewState.Products.Take(5).ToList();
         }
 
         #endregion
