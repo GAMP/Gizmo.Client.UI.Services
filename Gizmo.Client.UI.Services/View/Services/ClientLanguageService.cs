@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Gizmo.UI.View.Services;
 using Gizmo.Client.UI.View.States;
-using Gizmo.Shared.UI.Services;
+using Gizmo.UI.Services;
 
 namespace Gizmo.Client.UI.View.Services
 {
