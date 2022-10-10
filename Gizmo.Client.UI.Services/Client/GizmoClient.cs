@@ -50,6 +50,16 @@ namespace Gizmo.Client
         {
             throw new NotImplementedException();
         }
+
+        public Task<ApplicationImage> GetApplicationImageAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ApplicationExecutableImage> GetApplicationExecutableImageAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class UserLoginResult
