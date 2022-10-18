@@ -7,7 +7,7 @@ using System.Collections.Concurrent;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    public sealed class UserCartService : ViewStateServiceBase<UserCartViewState>
+    public sealed class UserCartService : ValidatingViewStateServiceBase<UserCartViewState>
     {
         #region CONSTRUCTOR
         public UserCartService(UserCartViewState viewState,
@@ -125,6 +125,33 @@ namespace Gizmo.Client.UI.View.Services
             await Task.Delay(1000);
 
             return false;
+        }
+
+        public Task SubmitAsync()
+        {
+            ViewState.IsValid = EditContext.Validate();
+
+            if (ViewState.IsValid != true)
+                return Task.CompletedTask;
+
+            //TODO: A SEND ORDER TO SERVER
+
+            ViewState.IsComplete = true;
+
+            ViewState.RaiseChanged();
+
+            return Task.CompletedTask;
+        }
+
+        public Task ResetAsync()
+        {
+            ViewState.Products.Clear();
+            ViewState.PaymentMethodId = null;
+            ViewState.IsComplete = false;
+
+            ViewState.RaiseChanged();
+
+            return Task.CompletedTask;
         }
 
         #endregion

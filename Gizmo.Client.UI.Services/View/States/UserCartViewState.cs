@@ -1,15 +1,19 @@
-﻿using Gizmo.UI.View.States;
+﻿using Gizmo.UI;
+using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel.DataAnnotations;
 
 namespace Gizmo.Client.UI.View.States
 {
     [Register()]
-    public sealed class UserCartViewState : ViewStateBase
+    public sealed class UserCartViewState : ValidatingViewStateBase
     {
         #region FIELDS
+        private readonly List<UserCartProductViewState> _products = new();
         //private decimal _total;
         //private int _pointsAward;
-        private readonly List<UserCartProductViewState> _products = new();
+        private int? _paymentMethodId;
+        private bool _isCompelte;
         #endregion
 
         #region PROPERTIES
@@ -46,6 +50,20 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _products.Select(a => (a.UnitPointsAward ?? 0) * a.Quantity).Sum(); }
             //internal set { SetProperty(ref _pointsAward, value); }
+        }
+
+        [ValidatingProperty()]
+        [Required()]
+        public int? PaymentMethodId
+        {
+            get { return _paymentMethodId; }
+            set { SetProperty(ref _paymentMethodId, value); }
+        }
+
+        public bool IsComplete
+        {
+            get { return _isCompelte; }
+            set { SetProperty(ref _isCompelte, value); }
         }
 
         #endregion
