@@ -12,7 +12,7 @@ namespace Gizmo.Client.UI.View.States
         private string _oldPassword = string.Empty;
         private string _newPassword = string.Empty;
         private string _repeatPassword = string.Empty;
-        private bool _isCompelte;
+        private bool _isComplete;
         #endregion
 
         #region PROPERTIES
@@ -49,8 +49,8 @@ namespace Gizmo.Client.UI.View.States
 
         public bool IsComplete
         {
-            get { return _isCompelte; }
-            set { SetProperty(ref _isCompelte, value); }
+            get { return _isComplete; }
+            set { SetProperty(ref _isComplete, value); }
         }
 
         #endregion

@@ -9,11 +9,18 @@ namespace Gizmo.Client.UI.View.States
     public sealed class UserPasswordRecoveryViewState : ValidatingViewStateBase
     {
         #region FIELDS
+        private UserPasswordRecoveryMethod _method;
         private string _mobilePhone = string.Empty;
         private string _email = string.Empty;
         #endregion
 
         #region PROPERTIES
+
+        public UserPasswordRecoveryMethod Method
+        {
+            get { return _method; }
+            set { SetProperty(ref _method, value); }
+        }
 
         [ValidatingProperty()]
         public string MobilePhone
