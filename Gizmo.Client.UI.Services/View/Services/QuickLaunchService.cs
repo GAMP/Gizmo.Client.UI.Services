@@ -35,12 +35,12 @@ namespace Gizmo.Client.UI.View.Services
         {
             await base.OnInitializing(ct);
 
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 1, Caption = "Explorer", Image = "_content/Gizmo.Client.UI/img/Places-folder-red-icon 1.png" });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 2, Caption = "Word", Image = "_content/Gizmo.Client.UI/img/Word-2-icon 1.png" });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 3, Caption = "DOTA", Image = "_content/Gizmo.Client.UI/img/dota-2-icon 1.png" });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 1, Caption = "Explorer", Image = "_content/Gizmo.Client.UI/img/Places-folder-red-icon_1.png" });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 2, Caption = "Word", Image = "_content/Gizmo.Client.UI/img/Word-2-icon_1.png" });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 3, Caption = "DOTA", Image = "_content/Gizmo.Client.UI/img/dota-2-icon_1.png" });
             ViewState.Executables.Add(new ExecutableViewState() { Id = 4, Caption = "Spotify", Image = "_content/Gizmo.Client.UI/img/spotify-512.png" });
             ViewState.Executables.Add(new ExecutableViewState() { Id = 5, Caption = "BattleNet", Image = "_content/Gizmo.Client.UI/img/bNet.png" });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", Image = "_content/Gizmo.Client.UI/img/Chrome-icon 1.png" });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", Image = "_content/Gizmo.Client.UI/img/Chrome-icon_1.png" });
         }
     }
 }

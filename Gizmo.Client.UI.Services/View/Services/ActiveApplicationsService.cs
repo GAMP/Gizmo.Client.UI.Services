@@ -40,7 +40,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 Id = a.Id,
                 Caption = a.Caption,
-                Image = "_content/Gizmo.Client.UI/img/Chrome-icon 1.png"
+                Image = "_content/Gizmo.Client.UI/img/Chrome-icon_1.png"
             }).ToList();
 
             ViewState.Executables[0].State = 0;

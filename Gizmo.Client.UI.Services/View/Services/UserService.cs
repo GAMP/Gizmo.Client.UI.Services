@@ -20,7 +20,7 @@ namespace Gizmo.Client.UI.View.Services
             viewState.CurrentTimeProduct = "Six Hours (6) for 10$ Pack";
             viewState.Time = new TimeSpan(6, 36, 59);
             viewState.Points = 416;
-            viewState.Picture = "_content/Gizmo.Client.UI/img/Cyber Punks.png";
+            viewState.Picture = "_content/Gizmo.Client.UI/img/Cyber_Punk.png";
         }
         #endregion
 
