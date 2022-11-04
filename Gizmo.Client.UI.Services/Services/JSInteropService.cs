@@ -1,25 +1,31 @@
-﻿using Microsoft.JSInterop;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 
 namespace Gizmo.Client.UI.Services
 {
     /// <summary>
     /// Java script interop service.
     /// </summary>
-    public class JSInteropService : IDisposable
+    public sealed class JSInteropService : IDisposable
     {
         #region CONSTRUCTOR
-        public JSInteropService(IJSRuntime jSRuntime, View.States.UserLoginViewState userLoginViewState)
+        public JSInteropService(IJSRuntime jSRuntime,
+            IServiceProvider serviceProvider,
+            ILogger<JSInteropService> logger)
         {
             _jsRuntime = jSRuntime;
+            _logger = logger;
+            _serviceProvider = serviceProvider;
             _objectReference = DotNetObjectReference.Create(this);
-            State = userLoginViewState;
         }
         #endregion
 
         #region FIELDS
-        private readonly string FUNCTION_CLASS_PREFIX = "UIFunctions";
         private readonly IJSRuntime _jsRuntime;
         private readonly DotNetObjectReference<JSInteropService> _objectReference;
+        private readonly ILogger<JSInteropService> _logger;
+        private readonly IServiceProvider _serviceProvider;
         #endregion
 
         #region PROPERTIES
@@ -42,16 +48,21 @@ namespace Gizmo.Client.UI.Services
 
         #endregion
 
-        View.States.UserLoginViewState State
+        #region FUNCTIONS
+
+        [JSInvokable()]
+        public Task SetPasswordAsync(string password)
         {
-            get;set;
+            var state = _serviceProvider.GetRequiredService<View.States.UserLoginViewState>();
+            state.Password = password;
+            return Task.CompletedTask;
         }
 
-        [JSInvokable(nameof(SetNumberAsync))]
-        public Task SetNumberAsync(int number)
+        [JSInvokable()]
+        public Task SetUsernameAsync(string username)
         {
-            State.LoginName = number.ToString();
-            State.RaiseChanged();
+            var state = _serviceProvider.GetRequiredService<View.States.UserLoginViewState>();
+            state.LoginName = username;
             return Task.CompletedTask;
         }
 
@@ -59,21 +70,21 @@ namespace Gizmo.Client.UI.Services
         {
             try
             {
-                await JSRuntime.InvokeVoidAsync($"{FUNCTION_CLASS_PREFIX}.{nameof(SetNumberAsync)}", ObjectReference);
+                await JSRuntime.InvokeVoidAsync("ClientFunctions.SetDotnetObjectReference", ObjectReference);
             }
-            catch (JSException jsex)
+            catch (Exception ex)
             {
-               //js error
-            }
-            catch (Exception)
-            {
-
+                _logger.LogCritical(ex, "Could not initalize client javascrip interop.");
             }
         }
 
+        #endregion
+
+        #region IDisposable
         public void Dispose()
         {
             _objectReference.Dispose();
-        }
+        } 
+        #endregion
     }
 }
