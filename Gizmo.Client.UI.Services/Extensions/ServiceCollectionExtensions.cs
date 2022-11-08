@@ -54,6 +54,8 @@ namespace Gizmo.Client.UI.Services
 
             //add localization service
             services.AddSingleton<ILocalizationService, UILocalizationService>();
+           
+            services.AddSingleton<ImageService>();
 
             //use appropriate component discovery service based on current platform
             if (_isWebBrowser)
@@ -65,7 +67,6 @@ namespace Gizmo.Client.UI.Services
             {
                 //add in memory configuration store as singelton
                 services.AddSingleton((sp) => _clientInMemoryConfiurationSource);
-
                 services.AddSingleton<DesktopComponentDiscoveryService>();
                 services.AddSingleton<IComponentDiscoveryService>((sp) => sp.GetRequiredService<DesktopComponentDiscoveryService>());
             }
