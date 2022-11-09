@@ -51,7 +51,7 @@ namespace Gizmo.Client.UI.View.Services
                 Id = a.Id,
                 ApplicationGroupId = a.ApplicationCategoryId,
                 Title = a.Title,
-                Image = "Apex.png",
+                ImageId = null,
                 Ratings = random.Next(0, 100),
                 Rate = ((decimal)random.Next(1, 50)) / 10,
                 ReleaseDate = new DateTime(2019, 10, 22),

@@ -88,7 +88,7 @@ namespace Gizmo.Client.UI.View.Services
                     Id = a.Id,
                     ApplicationGroupId = a.ApplicationCategoryId,
                     Title = a.Title,
-                    Image = "Apex.png",
+                    ImageId = null,
                     Ratings = random.Next(0, 100),
                     Rate = ((decimal)random.Next(1, 50)) / 10,
                     ReleaseDate = new DateTime(2019, 10, 22),
@@ -97,7 +97,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 foreach (var app in tmpApplications.Where(a => a.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
                 {
-                    ViewState.ApplicationResults.Add(new SearchResultViewState() { Type = SearchResultTypes.Application, Id = app.Id, Name = app.Title, Image = app.Image });
+                    ViewState.ApplicationResults.Add(new SearchResultViewState() { Type = SearchResultTypes.Application, Id = app.Id, Name = app.Title, ImageId = app.ImageId });
                 }
             }
 
@@ -113,14 +113,14 @@ namespace Gizmo.Client.UI.View.Services
                     UnitPrice = a.Price,
                     UnitPointsAward = a.Points,
                     UnitPointsPrice = a.PointsPrice,
-                    Image = "Cola.png",
+                    ImageId = null,
                     ProductType = a.ProductType,
                     PurchaseOptions = a.PurchaseOptions
                 }).ToList();
 
                 foreach (var product in tmpProducts.Where(a => a.Name.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
                 {
-                    ViewState.ProductResults.Add(new SearchResultViewState() { Type = SearchResultTypes.Product, Id = product.Id, Name = product.Name, Image = product.Image });
+                    ViewState.ProductResults.Add(new SearchResultViewState() { Type = SearchResultTypes.Product, Id = product.Id, Name = product.Name, ImageId = product.ImageId });
                 }
             }
 

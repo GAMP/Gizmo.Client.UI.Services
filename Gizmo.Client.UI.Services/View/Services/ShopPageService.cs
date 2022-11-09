@@ -54,7 +54,7 @@ namespace Gizmo.Client.UI.View.Services
                 UnitPrice = a.Price,
                 UnitPointsAward = a.Points,
                 UnitPointsPrice = a.PointsPrice,
-                Image = "Cola.png",
+                ImageId = null,
                 ProductType = a.ProductType,
                 PurchaseOptions = a.PurchaseOptions
             }).ToList();
@@ -66,7 +66,7 @@ namespace Gizmo.Client.UI.View.Services
                 product.BundledProducts = bundledProducts.Data.Select(a => new ProductViewState()
                 {
                     Id = a.Id,
-                    Image = "Cola.png"
+                    ImageId = null
                 }).ToList();
             }
         }

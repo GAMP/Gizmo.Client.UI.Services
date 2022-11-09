@@ -9,7 +9,7 @@ namespace Gizmo.Client.UI.View.States
         #region FIELDS
         private int _id;
         private string _name = string.Empty;
-        private string _image = string.Empty;
+        private int? _image;
         private int _state;
         private decimal _statePercentage;
         #endregion
@@ -28,7 +28,7 @@ namespace Gizmo.Client.UI.View.States
             internal set { SetProperty(ref _name, value); }
         }
 
-        public string Image
+        public int? ImageId
         {
             get { return _image; }
             internal set { SetProperty(ref _image, value); }

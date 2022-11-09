@@ -11,10 +11,10 @@ namespace Gizmo.Client.UI.View.States
         private int _applicationGroupId;
         private string _title = string.Empty;
         private string _description = string.Empty;
-        private string _image = string.Empty;
+        private int? _imageId;
         private int _ratings;
         private decimal _rate;
-        private string _publisher;
+        private string _publisher = string.Empty;
         private DateTime? _releaseDate;
         private DateTime _dateAdded;
 
@@ -47,10 +47,10 @@ namespace Gizmo.Client.UI.View.States
             internal set { SetProperty(ref _description, value); }
         }
 
-        public string Image
+        public int? ImageId
         {
-            get { return _image; }
-            internal set { SetProperty(ref _image, value); }
+            get { return _imageId; }
+            internal set { SetProperty(ref _imageId, value); }
         }
 
         public int Ratings
