@@ -24,7 +24,6 @@ namespace Gizmo.Client.UI.View.Services
 
         #region PROPERTIES
 
-
         #endregion
 
         #region FUNCTIONS
@@ -62,6 +61,21 @@ namespace Gizmo.Client.UI.View.Services
                     }).ToList();
                 }
             }
+
+            var products = await _gizmoClient.GetProductsAsync(new ProductsFilter());
+            ViewState.PopularProducts = products.Data.Select(a => new ProductViewState()
+            {
+                Id = a.Id,
+                ProductGroupId = a.ProductGroupId,
+                Name = a.Name,
+                Description = a.Description,
+                UnitPrice = a.Price,
+                UnitPointsAward = a.Points,
+                UnitPointsPrice = a.PointsPrice,
+                ImageId = 2,
+                ProductType = a.ProductType,
+                PurchaseOptions = a.PurchaseOptions
+            }).ToList();
         }
     }
 }

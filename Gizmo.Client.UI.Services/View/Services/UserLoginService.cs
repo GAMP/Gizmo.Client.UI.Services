@@ -26,9 +26,44 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return;
 
+            ViewState.IsLogginIn = true;
+            ViewState.RaiseChanged();
+
             try
             {
+                //simulate login task
+                await Task.Delay(1000);
+
                 //initiate login
+                if (ViewState.LoginName == "1")
+                {
+                    //Failed login
+                    ViewState.IsLogginIn = false;
+                    ViewState.HasLoginErrors = true;
+                    ViewState.RaiseChanged();
+
+                    //Reset after some time?
+                    await Task.Delay(10000);
+
+                    ViewState.HasLoginErrors = false;
+                    ViewState.SetDefaults();
+                    ResetValidationErrors();
+
+                    ViewState.RaiseChanged();
+                }
+                else
+                {
+                    //Successful login
+                    ViewState.IsLogginIn = false;
+                    ViewState.HasLoginErrors = false;
+                    ViewState.SetDefaults();
+
+                    ResetValidationErrors();
+
+                    ViewState.RaiseChanged();
+
+                    NavigationService.NavigateTo("/home");
+                }
             }
             catch
             {
@@ -38,20 +73,6 @@ namespace Gizmo.Client.UI.View.Services
             {
 
             }
-
-            ViewState.IsLogginIn = true;
-            ViewState.RaiseChanged();
-
-            //simulate task
-            await Task.Delay(1000);
-
-            ViewState.SetDefaults();
-            ResetValidationErrors();
-
-            ViewState.IsLogginIn = false;
-            ViewState.RaiseChanged();
-
-            NavigationService.NavigateTo("/home");
         }
 
         public Task OpenRegistration()

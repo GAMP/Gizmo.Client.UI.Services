@@ -53,7 +53,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             await base.OnInitializing(ct);
 
-            ViewState.Notifications = Enumerable.Range(1, 3).Select(i => new NotificationViewState()
+            ViewState.Notifications = Enumerable.Range(1, 13).Select(i => new NotificationViewState()
             {
                 Id = i,
                 Time = "1 hour ago",

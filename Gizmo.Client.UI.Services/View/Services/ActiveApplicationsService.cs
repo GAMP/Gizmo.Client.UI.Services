@@ -48,6 +48,16 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Executables[2].State = 2;
             ViewState.Executables[2].StatePercentage = 43.5m;
             ViewState.Executables[3].State = 3;
+
+            for (int i = 0; i < 30; i++)
+            {
+                ViewState.Executables.Add(new ExecutableViewState()
+                {
+                    Id = 12,
+                    Caption = "Test",
+                    ImageId = null
+                });
+            }
         }
     }
 }

@@ -13,6 +13,7 @@ namespace Gizmo.Client.UI.View.States
         private UserLoginType _userLoginType;
         private string? _loginName;
         private string? _password;
+        private bool _hasLoginErrors;
         #endregion
 
         #region PROPERTIES
@@ -52,6 +53,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _password; }
             set { SetProperty(ref _password, value); }
+        }
+
+        public bool HasLoginErrors
+        {
+            get { return _hasLoginErrors; }
+            set { SetProperty(ref _hasLoginErrors, value); }
         }
 
         #endregion

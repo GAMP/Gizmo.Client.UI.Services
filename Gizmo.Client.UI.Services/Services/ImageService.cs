@@ -1,4 +1,5 @@
 ﻿using Gizmo.UI;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using System.Runtime.InteropServices;
@@ -13,14 +14,16 @@ namespace Gizmo.Client.UI.Services
     public sealed class ImageService
     {
         #region CONSTRUCTOR
-        public ImageService(ILogger<ImageService> logger)
+        public ImageService(ILogger<ImageService> logger, NavigationManager navigationManager)
         {
             _logger = logger;
+            _navigationManager = navigationManager;
         }
         #endregion
 
         #region FIELDS
         private readonly ILogger _logger;
+        private readonly NavigationManager _navigationManager;
         private static readonly bool _isWebBrowser = RuntimeInformation.IsOSPlatform(OSPlatform.Create("browser"));
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(100);
         private readonly RecyclableMemoryStreamManager _memoryStreamManager = new();
@@ -88,7 +91,9 @@ namespace Gizmo.Client.UI.Services
             {
                 using (var httpClient = new HttpClient())
                 {
-                    image = await httpClient.GetByteArrayAsync(@"https://sportshub.cbsistatic.com/i/2022/05/25/a9564e17-4ae5-4637-8843-045cf48979dc/modern-warfare-2-cover-art.jpg?auto=webp&width=1539&height=1920&crop=0.802:1,smart", cancellationToken);
+                    var url = _navigationManager.BaseUri.ToString() + @"_content/Gizmo.Client.UI/img/Apex.png";
+                    image = await httpClient.GetByteArrayAsync(url, cancellationToken);
+                    //image = await httpClient.GetByteArrayAsync(@"https://sportshub.cbsistatic.com/i/2022/05/25/a9564e17-4ae5-4637-8843-045cf48979dc/modern-warfare-2-cover-art.jpg?auto=webp&width=1539&height=1920&crop=0.802:1,smart", cancellationToken);
                 }
             }
 

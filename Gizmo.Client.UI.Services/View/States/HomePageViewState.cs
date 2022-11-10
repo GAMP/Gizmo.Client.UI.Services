@@ -10,6 +10,7 @@ namespace Gizmo.Client.UI.View.States
         private List<ApplicationViewState> _newApplications = new();
         private List<ApplicationViewState> _topRatedApplications = new();
         private List<ApplicationViewState> _mostUsedApplications = new();
+        private List<ProductViewState> _popularProducts = new();
         #endregion
 
         #region PROPERTIES
@@ -30,6 +31,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _mostUsedApplications; }
             internal set { _mostUsedApplications = value; }
+        }
+
+        public List<ProductViewState> PopularProducts
+        {
+            get { return _popularProducts; }
+            internal set { _popularProducts = value; }
         }
 
         #endregion
