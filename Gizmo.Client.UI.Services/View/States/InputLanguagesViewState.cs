@@ -3,7 +3,7 @@
 namespace Gizmo.Client.UI.View.States
 {
     [Register()]
-    public sealed class SystemLanguageViewState : LanguagesViewStateBase
-    {  
+    public sealed class InputLanguagesViewState : LanguagesViewStateBase
+    {
     }
 }

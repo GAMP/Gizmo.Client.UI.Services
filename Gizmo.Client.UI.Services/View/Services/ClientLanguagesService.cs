@@ -7,25 +7,25 @@ using Gizmo.UI.Services;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    public sealed class ClientLanguageService : ViewStateServiceBase<ClientLanguageViewState>
+    public sealed class ClientLanguagesService : ViewStateServiceBase<ClientLanguagesViewState>
     {
         #region CONSTRUCTOR
-        public ClientLanguageService(ClientLanguageViewState viewState,
+        public ClientLanguagesService(ClientLanguagesViewState viewState,
             ILocalizationService localizationService,
-            ILogger<ClientLanguageService> logger,
+            ILogger<ClientLanguagesService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger,serviceProvider)
         {
-            _loicalizationService = localizationService;
+            _localizationService = localizationService;
         }
         #endregion
 
         #region FIELDS
-        private readonly ILocalizationService _loicalizationService; 
+        private readonly ILocalizationService _localizationService; 
         #endregion
 
         protected override Task OnInitializing(CancellationToken ct)
         {
-            foreach (var culture in _loicalizationService.SupportedRegions)
+            foreach (var culture in _localizationService.SupportedRegions)
             {
                 var viewState = GetViewState<RegionViewState>((state) =>
                 {
@@ -36,13 +36,23 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.Regions.Add(viewState);
             }
 
+            ViewState.SelectedRegion = ViewState.Regions.FirstOrDefault();
+
             return base.OnInitializing(ct);
         }
 
-        public Task SetCurrentLanguageAsync(int twoLetterRegionName)
+        public Task SetCurrentRegionAsync(string twoLetterRegionName)
         {
-            if (twoLetterRegionName <= 0)
+            var region = ViewState.Regions.Where(a => a.TwoLetterISORegionName == twoLetterRegionName).FirstOrDefault();
+            if (region != null)
+            {
+                ViewState.SelectedRegion = region;
+                ViewState.RaiseChanged();
+            }
+            else
+            {
                 Logger.LogError("Invalid region id {regionId} specified.", twoLetterRegionName);
+            }
 
             return Task.CompletedTask;
         }
