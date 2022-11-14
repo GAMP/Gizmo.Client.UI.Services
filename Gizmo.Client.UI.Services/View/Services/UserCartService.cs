@@ -127,20 +127,34 @@ namespace Gizmo.Client.UI.View.Services
             return false;
         }
 
-        public Task SubmitAsync()
+        public async Task SubmitAsync()
         {
             ViewState.IsValid = EditContext.Validate();
 
             if (ViewState.IsValid != true)
-                return Task.CompletedTask;
+                return;
 
-            //TODO: A SEND ORDER TO SERVER
-
-            ViewState.IsComplete = true;
-
+            ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 
-            return Task.CompletedTask;
+            try
+            {
+                // Simulate task.
+                await Task.Delay(2000);
+
+                ViewState.IsLoading = false;
+
+                ViewState.IsComplete = true;
+                ViewState.RaiseChanged();
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
         }
 
         public Task ResetAsync()

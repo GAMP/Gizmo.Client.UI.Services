@@ -12,7 +12,9 @@ namespace Gizmo.Client.UI.View.States
         private readonly List<UserCartProductViewState> _products = new();
         //private decimal _total;
         //private int _pointsAward;
+        private string _notes = string.Empty;
         private int? _paymentMethodId;
+        private bool _isLoading;
         private bool _isCompelte;
         #endregion
 
@@ -53,11 +55,24 @@ namespace Gizmo.Client.UI.View.States
         }
 
         [ValidatingProperty()]
+        public string Notes
+        {
+            get { return _notes; }
+            set { SetProperty(ref _notes, value); }
+        }
+
+        [ValidatingProperty()]
         [Required()]
         public int? PaymentMethodId
         {
             get { return _paymentMethodId; }
             set { SetProperty(ref _paymentMethodId, value); }
+        }
+
+        public bool IsLoading
+        {
+            get { return _isLoading; }
+            set { _isLoading = value; }
         }
 
         public bool IsComplete

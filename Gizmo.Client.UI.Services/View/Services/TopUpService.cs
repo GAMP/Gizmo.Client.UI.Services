@@ -37,17 +37,34 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        public Task SubmitAsync()
+        public async Task SubmitAsync()
         {
             ViewState.IsValid = EditContext.Validate();
 
             if (ViewState.IsValid != true)
-                return Task.CompletedTask;
+                return;
 
-            ViewState.PageIndex = 1;
+            ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 
-            return Task.CompletedTask;
+            try
+            {
+                // Simulate task.
+                await Task.Delay(2000);
+
+                ViewState.IsLoading = false;
+
+                ViewState.PageIndex = 1;
+                ViewState.RaiseChanged();
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
         }
 
         public Task PayFromPC()

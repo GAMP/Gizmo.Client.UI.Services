@@ -8,12 +8,19 @@ namespace Gizmo.Client.UI.View.States
     public sealed class TopUpViewState : ValidatingViewStateBase
     {
         #region FIELDS
+        private bool _isLoading;
         private int _pageIndex;
         private List<decimal> _presets = new();
         private decimal _amount;
         #endregion
 
         #region PROPERTIES
+
+        public bool IsLoading
+        {
+            get { return _isLoading; }
+            set { _isLoading = value; }
+        }
 
         public int PageIndex
         {
