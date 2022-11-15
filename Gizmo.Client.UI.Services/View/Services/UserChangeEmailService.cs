@@ -17,12 +17,34 @@ namespace Gizmo.Client.UI.View.Services
         }
         #endregion
 
-        public Task SendConfirmationCodeAsync()
+        public async Task SendConfirmationCodeAsync()
         {
-            ViewState.PageIndex = 1;
+            ViewState.IsValid = EditContext.Validate();
+
+            //if (ViewState.IsValid != true)
+            //    return;
+
+            ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 
-            return Task.CompletedTask;
+            try
+            {
+                // Simulate task.
+                await Task.Delay(2000);
+
+                ViewState.IsLoading = false;
+
+                ViewState.PageIndex = 1;
+                ViewState.RaiseChanged();
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
         }
 
         public Task VerifyAsync()

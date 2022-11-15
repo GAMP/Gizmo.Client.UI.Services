@@ -9,8 +9,11 @@ namespace Gizmo.Client.UI.View.States
     {
         #region FIELDS
         private UserRegistrationMethod _confirmationMethod;
-        private string _email = String.Empty;
-        private string _mobilePhone = String.Empty;
+        private string _email = string.Empty;
+        private string _mobilePhone = string.Empty;
+        private bool _isLoading;
+        private bool _canResend;
+        private TimeSpan _resendTimeLeft;
         #endregion
 
         #region PROPERTIES
@@ -33,6 +36,24 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _mobilePhone; }
             set { SetProperty(ref _mobilePhone, value); }
+        }
+
+        public bool IsLoading
+        {
+            get { return _isLoading; }
+            set { _isLoading = value; }
+        }
+
+        public bool CanResend
+        {
+            get { return _canResend; }
+            internal set { SetProperty(ref _canResend, value); }
+        }
+
+        public TimeSpan ResendTimeLeft
+        {
+            get { return _resendTimeLeft; }
+            internal set { SetProperty(ref _resendTimeLeft, value); }
         }
 
         #endregion

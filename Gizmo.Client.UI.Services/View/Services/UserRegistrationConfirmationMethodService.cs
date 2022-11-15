@@ -17,15 +17,40 @@ namespace Gizmo.Client.UI.View.Services
         }
         #endregion
 
-        public Task SubmitAsync()
+        public async Task SubmitAsync()
         {
             ViewState.IsValid = EditContext.Validate();
 
             if (ViewState.IsValid != true)
-                return Task.CompletedTask;
+                return;
 
-            NavigationService.NavigateTo("/registrationconfirmation");
-            return Task.CompletedTask;
+            ViewState.IsLoading = true;
+            ViewState.RaiseChanged();
+
+            try
+            {
+                // Simulate task.
+                await Task.Delay(2000);
+
+                ViewState.IsLoading = false;
+
+                ViewState.CanResend = false;
+
+                NavigationService.NavigateTo("/registrationconfirmation");
+
+                //TODO: A
+                ViewState.CanResend = false;
+                await Task.Delay(5000);
+                ViewState.RaiseChanged();
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+
+            }
         }
     }
 }

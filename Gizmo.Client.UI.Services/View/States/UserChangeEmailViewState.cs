@@ -10,8 +10,9 @@ namespace Gizmo.Client.UI.View.States
     {
         #region FIELDS
         private int _pageIndex;
-        private string _email = String.Empty;
-        private string _confirmationCode = String.Empty;
+        private string _email = string.Empty;
+        private bool _isLoading;
+        private string _confirmationCode = string.Empty;
         private bool _isComplete;
         #endregion
 
@@ -29,6 +30,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _email; }
             set { SetProperty(ref _email, value); }
+        }
+
+        public bool IsLoading
+        {
+            get { return _isLoading; }
+            set { _isLoading = value; }
         }
 
         [ValidatingProperty()]
