@@ -1,5 +1,4 @@
-﻿using Gizmo.Client.UI.Services.Services;
-using Gizmo.UI.Services;
+﻿using Gizmo.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using System.Reflection;
@@ -57,8 +56,6 @@ namespace Gizmo.Client.UI.Services
             //add localization service
             services.AddSingleton<ILocalizationService, UILocalizationService>();
 
-            services.AddSingleton<IClientDialogService, ClientDialogService>();
-            services.AddSingleton<IDialogService>(sp=>sp.GetRequiredService<IClientDialogService>());
             services.AddSingleton<ImageService>();
 
             //use appropriate component discovery service based on current platform
