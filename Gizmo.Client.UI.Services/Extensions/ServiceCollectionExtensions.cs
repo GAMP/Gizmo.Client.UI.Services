@@ -14,6 +14,7 @@ namespace Gizmo.Client.UI.Services
         #region FIELDS
         private static readonly bool _isWebBrowser = RuntimeInformation.IsOSPlatform(OSPlatform.Create("browser"));
         private static readonly Assembly _executingAssembly = Assembly.GetExecutingAssembly();
+        private static readonly Assembly _uiAssembly = typeof(Gizmo.UI.Services.ComponentDiscoveryServiceBase).Assembly;
         private static readonly ClientInMemoryConfiurationSource _clientInMemoryConfiurationSource = new();
         #endregion
 
@@ -54,14 +55,16 @@ namespace Gizmo.Client.UI.Services
 
             //add localization service
             services.AddSingleton<ILocalizationService, UILocalizationService>();
-           
+
+            services.AddSingleton<DialogService>();
+
             services.AddSingleton<ImageService>();
 
             //use appropriate component discovery service based on current platform
             if (_isWebBrowser)
             {
                 services.AddSingleton<WebAssemblyComponentDiscoveryService>();
-                services.AddSingleton<IComponentDiscoveryService>((sp)=>sp.GetRequiredService<WebAssemblyComponentDiscoveryService>());
+                services.AddSingleton<IComponentDiscoveryService>((sp) => sp.GetRequiredService<WebAssemblyComponentDiscoveryService>());
             }
             else
             {
@@ -84,7 +87,10 @@ namespace Gizmo.Client.UI.Services
         /// <returns>Service collection.</returns>
         private static IServiceCollection AddClientViewServices(this IServiceCollection services)
         {
-            //add any Gizmo.UI view services.
+            //add any view services contained in Gizmo.UI assembly
+            _ = Gizmo.UI.ServiceCollectionExtensions.AddViewServices(services, _uiAssembly);
+
+            //add any view services in executing assembly Gizmo.Client.UI.Services
             return Gizmo.UI.ServiceCollectionExtensions.AddViewServices(services, _executingAssembly);
         }
 
@@ -95,7 +101,10 @@ namespace Gizmo.Client.UI.Services
         /// <returns>Service collection.</returns>
         private static IServiceCollection AddClientViewStates(this IServiceCollection services)
         {
-            //add any Gizmo.UI view states.
+            //add any view states contained in Gizmo.UI assembly
+            _ = Gizmo.UI.ServiceCollectionExtensions.AddViewStates(services, _uiAssembly);
+
+            //add any view states in executing assembly Gizmo.Client.UI.Services
             return Gizmo.UI.ServiceCollectionExtensions.AddViewStates(services, _executingAssembly);
         }
 
