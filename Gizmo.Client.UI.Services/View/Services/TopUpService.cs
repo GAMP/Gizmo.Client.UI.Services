@@ -1,4 +1,6 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,14 +14,18 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public TopUpService(TopUpViewState viewState,
             ILogger<TopUpService> logger,
-            IServiceProvider serviceProvider, IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            IGizmoClient gizmoClient,
+            IClientDialogService dialogService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
+            _dialogService = dialogService;
         }
         #endregion
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
+        private readonly IClientDialogService _dialogService;
         #endregion
 
         #region PROPERTIES
@@ -27,6 +33,21 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region FUNCTIONS
+
+        public async Task ShowDialogAsync()
+        {
+            var s = await _dialogService.ShowTopUpDialogAsync();
+            if (s.Result == DialogAddResult.Success)
+            {
+                try
+                {
+                    var result = await s.WaitForDialogResultAsync();
+                }
+                catch (OperationCanceledException)
+                {
+                }
+            }
+        }
 
         public void SelectPreset(decimal amount)
         {
