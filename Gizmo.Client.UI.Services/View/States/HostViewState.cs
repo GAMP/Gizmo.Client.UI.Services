@@ -29,6 +29,7 @@ namespace Gizmo.Client.UI.View.States
         public bool IsLocked
         {
             get { return _isLocked; }
+            internal set { _isLocked = value; }
         }
 
         public bool IsConnected

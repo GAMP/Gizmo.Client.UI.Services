@@ -26,6 +26,7 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
         private readonly IClientDialogService _dialogService;
+        private CancellationTokenSource _dialogCancellationTokenSource;
         #endregion
 
         #region PROPERTIES
@@ -36,7 +37,14 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task ShowDialogAsync()
         {
-            var s = await _dialogService.ShowTopUpDialogAsync();
+            if (_dialogCancellationTokenSource != null)
+            {
+                _dialogCancellationTokenSource.Dispose();
+            }
+
+            _dialogCancellationTokenSource = new CancellationTokenSource();
+
+            var s = await _dialogService.ShowTopUpDialogAsync(_dialogCancellationTokenSource.Token);
             if (s.Result == DialogAddResult.Success)
             {
                 try
@@ -90,6 +98,8 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task PayFromPC()
         {
+            _dialogCancellationTokenSource.Cancel();
+
             ViewState.PageIndex = 0;
             ViewState.RaiseChanged();
 

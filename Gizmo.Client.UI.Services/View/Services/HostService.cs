@@ -28,6 +28,16 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
+        public Task SetHostLockStateAsync(bool value)
+        {
+            //Test only.
+            ViewState.IsLocked = value;
+
+            ViewState.RaiseChanged();
+
+            return Task.CompletedTask;
+        }
+
         #endregion
     }
 }
