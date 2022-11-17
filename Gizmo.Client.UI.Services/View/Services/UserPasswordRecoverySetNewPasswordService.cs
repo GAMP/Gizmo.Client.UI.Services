@@ -18,18 +18,8 @@ namespace Gizmo.Client.UI.View.Services
         }
         #endregion
 
-        protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
-        {
-            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
 
-            if (fieldIdentifier.FieldName == nameof(ViewState.NewPassword) || fieldIdentifier.FieldName == nameof(ViewState.RepeatPassword))
-            {
-                if (!string.IsNullOrEmpty(ViewState.NewPassword) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.NewPassword, ViewState.RepeatPassword) != 0)
-                {
-                    validationMessageStore.Add(() => ViewState.RepeatPassword, "Password do not match!");
-                }
-            }
-        }
+        #region FUNCTIONS
 
         public Task SubmitAsync()
         {
@@ -41,5 +31,24 @@ namespace Gizmo.Client.UI.View.Services
             NavigationService.NavigateTo("/");
             return Task.CompletedTask;
         }
+
+        #endregion
+
+        #region OVERRIDES
+
+        protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        {
+            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
+
+            if (fieldIdentifier.FieldName == nameof(ViewState.NewPassword) || fieldIdentifier.FieldName == nameof(ViewState.RepeatPassword))
+            {
+                if (!string.IsNullOrEmpty(ViewState.NewPassword) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.NewPassword, ViewState.RepeatPassword) != 0)
+                {
+                    validationMessageStore.Add(() => ViewState.RepeatPassword, "Passwords do not match!");
+                }
+            }
+        }
+
+        #endregion
     }
 }

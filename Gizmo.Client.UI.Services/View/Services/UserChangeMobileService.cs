@@ -14,15 +14,22 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserChangeMobileService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
+            _timer.Elapsed += timer_Elapsed;
         }
+        #endregion
+
+        #region FIELDS
+
+        private System.Timers.Timer _timer = new System.Timers.Timer(1000);
+
         #endregion
 
         public async Task SendConfirmationCodeAsync()
         {
             ViewState.IsValid = EditContext.Validate();
 
-            //if (ViewState.IsValid != true)
-            //    return;
+            if (ViewState.IsValid != true)
+                return;
 
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
@@ -31,6 +38,10 @@ namespace Gizmo.Client.UI.View.Services
             {
                 // Simulate task.
                 await Task.Delay(2000);
+
+                ViewState.CanResend = false;
+                ViewState.ResendTimeLeft = TimeSpan.FromMinutes(5);
+                _timer.Start();
 
                 ViewState.IsLoading = false;
 
@@ -45,6 +56,20 @@ namespace Gizmo.Client.UI.View.Services
             {
 
             }
+        }
+
+        private void timer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
+        {
+            ViewState.ResendTimeLeft = ViewState.ResendTimeLeft.Subtract(TimeSpan.FromSeconds(1));
+
+            if (ViewState.ResendTimeLeft.TotalSeconds == 0)
+            {
+                ViewState.CanResend = true;
+
+                _timer.Stop();
+            }
+
+            ViewState.RaiseChanged();
         }
 
         public Task VerifyAsync()
@@ -72,5 +97,19 @@ namespace Gizmo.Client.UI.View.Services
 
             return Task.CompletedTask;
         }
+
+        #region OVERRIDES
+
+        protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        {
+            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
+
+            if (ViewState.PageIndex == 1 && fieldIdentifier.FieldName == nameof(ViewState.ConfirmationCode) && string.IsNullOrEmpty(ViewState.ConfirmationCode))
+            {
+                validationMessageStore.Add(() => ViewState.ConfirmationCode, "The confirmatin code field is required.");
+            }
+        }
+
+        #endregion
     }
 }

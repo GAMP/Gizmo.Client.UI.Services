@@ -12,6 +12,7 @@ namespace Gizmo.Client.UI.View.States
         private UserPasswordRecoveryMethod _method;
         private string _mobilePhone = string.Empty;
         private string _email = string.Empty;
+        private bool _isLoading;
         #endregion
 
         #region PROPERTIES
@@ -19,7 +20,7 @@ namespace Gizmo.Client.UI.View.States
         public UserPasswordRecoveryMethod Method
         {
             get { return _method; }
-            set { SetProperty(ref _method, value); }
+            internal set { SetProperty(ref _method, value); }
         }
 
         [ValidatingProperty()]
@@ -30,11 +31,16 @@ namespace Gizmo.Client.UI.View.States
         }
 
         [ValidatingProperty()]
-        [Required()]
         public string Email
         {
             get { return _email; }
             set { SetProperty(ref _email, value); }
+        }
+
+        public bool IsLoading
+        {
+            get { return _isLoading; }
+            internal set { _isLoading = value; }
         }
 
         #endregion

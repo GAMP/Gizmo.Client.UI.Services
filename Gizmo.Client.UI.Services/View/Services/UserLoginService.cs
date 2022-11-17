@@ -17,6 +17,15 @@ namespace Gizmo.Client.UI.View.Services
         }
         #endregion
 
+        #region FUNCTIONS
+
+        public void SetLoginMethod(UserLoginType userLoginType)
+        {
+            ViewState.LoginType = userLoginType;
+
+            ViewState.RaiseChanged();
+        }
+
         public async Task LoginAsync()
         {
             //always validate state on submission
@@ -54,6 +63,8 @@ namespace Gizmo.Client.UI.View.Services
                 else
                 {
                     //Successful login
+                    NavigationService.NavigateTo("/home");
+
                     ViewState.IsLogginIn = false;
                     ViewState.HasLoginErrors = false;
                     ViewState.SetDefaults();
@@ -61,8 +72,6 @@ namespace Gizmo.Client.UI.View.Services
                     ResetValidationErrors();
 
                     ViewState.RaiseChanged();
-
-                    NavigationService.NavigateTo("/home");
                 }
             }
             catch
@@ -86,5 +95,7 @@ namespace Gizmo.Client.UI.View.Services
             NavigationService.NavigateTo("/");
             return Task.CompletedTask;
         }
+
+        #endregion
     }
 }

@@ -27,7 +27,6 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region FUNCTIONS
-
         #endregion
 
         protected override async Task OnInitializing(CancellationToken ct)

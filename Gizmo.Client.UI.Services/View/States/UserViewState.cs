@@ -8,14 +8,13 @@ namespace Gizmo.Client.UI.View.States
     {
         #region FIELDS
         private int _id;
-        private string _username = String.Empty;
+        private string _username = string.Empty;
         private DateTime _registrationDate;
         private decimal _balance;
-        private string _currentTimeProduct = String.Empty;
+        private string _currentTimeProduct = string.Empty;
         private TimeSpan _time;
         private int _points;
-        private string _picture = String.Empty;
-        private bool _isLocked;
+        private string _picture = string.Empty;
         #endregion
 
         #region PROPERTIES

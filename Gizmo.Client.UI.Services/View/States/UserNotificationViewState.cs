@@ -7,8 +7,8 @@ namespace Gizmo.Client.UI.View.States
     public sealed class UserNotificationViewState : ViewStateBase
     {
         #region FIELDS
-        private string _title;
-        private string _text;
+        private string _title = string.Empty;
+        private string _text = string.Empty;
         private UserNotificationState _state;
         private int _notificationId;
         #endregion

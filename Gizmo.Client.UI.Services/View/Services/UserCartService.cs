@@ -127,6 +127,13 @@ namespace Gizmo.Client.UI.View.Services
             return false;
         }
 
+        public void SetOrderPaymentMethod(int? paymentMethodId)
+        {
+            ViewState.PaymentMethodId = paymentMethodId;
+
+            ViewState.RaiseChanged();
+        }
+
         public async Task SubmitAsync()
         {
             ViewState.IsValid = EditContext.Validate();

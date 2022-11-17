@@ -17,7 +17,7 @@ namespace Gizmo.Client.UI.View.States
         private int? _unitPointsAward;
         private int? _imageId;
         private PurchaseOptionType _purchaseOptions;
-        private List<ProductViewState> _bundledProducts;
+        private List<ProductViewState> _bundledProducts = new();
         #endregion
 
         #region PROPERTIES

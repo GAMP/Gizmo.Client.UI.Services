@@ -50,7 +50,7 @@ namespace Gizmo.Client.UI.View.States
         public bool IsComplete
         {
             get { return _isComplete; }
-            set { SetProperty(ref _isComplete, value); }
+            internal set { SetProperty(ref _isComplete, value); }
         }
 
         #endregion

@@ -66,19 +66,19 @@ namespace Gizmo.Client.UI.View.States
         public int? PaymentMethodId
         {
             get { return _paymentMethodId; }
-            set { SetProperty(ref _paymentMethodId, value); }
+            internal set { SetProperty(ref _paymentMethodId, value); }
         }
 
         public bool IsLoading
         {
             get { return _isLoading; }
-            set { _isLoading = value; }
+            internal set { _isLoading = value; }
         }
 
         public bool IsComplete
         {
             get { return _isCompelte; }
-            set { SetProperty(ref _isCompelte, value); }
+            internal set { SetProperty(ref _isCompelte, value); }
         }
 
         #endregion

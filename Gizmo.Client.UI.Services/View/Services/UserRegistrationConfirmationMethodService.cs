@@ -2,6 +2,7 @@
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -19,11 +20,14 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.ConfirmationMethod = UserRegistrationMethod.Email;
             _dialogService = dialogService;
+
+            _timer.Elapsed += timer_Elapsed;
         }
         #endregion
 
         #region FIELDS
         private readonly IClientDialogService _dialogService;
+        private System.Timers.Timer _timer = new System.Timers.Timer(1000);
         #endregion
 
         #region FUNCTIONS
@@ -62,11 +66,12 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.IsLoading = false;
 
                 ViewState.CanResend = false;
+                ViewState.ResendTimeLeft = TimeSpan.FromMinutes(5);
+                _timer.Start();
 
                 NavigationService.NavigateTo("/registrationconfirmation");
 
                 //TODO: A
-                ViewState.CanResend = false;
                 await Task.Delay(5000);
                 ViewState.RaiseChanged();
             }
@@ -77,6 +82,44 @@ namespace Gizmo.Client.UI.View.Services
             finally
             {
 
+            }
+        }
+
+        private void timer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
+        {
+            ViewState.ResendTimeLeft = ViewState.ResendTimeLeft.Subtract(TimeSpan.FromSeconds(1));
+
+            if (ViewState.ResendTimeLeft.TotalSeconds == 0)
+            {
+                ViewState.CanResend = true;
+
+                _timer.Stop();
+            }
+
+            ViewState.RaiseChanged();
+        }
+
+        #endregion
+
+        #region OVERRIDES
+
+        protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        {
+            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
+
+            if (ViewState.ConfirmationMethod == UserRegistrationMethod.Email &&
+                fieldIdentifier.FieldName == nameof(ViewState.Email) &&
+                string.IsNullOrEmpty(ViewState.Email))
+            {
+                validationMessageStore.Add(() => ViewState.Email, "The e-mail field is required.");
+            }
+            
+
+            if (ViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone &&
+                fieldIdentifier.FieldName == nameof(ViewState.MobilePhone) &&
+                string.IsNullOrEmpty(ViewState.MobilePhone))
+            {
+                validationMessageStore.Add(() => ViewState.MobilePhone, "The phone number field is required.");
             }
         }
 

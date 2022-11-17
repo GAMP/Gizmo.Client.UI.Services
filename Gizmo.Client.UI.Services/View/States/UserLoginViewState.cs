@@ -21,7 +21,7 @@ namespace Gizmo.Client.UI.View.States
         public bool IsLogginIn
         {
             get { return _isLogginIn; }
-            set { SetProperty(ref _isLogginIn, value); }
+            internal set { SetProperty(ref _isLogginIn, value); }
         }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace Gizmo.Client.UI.View.States
         public UserLoginType LoginType 
         {
             get { return _userLoginType; }
-            set { SetProperty(ref _userLoginType, value); }
+            internal set { SetProperty(ref _userLoginType, value); }
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Gizmo.Client.UI.View.States
         public bool HasLoginErrors
         {
             get { return _hasLoginErrors; }
-            set { SetProperty(ref _hasLoginErrors, value); }
+            internal set { SetProperty(ref _hasLoginErrors, value); }
         }
 
         #endregion

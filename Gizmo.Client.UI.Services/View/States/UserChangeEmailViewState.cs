@@ -14,6 +14,8 @@ namespace Gizmo.Client.UI.View.States
         private bool _isLoading;
         private string _confirmationCode = string.Empty;
         private bool _isComplete;
+        private bool _canResend;
+        private TimeSpan _resendTimeLeft;
         #endregion
 
         #region PROPERTIES
@@ -21,7 +23,7 @@ namespace Gizmo.Client.UI.View.States
         public int PageIndex
         {
             get { return _pageIndex; }
-            set { _pageIndex = value; }
+            internal set { _pageIndex = value; }
         }
 
         [ValidatingProperty()]
@@ -35,11 +37,10 @@ namespace Gizmo.Client.UI.View.States
         public bool IsLoading
         {
             get { return _isLoading; }
-            set { _isLoading = value; }
+            internal set { _isLoading = value; }
         }
 
         [ValidatingProperty()]
-        [Required()]
         public string ConfirmationCode
         {
             get { return _confirmationCode; }
@@ -49,7 +50,19 @@ namespace Gizmo.Client.UI.View.States
         public bool IsComplete
         {
             get { return _isComplete; }
-            set { SetProperty(ref _isComplete, value); }
+            internal set { SetProperty(ref _isComplete, value); }
+        }
+
+        public bool CanResend
+        {
+            get { return _canResend; }
+            internal set { SetProperty(ref _canResend, value); }
+        }
+
+        public TimeSpan ResendTimeLeft
+        {
+            get { return _resendTimeLeft; }
+            internal set { SetProperty(ref _resendTimeLeft, value); }
         }
 
         #endregion

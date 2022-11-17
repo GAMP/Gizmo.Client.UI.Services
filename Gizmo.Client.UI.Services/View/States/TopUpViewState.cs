@@ -19,13 +19,13 @@ namespace Gizmo.Client.UI.View.States
         public bool IsLoading
         {
             get { return _isLoading; }
-            set { _isLoading = value; }
+            internal set { _isLoading = value; }
         }
 
         public int PageIndex
         {
             get { return _pageIndex; }
-            set { _pageIndex = value; }
+            internal set { _pageIndex = value; }
         }
 
         public List<decimal> Presets
