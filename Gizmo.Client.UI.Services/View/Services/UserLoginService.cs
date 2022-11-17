@@ -75,10 +75,10 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        public Task OpenRegistration()
+        public Task OpenRegistrationAsync()
         {
-            NavigationService.NavigateTo("/registrationconfirmationmethod");
-            return Task.CompletedTask;
+            var userRegistrationConfirmationMethodService = ServiceProvider.GetRequiredService<UserRegistrationConfirmationMethodService>();
+            return userRegistrationConfirmationMethodService.StartRegistrationAsync();
         }
 
         public Task LogοutAsync()

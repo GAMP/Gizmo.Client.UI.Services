@@ -1,5 +1,8 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -11,11 +14,35 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public UserRegistrationConfirmationMethodService(UserRegistrationConfirmationMethodViewState viewState,
             ILogger<UserRegistrationConfirmationMethodService> logger,
-            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            IClientDialogService dialogService) : base(viewState, logger, serviceProvider)
         {
             ViewState.ConfirmationMethod = UserRegistrationMethod.Email;
+            _dialogService = dialogService;
         }
         #endregion
+
+        #region FIELDS
+        private readonly IClientDialogService _dialogService;
+        #endregion
+
+        #region FUNCTIONS
+
+        public async Task StartRegistrationAsync()
+        {
+            var s = await _dialogService.ShowUserAgreementDialogAsync();
+            if (s.Result == DialogAddResult.Success)
+            {
+                try
+                {
+                    var result = await s.WaitForDialogResultAsync();
+                    NavigationService.NavigateTo("/registrationconfirmationmethod");
+                }
+                catch (OperationCanceledException)
+                {
+                }
+            }
+        }
 
         public async Task SubmitAsync()
         {
@@ -52,5 +79,7 @@ namespace Gizmo.Client.UI.View.Services
 
             }
         }
+
+        #endregion
     }
 }
