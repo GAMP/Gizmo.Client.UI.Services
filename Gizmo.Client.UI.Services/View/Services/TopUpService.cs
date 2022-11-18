@@ -96,14 +96,25 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        public Task PayFromPC()
+        public async Task PayFromPC()
         {
             _dialogCancellationTokenSource.Cancel();
 
             ViewState.PageIndex = 0;
             ViewState.RaiseChanged();
 
-            return Task.CompletedTask;
+
+            var s = await _dialogService.ShowPaymentDialogAsync();
+            if (s.Result == DialogAddResult.Success)
+            {
+                try
+                {
+                    var result = await s.WaitForDialogResultAsync();
+                }
+                catch (OperationCanceledException)
+                {
+                }
+            }
         }
 
         #endregion
