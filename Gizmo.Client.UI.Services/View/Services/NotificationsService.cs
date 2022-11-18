@@ -39,7 +39,6 @@ namespace Gizmo.Client.UI.View.Services
             return Task.CompletedTask;
         }
 
-
         public Task MarkAllAsReadAsync()
         {
             ViewState.Notifications.Clear();

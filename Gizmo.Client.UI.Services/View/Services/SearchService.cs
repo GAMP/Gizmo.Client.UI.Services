@@ -3,6 +3,7 @@ using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -12,7 +13,8 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public SearchService(SearchViewState viewState,
             ILogger<SearchService> logger,
-            IServiceProvider serviceProvider, IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
         }
@@ -60,7 +62,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.ShowAll = false;
             ViewState.ShowAllLocally = false;
             ViewState.IsLoading = false;
-            ViewState.SearchPattern = String.Empty;
+            ViewState.SearchPattern = string.Empty;
             ViewState.ApplicationResults.Clear();
             ViewState.ProductResults.Clear();
 
@@ -86,13 +88,13 @@ namespace Gizmo.Client.UI.View.Services
                 var tmpApplications = applications.Data.Select(a => new ApplicationViewState()
                 {
                     Id = a.Id,
-                    ApplicationGroupId = a.ApplicationCategoryId,
+                    ApplicationCategoryId = a.ApplicationCategoryId,
                     Title = a.Title,
-                    ImageId = null,
-                    Ratings = random.Next(0, 100),
-                    Rate = ((decimal)random.Next(1, 50)) / 10,
-                    ReleaseDate = new DateTime(2019, 10, 22),
-                    DateAdded = new DateTime(2021, 3, 12),
+                    Description = a.Description,
+                    PublisherId = a.PublisherId,
+                    ReleaseDate = a.ReleaseDate,
+                    //TODO: A
+                    ImageId = null
                 }).ToList();
 
                 foreach (var app in tmpApplications.Where(a => a.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
@@ -110,12 +112,9 @@ namespace Gizmo.Client.UI.View.Services
                     ProductGroupId = a.ProductGroupId,
                     Name = a.Name,
                     Description = a.Description,
-                    UnitPrice = a.Price,
-                    UnitPointsAward = a.Points,
-                    UnitPointsPrice = a.PointsPrice,
-                    ImageId = null,
                     ProductType = a.ProductType,
-                    PurchaseOptions = a.PurchaseOptions
+                    //TODO: A Get image.
+                    ImageId = null
                 }).ToList();
 
                 foreach (var product in tmpProducts.Where(a => a.Name.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
@@ -130,5 +129,6 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
+
     }
 }

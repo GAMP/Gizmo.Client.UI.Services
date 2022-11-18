@@ -7,11 +7,18 @@ namespace Gizmo.Client.UI.View.States
     public sealed class ShopPageViewState : ViewStateBase
     {
         #region FIELDS
+        private int? _selectedProductGroupId;
         private List<ProductGroupViewState> _productGroups = new();
         private List<ProductViewState> _products = new();
         #endregion
 
         #region PROPERTIES
+
+        public int? SelectedProductGroupId
+        {
+            get { return _selectedProductGroupId; }
+            internal set { _selectedProductGroupId = value; }
+        }
 
         public List<ProductGroupViewState> ProductGroups
         {

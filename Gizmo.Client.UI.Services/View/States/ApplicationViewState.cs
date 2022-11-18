@@ -14,6 +14,7 @@ namespace Gizmo.Client.UI.View.States
         private int? _imageId;
         private int _ratings;
         private decimal _rate;
+        private int? _publisherId;
         private string _publisher = string.Empty;
         private DateTime? _releaseDate;
         private DateTime _dateAdded;
@@ -29,7 +30,7 @@ namespace Gizmo.Client.UI.View.States
             internal set { SetProperty(ref _id, value); }
         }
 
-        public int ApplicationGroupId
+        public int ApplicationCategoryId
         {
             get { return _applicationGroupId; }
             internal set { SetProperty(ref _applicationGroupId, value); }
@@ -63,6 +64,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _rate; }
             internal set { _rate = value; }
+        }
+
+        public int? PublisherId
+        {
+            get { return _publisherId; }
+            internal set { _publisherId = value; }
         }
 
         public string Publisher

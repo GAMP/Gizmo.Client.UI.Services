@@ -12,7 +12,8 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public ProductDetailsPageService(ProductDetailsPageViewState viewState,
             ILogger<ProductDetailsPageService> logger,
-            IServiceProvider serviceProvider, IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
 
@@ -34,6 +35,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             Random random = new Random();
 
+            //TODO: A Load product from cache or get by id?
             var shopPageViewState = ServiceProvider.GetRequiredService<ShopPageViewState>();
 
             ViewState.Product = shopPageViewState?.Products?.Where(a => a.Id == id).FirstOrDefault();

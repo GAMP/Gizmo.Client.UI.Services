@@ -36,7 +36,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Application = applications.Data.Where(a => a.Id == id).Select(a => new ApplicationViewState()
             {
                 Id = a.Id,
-                ApplicationGroupId = a.ApplicationCategoryId,
+                ApplicationCategoryId = a.ApplicationCategoryId,
                 Title = a.Title,
                 ImageId = null,
                 Ratings = random.Next(0, 100),

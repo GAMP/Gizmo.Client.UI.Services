@@ -15,7 +15,7 @@ namespace Gizmo.Client.UI.View.States
         private string _notes = string.Empty;
         private int? _paymentMethodId;
         private bool _isLoading;
-        private bool _isCompelte;
+        private bool _isComplete;
         #endregion
 
         #region PROPERTIES
@@ -77,8 +77,8 @@ namespace Gizmo.Client.UI.View.States
 
         public bool IsComplete
         {
-            get { return _isCompelte; }
-            internal set { SetProperty(ref _isCompelte, value); }
+            get { return _isComplete; }
+            internal set { SetProperty(ref _isComplete, value); }
         }
 
         #endregion

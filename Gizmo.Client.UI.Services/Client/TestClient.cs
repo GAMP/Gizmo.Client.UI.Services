@@ -79,7 +79,7 @@ namespace Gizmo.Client
             return _products.Where(a => a.Id == id).FirstOrDefault();
         }
 
-        public async Task<PagedList<BundledProduct>> GetBundledProducts(int id)
+        public async Task<PagedList<BundledProduct>> GetBundledProductsAsync(int id)
         {
             Random random = new Random();
 
@@ -109,6 +109,19 @@ namespace Gizmo.Client
             return pagedList;
         }
 
+        public async Task<PagedList<ApplicationEnterprise>> GetAppEnterprisesAsync(ApplicationEnterprisesFilter filter)
+        {
+            List<ApplicationEnterprise> applicationEnterprises = Enumerable.Range(0, 4).Select(i => new ApplicationEnterprise()
+            {
+                Id = i + 1,
+                Name = $"Test ({i + 1})"
+            }).ToList();
+
+            var pagedList = new PagedList<ApplicationEnterprise>(applicationEnterprises, new PaginationMetadata());
+
+            return pagedList;
+        }
+
         public async Task<PagedList<Application>> GetApplicationsAsync(ApplicationsFilter filter)
         {
             Random random = new Random();
@@ -119,6 +132,7 @@ namespace Gizmo.Client
                 ApplicationCategoryId = random.Next(1, 5),
                 Title = $"Fortnite ({i + 1})",
                 Description = "Fall Guys is a massively multiplayer party game with up to 60 players online in a free-for-all struggle through round after round of escalating chaos until one victor remains!",
+                PublisherId = random.Next(1, 5),
                 ReleaseDate = DateTime.Now
             }).ToList();
 

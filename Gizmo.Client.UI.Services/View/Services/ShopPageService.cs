@@ -12,7 +12,8 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public ShopPageService(ShopPageViewState viewState,
             ILogger<ShopPageService> logger,
-            IServiceProvider serviceProvider, IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
 
@@ -31,6 +32,55 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
+        public async Task LoadProductsAsync()
+        {
+            var products = await _gizmoClient.GetProductsAsync(new ProductsFilter() { ProductGroupId = ViewState.SelectedProductGroupId });
+            ViewState.Products = products.Data.Select(a => new ProductViewState()
+            {
+                Id = a.Id,
+                ProductGroupId = a.ProductGroupId,
+                Name = a.Name,
+                Description = a.Description,
+                ProductType = a.ProductType,
+                //TODO: A Get image and user price.
+                ImageId = null, //TODO: A Default image id is not included in the product dto.
+                UnitPrice = a.Price,
+                UnitPointsPrice = a.PointsPrice,
+                UnitPointsAward = a.Points,
+                PurchaseOptions = a.PurchaseOptions
+            }).ToList();
+
+            foreach (var product in ViewState.Products.Where(a => a.ProductType == ProductType.ProductBundle))
+            {
+                product.BundledProducts = new List<ProductViewState>();
+
+                var bundledProducts = await _gizmoClient.GetBundledProductsAsync(product.Id);
+
+                foreach (var bundledProduct in bundledProducts.Data)
+                {
+                    var item = await _gizmoClient.GetProductByIdAsync(bundledProduct.ProductId);
+
+                    product.BundledProducts.Add(new ProductViewState()
+                    {
+                        Id = item.Id,
+                        Name = item.Name,
+                        ImageId = null //TODO: A
+                    });
+                }
+            }
+
+            ViewState.RaiseChanged();
+        }
+
+        public async Task SetSelectedProductGroup(int? selectedProductGroupId)
+        {
+            ViewState.SelectedProductGroupId = selectedProductGroupId;
+
+            await LoadProductsAsync();
+
+            ViewState.RaiseChanged();
+        }
+
         #endregion
 
         protected override async Task OnInitializing(CancellationToken ct)
@@ -43,32 +93,6 @@ namespace Gizmo.Client.UI.View.Services
                 Id = a.Id,
                 Name = a.Name
             }).ToList();
-
-            var products = await _gizmoClient.GetProductsAsync(new ProductsFilter());
-            ViewState.Products = products.Data.Select(a => new ProductViewState()
-            {
-                Id = a.Id,
-                ProductGroupId = a.ProductGroupId,
-                Name = a.Name,
-                Description = a.Description,
-                UnitPrice = a.Price,
-                UnitPointsAward = a.Points,
-                UnitPointsPrice = a.PointsPrice,
-                ImageId = null,
-                ProductType = a.ProductType,
-                PurchaseOptions = a.PurchaseOptions
-            }).ToList();
-
-            foreach (var product in ViewState.Products)
-            {
-                var bundledProducts = await _gizmoClient.GetBundledProducts(product.Id);
-
-                product.BundledProducts = bundledProducts.Data.Select(a => new ProductViewState()
-                {
-                    Id = a.Id,
-                    ImageId = null
-                }).ToList();
-            }
         }
     }
 }
