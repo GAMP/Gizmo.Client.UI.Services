@@ -8,7 +8,7 @@ namespace Gizmo.Client.UI.View.States
     {
         #region FIELDS
         private int _id;
-        private string _name = string.Empty;
+        private string _caption = string.Empty;
         private int? _image;
         private int _state;
         private decimal _statePercentage;
@@ -24,8 +24,8 @@ namespace Gizmo.Client.UI.View.States
 
         public string Caption
         {
-            get { return _name; }
-            internal set { SetProperty(ref _name, value); }
+            get { return _caption; }
+            internal set { SetProperty(ref _caption, value); }
         }
 
         public int? ImageId

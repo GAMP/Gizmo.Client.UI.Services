@@ -11,7 +11,6 @@ namespace Gizmo.Client.UI.View.States
         private bool _isReserved = true;
         private bool _isLocked = false;
         private bool _isConnected = false;
-        private bool _isQrLoginEnabled = true;
         #endregion
 
         #region PROPERTIES
@@ -35,11 +34,6 @@ namespace Gizmo.Client.UI.View.States
         public bool IsConnected
         {
             get { return _isConnected; }
-        }
-
-        public bool IsQrLoginEnabled
-        {
-            get { return _isQrLoginEnabled; }
         }
 
         #endregion

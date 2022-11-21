@@ -34,18 +34,37 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task StartRegistrationAsync()
         {
-            var s = await _dialogService.ShowUserAgreementDialogAsync();
-            if (s.Result == DialogAddResult.Success)
+            var userAgreementsService = ServiceProvider.GetRequiredService<UserAgreementsService>();
+            await userAgreementsService.LoadUserAgreementsAsync();
+
+            while (userAgreementsService.ViewState.HasUserAgreements)
             {
-                try
+                var s = await _dialogService.ShowUserAgreementDialogAsync();
+                if (s.Result == DialogAddResult.Success)
                 {
-                    var result = await s.WaitForDialogResultAsync();
-                    NavigationService.NavigateTo("/registrationconfirmationmethod");
-                }
-                catch (OperationCanceledException)
-                {
+                    try
+                    {
+                        var result = await s.WaitForDialogResultAsync();
+                        await userAgreementsService.AcceptCurrentUserAgreementAsync();
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        //TODO: A CLEANER SOLUTION?
+                        if (userAgreementsService.ViewState.CurrentUserAgreement.IsRejectable)
+                        {
+                            await userAgreementsService.RejectCurrentUserAgreementAsync();
+                        }
+                        else
+                        {
+                            //TODO: IF REJECTED CLEANUP AND RETURN
+                            await userAgreementsService.RejectCurrentUserAgreementAsync();
+                            return;
+                        }
+                    }
                 }
             }
+
+            NavigationService.NavigateTo("/registrationconfirmationmethod");
         }
 
         public async Task SubmitAsync()

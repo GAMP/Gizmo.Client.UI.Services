@@ -1,4 +1,6 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,9 +14,15 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public UserLoginService(UserLoginViewState viewState,
             ILogger<UserLoginService> logger,
-            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            IClientDialogService dialogService) : base(viewState, logger, serviceProvider)
         {
+            _dialogService = dialogService;
         }
+        #endregion
+
+        #region FIELDS
+        private readonly IClientDialogService _dialogService;
         #endregion
 
         #region FUNCTIONS
@@ -54,7 +62,6 @@ namespace Gizmo.Client.UI.View.Services
                     //Reset after some time?
                     await Task.Delay(10000);
 
-                    ViewState.HasLoginErrors = false;
                     ViewState.SetDefaults();
                     ResetValidationErrors();
 
@@ -65,10 +72,38 @@ namespace Gizmo.Client.UI.View.Services
                     //Successful login
                     NavigationService.NavigateTo("/home");
 
-                    ViewState.IsLogginIn = false;
-                    ViewState.HasLoginErrors = false;
-                    ViewState.SetDefaults();
+                    var userAgreementsService = ServiceProvider.GetRequiredService<UserAgreementsService>();
+                    await userAgreementsService.LoadUserAgreementsAsync(1); //TODO: A USER ID
 
+                    while (userAgreementsService.ViewState.HasUserAgreements)
+                    {
+                        var s = await _dialogService.ShowUserAgreementDialogAsync();
+                        if (s.Result == DialogAddResult.Success)
+                        {
+                            try
+                            {
+                                var result = await s.WaitForDialogResultAsync();
+                                await userAgreementsService.AcceptCurrentUserAgreementAsync();
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                //TODO: A CLEANER SOLUTION?
+                                if (userAgreementsService.ViewState.CurrentUserAgreement.IsRejectable)
+                                {
+                                    await userAgreementsService.RejectCurrentUserAgreementAsync();
+                                }
+                                else
+                                {
+                                    //TODO: IF REJECTED CLEANUP AND LOGOUT?
+                                    await userAgreementsService.RejectCurrentUserAgreementAsync();
+                                    return;
+                                }
+                            }
+                        }
+                    }
+
+                    //Cleanup
+                    ViewState.SetDefaults();
                     ResetValidationErrors();
 
                     ViewState.RaiseChanged();

@@ -12,7 +12,8 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public HostService(HostViewState viewState,
             ILogger<HostService> logger,
-            IServiceProvider serviceProvider, IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
         }
@@ -23,6 +24,8 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region PROPERTIES
+
+        public HostConfigurationViewState HostConfigurationViewState { get; set; } = new HostConfigurationViewState();
 
         #endregion
 

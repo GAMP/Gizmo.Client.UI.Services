@@ -1,4 +1,6 @@
-﻿using Gizmo.Web.Api.Models;
+﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI.View.States;
+using Gizmo.Web.Api.Models;
 
 namespace Gizmo.Client
 {
@@ -47,6 +49,40 @@ namespace Gizmo.Client
 
         private List<ProductGroup> _productGroups;
         private List<Product> _products;
+
+        public async Task<PagedList<UserAgreement>> GetUserAgreementsAsync(UserAgreementsFilter filter)
+        {
+            var userAgreements = Enumerable.Range(0, 3).Select(i => new UserAgreement()
+            {
+                Id = i + 1,
+                Agreement = $"{i + 1} Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+            }).ToList();
+
+            var pagedList = new PagedList<UserAgreement>(userAgreements, new PaginationMetadata());
+
+            return pagedList;
+        }
+
+        public async Task<List<UserAgreementState>> GetUserAgreementStatesAsync(int userId)
+        {
+            var userAgreementStates = Enumerable.Range(0, 3).Select(i => new UserAgreementState()
+            {
+                UserAgreementId = i + 1,
+                AcceptState = UserAgreementAcceptState.None
+            }).ToList();
+
+            return userAgreementStates;
+        }
+
+        public async Task<UpdateResult> AcceptUserAgreementForUserAsync(int userAgreementId, int userId)
+        {
+            return new UpdateResult();
+        }
+
+        public async Task<UpdateResult> RejectUserAgreementForUserAsync(int userAgreementId, int userId)
+        {
+            return new UpdateResult();
+        }
 
         public async Task<UserLoginResult> LoginAsync(string loginName, string password, CancellationToken cancellationToken)
         {

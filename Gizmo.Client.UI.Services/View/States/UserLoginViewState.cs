@@ -70,6 +70,8 @@ namespace Gizmo.Client.UI.View.States
                 LoginName = null;
                 Password = null;
                 LoginType = UserLoginType.UsernameOrEmail;
+                IsLogginIn = false;
+                HasLoginErrors = false;
             }
 
             base.SetDefaults();
