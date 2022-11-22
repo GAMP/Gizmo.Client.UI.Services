@@ -25,7 +25,18 @@ namespace Gizmo.Client.UI.View.Services
 
         #region PROPERTIES
 
-        public HostConfigurationViewState HostConfigurationViewState { get; set; } = new HostConfigurationViewState();
+        public HostConfigurationViewState HostConfigurationViewState { get; set; } = new HostConfigurationViewState()
+        {
+            CanSignIn = true,
+            CanSignInWithQR = true,
+            CanSignUp = true,
+            CanRecoverPassword = true
+        };
+
+        public ReservationViewState ReservationViewState { get; set; } = new ReservationViewState()
+        {
+            IsPending = true
+        };
 
         #endregion
 

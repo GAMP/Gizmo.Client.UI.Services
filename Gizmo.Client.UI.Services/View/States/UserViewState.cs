@@ -9,11 +9,16 @@ namespace Gizmo.Client.UI.View.States
         #region FIELDS
         private int _id;
         private string _username = string.Empty;
+        private string _firstName = string.Empty;
+        private string _lastName = string.Empty;
+        private DateTime? _birthDate;
+        private Sex _sex = Sex.Unspecified;
+        private string _country = string.Empty;
+        private string _address = string.Empty;
+        private string _email = string.Empty;
+        private string _phone = string.Empty;
+        private string _mobilePhone = string.Empty;
         private DateTime _registrationDate;
-        private decimal _balance;
-        private string _currentTimeProduct = string.Empty;
-        private TimeSpan _time;
-        private int _points;
         private string _picture = string.Empty;
         #endregion
 
@@ -31,34 +36,64 @@ namespace Gizmo.Client.UI.View.States
             internal set { SetProperty(ref _username, value); }
         }
 
+        public string FirstName
+        {
+            get { return _firstName; }
+            internal set { SetProperty(ref _firstName, value); }
+        }
+
+        public string LastName
+        {
+            get { return _lastName; }
+            internal set { SetProperty(ref _lastName, value); }
+        }
+
+        public DateTime? BirthDate
+        {
+            get { return _birthDate; }
+            internal set { SetProperty(ref _birthDate, value); }
+        }
+
+        public Sex Sex
+        {
+            get { return _sex; }
+            set { SetProperty(ref _sex, value); }
+        }
+
+        public string Country
+        {
+            get { return _country; }
+            internal set { SetProperty(ref _country, value); }
+        }
+
+        public string Address
+        {
+            get { return _address; }
+            internal set { SetProperty(ref _address, value); }
+        }
+
+        public string Email
+        {
+            get { return _email; }
+            internal set { SetProperty(ref _email, value); }
+        }
+
+        public string Phone
+        {
+            get { return _phone; }
+            internal set { SetProperty(ref _phone, value); }
+        }
+
+        public string MobilePhone
+        {
+            get { return _mobilePhone; }
+            internal set { SetProperty(ref _mobilePhone, value); }
+        }
+
         public DateTime RegistrationDate
         {
             get { return _registrationDate; }
             internal set { SetProperty(ref _registrationDate, value); }
-        }
-
-        public decimal Balance
-        {
-            get { return _balance; }
-            internal set { SetProperty(ref _balance, value); }
-        }
-
-        public string CurrentTimeProduct
-        {
-            get { return _currentTimeProduct; }
-            internal set { SetProperty(ref _currentTimeProduct, value); }
-        }
-
-        public TimeSpan Time
-        {
-            get { return _time; }
-            internal set { SetProperty(ref _time, value); }
-        }
-
-        public int Points
-        {
-            get { return _points; }
-            internal set { SetProperty(ref _points, value); }
         }
 
         public string Picture

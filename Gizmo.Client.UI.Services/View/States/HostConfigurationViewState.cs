@@ -7,10 +7,10 @@ namespace Gizmo.Client.UI.View.States
     public sealed class HostConfigurationViewState : ViewStateBase
     {
         #region FIELDS
-        private bool _canSignIn = false;
-        private bool _canSignInWithQR = false;
-        private bool _canSignUp = false;
-        private bool _canRecoverPassword = false;
+        private bool _canSignIn;
+        private bool _canSignInWithQR;
+        private bool _canSignUp;
+        private bool _canRecoverPassword;
         #endregion
 
         #region PROPERTIES

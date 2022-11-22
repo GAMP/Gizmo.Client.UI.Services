@@ -19,19 +19,19 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task LoadAsync()
         {
-            UserModelBase tmp = new UserModelBase();
+            var userViewState = ServiceProvider.GetRequiredService<UserViewState>();
 
-            ViewState.Username = tmp.Username;
-            ViewState.FirstName = tmp.FirstName;
-            ViewState.LastName = tmp.LastName;
-            ViewState.BirthDate = tmp.BirthDate;
-            ViewState.Sex = tmp.Sex;
-            ViewState.Country = tmp.Country;
-            ViewState.Address = tmp.Address;
-            ViewState.Email = tmp.Email;
-            ViewState.Phone = tmp.Phone;
-            ViewState.MobilePhone = tmp.MobilePhone;
-            //TODO: A IMAGE
+            ViewState.Username = userViewState.Username;
+            ViewState.FirstName = userViewState.FirstName;
+            ViewState.LastName = userViewState.LastName;
+            ViewState.BirthDate = userViewState.BirthDate;
+            ViewState.Sex = userViewState.Sex;
+            ViewState.Country = userViewState.Country;
+            ViewState.Address = userViewState.Address;
+            ViewState.Email = userViewState.Email;
+            ViewState.Phone = userViewState.Phone;
+            ViewState.MobilePhone = userViewState.MobilePhone;
+            //TODO: A POST CODE, IMAGE
 
             return Task.CompletedTask;
         }
@@ -44,6 +44,22 @@ namespace Gizmo.Client.UI.View.Services
                 return Task.CompletedTask;
 
             //TODO: A UPDATE PROFILE
+
+            var userViewState = ServiceProvider.GetRequiredService<UserViewState>();
+
+            userViewState.Username = ViewState.Username;
+            userViewState.FirstName = ViewState.FirstName;
+            userViewState.LastName = ViewState.LastName;
+            userViewState.BirthDate = ViewState.BirthDate;
+            userViewState.Sex = ViewState.Sex;
+            userViewState.Country = ViewState.Country;
+            userViewState.Address = ViewState.Address;
+            userViewState.Email = ViewState.Email;
+            userViewState.Phone = ViewState.Phone;
+            userViewState.MobilePhone = ViewState.MobilePhone;
+            //TODO: A POST CODE, IMAGE
+
+
 
             ViewState.RaiseChanged();
 
