@@ -41,6 +41,12 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Executables.Add(new ExecutableViewState() { Id = 4, Caption = "Spotify", ImageId = null });
             ViewState.Executables.Add(new ExecutableViewState() { Id = 5, Caption = "BattleNet", ImageId = null });
             ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
         }
     }
 }

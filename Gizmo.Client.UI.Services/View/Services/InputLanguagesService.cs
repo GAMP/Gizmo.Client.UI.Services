@@ -36,6 +36,8 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.Regions.Add(viewState);
             }
 
+            ViewState.SelectedRegion = ViewState.Regions.FirstOrDefault();
+
             return base.OnInitializing(ct);
         }
 

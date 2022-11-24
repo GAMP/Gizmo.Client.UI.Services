@@ -78,6 +78,7 @@ namespace Gizmo.Client.UI.View.States
             get { return _payType; }
             internal set { SetProperty(ref _payType, value); }
         }
+
         public decimal TotalPrice
         {
             get

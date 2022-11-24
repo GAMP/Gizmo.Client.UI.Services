@@ -57,7 +57,7 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     //Failed login
                     ViewState.IsLogginIn = false;
-                    ViewState.HasLoginErrors = true;
+                    ViewState.HasLoginError = true;
                     ViewState.RaiseChanged();
 
                     //Reset after some time?

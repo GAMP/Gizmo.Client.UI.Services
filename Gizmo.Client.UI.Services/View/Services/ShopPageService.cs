@@ -16,8 +16,6 @@ namespace Gizmo.Client.UI.View.Services
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
-
-            _gizmoClient.GetProductsAsync(new ProductsFilter());
         }
         #endregion
 

@@ -18,7 +18,7 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             IClientDialogService dialogService) : base(viewState, logger, serviceProvider)
         {
-            ViewState.ConfirmationMethod = UserRegistrationMethod.Email;
+            ViewState.ConfirmationMethod = UserRegistrationMethod.MobilePhone;
             _dialogService = dialogService;
 
             _timer.Elapsed += timer_Elapsed;

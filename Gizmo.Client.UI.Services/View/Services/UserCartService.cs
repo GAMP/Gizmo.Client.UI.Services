@@ -30,7 +30,7 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public Task AddProductAsyc(int productId, int quantity = 1)
+        public async Task AddProductAsyc(int productId, int quantity = 1)
         {
             Random random = new Random();
 
@@ -43,7 +43,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 var shopPageViewState = ServiceProvider.GetRequiredService<ShopPageViewState>();
 
-                var product = shopPageViewState.Products.Where(a => a.Id == productId).FirstOrDefault();
+                var product = await _gizmoClient.GetProductByIdAsync(productId);
 
                 if (product != null)
                 {
@@ -51,12 +51,13 @@ namespace Gizmo.Client.UI.View.Services
                     productViewState.Quantity = quantity;
                     productViewState.ProductId = product.Id;
                     productViewState.ProductName = product.Name;
-                    productViewState.UnitPrice = product.UnitPrice;
-                    productViewState.UnitPointsPrice = product.UnitPointsPrice;
-                    productViewState.UnitPointsAward = product.UnitPointsAward;
+                    //TODO: A Get user price.
+                    productViewState.UnitPrice = product.Price;
+                    productViewState.UnitPointsPrice = product.PointsPrice;
+                    productViewState.UnitPointsAward = product.Points;
                     productViewState.PurchaseOptions = product.PurchaseOptions;
-                    productViewState.PayType = productViewState.PurchaseOptions == PurchaseOptionType.And ? OrderLinePayType.Mixed : OrderLinePayType.Cash;
                     //TODO: A CALCULATE PAY TYPE
+                    productViewState.PayType = productViewState.PurchaseOptions == PurchaseOptionType.And ? OrderLinePayType.Mixed : OrderLinePayType.Cash;
 
                     ViewState.Products.Add(productViewState);
                 }
@@ -68,7 +69,8 @@ namespace Gizmo.Client.UI.View.Services
 
             ViewState.RaiseChanged();
 
-            return Task.CompletedTask;
+            //TODO: A GET CURRENT URI IF NOT SHOP OR PRODUCT DETAILS THEN NAVIGATE TO SHOP.
+            NavigationService.NavigateTo("/shop");
         }
 
         public Task RemoveProductAsync(int productId, int? quantity)
