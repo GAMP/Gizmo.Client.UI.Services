@@ -71,7 +71,7 @@ namespace Gizmo.Client.UI.View.Services
                 else
                 {
                     //Successful login
-                    NavigationService.NavigateTo("/home");
+                    NavigationService.NavigateTo(ClientRoutes.HomeRoute);
 
                     await LoadUserProfileAsync();
                     await LoadUserBalanceAsync();
@@ -102,7 +102,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task LogοutAsync()
         {
-            NavigationService.NavigateTo("/");
+            NavigationService.NavigateTo(ClientRoutes.HomeRoute);
             return Task.CompletedTask;
         }
 

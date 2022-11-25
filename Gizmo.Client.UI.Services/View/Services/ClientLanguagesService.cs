@@ -25,33 +25,33 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnInitializing(CancellationToken ct)
         {
-            foreach (var culture in _localizationService.SupportedRegions)
+            foreach (var culture in _localizationService.SupportedCultures)
             {
-                var viewState = GetViewState<RegionViewState>((state) =>
+                var viewState = GetViewState<LanguageViewState>((state) =>
                 {
-                    state.EnglishName = culture.EnglishName;
-                    state.TwoLetterISORegionName = culture.TwoLetterISORegionName;
+                    state.NativeName = culture.NativeName;
+                    state.TwoLetterName = culture.TwoLetterISOLanguageName;
                 });
 
-                ViewState.Regions.Add(viewState);
+                ViewState.Languages.Add(viewState);
             }
 
-            ViewState.SelectedRegion = ViewState.Regions.FirstOrDefault();
+            ViewState.SelectedLanguage = ViewState.Languages.FirstOrDefault();
 
             return base.OnInitializing(ct);
         }
 
-        public Task SetCurrentRegionAsync(string twoLetterRegionName)
+        public Task SetCurrentLanguageAsync(string twoLetterRegionName)
         {
-            var region = ViewState.Regions.Where(a => a.TwoLetterISORegionName == twoLetterRegionName).FirstOrDefault();
-            if (region != null)
+            var language = ViewState.Languages.Where(a => a.TwoLetterName == twoLetterRegionName).FirstOrDefault();
+            if (language != null)
             {
-                ViewState.SelectedRegion = region;
+                ViewState.SelectedLanguage = language;
                 ViewState.RaiseChanged();
             }
             else
             {
-                Logger.LogError("Invalid region id {regionId} specified.", twoLetterRegionName);
+                Logger.LogError("Invalid language id {languageId} specified.", twoLetterRegionName);
             }
 
             return Task.CompletedTask;

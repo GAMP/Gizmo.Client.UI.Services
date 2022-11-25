@@ -29,7 +29,7 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return Task.CompletedTask;
 
-            NavigationService.NavigateTo("/passwordrecoverysetnewpassword");
+            NavigationService.NavigateTo(ClientRoutes.PasswordRecoverySetNewPasswordRoute);
             return Task.CompletedTask;
         }
     }

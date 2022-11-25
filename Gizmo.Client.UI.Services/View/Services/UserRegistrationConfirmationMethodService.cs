@@ -64,7 +64,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            NavigationService.NavigateTo("/registrationconfirmationmethod");
+            NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationMethodRoute);
         }
 
         public async Task SubmitAsync()
@@ -88,7 +88,7 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.ResendTimeLeft = TimeSpan.FromMinutes(5);
                 _timer.Start();
 
-                NavigationService.NavigateTo("/registrationconfirmation");
+                NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationRoute);
 
                 //TODO: A
                 await Task.Delay(5000);

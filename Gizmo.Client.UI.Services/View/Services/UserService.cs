@@ -29,7 +29,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task LogοutAsync()
         {
-            NavigationService.NavigateTo("/");
+            NavigationService.NavigateTo(ClientRoutes.LoginRoute);
             return Task.CompletedTask;
         }
     }

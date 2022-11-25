@@ -23,7 +23,7 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return Task.CompletedTask;
 
-            NavigationService.NavigateTo("/registrationadditionalfields");
+            NavigationService.NavigateTo(ClientRoutes.RegistrationAdditionalFieldsRoute);
             return Task.CompletedTask;
         }
     }

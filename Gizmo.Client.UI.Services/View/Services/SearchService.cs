@@ -34,11 +34,11 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (searchResultTypes == SearchResultTypes.Application)
             {
-                NavigationService.NavigateTo("/apps");
+                NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute);
             }
             else
             {
-                NavigationService.NavigateTo("/shop");
+                NavigationService.NavigateTo(ClientRoutes.ShopRoute);
             }
 
             ViewState.ShowAll = true;

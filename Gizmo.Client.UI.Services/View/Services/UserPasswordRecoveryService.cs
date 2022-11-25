@@ -48,7 +48,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 //ViewState.CanResend = false;
 
-                NavigationService.NavigateTo("/passwordrecoveryconfirmation");
+                NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryConfirmationRoute);
 
                 //TODO: A
                 //ViewState.CanResend = false;

@@ -28,7 +28,7 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return Task.CompletedTask;
 
-            NavigationService.NavigateTo("/");
+            NavigationService.NavigateTo(ClientRoutes.LoginRoute);
             return Task.CompletedTask;
         }
 
