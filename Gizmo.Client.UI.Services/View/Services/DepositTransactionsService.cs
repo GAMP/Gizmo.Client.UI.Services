@@ -31,7 +31,16 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task LoadDepositTransactionsAsync()
         {
+            Random random = new Random();
 
+            var transactions = Enumerable.Range(0, 18).Select(i => new DepositTransactionViewState()
+            {
+                TransactionDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, random.Next(1, 28)),
+                DepositTransactionType = (DepositTransactionType)random.Next(0, 4),
+                Amount = random.Next(0, 100)
+            }).ToList();
+
+            ViewState.DepositTransactions = transactions;
 
             ViewState.RaiseChanged();
         }

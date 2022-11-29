@@ -7,10 +7,24 @@ namespace Gizmo.Client.UI.View.States
     public sealed class DepositTransactionViewState : ViewStateBase
     {
         #region FIELDS
+        private DateTime _transactionDate;
+        private DepositTransactionType _depositTransactionType;
         private decimal _amount;
         #endregion
 
         #region PROPERTIES
+
+        public DateTime TransactionDate
+        {
+            get { return _transactionDate; }
+            internal set { _transactionDate = value; }
+        }
+
+        public DepositTransactionType DepositTransactionType
+        {
+            get { return _depositTransactionType; }
+            internal set { _depositTransactionType = value; }
+        }
 
         public decimal Amount
         {

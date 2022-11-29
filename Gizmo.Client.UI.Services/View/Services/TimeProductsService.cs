@@ -31,7 +31,16 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task LoadTimeProductsAsync()
         {
+            Random random = new Random();
 
+            var timeProducts = Enumerable.Range(0, 18).Select(i => new TimeProductViewState()
+            {
+                PurchaseDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, random.Next(1, 28)),
+                Title = $"Test { i + 1 }",
+                Time = TimeSpan.FromMinutes(random.Next(3, 180))
+            }).ToList();
+
+            ViewState.TimeProducts = timeProducts;
 
             ViewState.RaiseChanged();
         }

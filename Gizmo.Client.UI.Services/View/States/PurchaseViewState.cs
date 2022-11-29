@@ -9,11 +9,14 @@ namespace Gizmo.Client.UI.View.States
     {
         #region FIELDS
         private int _id;
+        private ProductType _productType;
         private string _productName = string.Empty;
+        private OrderStatus _orderStatus;
         private int _quantity;
         private decimal _total;
         private string _paymentMethod = string.Empty;
         private DateTime _orderDate;
+        private List<ProductViewState> _bundledProducts = new();
         #endregion
 
         #region PROPERTIES
@@ -24,10 +27,22 @@ namespace Gizmo.Client.UI.View.States
             internal set { SetProperty(ref _id, value); }
         }
 
+        public ProductType ProductType
+        {
+            get { return _productType; }
+            internal set { SetProperty(ref _productType, value); }
+        }
+
         public string ProductName
         {
             get { return _productName; }
             internal set { SetProperty(ref _productName, value); }
+        }
+
+        public OrderStatus OrderStatus
+        {
+            get { return _orderStatus; }
+            internal set { SetProperty(ref _orderStatus, value); }
         }
 
         public int Quantity
@@ -52,6 +67,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _orderDate; }
             internal set { _orderDate = value; }
+        }
+
+        public List<ProductViewState> BundledProducts
+        {
+            get { return _bundledProducts; }
+            internal set { SetProperty(ref _bundledProducts, value); }
         }
 
         #endregion

@@ -31,6 +31,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task LoadPurchasesAsync()
         {
+            Random random = new Random();
             //TODO: A GET USER ID?
 
             var purchases = new List<PurchaseViewState>();
@@ -62,6 +63,11 @@ namespace Gizmo.Client.UI.View.Services
             purchases.Add(new PurchaseViewState() { ProductName = "Service: Printing", Quantity = 1, OrderDate = new DateTime(2020, 10, 19), Total = 4.99m, PaymentMethod = "Credit Card" });
             purchases.Add(new PurchaseViewState() { ProductName = "Espresso Coffee", Quantity = 1, OrderDate = new DateTime(2020, 10, 20), Total = 2.50m, PaymentMethod = "Balance" });
             purchases.Add(new PurchaseViewState() { ProductName = "Fredo Espresso Coffe", Quantity = 1, OrderDate = new DateTime(2020, 11, 2), Total = 3.20m, PaymentMethod = "Balance" });
+
+            foreach (var purchase in purchases)
+            {
+                purchase.OrderStatus = (OrderStatus)random.Next(0, 4);
+            }
 
             ViewState.Purchases = purchases;
 
