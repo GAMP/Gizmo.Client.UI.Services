@@ -32,6 +32,8 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task LoadProductsAsync()
         {
+            var userCartService = ServiceProvider.GetRequiredService<UserCartService>();
+
             var products = await _gizmoClient.GetProductsAsync(new ProductsFilter() { ProductGroupId = ViewState.SelectedProductGroupId });
             ViewState.Products = products.Data.Select(a => new ProductViewState()
             {
@@ -48,23 +50,28 @@ namespace Gizmo.Client.UI.View.Services
                 PurchaseOptions = a.PurchaseOptions
             }).ToList();
 
-            foreach (var product in ViewState.Products.Where(a => a.ProductType == ProductType.ProductBundle))
+            foreach (var product in ViewState.Products)
             {
-                product.BundledProducts = new List<ProductViewState>();
-
-                var bundledProducts = await _gizmoClient.GetBundledProductsAsync(product.Id);
-
-                foreach (var bundledProduct in bundledProducts.Data)
+                if (product.ProductType == ProductType.ProductBundle)
                 {
-                    var item = await _gizmoClient.GetProductByIdAsync(bundledProduct.ProductId);
+                    product.BundledProducts = new List<ProductViewState>();
 
-                    product.BundledProducts.Add(new ProductViewState()
+                    var bundledProducts = await _gizmoClient.GetBundledProductsAsync(product.Id);
+
+                    foreach (var bundledProduct in bundledProducts.Data)
                     {
-                        Id = item.Id,
-                        Name = item.Name,
-                        ImageId = null //TODO: A
-                    });
+                        var item = await _gizmoClient.GetProductByIdAsync(bundledProduct.ProductId);
+
+                        product.BundledProducts.Add(new ProductViewState()
+                        {
+                            Id = item.Id,
+                            Name = item.Name,
+                            ImageId = null //TODO: A
+                        });
+                    }
                 }
+
+                product.CartProduct = userCartService.GetProduct(product.Id);
             }
 
             ViewState.RaiseChanged();

@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
@@ -29,6 +30,11 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region FUNCTIONS
+
+        public UserCartProductViewState? GetProduct(int productId)
+        {
+            return ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault();
+        }
 
         public async Task AddProductAsyc(int productId, int quantity = 1)
         {

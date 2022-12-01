@@ -124,17 +124,21 @@ namespace Gizmo.Client.UI.View.Services
             userViewState.RegistrationDate = new DateTime(2020, 3, 4);
             userViewState.Picture = "_content/Gizmo.Client.UI/img/Cyber_Punk.png";
 
+            userViewState.RaiseChanged();
+
             return Task.CompletedTask;
         }
 
         private Task LoadUserBalanceAsync()
         {
-            var UserService = ServiceProvider.GetRequiredService<UserService>();
+            var userBalanceViewState = ServiceProvider.GetRequiredService<UserBalanceViewState>();
 
-            UserService.UserBalanceViewState.Balance = 10.76m;
-            UserService.UserBalanceViewState.CurrentTimeProduct = "Six Hours (6) for 10$ Pack";
-            UserService.UserBalanceViewState.Time = new TimeSpan(6, 36, 59);
-            UserService.UserBalanceViewState.PointsBalance = 416;
+            userBalanceViewState.Balance = 10.76m;
+            userBalanceViewState.CurrentTimeProduct = "Six Hours (6) for 10$ Pack";
+            userBalanceViewState.Time = new TimeSpan(6, 36, 59);
+            userBalanceViewState.PointsBalance = 416;
+
+            userBalanceViewState.RaiseChanged();
 
             return Task.CompletedTask;
         }

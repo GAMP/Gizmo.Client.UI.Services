@@ -33,11 +33,11 @@ namespace Gizmo.Client
             _productGroups.Add(new ProductGroup() { Id = 19, Name = "#Snacks" });
             _productGroups.Add(new ProductGroup() { Id = 20, Name = "#Time offers" });
 
-            _products = Enumerable.Range(0, 18).Select(i => new Product()
+            _products = Enumerable.Range(1, 18).Select(i => new Product()
             {
-                Id = i + 1,
+                Id = i,
                 ProductGroupId = random.Next(1, 5),
-                Name = $"#Coca Cola {i + 1} 500ml",
+                Name = $"#Coca Cola {i} 500ml",
                 Description = "#Iced coffee is a coffee beverage served cold. It may be prepared either by brewing coffee in the normal way and then serving it over ice.",
                 Price = random.Next(1, 5),
                 PointsPrice = random.Next(0, 100),
@@ -52,10 +52,10 @@ namespace Gizmo.Client
 
         public async Task<PagedList<UserAgreement>> GetUserAgreementsAsync(UserAgreementsFilter filter)
         {
-            var userAgreements = Enumerable.Range(0, 3).Select(i => new UserAgreement()
+            var userAgreements = Enumerable.Range(1, 3).Select(i => new UserAgreement()
             {
-                Id = i + 1,
-                Agreement = $"{i + 1} Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                Id = i,
+                Agreement = $"{i} Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
             }).ToList();
 
             var pagedList = new PagedList<UserAgreement>(userAgreements, new PaginationMetadata());
@@ -65,9 +65,9 @@ namespace Gizmo.Client
 
         public async Task<List<UserAgreementState>> GetUserAgreementStatesAsync(int userId)
         {
-            var userAgreementStates = Enumerable.Range(0, 3).Select(i => new UserAgreementState()
+            var userAgreementStates = Enumerable.Range(1, 3).Select(i => new UserAgreementState()
             {
-                UserAgreementId = i + 1,
+                UserAgreementId = i,
                 AcceptState = UserAgreementAcceptState.None
             }).ToList();
 
@@ -105,7 +105,14 @@ namespace Gizmo.Client
 
         public async Task<PagedList<Product>> GetProductsAsync(ProductsFilter filter)
         {
-            var pagedList = new PagedList<Product>(_products, new PaginationMetadata());
+            var query = _products.AsQueryable();
+
+            if (filter.ProductGroupId.HasValue)
+            {
+                query = _products.Where(a => a.ProductGroupId == filter.ProductGroupId.Value).AsQueryable();
+            }
+
+            var pagedList = new PagedList<Product>(query.ToList(), new PaginationMetadata());
 
             return pagedList;
         }
@@ -119,9 +126,9 @@ namespace Gizmo.Client
         {
             Random random = new Random();
 
-            var bundledProducts = Enumerable.Range(0, 5).Select(i => new BundledProduct()
+            var bundledProducts = Enumerable.Range(1, 5).Select(i => new BundledProduct()
             {
-                Id = i + 1,
+                Id = i,
                 ProductId = random.Next(1, 5),
                 Quantity = random.Next(1, 5),
                 UnitPrice = random.Next(1, 5)
@@ -134,10 +141,10 @@ namespace Gizmo.Client
 
         public async Task<PagedList<ApplicationGroup>> GetApplicationGroupsAsync(ApplicationGroupsFilter filter)
         {
-            List<ApplicationGroup> applicationGroups = Enumerable.Range(0, 4).Select(i => new ApplicationGroup()
+            List<ApplicationGroup> applicationGroups = Enumerable.Range(1, 5).Select(i => new ApplicationGroup()
             {
-                Id = i + 1,
-                Name = $"Category ({i + 1})"
+                Id = i,
+                Name = $"Category ({i})"
             }).ToList();
 
             var pagedList = new PagedList<ApplicationGroup>(applicationGroups, new PaginationMetadata());
@@ -147,10 +154,10 @@ namespace Gizmo.Client
 
         public async Task<PagedList<ApplicationEnterprise>> GetAppEnterprisesAsync(ApplicationEnterprisesFilter filter)
         {
-            List<ApplicationEnterprise> applicationEnterprises = Enumerable.Range(0, 4).Select(i => new ApplicationEnterprise()
+            List<ApplicationEnterprise> applicationEnterprises = Enumerable.Range(1, 5).Select(i => new ApplicationEnterprise()
             {
-                Id = i + 1,
-                Name = $"Test ({i + 1})"
+                Id = i,
+                Name = $"Test ({i})"
             }).ToList();
 
             var pagedList = new PagedList<ApplicationEnterprise>(applicationEnterprises, new PaginationMetadata());
@@ -162,11 +169,11 @@ namespace Gizmo.Client
         {
             Random random = new Random();
 
-            List<Application> applications = Enumerable.Range(0, 15).Select(i => new Application()
+            List<Application> applications = Enumerable.Range(1, 15).Select(i => new Application()
             {
-                Id = i + 1,
+                Id = i,
                 ApplicationCategoryId = random.Next(1, 5),
-                Title = $"Fortnite ({i + 1})",
+                Title = $"Fortnite ({i})",
                 Description = "Fall Guys is a massively multiplayer party game with up to 60 players online in a free-for-all struggle through round after round of escalating chaos until one victor remains!",
                 PublisherId = random.Next(1, 5),
                 ReleaseDate = DateTime.Now
@@ -192,10 +199,10 @@ namespace Gizmo.Client
 
         public async Task<PagedList<PaymentMethod>> GetPaymentMethodsAsync(PaymentMethodsFilter filter)
         {
-            List<PaymentMethod> paymentMethods = Enumerable.Range(0, 4).Select(i => new PaymentMethod()
+            List<PaymentMethod> paymentMethods = Enumerable.Range(1, 5).Select(i => new PaymentMethod()
             {
-                Id = i + 1,
-                Name = $"Payment method {i + 1}"
+                Id = i,
+                Name = $"Payment method {i}"
             }).ToList();
 
             var pagedList = new PagedList<PaymentMethod>(paymentMethods, new PaginationMetadata());

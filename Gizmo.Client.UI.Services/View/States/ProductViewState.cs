@@ -18,6 +18,7 @@ namespace Gizmo.Client.UI.View.States
         private int? _imageId;
         private PurchaseOptionType _purchaseOptions;
         private List<ProductViewState> _bundledProducts = new();
+        private UserCartProductViewState? _cartProduct;
         #endregion
 
         #region PROPERTIES
@@ -86,6 +87,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _bundledProducts; }
             internal set { SetProperty(ref _bundledProducts, value); }
+        }
+
+        public UserCartProductViewState? CartProduct
+        {
+            get { return _cartProduct; }
+            internal set { SetProperty(ref _cartProduct, value); }
         }
 
         #endregion
