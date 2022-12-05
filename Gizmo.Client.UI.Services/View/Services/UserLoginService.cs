@@ -176,6 +176,14 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
+        public void Reset()
+        {
+            ViewState.SetDefaults();
+            ResetValidationErrors();
+
+            ViewState.RaiseChanged();
+        }
+
         #endregion
     }
 }
