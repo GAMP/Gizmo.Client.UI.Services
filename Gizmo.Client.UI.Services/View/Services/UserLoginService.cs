@@ -61,12 +61,12 @@ namespace Gizmo.Client.UI.View.Services
                     ViewState.RaiseChanged();
 
                     //Reset after some time?
-                    await Task.Delay(10000);
+                    //await Task.Delay(10000);
 
-                    ViewState.SetDefaults();
-                    ResetValidationErrors();
+                    //ViewState.SetDefaults();
+                    //ResetValidationErrors();
 
-                    ViewState.RaiseChanged();
+                    //ViewState.RaiseChanged();
                 }
                 else
                 {
@@ -111,16 +111,16 @@ namespace Gizmo.Client.UI.View.Services
             //TODO: A
             var userViewState = ServiceProvider.GetRequiredService<UserViewState>();
 
-            userViewState.Username = "Test Username";
-            userViewState.FirstName = "Test First Name";
-            userViewState.LastName = "Test Last Name";
+            userViewState.Username = "#Test Username";
+            userViewState.FirstName = "#Test First Name";
+            userViewState.LastName = "#Test Last Name";
             userViewState.BirthDate = new DateTime(1950, 1, 2);
             userViewState.Sex = Sex.Male;
-            userViewState.Country = "Greece";
-            userViewState.Address = "Test Address 123";
-            userViewState.Email = "test@test.test";
-            userViewState.Phone = "0123456789";
-            userViewState.MobilePhone = "1234567890";
+            userViewState.Country = "#Greece";
+            userViewState.Address = "#Test Address 123";
+            userViewState.Email = "#test@test.test";
+            userViewState.Phone = "#0123456789";
+            userViewState.MobilePhone = "#1234567890";
             userViewState.RegistrationDate = new DateTime(2020, 3, 4);
             userViewState.Picture = "_content/Gizmo.Client.UI/img/Cyber_Punk.png";
 
@@ -134,7 +134,7 @@ namespace Gizmo.Client.UI.View.Services
             var userBalanceViewState = ServiceProvider.GetRequiredService<UserBalanceViewState>();
 
             userBalanceViewState.Balance = 10.76m;
-            userBalanceViewState.CurrentTimeProduct = "Six Hours (6) for 10$ Pack";
+            userBalanceViewState.CurrentTimeProduct = "#Six Hours (6) for 10$ Pack";
             userBalanceViewState.Time = new TimeSpan(6, 36, 59);
             userBalanceViewState.PointsBalance = 416;
 

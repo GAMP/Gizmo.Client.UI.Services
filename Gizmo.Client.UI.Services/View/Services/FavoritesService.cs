@@ -7,11 +7,11 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    public sealed class QuickLaunchService : ViewStateServiceBase<QuickLaunchViewState>
+    public sealed class FavoritesService : ViewStateServiceBase<FavoritesViewState>
     {
         #region CONSTRUCTOR
-        public QuickLaunchService(QuickLaunchViewState viewState,
-            ILogger<QuickLaunchService> logger,
+        public FavoritesService(FavoritesViewState viewState,
+            ILogger<FavoritesService> logger,
             IServiceProvider serviceProvider, IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
@@ -39,13 +39,6 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Executables.Add(new ExecutableViewState() { Id = 3, Caption = "DOTA", ImageId = null, State = 2, StatePercentage = 80 });
             ViewState.Executables.Add(new ExecutableViewState() { Id = 4, Caption = "Spotify", ImageId = null, State = 3 });
             ViewState.Executables.Add(new ExecutableViewState() { Id = 5, Caption = "BattleNet", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
         }
     }
 }

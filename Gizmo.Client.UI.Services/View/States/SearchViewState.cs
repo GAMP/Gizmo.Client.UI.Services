@@ -7,15 +7,26 @@ namespace Gizmo.Client.UI.View.States
     public sealed class SearchViewState : ViewStateBase
     {
         #region FIELDS
+        private bool _openDropDown;
         private bool _isLoading;
         private bool _showAll;
-        private bool _showAllLocally;
+        
         private string _searchPattern = string.Empty;
         private List<SearchResultViewState> _applicationResults = new();
         private List<SearchResultViewState> _productResults = new();
+
+        private string _appliedSearchPattern = string.Empty;
+        private List<SearchResultViewState> _appliedApplicationResults = new();
+        private List<SearchResultViewState> _appliedProductResults = new();
         #endregion
 
         #region PROPERTIES
+
+        public bool OpenDropDown
+        {
+            get { return _openDropDown; }
+            internal set { _openDropDown = value; }
+        }
 
         public bool IsLoading
         {
@@ -27,12 +38,6 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _showAll; }
             internal set { _showAll = value; }
-        }
-
-        public bool ShowAllLocally
-        {
-            get { return _showAllLocally; }
-            internal set { _showAllLocally = value; }
         }
 
         public string SearchPattern
@@ -51,6 +56,24 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _productResults; }
             internal set { _productResults = value; }
+        }
+
+        public string AppliedSearchPattern
+        {
+            get { return _appliedSearchPattern; }
+            internal set { _appliedSearchPattern = value; }
+        }
+
+        public List<SearchResultViewState> AppliedApplicationResults
+        {
+            get { return _appliedApplicationResults; }
+            internal set { _appliedApplicationResults = value; }
+        }
+
+        public List<SearchResultViewState> AppliedProductResults
+        {
+            get { return _appliedProductResults; }
+            internal set { _appliedProductResults = value; }
         }
 
         #endregion

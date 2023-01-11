@@ -8,7 +8,6 @@ namespace Gizmo.Client.UI.View.States
     {
         #region FIELDS
         private int _id;
-        private int _type;
         private string _title = string.Empty;
         private string _body = string.Empty;
         private DateTime? _startDate;
@@ -16,6 +15,7 @@ namespace Gizmo.Client.UI.View.States
         private string _url = string.Empty;
         private string _videoUrl = string.Empty;
         private string _thumbnailUrl = string.Empty;
+        private bool _customTemplate;
         #endregion
 
         #region PROPERTIES
@@ -24,12 +24,6 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _id; }
             internal set { SetProperty(ref _id, value); }
-        }
-
-        public int Type
-        {
-            get { return _type; }
-            internal set { SetProperty(ref _type, value); }
         }
 
         public string Title
@@ -72,6 +66,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _thumbnailUrl; }
             internal set { SetProperty(ref _thumbnailUrl, value); }
+        }
+
+        public bool CustomTemplate
+        {
+            get { return _customTemplate; }
+            internal set { SetProperty(ref _customTemplate, value); }
         }
 
         #endregion

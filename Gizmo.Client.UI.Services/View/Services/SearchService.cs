@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -22,6 +23,7 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
+        private bool _ignoreLocationChange = false;
         #endregion
 
         #region PROPERTIES
@@ -30,9 +32,36 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public Task LoadAllResultsAsync(SearchResultTypes searchResultTypes)
+        public Task OpenSearchAsync()
         {
-            if (searchResultTypes == SearchResultTypes.Application)
+            ViewState.OpenDropDown = true;
+
+            ViewState.RaiseChanged();
+
+            return Task.CompletedTask;
+        }
+
+        public Task CloseSearchAsync()
+        {
+            //Clear current search.
+            ViewState.SearchPattern = string.Empty;
+            ViewState.ProductResults.Clear();
+            ViewState.ApplicationResults.Clear();
+
+            ViewState.OpenDropDown = false;
+
+            ViewState.RaiseChanged();
+
+            return Task.CompletedTask;
+        }
+
+        public async Task ViewAllResultsAsync(SearchResultTypes searchResultTypes)
+        {
+            _ignoreLocationChange = true;
+
+            ViewState.AppliedSearchPattern = ViewState.SearchPattern;
+
+            if (searchResultTypes == SearchResultTypes.Applications)
             {
                 NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute);
             }
@@ -41,94 +70,157 @@ namespace Gizmo.Client.UI.View.Services
                 NavigationService.NavigateTo(ClientRoutes.ShopRoute);
             }
 
+            ViewState.AppliedApplicationResults.Clear();
+            ViewState.AppliedApplicationResults.AddRange(ViewState.ApplicationResults);
+            ViewState.AppliedProductResults.Clear();
+            ViewState.AppliedProductResults.AddRange(ViewState.ProductResults);
+
             ViewState.ShowAll = true;
 
             ViewState.RaiseChanged();
 
-            return Task.CompletedTask;
+            await CloseSearchAsync();
+
+            //_ignoreLocationChange = false;
         }
 
-        public Task LoadAllResultsLocallyAsync()
+        public async Task ProcessEnterAsync()
         {
-            ViewState.ShowAllLocally = true;
+            if (ViewState.ApplicationResults.Count > 0 && ViewState.ProductResults.Count > 0)
+            {
+                //Found results on both categories. Do nothing.
+            }
+            else
+            {
+                if (ViewState.ApplicationResults.Count > 0)
+                {
+                    await ViewAllResultsAsync(SearchResultTypes.Applications);
+                }
 
-            ViewState.RaiseChanged();
+                if (ViewState.ProductResults.Count > 0)
+                {
+                    await ViewAllResultsAsync(SearchResultTypes.Products);
+                }
+            }
+        }
+
+        public Task UpdateSearchPatternAsync(string searchPattern)
+        {
+            ViewState.SearchPattern = searchPattern;
 
             return Task.CompletedTask;
         }
 
         public Task ClearResultsAsync()
         {
-            ViewState.ShowAll = false;
-            ViewState.ShowAllLocally = false;
+            //Clear search.
             ViewState.IsLoading = false;
+
             ViewState.SearchPattern = string.Empty;
-            ViewState.ApplicationResults.Clear();
             ViewState.ProductResults.Clear();
+            ViewState.ApplicationResults.Clear();
+
+            //Clear applied search.
+            ViewState.ShowAll = false;
+
+            ViewState.AppliedSearchPattern = string.Empty;
+            ViewState.AppliedApplicationResults.Clear();
+            ViewState.AppliedProductResults.Clear();
 
             ViewState.RaiseChanged();
 
             return Task.CompletedTask;
         }
 
-        public async Task SearchAsync(string searchPattern, SearchResultTypes? searchResultTypes = null)
+        public async Task SearchAsync(SearchResultTypes? searchResultTypes = null)
         {
-            ViewState.IsLoading = true;
-            ViewState.SearchPattern = searchPattern;
+            ViewState.ProductResults.Clear();
+            ViewState.ApplicationResults.Clear();
 
-            ViewState.RaiseChanged();
-
-            await Task.Delay(500);
-
-            Random random = new Random();
-
-            if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Application)
+            if (ViewState.SearchPattern.Length == 0)
             {
-                var applications = await _gizmoClient.GetApplicationsAsync(new ApplicationsFilter());
-                var tmpApplications = applications.Data.Select(a => new ApplicationViewState()
-                {
-                    Id = a.Id,
-                    ApplicationCategoryId = a.ApplicationCategoryId,
-                    Title = a.Title,
-                    Description = a.Description,
-                    PublisherId = a.PublisherId,
-                    ReleaseDate = a.ReleaseDate,
-                    //TODO: A
-                    ImageId = null
-                }).ToList();
+                ViewState.IsLoading = false;
 
-                foreach (var app in tmpApplications.Where(a => a.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
-                {
-                    ViewState.ApplicationResults.Add(new SearchResultViewState() { Type = SearchResultTypes.Application, Id = app.Id, Name = app.Title, ImageId = app.ImageId });
-                }
+                ViewState.RaiseChanged();
             }
-
-            if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Product)
+            else
             {
-                var products = await _gizmoClient.GetProductsAsync(new ProductsFilter());
-                var tmpProducts = products.Data.Select(a => new ProductViewState()
-                {
-                    Id = a.Id,
-                    ProductGroupId = a.ProductGroupId,
-                    Name = a.Name,
-                    Description = a.Description,
-                    ProductType = a.ProductType,
-                    //TODO: A Get image.
-                    ImageId = null
-                }).ToList();
+                ViewState.IsLoading = true;
 
-                foreach (var product in tmpProducts.Where(a => a.Name.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
+                ViewState.RaiseChanged();
+
+                //Simulate service call.
+                await Task.Delay(500);
+
+                Random random = new Random();
+
+                if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Applications)
                 {
-                    ViewState.ProductResults.Add(new SearchResultViewState() { Type = SearchResultTypes.Product, Id = product.Id, Name = product.Name, ImageId = product.ImageId });
+                    var applications = await _gizmoClient.GetApplicationsAsync(new ApplicationsFilter());
+                    var tmpApplications = applications.Data.Select(a => new ApplicationViewState()
+                    {
+                        Id = a.Id,
+                        ApplicationCategoryId = a.ApplicationCategoryId,
+                        Title = a.Title,
+                        Description = a.Description,
+                        PublisherId = a.PublisherId,
+                        ReleaseDate = a.ReleaseDate,
+                        //TODO: A
+                        ImageId = null
+                    }).ToList();
+
+                    foreach (var app in tmpApplications.Where(a => a.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        ViewState.ApplicationResults.Add(new SearchResultViewState() { Type = SearchResultTypes.Applications, Id = app.Id, Name = app.Title, ImageId = app.ImageId });
+                    }
                 }
+
+                if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Products)
+                {
+                    var products = await _gizmoClient.GetProductsAsync(new ProductsFilter());
+                    var tmpProducts = products.Data.Select(a => new ProductViewState()
+                    {
+                        Id = a.Id,
+                        ProductGroupId = a.ProductGroupId,
+                        Name = a.Name,
+                        Description = a.Description,
+                        ProductType = a.ProductType,
+                        //TODO: A Get image.
+                        ImageId = null
+                    }).ToList();
+
+                    foreach (var product in tmpProducts.Where(a => a.Name.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        ViewState.ProductResults.Add(new SearchResultViewState() { Type = SearchResultTypes.Products, Id = product.Id, Name = product.Name, ImageId = product.ImageId });
+                    }
+                }
+
+                ViewState.IsLoading = false;
+
+                ViewState.RaiseChanged();
             }
-
-            ViewState.IsLoading = false;
-
-            ViewState.RaiseChanged();
         }
 
         #endregion
 
+        protected override async Task OnInitializing(CancellationToken ct)
+        {
+            await base.OnInitializing(ct);
+
+            NavigationService.LocationChanged += NavigationService_LocationChanged;
+        }
+
+        private async void NavigationService_LocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+        {
+            //TODO: A THIS DOES NOT SEEM SAFE.
+            if (_ignoreLocationChange)
+            {
+                _ignoreLocationChange = false;
+                return;
+            }
+
+            await ClearResultsAsync();
+            await CloseSearchAsync();
+        }
     }
 }

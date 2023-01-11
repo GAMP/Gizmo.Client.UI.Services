@@ -27,10 +27,14 @@ namespace Gizmo.Client.UI.View.Services
 
         #endregion
 
+        #region FUNCTIONS
+
         public Task LogοutAsync()
         {
             NavigationService.NavigateTo(ClientRoutes.LoginRoute);
             return Task.CompletedTask;
         }
+
+        #endregion
     }
 }

@@ -55,7 +55,7 @@ namespace Gizmo.Client
             var userAgreements = Enumerable.Range(1, 3).Select(i => new UserAgreement()
             {
                 Id = i,
-                Agreement = $"{i} Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                Agreement = $"#{i} Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
             }).ToList();
 
             var pagedList = new PagedList<UserAgreement>(userAgreements, new PaginationMetadata());
@@ -144,7 +144,7 @@ namespace Gizmo.Client
             List<ApplicationGroup> applicationGroups = Enumerable.Range(1, 5).Select(i => new ApplicationGroup()
             {
                 Id = i,
-                Name = $"Category ({i})"
+                Name = $"#Category ({i})"
             }).ToList();
 
             var pagedList = new PagedList<ApplicationGroup>(applicationGroups, new PaginationMetadata());
@@ -157,7 +157,7 @@ namespace Gizmo.Client
             List<ApplicationEnterprise> applicationEnterprises = Enumerable.Range(1, 5).Select(i => new ApplicationEnterprise()
             {
                 Id = i,
-                Name = $"Test ({i})"
+                Name = $"#Test ({i})"
             }).ToList();
 
             var pagedList = new PagedList<ApplicationEnterprise>(applicationEnterprises, new PaginationMetadata());
@@ -173,8 +173,8 @@ namespace Gizmo.Client
             {
                 Id = i,
                 ApplicationCategoryId = random.Next(1, 5),
-                Title = $"Fortnite ({i})",
-                Description = "Fall Guys is a massively multiplayer party game with up to 60 players online in a free-for-all struggle through round after round of escalating chaos until one victor remains!",
+                Title = $"#Fortnite ({i})",
+                Description = "#Fall Guys is a massively multiplayer party game with up to 60 players online in a free-for-all struggle through round after round of escalating chaos until one victor remains!",
                 PublisherId = random.Next(1, 5),
                 ReleaseDate = DateTime.Now
             }).ToList();
@@ -187,10 +187,10 @@ namespace Gizmo.Client
         public async Task<PagedList<ApplicationExecutable>> GetApplicationExecutablesAsync(ApplicationExecutablesFilter filter)
         {
             List<ApplicationExecutable> executables = new List<ApplicationExecutable>();
-            executables.Add(new ApplicationExecutable() { Id = 1, Caption = "battlenet.exe" });
-            executables.Add(new ApplicationExecutable() { Id = 2, Caption = "DOTA" });
-            executables.Add(new ApplicationExecutable() { Id = 3, Caption = "Spotify" });
-            executables.Add(new ApplicationExecutable() { Id = 4, Caption = "valve_steamclient.exe" });
+            executables.Add(new ApplicationExecutable() { Id = 1, Caption = "#battlenet.exe" });
+            executables.Add(new ApplicationExecutable() { Id = 2, Caption = "#DOTA" });
+            executables.Add(new ApplicationExecutable() { Id = 3, Caption = "#Spotify" });
+            executables.Add(new ApplicationExecutable() { Id = 4, Caption = "#valve_steamclient.exe" });
 
             var pagedList = new PagedList<ApplicationExecutable>(executables, new PaginationMetadata());
 
@@ -202,7 +202,7 @@ namespace Gizmo.Client
             List<PaymentMethod> paymentMethods = Enumerable.Range(1, 5).Select(i => new PaymentMethod()
             {
                 Id = i,
-                Name = $"Payment method {i}"
+                Name = $"#Payment method {i}"
             }).ToList();
 
             var pagedList = new PagedList<PaymentMethod>(paymentMethods, new PaginationMetadata());
