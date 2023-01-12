@@ -75,11 +75,11 @@ namespace Gizmo.Client.UI.View.Services
 
             ViewState.RaiseChanged();
 
-            //TODO: A GET CURRENT URI IF NOT SHOP OR PRODUCT DETAILS THEN NAVIGATE TO SHOP.
-
+            //If current uri is not shop or product details then navigate to shop.
             var currentUri = NavigationService.GetUri();
 
-            NavigationService.NavigateTo(ClientRoutes.ShopRoute);
+            if (!currentUri.EndsWith("/shop") && !currentUri.Contains("/productdetails/"))
+                NavigationService.NavigateTo(ClientRoutes.ShopRoute);
         }
 
         public Task RemoveProductAsync(int productId, int? quantity)
