@@ -44,10 +44,13 @@ namespace Gizmo.Client.UI.View.Services
             if (existingProductViewState != null)
             {
                 existingProductViewState.Quantity += quantity;
+
+                existingProductViewState.RaiseChanged();
             }
             else
             {
                 var shopPageViewState = ServiceProvider.GetRequiredService<ShopPageViewState>();
+                var productDetailsPageService = ServiceProvider.GetRequiredService<ProductDetailsPageService>();
 
                 var product = await _gizmoClient.GetProductByIdAsync(productId);
 
@@ -66,6 +69,19 @@ namespace Gizmo.Client.UI.View.Services
                     productViewState.PayType = productViewState.PurchaseOptions == PurchaseOptionType.And ? OrderLinePayType.Mixed : OrderLinePayType.Cash;
 
                     ViewState.Products.Add(productViewState);
+
+                    var shopProduct = shopPageViewState.Products.Where(a => a.Id == productId).FirstOrDefault();
+                    if (shopProduct != null)
+                    {
+                        shopProduct.CartProduct.UserCartProduct = productViewState;
+                        shopProduct.CartProduct.RaiseChanged();
+                    }
+
+                    if (productDetailsPageService.ViewState.Product != null && productDetailsPageService.ViewState.Product.Id == productId)
+                    {
+                        productDetailsPageService.ViewState.Product.CartProduct.UserCartProduct = productViewState;
+                        productDetailsPageService.ViewState.Product.CartProduct.RaiseChanged();
+                    }
                 }
                 else
                 {

@@ -34,6 +34,8 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task LoadProductAsync(int id)
         {
+            var userCartService = ServiceProvider.GetRequiredService<UserCartService>();
+
             //TODO: A Load product from cache or get by id?
             var product = await _gizmoClient.GetProductByIdAsync(id);
             ViewState.Product.Id = product.Id;
@@ -43,6 +45,8 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Product.ProductType = product.ProductType;
             //TODO: A
             ViewState.Product.ImageId = null;
+
+            ViewState.Product.CartProduct.UserCartProduct = userCartService.GetProduct(product.Id);
 
             var products = await _gizmoClient.GetProductsAsync(new ProductsFilter());
             ViewState.RelatedProducts = products.Data.Select(a => new ProductViewState()

@@ -71,7 +71,7 @@ namespace Gizmo.Client.UI.View.Services
                     }
                 }
 
-                product.CartProduct = userCartService.GetProduct(product.Id);
+                product.CartProduct.UserCartProduct = userCartService.GetProduct(product.Id);
             }
 
             ViewState.RaiseChanged();

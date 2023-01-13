@@ -64,7 +64,14 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationMethodRoute);
+            if (ViewState.ConfirmationMethod == UserRegistrationMethod.None)
+            {
+                NavigationService.NavigateTo(ClientRoutes.RegistrationBasicFieldsRoute);
+            }
+            else
+            {
+                NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationMethodRoute);
+            }
         }
 
         public async Task SubmitAsync()
