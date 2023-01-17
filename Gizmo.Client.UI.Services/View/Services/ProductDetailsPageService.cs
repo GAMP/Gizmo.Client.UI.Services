@@ -45,8 +45,28 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Product.ProductType = product.ProductType;
             //TODO: A
             ViewState.Product.ImageId = null;
+            ViewState.Product.HostGroup = "Vip";
 
             ViewState.Product.CartProduct.UserCartProduct = userCartService.GetProduct(product.Id);
+
+            if (ViewState.Product.ProductType == ProductType.ProductBundle)
+            {
+                ViewState.Product.BundledProducts = new List<ProductViewState>();
+
+                var bundledProducts = await _gizmoClient.GetBundledProductsAsync(product.Id);
+
+                foreach (var bundledProduct in bundledProducts.Data)
+                {
+                    var item = await _gizmoClient.GetProductByIdAsync(bundledProduct.ProductId);
+
+                    ViewState.Product.BundledProducts.Add(new ProductViewState()
+                    {
+                        Id = item.Id,
+                        Name = item.Name,
+                        ImageId = null //TODO: A
+                    });
+                }
+            }
 
             var products = await _gizmoClient.GetProductsAsync(new ProductsFilter());
             ViewState.RelatedProducts = products.Data.Select(a => new ProductViewState()
@@ -57,7 +77,8 @@ namespace Gizmo.Client.UI.View.Services
                 Description = a.Description,
                 ProductType = a.ProductType,
                 //TODO: A Get image.
-                ImageId = null
+                ImageId = null,
+                HostGroup = "Vip"
             }).Take(5).ToList();
         }
 

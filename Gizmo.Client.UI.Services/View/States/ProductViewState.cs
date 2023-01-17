@@ -16,6 +16,7 @@ namespace Gizmo.Client.UI.View.States
         private int? _unitPointsPrice;
         private int? _unitPointsAward;
         private int? _imageId;
+        private string _hostGroup = string.Empty;
         private PurchaseOptionType _purchaseOptions;
         private List<ProductViewState> _bundledProducts = new();
         private CartProductViewState _cartProduct = new();
@@ -75,6 +76,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _imageId; }
             internal set { SetProperty(ref _imageId, value); }
+        }
+
+        public string HostGroup
+        {
+            get { return _hostGroup; }
+            internal set { SetProperty(ref _hostGroup, value); }
         }
 
         public PurchaseOptionType PurchaseOptions

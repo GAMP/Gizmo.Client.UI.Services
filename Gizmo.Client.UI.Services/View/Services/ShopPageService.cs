@@ -43,7 +43,8 @@ namespace Gizmo.Client.UI.View.Services
                 Description = a.Description,
                 ProductType = a.ProductType,
                 //TODO: A Get image and user price.
-                ImageId = null, //TODO: A Default image id is not included in the product dto.
+                ImageId = null, //TODO: A Default image id is not included in the product dto.,
+                HostGroup = "Vip",
                 UnitPrice = a.Price,
                 UnitPointsPrice = a.PointsPrice,
                 UnitPointsAward = a.Points,

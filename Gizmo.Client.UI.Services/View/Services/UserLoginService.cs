@@ -61,12 +61,12 @@ namespace Gizmo.Client.UI.View.Services
                     ViewState.RaiseChanged();
 
                     //Reset after some time?
-                    //await Task.Delay(10000);
+                    await Task.Delay(10000);
 
-                    //ViewState.SetDefaults();
-                    //ResetValidationErrors();
+                    ViewState.SetDefaults();
+                    ResetValidationErrors();
 
-                    //ViewState.RaiseChanged();
+                    ViewState.RaiseChanged();
                 }
                 else
                 {
