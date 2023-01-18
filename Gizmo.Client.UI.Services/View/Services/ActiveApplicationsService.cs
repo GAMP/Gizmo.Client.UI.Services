@@ -29,39 +29,71 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
+        public async Task RunExecutableAsyc(int executableId)
+        {
+            var favoritesService = ServiceProvider.GetRequiredService<FavoritesService>();
+
+            await favoritesService.AddToRecentAsync(executableId);
+
+            //Check if executable already exists in the list.
+            var executable = ViewState.Executables.Where(a => a.Id == executableId).FirstOrDefault();
+
+            if (executable == null)
+            {
+                var applicationsPageService = ServiceProvider.GetRequiredService<ApplicationsPageService>();
+
+                if (applicationsPageService == null)
+                    return;
+
+                executable = await applicationsPageService.GetExecutableAsync(executableId);
+
+                if (executable == null)
+                    return;
+
+                //Add executable view state to the list.
+                ViewState.Executables.Add(executable);
+                ViewState.RaiseChanged();
+            }
+
+            //TODO: A 
+
+            //Change executable state.
+            executable.State = ExecutableState.Deployment;
+            executable.RaiseChanged();
+
+            //TODO: A 
+
+            await Task.Delay(5000);
+
+            //Change executable state.
+            executable.State = ExecutableState.Running;
+            executable.RaiseChanged();
+        }
+
+        public async Task TerminateExecutableAsyc(int executableId)
+        {
+            //Check if executable already exists in the list.
+            var executable = ViewState.Executables.Where(a => a.Id == executableId).FirstOrDefault();
+
+            if (executable != null)
+            {
+                //Change executable state.
+                executable.State = ExecutableState.Terminating;
+                executable.RaiseChanged();
+
+                await Task.Delay(1000);
+
+                ViewState.Executables.Remove(executable);
+                ViewState.RaiseChanged();
+            }
+        }
+
         #endregion
 
         protected override async Task OnInitializing(CancellationToken ct)
         {
             await base.OnInitializing(ct);
 
-            var executables = await _gizmoClient.GetApplicationExecutablesAsync(new ApplicationExecutablesFilter());
-            ViewState.Executables = executables.Data.Select(a => new ExecutableViewState()
-            {
-                Id = a.Id,
-                Caption = a.Caption,
-                ImageId = null,
-                //TODO: A
-                PersonalFiles = new List<string>() { "Personal File 1", "Personal File 2", "Personal File 3" }
-            }).ToList();
-
-            ViewState.Executables[0].State = 0;
-            ViewState.Executables[1].State = 1;
-            ViewState.Executables[2].State = 2;
-            ViewState.Executables[2].StatePercentage = 43.5m;
-            ViewState.Executables[3].State = 3;
-
-            for (int i = 0; i < 30; i++)
-            {
-                ViewState.Executables.Add(new ExecutableViewState()
-                {
-                    Id = 12,
-                    Caption = "Test",
-                    ImageId = null,
-                    //TODO: A
-                    PersonalFiles = new List<string>() { "Personal File 1", "Personal File 2", "Personal File 3" }
-                });
-            }
         }
     }
 }

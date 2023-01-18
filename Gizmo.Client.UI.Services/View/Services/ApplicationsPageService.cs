@@ -68,19 +68,35 @@ namespace Gizmo.Client.UI.View.Services
 
                 var executables = await _gizmoClient.GetApplicationExecutablesAsync(new ApplicationExecutablesFilter() { ApplicationId = application.Id });
 
-                //Test only.
-                if (application.Id > 1)
+                application.Executables = executables.Data.Select(a => new ExecutableViewState()
                 {
-                    application.Executables = executables.Data.Select(a => new ExecutableViewState()
-                    {
-                        Id = a.Id,
-                        Caption = a.Caption,
-                        //TODO: A
-                        PersonalFiles = new List<string>() { "Personal File 1", "Personal File 2", "Personal File 3" }
-                    }).ToList();
-                }
+                    Id = a.Id,
+                    Caption = a.Caption,
+                    //TODO: A
+                    PersonalFiles = new List<string>() { "Personal File 1", "Personal File 2", "Personal File 3" }
+                }).Take(application.Id).ToList();
             }
         }
+
+		public async Task<ApplicationViewState> GetApplicationAsync(int applicationId)
+		{
+			return ViewState.Applications.Where(a => a.Id == applicationId).FirstOrDefault();
+		}
+
+		public async Task<ExecutableViewState> GetExecutableAsync(int executableId)
+        {
+			foreach (var item in ViewState.Applications)
+			{
+				var executable = item.Executables?.Where(a => a.Id == executableId).FirstOrDefault();
+
+				if (executable != null)
+				{
+					return executable;
+				}
+			}
+
+            return null;
+		}
 
         #endregion
 

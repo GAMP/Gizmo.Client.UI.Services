@@ -28,17 +28,31 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        #endregion
+        public async Task AddToRecentAsync(int executableId)
+        {
+            if (!ViewState.Executables.Where(a => a.Id == executableId).Any())
+            {
+                var applicationsPageService = ServiceProvider.GetRequiredService<ApplicationsPageService>();
 
-        protected override async Task OnInitializing(CancellationToken ct)
+                if (applicationsPageService == null)
+                    return;
+
+                var executable = await applicationsPageService.GetExecutableAsync(executableId);
+
+                if (executable == null)
+                    return;
+
+                ViewState.Executables.Add(executable);
+                ViewState.RaiseChanged();
+            }
+        }
+
+		#endregion
+
+		protected override async Task OnInitializing(CancellationToken ct)
         {
             await base.OnInitializing(ct);
-
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 1, Caption = "Explorer", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 2, Caption = "Word", ImageId = null, State = ExecutableState.Loading });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 3, Caption = "DOTA", ImageId = null, State = ExecutableState.Deployment, StatePercentage = 80 });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 4, Caption = "Spotify", ImageId = null, State = ExecutableState.Running });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 5, Caption = "BattleNet", ImageId = null });
+            
         }
     }
 }

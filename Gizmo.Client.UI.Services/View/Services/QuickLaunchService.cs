@@ -20,17 +20,17 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
-        #endregion
+		#endregion
 
-        #region PROPERTIES
+		#region PROPERTIES
 
-        #endregion
+		#endregion
 
-        #region FUNCTIONS
+		#region FUNCTIONS
 
-        #endregion
+		#endregion
 
-        protected override async Task OnInitializing(CancellationToken ct)
+		protected override async Task OnInitializing(CancellationToken ct)
         {
             await base.OnInitializing(ct);
 
@@ -40,12 +40,12 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Executables.Add(new ExecutableViewState() { Id = 4, Caption = "Spotify", ImageId = null, State = ExecutableState.Running });
             ViewState.Executables.Add(new ExecutableViewState() { Id = 5, Caption = "BattleNet", ImageId = null });
             ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 7, Caption = "Chrome", ImageId = null });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 8, Caption = "Chrome", ImageId = null });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 9, Caption = "Chrome", ImageId = null });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 10, Caption = "Chrome", ImageId = null });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 11, Caption = "Chrome", ImageId = null });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 12, Caption = "Chrome", ImageId = null });
         }
     }
 }

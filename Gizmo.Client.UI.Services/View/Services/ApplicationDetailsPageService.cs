@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -31,38 +32,15 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task LoadApplicationAsync(int id)
         {
-            Random random = new Random();
-
             //TODO: A Load application from cache or get by id?
-            var applications = await _gizmoClient.GetApplicationsAsync(new ApplicationsFilter());
-            ViewState.Application = applications.Data.Where(a => a.Id == id).Select(a => new ApplicationViewState()
+            var applicationsPageService = ServiceProvider.GetRequiredService<ApplicationsPageService>();
+
+            if (applicationsPageService != null)
             {
-                Id = a.Id,
-                ApplicationGroupId = a.ApplicationCategoryId,
-                Title = a.Title,
-                Description = a.Description,
-                PublisherId = a.PublisherId,
-                ReleaseDate = a.ReleaseDate,
-                //TODO: A
-                ImageId = null,
-                Ratings = random.Next(0, 100),
-                Rate = ((decimal)random.Next(1, 50)) / 10,
-                DateAdded = new DateTime(2021, 3, 12),
-                ApplicationGroupName = "Shooter"
-            }).FirstOrDefault();
+                ViewState.Application = await applicationsPageService.GetApplicationAsync(id);
+            }
 
             //TODO: A LOAD ENTERPRISE
-
-            var executables = await _gizmoClient.GetApplicationExecutablesAsync(new ApplicationExecutablesFilter() { ApplicationId = ViewState.Application.Id });
-
-            //Test only.
-            ViewState.Application.Executables = executables.Data.Select(a => new ExecutableViewState()
-            {
-                Id = a.Id,
-                Caption = a.Caption,
-                //TODO: A
-                PersonalFiles = new List<string>() { "Personal File 1", "Personal File 2", "Personal File 3" }
-            }).Take(ViewState.Application.Id).ToList();
         }
 
         #endregion
