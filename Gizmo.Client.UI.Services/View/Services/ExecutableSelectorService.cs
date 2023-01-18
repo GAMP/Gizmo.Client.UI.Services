@@ -56,11 +56,11 @@ namespace Gizmo.Client.UI.View.Services
                 PersonalFiles = new List<string>() { "Personal File 1", "Personal File 2", "Personal File 3" }
             }).ToList();
 
-            ViewState.Application.Executables[0].State = 0;
-            ViewState.Application.Executables[1].State = 1;
-            ViewState.Application.Executables[2].State = 2;
+            ViewState.Application.Executables[0].State = ExecutableState.None;
+            ViewState.Application.Executables[1].State = ExecutableState.Loading;
+            ViewState.Application.Executables[2].State = ExecutableState.Deployment;
             ViewState.Application.Executables[2].StatePercentage = 43.5m;
-            ViewState.Application.Executables[3].State = 3;
+            ViewState.Application.Executables[3].State = ExecutableState.Running;
         }
 
         #endregion

@@ -35,9 +35,9 @@ namespace Gizmo.Client.UI.View.Services
             await base.OnInitializing(ct);
 
             ViewState.Executables.Add(new ExecutableViewState() { Id = 1, Caption = "Explorer", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 2, Caption = "Word", ImageId = null, State = 1 });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 3, Caption = "DOTA", ImageId = null, State = 2, StatePercentage = 80 });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 4, Caption = "Spotify", ImageId = null, State = 3 });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 2, Caption = "Word", ImageId = null, State = ExecutableState.Loading });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 3, Caption = "DOTA", ImageId = null, State = ExecutableState.Deployment, StatePercentage = 80 });
+            ViewState.Executables.Add(new ExecutableViewState() { Id = 4, Caption = "Spotify", ImageId = null, State = ExecutableState.Running });
             ViewState.Executables.Add(new ExecutableViewState() { Id = 5, Caption = "BattleNet", ImageId = null });
         }
     }

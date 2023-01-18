@@ -10,7 +10,7 @@ namespace Gizmo.Client.UI.View.States
         private int _id;
         private string _caption = string.Empty;
         private int? _image;
-        private int _state;
+        private ExecutableState _state;
         private decimal _statePercentage;
 
         private List<string> _personalFiles = new();
@@ -36,7 +36,7 @@ namespace Gizmo.Client.UI.View.States
             internal set { SetProperty(ref _image, value); }
         }
 
-        public int State
+        public ExecutableState State
         {
             get { return _state; }
             internal set { SetProperty(ref _state, value); }
