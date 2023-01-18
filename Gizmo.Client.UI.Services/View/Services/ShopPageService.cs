@@ -48,7 +48,8 @@ namespace Gizmo.Client.UI.View.Services
                 UnitPrice = a.Price,
                 UnitPointsPrice = a.PointsPrice,
                 UnitPointsAward = a.Points,
-                PurchaseOptions = a.PurchaseOptions
+                PurchaseOptions = a.PurchaseOptions,
+                ProductGroupName = "Beverages"
             }).ToList();
 
             foreach (var product in ViewState.Products)

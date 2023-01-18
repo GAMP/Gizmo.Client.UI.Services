@@ -10,6 +10,7 @@ namespace Gizmo.Client.UI.View.States
         private int _id;
         private ProductType _productType;
         private int _productGroupId;
+        private string _productGroupName = string.Empty;
         private string _name = string.Empty;
         private string _description = string.Empty;
         private decimal _unitPrice;
@@ -40,6 +41,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _productGroupId; }
             internal set { SetProperty(ref _productGroupId, value); }
+        }
+
+        public string ProductGroupName
+        {
+            get { return _productGroupName; }
+            internal set { SetProperty(ref _productGroupName, value); }
         }
 
         public string Name

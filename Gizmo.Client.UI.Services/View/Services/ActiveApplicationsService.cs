@@ -40,7 +40,9 @@ namespace Gizmo.Client.UI.View.Services
             {
                 Id = a.Id,
                 Caption = a.Caption,
-                ImageId = null
+                ImageId = null,
+                //TODO: A
+                PersonalFiles = new List<string>() { "Personal File 1", "Personal File 2", "Personal File 3" }
             }).ToList();
 
             ViewState.Executables[0].State = 0;
@@ -55,7 +57,9 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     Id = 12,
                     Caption = "Test",
-                    ImageId = null
+                    ImageId = null,
+                    //TODO: A
+                    PersonalFiles = new List<string>() { "Personal File 1", "Personal File 2", "Personal File 3" }
                 });
             }
         }

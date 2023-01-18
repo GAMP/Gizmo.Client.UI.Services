@@ -160,13 +160,14 @@ namespace Gizmo.Client.UI.View.Services
                     var tmpApplications = applications.Data.Select(a => new ApplicationViewState()
                     {
                         Id = a.Id,
-                        ApplicationCategoryId = a.ApplicationCategoryId,
+                        ApplicationGroupId = a.ApplicationCategoryId,
                         Title = a.Title,
                         Description = a.Description,
                         PublisherId = a.PublisherId,
                         ReleaseDate = a.ReleaseDate,
                         //TODO: A
-                        ImageId = null
+                        ImageId = null,
+                        ApplicationGroupName = "Shooter"
                     }).ToList();
 
                     foreach (var app in tmpApplications.Where(a => a.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
@@ -186,7 +187,8 @@ namespace Gizmo.Client.UI.View.Services
                         Description = a.Description,
                         ProductType = a.ProductType,
                         //TODO: A Get image.
-                        ImageId = null
+                        ImageId = null,
+                        ProductGroupName = "Beverages"
                     }).ToList();
 
                     foreach (var product in tmpProducts.Where(a => a.Name.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))

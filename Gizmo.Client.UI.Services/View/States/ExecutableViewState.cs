@@ -12,6 +12,8 @@ namespace Gizmo.Client.UI.View.States
         private int? _image;
         private int _state;
         private decimal _statePercentage;
+
+        private List<string> _personalFiles = new();
         #endregion
 
         #region PROPERTIES
@@ -44,6 +46,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _statePercentage; }
             internal set { SetProperty(ref _statePercentage, value); }
+        }
+
+        public List<string> PersonalFiles
+        {
+            get { return _personalFiles; }
+            internal set { _personalFiles = value; }
         }
 
         #endregion

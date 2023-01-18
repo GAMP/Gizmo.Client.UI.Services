@@ -9,6 +9,7 @@ namespace Gizmo.Client.UI.View.States
         #region FIELDS
         private int _id;
         private int _applicationGroupId;
+        private string _applicationGroupName = string.Empty;
         private string _title = string.Empty;
         private string _description = string.Empty;
         private int? _imageId;
@@ -30,10 +31,16 @@ namespace Gizmo.Client.UI.View.States
             internal set { SetProperty(ref _id, value); }
         }
 
-        public int ApplicationCategoryId
+        public int ApplicationGroupId
         {
             get { return _applicationGroupId; }
             internal set { SetProperty(ref _applicationGroupId, value); }
+        }
+
+        public string ApplicationGroupName
+        {
+            get { return _applicationGroupName; }
+            internal set { _applicationGroupName = value; }
         }
 
         public string Title

@@ -46,6 +46,7 @@ namespace Gizmo.Client.UI.View.Services
             //TODO: A
             ViewState.Product.ImageId = null;
             ViewState.Product.HostGroup = "Vip";
+            ViewState.Product.ProductGroupName = "Beverages";
 
             ViewState.Product.CartProduct.UserCartProduct = userCartService.GetProduct(product.Id);
 
@@ -78,7 +79,8 @@ namespace Gizmo.Client.UI.View.Services
                 ProductType = a.ProductType,
                 //TODO: A Get image.
                 ImageId = null,
-                HostGroup = "Vip"
+                HostGroup = "Vip",
+                ProductGroupName = "Beverages"
             }).Take(5).ToList();
         }
 

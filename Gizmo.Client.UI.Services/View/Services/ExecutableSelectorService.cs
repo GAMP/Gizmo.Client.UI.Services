@@ -36,13 +36,14 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Application = applications.Data.Where(a => a.Id == id).Select(a => new ApplicationViewState()
             {
                 Id = a.Id,
-                ApplicationCategoryId = a.ApplicationCategoryId,
+                ApplicationGroupId = a.ApplicationCategoryId,
                 Title = a.Title,
                 ImageId = null,
                 Ratings = random.Next(0, 100),
                 Rate = ((decimal)random.Next(1, 50)) / 10,
                 ReleaseDate = new DateTime(2019, 10, 22),
                 DateAdded = new DateTime(2021, 3, 12),
+                ApplicationGroupName = "Shooter"
             }).FirstOrDefault();
 
             var executables = await _gizmoClient.GetApplicationExecutablesAsync(new ApplicationExecutablesFilter());
@@ -50,7 +51,9 @@ namespace Gizmo.Client.UI.View.Services
             {
                 Id = a.Id,
                 Caption = a.Caption,
-                ImageId = null
+                ImageId = null,
+                //TODO: A
+                PersonalFiles = new List<string>() { "Personal File 1", "Personal File 2", "Personal File 3" }
             }).ToList();
 
             ViewState.Application.Executables[0].State = 0;

@@ -57,7 +57,7 @@ namespace Gizmo.Client.UI.View.Services
                 Id = i,
                 Time = "1 hour ago",
                 Title = $"Order on hold {i}",
-                Message = "Your order is on hold. You will be further be notified once order is accepted."
+                Message = "Your order is on hold. You will be further be notified once order is accepted." //Order #0075364 was successfuly paid from your account.
             }).ToList();
         }
     }

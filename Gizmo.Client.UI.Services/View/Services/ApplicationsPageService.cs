@@ -41,7 +41,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Applications = applications.Data.Select(a => new ApplicationViewState()
             {
                 Id = a.Id,
-                ApplicationCategoryId = a.ApplicationCategoryId,
+                ApplicationGroupId = a.ApplicationCategoryId,
                 Title = a.Title,
                 Description = a.Description,
                 PublisherId = a.PublisherId,
@@ -50,7 +50,8 @@ namespace Gizmo.Client.UI.View.Services
                 ImageId = null,
                 Ratings = random.Next(0, 100),
                 Rate = ((decimal)random.Next(1, 50)) / 10,
-                DateAdded = new DateTime(2021, 3, 12)
+                DateAdded = new DateTime(2021, 3, 12),
+                ApplicationGroupName = "Shooter"
             }).ToList();
 
             foreach (var application in ViewState.Applications)
@@ -73,7 +74,9 @@ namespace Gizmo.Client.UI.View.Services
                     application.Executables = executables.Data.Select(a => new ExecutableViewState()
                     {
                         Id = a.Id,
-                        Caption = a.Caption
+                        Caption = a.Caption,
+                        //TODO: A
+                        PersonalFiles = new List<string>() { "Personal File 1", "Personal File 2", "Personal File 3" }
                     }).ToList();
                 }
             }

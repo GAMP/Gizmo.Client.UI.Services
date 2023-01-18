@@ -38,7 +38,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Application = applications.Data.Where(a => a.Id == id).Select(a => new ApplicationViewState()
             {
                 Id = a.Id,
-                ApplicationCategoryId = a.ApplicationCategoryId,
+                ApplicationGroupId = a.ApplicationCategoryId,
                 Title = a.Title,
                 Description = a.Description,
                 PublisherId = a.PublisherId,
@@ -47,7 +47,8 @@ namespace Gizmo.Client.UI.View.Services
                 ImageId = null,
                 Ratings = random.Next(0, 100),
                 Rate = ((decimal)random.Next(1, 50)) / 10,
-                DateAdded = new DateTime(2021, 3, 12)
+                DateAdded = new DateTime(2021, 3, 12),
+                ApplicationGroupName = "Shooter"
             }).FirstOrDefault();
 
             //TODO: A LOAD ENTERPRISE
@@ -55,14 +56,13 @@ namespace Gizmo.Client.UI.View.Services
             var executables = await _gizmoClient.GetApplicationExecutablesAsync(new ApplicationExecutablesFilter() { ApplicationId = ViewState.Application.Id });
 
             //Test only.
-            if (ViewState.Application.Id > 1)
+            ViewState.Application.Executables = executables.Data.Select(a => new ExecutableViewState()
             {
-                ViewState.Application.Executables = executables.Data.Select(a => new ExecutableViewState()
-                {
-                    Id = a.Id,
-                    Caption = a.Caption
-                }).ToList();
-            }
+                Id = a.Id,
+                Caption = a.Caption,
+                //TODO: A
+                PersonalFiles = new List<string>() { "Personal File 1", "Personal File 2", "Personal File 3" }
+            }).Take(ViewState.Application.Id).ToList();
         }
 
         #endregion
