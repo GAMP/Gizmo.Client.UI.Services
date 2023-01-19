@@ -4,6 +4,7 @@ using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -21,6 +22,7 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region FIELDS
+        private bool _loaded = false;
         private readonly IGizmoClient _gizmoClient;
         #endregion
 
@@ -33,6 +35,9 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task LoadApplicationsAsync()
         {
+            if (_loaded) //TODO: A RESET SOMEHOW
+                return;
+
             Random random = new Random();
 
             var enterprises = await _gizmoClient.GetAppEnterprisesAsync(new ApplicationEnterprisesFilter());
@@ -54,6 +59,16 @@ namespace Gizmo.Client.UI.View.Services
                 ApplicationGroupName = "Shooter"
             }).ToList();
 
+            var executables = await _gizmoClient.GetApplicationExecutablesAsync(new ApplicationExecutablesFilter() { });
+
+            var executablesList = executables.Data.Select(a => new ExecutableViewState()
+             {
+                 Id = a.Id,
+                 Caption = a.Caption,
+                 //TODO: A
+                 PersonalFiles = new List<string>() { "Personal File 1", "Personal File 2", "Personal File 3" }
+             }).ToList();
+
             foreach (var application in ViewState.Applications)
             {
                 if (application.PublisherId.HasValue)
@@ -66,7 +81,9 @@ namespace Gizmo.Client.UI.View.Services
                     }
                 }
 
-                var executables = await _gizmoClient.GetApplicationExecutablesAsync(new ApplicationExecutablesFilter() { ApplicationId = application.Id });
+                application.Executables = executablesList.Take(application.Id).ToList();
+
+                /*var executables = await _gizmoClient.GetApplicationExecutablesAsync(new ApplicationExecutablesFilter() { ApplicationId = application.Id });
 
                 application.Executables = executables.Data.Select(a => new ExecutableViewState()
                 {
@@ -74,8 +91,10 @@ namespace Gizmo.Client.UI.View.Services
                     Caption = a.Caption,
                     //TODO: A
                     PersonalFiles = new List<string>() { "Personal File 1", "Personal File 2", "Personal File 3" }
-                }).Take(application.Id).ToList();
+                }).ToList();*/
             }
+
+            _loaded = true;
         }
 
 		public async Task<ApplicationViewState> GetApplicationAsync(int applicationId)

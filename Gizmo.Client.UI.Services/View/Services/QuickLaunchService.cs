@@ -20,32 +20,50 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
-		#endregion
+        #endregion
 
-		#region PROPERTIES
+        #region PROPERTIES
 
-		#endregion
+        #endregion
 
-		#region FUNCTIONS
+        #region FUNCTIONS
 
-		#endregion
+        #endregion
 
-		protected override async Task OnInitializing(CancellationToken ct)
+        protected override async Task OnInitializing(CancellationToken ct)
         {
             await base.OnInitializing(ct);
 
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 1, Caption = "Explorer", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 2, Caption = "Word", ImageId = null, State = ExecutableState.Loading });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 3, Caption = "DOTA", ImageId = null, State = ExecutableState.Deployment, StatePercentage = 80 });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 4, Caption = "Spotify", ImageId = null, State = ExecutableState.Running });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 5, Caption = "BattleNet", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 6, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 7, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 8, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 9, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 10, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 11, Caption = "Chrome", ImageId = null });
-            ViewState.Executables.Add(new ExecutableViewState() { Id = 12, Caption = "Chrome", ImageId = null });
+            var applicationsPageService = ServiceProvider.GetRequiredService<ApplicationsPageService>();
+            var activeApplicationsService = ServiceProvider.GetRequiredService<ActiveApplicationsService>();
+
+            if (applicationsPageService == null)
+                return;
+
+            await applicationsPageService.LoadApplicationsAsync();
+
+            Random random = new Random();
+
+            foreach (var application in applicationsPageService.ViewState.Applications)
+            {
+                foreach (var exe in application.Executables)
+                {
+                    if (!ViewState.Executables.Contains(exe))
+                    {
+                        ViewState.Executables.Add(exe);
+
+                        exe.State = (ExecutableState)random.Next(0, 4);
+                        exe.RaiseChanged();
+
+                        if (exe.State != ExecutableState.None)
+                        {
+                            activeApplicationsService.ViewState.Executables.Add(exe);
+                        }
+                    }
+                }
+            }
+
+            activeApplicationsService.ViewState.RaiseChanged();
         }
     }
 }

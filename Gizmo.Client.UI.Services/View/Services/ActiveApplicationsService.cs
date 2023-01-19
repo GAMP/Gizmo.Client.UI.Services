@@ -31,9 +31,12 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task RunExecutableAsyc(int executableId)
         {
+            //Add to favorites.
             var favoritesService = ServiceProvider.GetRequiredService<FavoritesService>();
-
-            await favoritesService.AddToRecentAsync(executableId);
+            if (favoritesService != null)
+            {
+                await favoritesService.AddToRecentAsync(executableId);
+            }
 
             //Check if executable already exists in the list.
             var executable = ViewState.Executables.Where(a => a.Id == executableId).FirstOrDefault();
@@ -63,7 +66,12 @@ namespace Gizmo.Client.UI.View.Services
 
             //TODO: A 
 
-            await Task.Delay(5000);
+            await Task.Delay(2000);
+
+            executable.State = ExecutableState.Loading;
+            executable.RaiseChanged();
+
+            await Task.Delay(2000);
 
             //Change executable state.
             executable.State = ExecutableState.Running;
@@ -82,6 +90,9 @@ namespace Gizmo.Client.UI.View.Services
                 executable.RaiseChanged();
 
                 await Task.Delay(1000);
+
+                executable.State = ExecutableState.None;
+                executable.RaiseChanged();
 
                 ViewState.Executables.Remove(executable);
                 ViewState.RaiseChanged();

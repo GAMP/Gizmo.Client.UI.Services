@@ -191,6 +191,14 @@ namespace Gizmo.Client
             executables.Add(new ApplicationExecutable() { Id = 2, Caption = "#DOTA" });
             executables.Add(new ApplicationExecutable() { Id = 3, Caption = "#Spotify" });
             executables.Add(new ApplicationExecutable() { Id = 4, Caption = "#valve_steamclient.exe" });
+            executables.Add(new ApplicationExecutable() { Id = 5, Caption = "#Chrome.exe" });
+            executables.Add(new ApplicationExecutable() { Id = 6, Caption = "#Chrome.exe" });
+            executables.Add(new ApplicationExecutable() { Id = 7, Caption = "#Chrome.exe" });
+            executables.Add(new ApplicationExecutable() { Id = 8, Caption = "#Chrome.exe" });
+            executables.Add(new ApplicationExecutable() { Id = 9, Caption = "#Chrome.exe" });
+            executables.Add(new ApplicationExecutable() { Id = 10, Caption = "#Chrome.exe" });
+            executables.Add(new ApplicationExecutable() { Id = 11, Caption = "#Chrome.exe" });
+            executables.Add(new ApplicationExecutable() { Id = 12, Caption = "#Chrome.exe" });
 
             var pagedList = new PagedList<ApplicationExecutable>(executables, new PaginationMetadata());
 
