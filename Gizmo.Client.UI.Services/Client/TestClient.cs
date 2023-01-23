@@ -96,6 +96,11 @@ namespace Gizmo.Client
             return new UserLogoutResult();
         }
 
+        public async Task UserPasswordChange(int userId, string oldPassword, string newPassword)
+        {
+
+        }
+
         public async Task<PagedList<ProductGroup>> GetProductGroupsAsync(ProductGroupsFilter filter)
         {
             var pagedList = new PagedList<ProductGroup>(_productGroups, new PaginationMetadata());

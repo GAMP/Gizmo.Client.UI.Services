@@ -94,12 +94,33 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (ViewState.ApplicationResults.Count > 0)
                 {
-                    await ViewAllResultsAsync(SearchResultTypes.Applications);
+                    //Results found only in applications.
+                    if (ViewState.ApplicationResults.Count == 1)
+                    {
+                        //Only one result execute action.
+                        //TODO: A
+                    }
+                    else
+                    {
+                        //More than one results open applications page.
+                        await ViewAllResultsAsync(SearchResultTypes.Applications);
+                    }
                 }
 
                 if (ViewState.ProductResults.Count > 0)
                 {
-                    await ViewAllResultsAsync(SearchResultTypes.Products);
+                    //Results found only in applications.
+                    if (ViewState.ProductResults.Count == 1)
+                    {
+                        //Only one result execute action.
+                        var userCartService = ServiceProvider.GetRequiredService<UserCartService>();
+                        await userCartService.AddProductAsyc(ViewState.ProductResults[0].Id);
+                    }
+                    else
+                    {
+                        //More than one results open shop page.
+                        await ViewAllResultsAsync(SearchResultTypes.Products);
+                    }
                 }
             }
         }

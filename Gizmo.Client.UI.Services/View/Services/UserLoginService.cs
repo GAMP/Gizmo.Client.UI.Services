@@ -16,13 +16,16 @@ namespace Gizmo.Client.UI.View.Services
         public UserLoginService(UserLoginViewState viewState,
             ILogger<UserLoginService> logger,
             IServiceProvider serviceProvider,
+            IGizmoClient gizmoClient,
             IClientDialogService dialogService) : base(viewState, logger, serviceProvider)
         {
+            _gizmoClient = gizmoClient;
             _dialogService = dialogService;
         }
         #endregion
 
         #region FIELDS
+        private readonly IGizmoClient _gizmoClient;
         private readonly IClientDialogService _dialogService;
         #endregion
 
@@ -49,6 +52,8 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
+                //TODO: A _gizmoClient.LoginAsync();
+
                 //simulate login task
                 await Task.Delay(1000);
 
@@ -58,6 +63,7 @@ namespace Gizmo.Client.UI.View.Services
                     //Failed login
                     ViewState.IsLogginIn = false;
                     ViewState.HasLoginError = true;
+                    ViewState.LoginError = "We couldn’t find an account matching the username and password you entered. Please check your username and password and try again.<br><a href='#'>Recover your password</a> or <a href='#'>create an account</a>";
                     ViewState.RaiseChanged();
 
                     //Reset after some time?
