@@ -16,6 +16,14 @@ namespace Gizmo.Client.UI.View.Services
         }
         #endregion
 
+        #region FUNCTIONS
+
+        public void SetHomePhone(string value)
+        {
+            ViewState.HomePhone = value;
+            ViewState.RaiseChanged();
+        }
+
         public Task SubmitAsync()
         {
             ViewState.IsValid = EditContext.Validate();
@@ -26,5 +34,7 @@ namespace Gizmo.Client.UI.View.Services
             NavigationService.NavigateTo(ClientRoutes.LoginRoute);
             return Task.CompletedTask;
         }
+
+        #endregion
     }
 }

@@ -25,7 +25,6 @@ namespace Gizmo.Client.UI.View.Services
 
         #region PROPERTIES
 
-
         #endregion
 
         #region FUNCTIONS

@@ -24,6 +24,20 @@ namespace Gizmo.Client.UI.View.Services
 
         #endregion
 
+        #region FUNCTIONS
+
+        public void SetEmail(string value)
+        {
+            ViewState.Email = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetConfirmationCode(string value)
+        {
+            ViewState.ConfirmationCode = value;
+            ViewState.RaiseChanged();
+        }
+
         public async Task SendConfirmationCodeAsync()
         {
             ViewState.IsValid = EditContext.Validate();
@@ -97,6 +111,8 @@ namespace Gizmo.Client.UI.View.Services
 
             return Task.CompletedTask;
         }
+
+        #endregion
 
         #region OVERRIDES
 

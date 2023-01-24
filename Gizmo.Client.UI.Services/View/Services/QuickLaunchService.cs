@@ -28,12 +28,11 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        #endregion
-
-        protected override async Task OnInitializing(CancellationToken ct)
+        public async Task LoadQuickLaunchAsync()
         {
-            await base.OnInitializing(ct);
+            //TODO: A Load quick launch applications on user login?
 
+            //Test
             var applicationsPageService = ServiceProvider.GetRequiredService<ApplicationsPageService>();
             var activeApplicationsService = ServiceProvider.GetRequiredService<ActiveApplicationsService>();
 
@@ -64,6 +63,11 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             activeApplicationsService.ViewState.RaiseChanged();
+            //End Test
+
+            ViewState.RaiseChanged();
         }
+
+        #endregion
     }
 }

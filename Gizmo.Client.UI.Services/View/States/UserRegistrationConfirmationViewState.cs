@@ -19,7 +19,7 @@ namespace Gizmo.Client.UI.View.States
         public string ConfirmationCode
         {
             get { return _confirmationCode; }
-            set { SetProperty(ref _confirmationCode, value); }
+            internal set { SetProperty(ref _confirmationCode, value); }
         }
 
         #endregion

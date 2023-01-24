@@ -40,7 +40,7 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.Application = await applicationsPageService.GetApplicationAsync(id);
             }
 
-            //TODO: A LOAD ENTERPRISE
+            //TODO: A Load enterprise to update publisher name in application view state.
         }
 
         #endregion

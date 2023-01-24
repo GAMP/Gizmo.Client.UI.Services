@@ -21,7 +21,7 @@ namespace Gizmo.Client.UI.View.States
         public string HomePhone
         {
             get { return _homePhone; }
-            set { SetProperty(ref _homePhone, value); }
+            internal set { SetProperty(ref _homePhone, value); }
         }
 
         #endregion

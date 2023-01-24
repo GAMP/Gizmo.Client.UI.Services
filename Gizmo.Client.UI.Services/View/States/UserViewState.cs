@@ -57,7 +57,7 @@ namespace Gizmo.Client.UI.View.States
         public Sex Sex
         {
             get { return _sex; }
-            set { SetProperty(ref _sex, value); }
+            internal set { SetProperty(ref _sex, value); }
         }
 
         public string Country

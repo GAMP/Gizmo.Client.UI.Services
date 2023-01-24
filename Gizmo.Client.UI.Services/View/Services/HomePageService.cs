@@ -31,6 +31,9 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task LoadPopularProductsAsync()
         {
+            //TODO: A Load popular products on page loading.
+
+            //Test
             var products = await _gizmoClient.GetProductsAsync(new ProductsFilter());
             ViewState.PopularProducts = products.Data.Select(a => new ProductViewState()
             {
@@ -67,13 +70,9 @@ namespace Gizmo.Client.UI.View.Services
                     });
                 }
             }
+            //End Test
         }
 
         #endregion
-
-        protected override async Task OnInitializing(CancellationToken ct)
-        {
-            await base.OnInitializing(ct);
-        }
     }
 }

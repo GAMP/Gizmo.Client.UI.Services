@@ -28,14 +28,14 @@ namespace Gizmo.Client.UI.View.States
         public string Email
         {
             get { return _email; }
-            set { SetProperty(ref _email, value); }
+            internal set { SetProperty(ref _email, value); }
         }
 
         [ValidatingProperty()]
         public string MobilePhone
         {
             get { return _mobilePhone; }
-            set { SetProperty(ref _mobilePhone, value); }
+            internal set { SetProperty(ref _mobilePhone, value); }
         }
 
         public bool IsLoading

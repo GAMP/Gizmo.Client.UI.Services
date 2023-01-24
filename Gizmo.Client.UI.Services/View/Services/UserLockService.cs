@@ -18,6 +18,14 @@ namespace Gizmo.Client.UI.View.Services
         }
         #endregion
 
+        #region FUNCTIONS
+
+        public void SetInputPassword(string value)
+        {
+            ViewState.InputPassword = value;
+            ViewState.RaiseChanged();
+        }
+
         public Task LockAsync()
         {
             ViewState.IsLocking = true;
@@ -114,6 +122,8 @@ namespace Gizmo.Client.UI.View.Services
 
             return Task.CompletedTask;
         }
+
+        #endregion
 
         protected override void OnViewStatePropertyChangedDebounced(object sender, PropertyChangedEventArgs e)
         {

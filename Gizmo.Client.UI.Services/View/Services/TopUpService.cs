@@ -35,6 +35,12 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
+        public void SetAmount(decimal value)
+        {
+            ViewState.Amount = value;
+            ViewState.RaiseChanged();
+        }
+
         public async Task ShowDialogAsync()
         {
             if (_dialogCancellationTokenSource != null)

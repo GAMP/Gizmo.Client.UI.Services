@@ -31,6 +31,9 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task LoadDepositTransactionsAsync()
         {
+            //TODO: A Load user deposit transactions on page loading.
+
+            //Test
             Random random = new Random();
 
             var transactions = Enumerable.Range(0, 18).Select(i => new DepositTransactionViewState()
@@ -41,17 +44,11 @@ namespace Gizmo.Client.UI.View.Services
             }).ToList();
 
             ViewState.DepositTransactions = transactions;
+            //End Test
 
             ViewState.RaiseChanged();
         }
 
         #endregion
-
-        protected override async Task OnInitializing(CancellationToken ct)
-        {
-            await base.OnInitializing(ct);
-
-
-        }
     }
 }

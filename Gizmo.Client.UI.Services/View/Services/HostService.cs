@@ -27,15 +27,19 @@ namespace Gizmo.Client.UI.View.Services
 
         public HostConfigurationViewState HostConfigurationViewState { get; set; } = new HostConfigurationViewState()
         {
+            //Test
             CanSignIn = true,
             CanSignInWithQR = true,
             CanSignUp = true,
             CanRecoverPassword = true
+            //End Test
         };
 
         public ReservationViewState ReservationViewState { get; set; } = new ReservationViewState()
         {
+            //Test
             IsPending = true
+            //End Test
         };
 
         #endregion
@@ -44,8 +48,9 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task SetHostLockStateAsync(bool value)
         {
-            //Test only.
+            //Test
             ViewState.IsLocked = value;
+            //End Test
 
             ViewState.RaiseChanged();
 

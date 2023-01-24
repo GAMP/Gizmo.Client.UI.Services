@@ -19,7 +19,7 @@ namespace Gizmo.Client.UI.View.States
         public string InputPassword
         {
             get { return _inputPassword; }
-            set { SetProperty(ref _inputPassword, value); }
+            internal set { SetProperty(ref _inputPassword, value); }
         }
 
         public string LockPassword

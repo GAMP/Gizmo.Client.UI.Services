@@ -31,7 +31,7 @@ namespace Gizmo.Client.UI.View.States
         public string Email
         {
             get { return _email; }
-            set { SetProperty(ref _email, value); }
+            internal set { SetProperty(ref _email, value); }
         }
 
         public bool IsLoading
@@ -44,7 +44,7 @@ namespace Gizmo.Client.UI.View.States
         public string ConfirmationCode
         {
             get { return _confirmationCode; }
-            set { SetProperty(ref _confirmationCode, value); }
+            internal set { SetProperty(ref _confirmationCode, value); }
         }
 
         public bool IsComplete
