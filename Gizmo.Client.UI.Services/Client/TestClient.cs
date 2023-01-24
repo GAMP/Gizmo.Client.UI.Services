@@ -100,7 +100,6 @@ namespace Gizmo.Client
 
         }
 
-        public async Task<PagedList<ProductGroup>> GetProductGroupsAsync(ProductGroupsFilter filter)
         public async Task<PagedList<ProductGroupModel>> GetProductGroupsAsync(ProductGroupsFilter filter)
         {
             var pagedList = new PagedList<ProductGroupModel>(_productGroups, new PaginationMetadata());
