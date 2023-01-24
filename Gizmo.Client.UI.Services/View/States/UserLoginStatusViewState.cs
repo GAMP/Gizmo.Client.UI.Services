@@ -28,7 +28,7 @@ namespace Gizmo.Client.UI.View.States
         public string Username
         {
             get { return _username; }
-            set { SetProperty(ref _username, value); }
+            internal set { SetProperty(ref _username, value); }
         }   
 
         #endregion

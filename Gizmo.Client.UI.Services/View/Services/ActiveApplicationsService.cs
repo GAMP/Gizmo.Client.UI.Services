@@ -24,7 +24,6 @@ namespace Gizmo.Client.UI.View.Services
 
         #region PROPERTIES
 
-
         #endregion
 
         #region FUNCTIONS
@@ -58,13 +57,12 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.RaiseChanged();
             }
 
-            //TODO: A 
-
+            //TODO: A Run executable.
+            
+            //Test
             //Change executable state.
             executable.State = ExecutableState.Deployment;
             executable.RaiseChanged();
-
-            //TODO: A 
 
             await Task.Delay(2000);
 
@@ -75,6 +73,8 @@ namespace Gizmo.Client.UI.View.Services
 
             //Change executable state.
             executable.State = ExecutableState.Running;
+            //End Test
+
             executable.RaiseChanged();
         }
 
@@ -85,6 +85,9 @@ namespace Gizmo.Client.UI.View.Services
 
             if (executable != null)
             {
+                //TODO: A Terminate executable.
+
+                //Test
                 //Change executable state.
                 executable.State = ExecutableState.Terminating;
                 executable.RaiseChanged();
@@ -95,16 +98,12 @@ namespace Gizmo.Client.UI.View.Services
                 executable.RaiseChanged();
 
                 ViewState.Executables.Remove(executable);
+                //End Test
+                
                 ViewState.RaiseChanged();
             }
         }
 
         #endregion
-
-        protected override async Task OnInitializing(CancellationToken ct)
-        {
-            await base.OnInitializing(ct);
-
-        }
     }
 }

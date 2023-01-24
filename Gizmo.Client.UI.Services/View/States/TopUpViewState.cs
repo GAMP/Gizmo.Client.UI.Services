@@ -38,7 +38,7 @@ namespace Gizmo.Client.UI.View.States
         public decimal Amount
         {
             get { return _amount; }
-            set { _amount = value; }
+            internal set { _amount = value; }
         }
 
         #endregion

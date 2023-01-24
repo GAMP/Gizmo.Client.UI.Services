@@ -170,10 +170,9 @@ namespace Gizmo.Client.UI.View.Services
 
                 ViewState.RaiseChanged();
 
+                //Test
                 //Simulate service call.
                 await Task.Delay(500);
-
-                Random random = new Random();
 
                 if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Applications)
                 {
@@ -217,6 +216,7 @@ namespace Gizmo.Client.UI.View.Services
                         ViewState.ProductResults.Add(new SearchResultViewState() { Type = SearchResultTypes.Products, Id = product.Id, Name = product.Name, ImageId = product.ImageId });
                     }
                 }
+                //End Test
 
                 ViewState.IsLoading = false;
 

@@ -31,6 +31,9 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task LoadTimeProductsAsync()
         {
+            //TODO: A Load user time products on page loading.
+
+            //Test
             Random random = new Random();
 
             var timeProducts = Enumerable.Range(1, 18).Select(i => new TimeProductViewState()
@@ -41,17 +44,11 @@ namespace Gizmo.Client.UI.View.Services
             }).ToList();
 
             ViewState.TimeProducts = timeProducts;
+            //End Test
 
             ViewState.RaiseChanged();
         }
 
         #endregion
-
-        protected override async Task OnInitializing(CancellationToken ct)
-        {
-            await base.OnInitializing(ct);
-
-
-        }
     }
 }

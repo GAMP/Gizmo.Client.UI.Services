@@ -31,70 +31,70 @@ namespace Gizmo.Client.UI.View.States
         public string Username
         {
             get { return _username; }
-            set { SetProperty(ref _username, value); }
+            internal set { SetProperty(ref _username, value); }
         }
 
         [ValidatingProperty()]
         public string FirstName
         {
             get { return _firstName; }
-            set { SetProperty(ref _firstName, value); }
+            internal set { SetProperty(ref _firstName, value); }
         }
 
         [ValidatingProperty()]
         public string LastName
         {
             get { return _lastName; }
-            set { SetProperty(ref _lastName, value); }
+            internal set { SetProperty(ref _lastName, value); }
         }
 
         [ValidatingProperty()]
         public DateTime? BirthDate
         {
             get { return _birthDate; }
-            set { SetProperty(ref _birthDate, value); }
+            internal set { SetProperty(ref _birthDate, value); }
         }
 
         [ValidatingProperty()]
         public Sex Sex
         {
             get { return _sex; }
-            set { SetProperty(ref _sex, value); }
+            internal set { SetProperty(ref _sex, value); }
         }
 
         [ValidatingProperty()]
         public string Country
         {
             get { return _country; }
-            set { SetProperty(ref _country, value); }
+            internal set { SetProperty(ref _country, value); }
         }
 
         [ValidatingProperty()]
         public string Address
         {
             get { return _address; }
-            set { SetProperty(ref _address, value); }
+            internal set { SetProperty(ref _address, value); }
         }
 
         [ValidatingProperty()]
         public string Email
         {
             get { return _email; }
-            set { SetProperty(ref _email, value); }
+            internal set { SetProperty(ref _email, value); }
         }
 
         [ValidatingProperty()]
         public string Phone
         {
             get { return _phone; }
-            set { SetProperty(ref _phone, value); }
+            internal set { SetProperty(ref _phone, value); }
         }
 
         [ValidatingProperty()]
         public string MobilePhone
         {
             get { return _mobilePhone; }
-            set { SetProperty(ref _mobilePhone, value); }
+            internal set { SetProperty(ref _mobilePhone, value); }
         }
 
         #endregion

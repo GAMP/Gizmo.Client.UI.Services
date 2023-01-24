@@ -31,8 +31,10 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task LoadPurchasesAsync()
         {
+            //TODO: A Load user purchases on page loading.
+
+            //Test
             Random random = new Random();
-            //TODO: A GET USER ID?
 
             var purchases = new List<PurchaseViewState>();
             purchases.Add(new PurchaseViewState() { ProductName = "Espresso Coffee", Quantity = 1, OrderDate = new DateTime(2020, 1, 2), Total = 2.50m, PaymentMethod = "Balance" });
@@ -70,17 +72,11 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             ViewState.Purchases = purchases;
+            //End Test
 
             ViewState.RaiseChanged();
         }
 
         #endregion
-
-        protected override async Task OnInitializing(CancellationToken ct)
-        {
-            await base.OnInitializing(ct);
-
-
-        }
     }
 }

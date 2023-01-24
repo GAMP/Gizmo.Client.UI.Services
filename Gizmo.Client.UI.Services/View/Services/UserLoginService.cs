@@ -38,6 +38,24 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
+        public void SetLoginName(string value)
+        {
+            ViewState.LoginName = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetPassword(string value)
+        {
+            ViewState.Password = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetPasswordVisible(bool value)
+        {
+            ViewState.IsPasswordVisible = value;
+            ViewState.RaiseChanged();
+        }
+
         public async Task LoginAsync()
         {
             //always validate state on submission
@@ -88,6 +106,16 @@ namespace Gizmo.Client.UI.View.Services
                     ResetValidationErrors();
 
                     ViewState.RaiseChanged();
+
+                    //TODO: A
+                    var advertisementsService = ServiceProvider.GetRequiredService<AdvertisementsService>();
+                    await advertisementsService.LoadAdvertisementsAsync();
+
+                    var quickLaunchService = ServiceProvider.GetRequiredService<QuickLaunchService>();
+                    await quickLaunchService.LoadQuickLaunchAsync();
+
+                    var paymentMethodsService = ServiceProvider.GetRequiredService<PaymentMethodsService>();
+                    await paymentMethodsService.LoadPaymentMethods();
                 }
             }
             catch

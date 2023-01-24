@@ -58,7 +58,7 @@ namespace Gizmo.Client.UI.View.States
         public string Notes
         {
             get { return _notes; }
-            set { SetProperty(ref _notes, value); }
+            internal set { SetProperty(ref _notes, value); }
         }
 
         [ValidatingProperty()]

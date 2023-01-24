@@ -17,6 +17,68 @@ namespace Gizmo.Client.UI.View.Services
         }
         #endregion
 
+        #region FUNCTIONS
+
+        public void SetUsername(string value)
+        {
+            ViewState.Username = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetFirstName(string value)
+        {
+            ViewState.FirstName = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetLastName(string value)
+        {
+            ViewState.LastName = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetBirthDate(DateTime? value)
+        {
+            ViewState.BirthDate = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetSex(Sex value)
+        {
+            ViewState.Sex = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetCountry(string value)
+        {
+            ViewState.Country = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetAddress(string value)
+        {
+            ViewState.Address = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetEmail(string value)
+        {
+            ViewState.Email = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetMobilePhone(string value)
+        {
+            ViewState.MobilePhone = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetPhone(string value)
+        {
+            ViewState.Phone = value;
+            ViewState.RaiseChanged();
+        }
+
         public Task LoadAsync()
         {
             var userViewState = ServiceProvider.GetRequiredService<UserViewState>();
@@ -65,5 +127,7 @@ namespace Gizmo.Client.UI.View.Services
 
             return Task.CompletedTask;
         }
+
+        #endregion
     }
 }

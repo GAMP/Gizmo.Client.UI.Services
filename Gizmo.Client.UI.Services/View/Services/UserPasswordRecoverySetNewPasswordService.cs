@@ -18,8 +18,19 @@ namespace Gizmo.Client.UI.View.Services
         }
         #endregion
 
-
         #region FUNCTIONS
+
+        public void SetNewPassword(string value)
+        {
+            ViewState.NewPassword = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetRepeatPassword(string value)
+        {
+            ViewState.RepeatPassword = value;
+            ViewState.RaiseChanged();
+        }
 
         public Task SubmitAsync()
         {

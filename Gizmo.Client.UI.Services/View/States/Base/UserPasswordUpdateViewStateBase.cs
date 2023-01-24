@@ -21,7 +21,7 @@ namespace Gizmo.Client.UI.View.States
         public string Password
         {
             get { return _password; }
-            set { _password = value; }
+            internal set { _password = value; }
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace Gizmo.Client.UI.View.States
         public string ConfirmPassword
         {
             get { return _confirmPassword; }
-            set { _confirmPassword = value; }
+            internal set { _confirmPassword = value; }
         }
 
         #endregion

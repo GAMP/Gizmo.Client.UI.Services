@@ -18,9 +18,22 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region FIELDS
+
         #endregion
 
         #region FUNCTIONS
+
+        public void SetEmail(string value)
+        {
+            ViewState.Email = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetMobilePhone(string value)
+        {
+            ViewState.MobilePhone = value;
+            ViewState.RaiseChanged();
+        }
 
         public void SetRecoveryMethod(UserPasswordRecoveryMethod userPasswordRecoveryMethod)
         {
@@ -77,7 +90,7 @@ namespace Gizmo.Client.UI.View.Services
                 fieldIdentifier.FieldName == nameof(ViewState.Email) &&
                 string.IsNullOrEmpty(ViewState.Email))
             {
-                validationMessageStore.Add(() => ViewState.Email, "The e-mail field is required.");
+                validationMessageStore.Add(() => ViewState.Email, "The e-mail field is required."); //TODO: A TRANSLATION
             }
 
 
@@ -85,7 +98,7 @@ namespace Gizmo.Client.UI.View.Services
                 fieldIdentifier.FieldName == nameof(ViewState.MobilePhone) &&
                 string.IsNullOrEmpty(ViewState.MobilePhone))
             {
-                validationMessageStore.Add(() => ViewState.MobilePhone, "The phone number field is required.");
+                validationMessageStore.Add(() => ViewState.MobilePhone, "The phone number field is required."); //TODO: A TRANSLATION
             }
         }
 

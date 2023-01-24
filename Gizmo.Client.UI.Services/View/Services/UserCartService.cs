@@ -31,6 +31,12 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
+        public void SetNotes(string value)
+        {
+            ViewState.Notes = value;
+            ViewState.RaiseChanged();
+        }
+
         public UserCartProductViewState? GetProduct(int productId)
         {
             return ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault();
@@ -94,6 +100,7 @@ namespace Gizmo.Client.UI.View.Services
             //If current uri is not shop or product details then navigate to shop.
             var currentUri = NavigationService.GetUri();
 
+            //TODO: A USE CONSTS?
             if (!currentUri.EndsWith("/shop") && !currentUri.Contains("/productdetails/"))
                 NavigationService.NavigateTo(ClientRoutes.ShopRoute);
         }

@@ -43,7 +43,7 @@ namespace Gizmo.Client.UI.View.States
         public string? LoginName 
         {
             get { return _loginName; }
-            set { SetProperty(ref _loginName, value); }
+            internal set { SetProperty(ref _loginName, value); }
         }
 
         /// <summary>
@@ -54,13 +54,13 @@ namespace Gizmo.Client.UI.View.States
         public string? Password 
         {
             get { return _password; }
-            set { SetProperty(ref _password, value); }
+            internal set { SetProperty(ref _password, value); }
         }
 
         public bool IsPasswordVisible
         {
             get { return _isPasswordVisible; }
-            set { SetProperty(ref _isPasswordVisible, value); }
+            internal set { SetProperty(ref _isPasswordVisible, value); }
         }
 
         public bool HasLoginError

@@ -28,19 +28,12 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        #endregion
-
-        protected override async Task OnInitializing(CancellationToken ct)
-        {
-            await base.OnInitializing(ct);
-
-
-        }
-
         public void SetSelectedTabIndex(int selectedTabIndex)
         {
             ViewState.SelectedTabIndex = selectedTabIndex;
             ViewState.RaiseChanged();
         }
+
+        #endregion
     }
 }

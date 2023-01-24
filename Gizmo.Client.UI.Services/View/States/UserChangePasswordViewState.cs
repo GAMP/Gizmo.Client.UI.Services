@@ -24,7 +24,7 @@ namespace Gizmo.Client.UI.View.States
         public string OldPassword
         {
             get { return _oldPassword; }
-            set { SetProperty(ref _oldPassword, value); }
+            internal set { SetProperty(ref _oldPassword, value); }
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Gizmo.Client.UI.View.States
         public string NewPassword
         {
             get { return _newPassword; }
-            set { SetProperty(ref _newPassword, value); }
+            internal set { SetProperty(ref _newPassword, value); }
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace Gizmo.Client.UI.View.States
         public string RepeatPassword
         {
             get { return _repeatPassword; }
-            set { SetProperty(ref _repeatPassword, value); }
+            internal set { SetProperty(ref _repeatPassword, value); }
         }
 
         public bool IsComplete

@@ -19,6 +19,12 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
+        public void SetConfirmationCode(string value)
+        {
+            ViewState.ConfirmationCode = value;
+            ViewState.RaiseChanged();
+        }
+
         public Task SubmitAsync()
         {
             ViewState.IsValid = EditContext.Validate();

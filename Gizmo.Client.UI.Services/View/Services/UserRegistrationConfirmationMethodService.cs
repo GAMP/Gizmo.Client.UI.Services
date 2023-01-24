@@ -32,6 +32,18 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
+        public void SetEmail(string value)
+        {
+            ViewState.Email = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetMobilePhone(string value)
+        {
+            ViewState.MobilePhone = value;
+            ViewState.RaiseChanged();
+        }
+
         public async Task StartRegistrationAsync()
         {
             var userAgreementsService = ServiceProvider.GetRequiredService<UserAgreementsService>();

@@ -24,6 +24,26 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IGizmoClient _gizmoClient;
         #endregion
 
+        #region FUNCTIONS
+
+        public void SetOldPassword(string value)
+        {
+            ViewState.OldPassword = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetNewPassword(string value)
+        {
+            ViewState.NewPassword = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetRepeatPassword(string value)
+        {
+            ViewState.RepeatPassword = value;
+            ViewState.RaiseChanged();
+        }
+
         public async Task SubmitAsync()
         {
             ViewState.IsValid = EditContext.Validate();
@@ -51,6 +71,8 @@ namespace Gizmo.Client.UI.View.Services
 
             return Task.CompletedTask;
         }
+
+        #endregion
 
         protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
         {

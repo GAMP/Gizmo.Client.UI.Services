@@ -15,7 +15,7 @@ namespace Gizmo.Client.UI.View.States
         public string? BusinessLogo
         {
             get { return _businessLogo; }
-            set { SetProperty(ref _businessLogo, value); }
+            internal set { SetProperty(ref _businessLogo, value); }
         } 
        
         #endregion

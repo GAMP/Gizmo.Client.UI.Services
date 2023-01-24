@@ -16,6 +16,26 @@ namespace Gizmo.Client.UI.View.Services
         }
         #endregion
 
+        #region FUNCTIONS
+
+        public void SetUsername(string value)
+        {
+            ViewState.Username = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetNewPassword(string value)
+        {
+            ViewState.NewPassword = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetRepeatPassword(string value)
+        {
+            ViewState.RepeatPassword = value;
+            ViewState.RaiseChanged();
+        }
+
         public Task SubmitAsync()
         {
             ViewState.IsValid = EditContext.Validate();
@@ -26,5 +46,7 @@ namespace Gizmo.Client.UI.View.Services
             NavigationService.NavigateTo(ClientRoutes.RegistrationAdditionalFieldsRoute);
             return Task.CompletedTask;
         }
+
+        #endregion
     }
 }

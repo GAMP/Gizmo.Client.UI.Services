@@ -28,12 +28,11 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        #endregion
-
-        protected override async Task OnInitializing(CancellationToken ct)
+        public async Task LoadAdvertisementsAsync()
         {
-            await base.OnInitializing(ct);
+            //TODO: A Load advertisments on user login?
 
+            //Test
             Random random = new Random();
 
             ViewState.Advertisements = new List<AdvertisementViewState>();
@@ -61,6 +60,11 @@ namespace Gizmo.Client.UI.View.Services
                 Body = "#3 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
                 ThumbnailUrl = $"carousel_3.jpg"
             });
+            //End Test
+
+            ViewState.RaiseChanged();
         }
+
+        #endregion
     }
 }

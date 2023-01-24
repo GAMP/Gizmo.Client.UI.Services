@@ -48,11 +48,5 @@ namespace Gizmo.Client.UI.View.Services
         }
 
 		#endregion
-
-		protected override async Task OnInitializing(CancellationToken ct)
-        {
-            await base.OnInitializing(ct);
-            
-        }
     }
 }

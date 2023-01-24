@@ -52,6 +52,9 @@ namespace Gizmo.Client.UI.View.Services
         {
             await base.OnInitializing(ct);
 
+            //TODO: A Hook for notifications?
+
+            //Test
             ViewState.Notifications = Enumerable.Range(1, 13).Select(i => new NotificationViewState()
             {
                 Id = i,
@@ -59,6 +62,7 @@ namespace Gizmo.Client.UI.View.Services
                 Title = $"Order on hold {i}",
                 Message = "Your order is on hold. You will be further be notified once order is accepted." //Order #0075364 was successfuly paid from your account.
             }).ToList();
+            //End Test
         }
     }
 }

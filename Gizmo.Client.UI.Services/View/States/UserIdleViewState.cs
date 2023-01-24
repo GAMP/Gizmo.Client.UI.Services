@@ -16,13 +16,13 @@ namespace Gizmo.Client.UI.View.States
         public bool IsIdle
         {
             get { return _isIdle; }
-            set { SetProperty(ref _isIdle, value); }
+            internal set { SetProperty(ref _isIdle, value); }
         }
 
         public TimeOnly IdleTime
         {
             get { return _idleTime; }
-            set { SetProperty(ref _idleTime, value); }
+            internal set { SetProperty(ref _idleTime, value); }
         } 
         
         #endregion

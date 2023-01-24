@@ -27,12 +27,12 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region FUNCTIONS
-        #endregion
 
-        protected override async Task OnInitializing(CancellationToken ct)
+        public async Task LoadPaymentMethods()
         {
-            await base.OnInitializing(ct);
+            //TODO: A Load payment methods on user login?
 
+            //Test
             Random random = new Random();
 
             var paymentMethods = await _gizmoClient.GetPaymentMethodsAsync(new PaymentMethodsFilter());
@@ -41,6 +41,11 @@ namespace Gizmo.Client.UI.View.Services
                 Id = a.Id,
                 Name = a.Name
             }).ToList();
+            //End Test
+
+            ViewState.RaiseChanged();
         }
+
+        #endregion
     }
 }

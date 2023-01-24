@@ -37,6 +37,8 @@ namespace Gizmo.Client.UI.View.Services
             var userCartService = ServiceProvider.GetRequiredService<UserCartService>();
 
             //TODO: A Load product from cache or get by id?
+
+            //Test
             var product = await _gizmoClient.GetProductByIdAsync(id);
             ViewState.Product.Id = product.Id;
             ViewState.Product.ProductGroupId = product.ProductGroupId;
@@ -82,6 +84,7 @@ namespace Gizmo.Client.UI.View.Services
                 HostGroup = "Vip",
                 ProductGroupName = "Beverages"
             }).Take(5).ToList();
+            //End Test
         }
 
         #endregion
