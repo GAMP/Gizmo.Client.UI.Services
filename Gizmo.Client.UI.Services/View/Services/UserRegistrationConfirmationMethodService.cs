@@ -16,9 +16,13 @@ namespace Gizmo.Client.UI.View.Services
         public UserRegistrationConfirmationMethodService(UserRegistrationConfirmationMethodViewState viewState,
             ILogger<UserRegistrationConfirmationMethodService> logger,
             IServiceProvider serviceProvider,
+            IGizmoClient gizmoClient,
             IClientDialogService dialogService) : base(viewState, logger, serviceProvider)
         {
+            //TODO: A GET FROM CLIENT
             ViewState.ConfirmationMethod = UserRegistrationMethod.MobilePhone;
+
+            _gizmoClient = gizmoClient;
             _dialogService = dialogService;
 
             _timer.Elapsed += timer_Elapsed;
@@ -26,6 +30,7 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region FIELDS
+        private readonly IGizmoClient _gizmoClient;
         private readonly IClientDialogService _dialogService;
         private System.Timers.Timer _timer = new System.Timers.Timer(1000);
         #endregion
@@ -98,6 +103,15 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
+                if (ViewState.ConfirmationMethod == UserRegistrationMethod.Email)
+                {
+                    await _gizmoClient.AccountCreationByEmailStartAsync(ViewState.Email);
+                }
+                else if (ViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone)
+                {
+                    await _gizmoClient.AccountCreationByMobilePhoneStartAsync(ViewState.MobilePhone);
+                }
+
                 // Simulate task.
                 await Task.Delay(2000);
 
@@ -141,23 +155,40 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        protected override async Task OnCustomValidationAsync(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
         {
             base.OnCustomValidation(fieldIdentifier, validationMessageStore);
 
             if (ViewState.ConfirmationMethod == UserRegistrationMethod.Email &&
-                fieldIdentifier.FieldName == nameof(ViewState.Email) &&
-                string.IsNullOrEmpty(ViewState.Email))
+                fieldIdentifier.FieldName == nameof(ViewState.Email))
             {
-                validationMessageStore.Add(() => ViewState.Email, "The e-mail field is required.");
+                if (string.IsNullOrEmpty(ViewState.Email))
+                {
+                    validationMessageStore.Add(() => ViewState.Email, "The e-mail field is required."); //TODO: A TRANSLATE
+                }
+                else
+                {
+                    if (await _gizmoClient.EmailExistAsync(ViewState.Email))
+                    {
+                        validationMessageStore.Add(() => ViewState.Email, "The email is in use."); //TODO: A TRANSLATE
+                    }
+                }
             }
-            
 
             if (ViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone &&
-                fieldIdentifier.FieldName == nameof(ViewState.MobilePhone) &&
-                string.IsNullOrEmpty(ViewState.MobilePhone))
+                fieldIdentifier.FieldName == nameof(ViewState.MobilePhone))
             {
-                validationMessageStore.Add(() => ViewState.MobilePhone, "The phone number field is required.");
+                if (string.IsNullOrEmpty(ViewState.MobilePhone))
+                {
+                    validationMessageStore.Add(() => ViewState.MobilePhone, "The phone number field is required."); //TODO: A TRANSLATE
+                }
+                else
+                {
+                    if (await _gizmoClient.MobileExistAsync(ViewState.MobilePhone))
+                    {
+                        validationMessageStore.Add(() => ViewState.MobilePhone, "The phone number is in use."); //TODO: A TRANSLATE
+                    }
+                }
             }
         }
 

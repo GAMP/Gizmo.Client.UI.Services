@@ -1,5 +1,6 @@
 ﻿using Gizmo.UI;
 using Gizmo.UI.View.States;
+using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel.DataAnnotations;
 
@@ -23,6 +24,8 @@ namespace Gizmo.Client.UI.View.States
             get { return _homePhone; }
             internal set { SetProperty(ref _homePhone, value); }
         }
+
+        public UserModelRequiredInfo DefaultUserGroupRequiredInfo { get; internal set; }
 
         #endregion
     }

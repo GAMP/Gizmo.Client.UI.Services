@@ -19,6 +19,5 @@ namespace Gizmo.Client.UI.View.States
         }
 
         #endregion
-
     }
 }

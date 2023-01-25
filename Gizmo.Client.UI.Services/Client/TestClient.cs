@@ -49,6 +49,58 @@ namespace Gizmo.Client
         private List<ProductGroupModel> _productGroups;
         private List<ProductModel> _products;
 
+        public async Task<UserLoginResult> LoginAsync(string loginName, string password, CancellationToken cancellationToken)
+        {
+            await Task.Delay(3000, cancellationToken);
+            return new UserLoginResult() { AccessToken = string.Empty, Result = UserLoginCode.Sucess };
+        }
+
+        public async Task<UserLogoutResult> UserLogoutAsync(CancellationToken cancellationToken)
+        {
+            await Task.Delay(3000, cancellationToken);
+            return new UserLogoutResult();
+        }
+
+        #region Registration
+
+        public async Task<bool> AccountCreationByEmailStartAsync(string email)
+        {
+            return false;
+        }
+
+        public async Task<bool> AccountCreationByMobilePhoneStartAsync(string mobilePhone)
+        {
+            return false;
+        }
+
+        #endregion
+
+        #region Password Recovery
+
+        public async Task<bool> UserRecoveryMethodGetAsync(string username)
+        {
+            return false;
+        }
+
+        public async Task<bool> UserRecoveryByMobileStartAsync(string username)
+        {
+            return false;
+        }
+
+        public async Task<bool> UserRecoveryByEmailStartAsync(string email)
+        {
+            return false;
+        }
+
+        public async Task<bool> UserRecoveryPasswordCompleteAsync(string token, string confirmationCode, string newPassword)
+        {
+            return false;
+        }
+
+        #endregion
+
+        #region User Agreements
+
         public async Task<PagedList<UserAgreementModel>> GetUserAgreementsAsync(UserAgreementsFilter filter)
         {
             var userAgreements = Enumerable.Range(1, 3).Select(i => new UserAgreementModel()
@@ -83,23 +135,38 @@ namespace Gizmo.Client
             return new UpdateResult();
         }
 
-        public async Task<UserLoginResult> LoginAsync(string loginName, string password, CancellationToken cancellationToken)
+        #endregion
+
+        #region Registration
+
+        public async Task<bool> EmailExistAsync(string email)
         {
-            await Task.Delay(3000, cancellationToken);
-            return new UserLoginResult() { AccessToken = string.Empty, Result = UserLoginCode.Sucess };
+            return false;
         }
 
-        public async Task<UserLogoutResult> UserLogoutAsync(CancellationToken cancellationToken)
+        public async Task<bool> MobileExistAsync(string mobilePhone)
         {
-            await Task.Delay(3000, cancellationToken);
-            return new UserLogoutResult();
+            return false;
         }
 
-        public async Task UserPasswordChange(int userId, string oldPassword, string newPassword)
+        public async Task<bool> TokenIsValidAsync(int tokenType, string token, string confirmationCode)
         {
-
+            return true;
         }
 
+        public async Task<bool> UsernameExistAsync(string username)
+        {
+            return true;
+        }
+
+        public async Task<UserModelRequiredInfo> GetDefaultUserGroupRequiredInfoAsync()
+        {
+            return new UserModelRequiredInfo();
+        }
+
+        #endregion
+
+        #region Products
         public async Task<PagedList<ProductGroupModel>> GetProductGroupsAsync(ProductGroupsFilter filter)
         {
             var pagedList = new PagedList<ProductGroupModel>(_productGroups, new PaginationMetadata());
@@ -142,6 +209,10 @@ namespace Gizmo.Client
 
             return pagedList;
         }
+
+        #endregion
+
+        #region Applications
 
         public async Task<PagedList<ApplicationGroupModel>> GetApplicationGroupsAsync(ApplicationGroupsFilter filter)
         {
@@ -211,6 +282,18 @@ namespace Gizmo.Client
             return pagedList;
         }
 
+        public Task<ApplicationModelImage> GetApplicationImageAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ApplicationExecutableModelImage> GetApplicationExecutableImageAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
         public async Task<PagedList<PaymentMethodModel>> GetPaymentMethodsAsync(PaymentMethodsFilter filter)
         {
             List<PaymentMethodModel> paymentMethods = Enumerable.Range(1, 5).Select(i => new PaymentMethodModel()
@@ -224,14 +307,14 @@ namespace Gizmo.Client
             return pagedList;
         }
 
-        public Task<ApplicationModelImage> GetApplicationImageAsync(int id)
+        public async Task ChangeUserPasswordAsync(int userId, string oldPassword, string newPassword)
         {
-            throw new NotImplementedException();
+
         }
 
-        public Task<ApplicationExecutableModelImage> GetApplicationExecutableImageAsync(int id)
+        public async Task<CreateResult> CreateUserOrderAsync(int userId, OrderCalculateModelOptions calculateOrderOptions)
         {
-            throw new NotImplementedException();
+            return new CreateResult();
         }
     }
 

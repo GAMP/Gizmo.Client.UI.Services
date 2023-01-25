@@ -34,7 +34,6 @@ namespace Gizmo.Client.UI.View.Services
         public void SetLoginMethod(UserLoginType userLoginType)
         {
             ViewState.LoginType = userLoginType;
-
             ViewState.RaiseChanged();
         }
 

@@ -13,8 +13,10 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserRegistrationMethodService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger,serviceProvider)
         {
-        }   
+        }
         #endregion
+
+        #region FUNCTIONS
 
         public Task SetMethodAsync(UserRegistrationMethod method)
         {
@@ -22,5 +24,6 @@ namespace Gizmo.Client.UI.View.Services
             return Task.CompletedTask;
         }
 
+        #endregion
     }
 }
