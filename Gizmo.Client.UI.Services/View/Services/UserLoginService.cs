@@ -80,7 +80,7 @@ namespace Gizmo.Client.UI.View.Services
                     //Failed login
                     ViewState.IsLogginIn = false;
                     ViewState.HasLoginError = true;
-                    ViewState.LoginError = "We couldn’t find an account matching the username and password you entered. Please check your username and password and try again.<br><a href='#'>Recover your password</a> or <a href='#'>create an account</a>";
+                    ViewState.LoginError = "We couldn’t find an account matching the username and password you entered. Please check your username and password and try again.<br><a href='#'>Recover your password</a> or <a href='#'>create an account</a>"; //TODO: A TRANSLATE
                     ViewState.RaiseChanged();
 
                     //Reset after some time?
@@ -139,32 +139,36 @@ namespace Gizmo.Client.UI.View.Services
             return Task.CompletedTask;
         }
 
-        private Task LoadUserProfileAsync()
+        private async Task LoadUserProfileAsync()
         {
+            var userProfile = await _gizmoClient.GetUserProfileAsync();
+
             //TODO: A
             var userViewState = ServiceProvider.GetRequiredService<UserViewState>();
 
-            userViewState.Username = "#Test Username";
-            userViewState.FirstName = "#Test First Name";
-            userViewState.LastName = "#Test Last Name";
-            userViewState.BirthDate = new DateTime(1950, 1, 2);
-            userViewState.Sex = Sex.Male;
-            userViewState.Country = "#Greece";
-            userViewState.Address = "#Test Address 123";
-            userViewState.Email = "#test@test.test";
-            userViewState.Phone = "#0123456789";
-            userViewState.MobilePhone = "#1234567890";
-            userViewState.RegistrationDate = new DateTime(2020, 3, 4);
-            userViewState.Picture = "_content/Gizmo.Client.UI/img/Cyber_Punk.png";
+            userViewState.Id = userProfile.Id;
+            userViewState.Username = userProfile.Username;
+            userViewState.FirstName = userProfile.FirstName;
+			userViewState.LastName = userProfile.LastName;
+			userViewState.BirthDate = userProfile.BirthDate;
+			userViewState.Sex = userProfile.Sex;
+			userViewState.Country = userProfile.Country;
+			userViewState.Address = userProfile.Address;
+			userViewState.Email = userProfile.Email;
+			userViewState.Phone = userProfile.Phone;
+			userViewState.MobilePhone = userProfile.MobilePhone;
+			//TODO: A
+			//userViewState.RegistrationDate = userProfile.RegistrationDate;
+			userViewState.Picture = "_content/Gizmo.Client.UI/img/Cyber_Punk.png";
 
             userViewState.RaiseChanged();
-
-            return Task.CompletedTask;
         }
 
-        private Task LoadUserBalanceAsync()
-        {
-            var userBalanceViewState = ServiceProvider.GetRequiredService<UserBalanceViewState>();
+        private async Task LoadUserBalanceAsync()
+		{
+			var userBalance = await _gizmoClient.GetUserBalanceAsync();
+            //TODO: A UPDATE FROM USERBALANCE
+			var userBalanceViewState = ServiceProvider.GetRequiredService<UserBalanceViewState>();
 
             userBalanceViewState.Balance = 10.76m;
             userBalanceViewState.CurrentTimeProduct = "#Six Hours (6) for 10$ Pack";
@@ -172,8 +176,6 @@ namespace Gizmo.Client.UI.View.Services
             userBalanceViewState.PointsBalance = 416;
 
             userBalanceViewState.RaiseChanged();
-
-            return Task.CompletedTask;
         }
 
         private async Task ShowUserAgreementsAsync()

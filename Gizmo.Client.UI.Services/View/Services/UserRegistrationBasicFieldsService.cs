@@ -1,12 +1,15 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Web;
 
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
+    [Route(ClientRoutes.RegistrationBasicFieldsRoute)]
     public sealed class UserRegistrationBasicFieldsService : ValidatingViewStateServiceBase<UserRegistrationBasicFieldsViewState>
     {
         #region CONSTRUCTOR
@@ -43,27 +46,71 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
-        public Task SubmitAsync()
+        public async Task SubmitAsync()
         {
             ViewState.IsValid = EditContext.Validate();
 
             if (ViewState.IsValid != true)
-                return Task.CompletedTask;
+                return;
 
-            //TODO: A CHECK IF WE HAVE REQUIRED ADDITIONAL FIELDS BEFORE GO THERE.
-            NavigationService.NavigateTo(ClientRoutes.RegistrationAdditionalFieldsRoute);
-            return Task.CompletedTask;
+            bool confirmationRequired = true; //TODO: A
+            bool confirmationWithMobilePhone = true;
+
+            if (ViewState.DefaultUserGroupRequiredInfo.Country ||
+                ViewState.DefaultUserGroupRequiredInfo.Address ||
+                ViewState.DefaultUserGroupRequiredInfo.PostCode ||
+                (ViewState.DefaultUserGroupRequiredInfo.Mobile && !confirmationWithMobilePhone))
+            {
+                //If any of the additional fields is required open the next page.
+                NavigationService.NavigateTo(ClientRoutes.RegistrationAdditionalFieldsRoute);
+            }
+            else
+            {
+                //If no additional fields are required then proceed with sign up.
+
+                try
+                {
+                    if (!confirmationRequired)
+                    {
+                        string password = string.Empty; //TODO: A
+
+                        await _gizmoClient.AccountCreationCompleteAsync(new Web.Api.Models.UserModelUpdate()
+                        {
+
+                        }, password);
+                    }
+                    else
+                    {
+                        string token = string.Empty; //TODO: A DON'T WE NEED CONFIRMATION CODE AGAIN?
+                        string password = string.Empty; //TODO: A
+
+                        await _gizmoClient.AccountCreationByTokenCompleteAsync(token, new Web.Api.Models.UserModelUpdate()
+                        {
+
+                        }, password);
+                    }
+
+                    NavigationService.NavigateTo(ClientRoutes.LoginRoute);
+                }
+                catch
+                {
+                    //TODO: A HANDLE ERROR
+                }
+                finally
+                {
+
+                }
+            }
         }
 
         #endregion
 
         #region OVERRIDES
 
-        protected override async Task OnInitializing(CancellationToken ct)
+        protected override async Task OnNavigatedIn()
         {
-            await base.OnInitializing(ct);
+            await base.OnNavigatedIn();
 
-            //TODO: A
             ViewState.DefaultUserGroupRequiredInfo = await _gizmoClient.GetDefaultUserGroupRequiredInfoAsync();
         }
 

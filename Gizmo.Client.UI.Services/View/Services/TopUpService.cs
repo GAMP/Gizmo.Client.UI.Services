@@ -2,7 +2,9 @@
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -37,12 +39,22 @@ namespace Gizmo.Client.UI.View.Services
 
         public void SetAmount(decimal value)
         {
+            if (!ViewState.AllowCustomValue && !ViewState.Presets.Contains(value))
+                return;
+
             ViewState.Amount = value;
             ViewState.RaiseChanged();
         }
 
         public async Task ShowDialogAsync()
         {
+            var configuration = await _gizmoClient.GetOnlinePaymentsConfigurationAsync();
+
+            ViewState.Presets = configuration.Presets;
+            ViewState.AllowCustomValue = configuration.AllowCustomValue;
+            ViewState.MinimumAmount = configuration.MinimumAmount;
+            ViewState.RaiseChanged();
+
             if (_dialogCancellationTokenSource != null)
             {
                 _dialogCancellationTokenSource.Dispose();
@@ -125,17 +137,21 @@ namespace Gizmo.Client.UI.View.Services
 
         #endregion
 
-        protected override async Task OnInitializing(CancellationToken ct)
-        {
-            await base.OnInitializing(ct);
+        #region OVERRIDES
 
-            ViewState.Presets.Add(5);
-            ViewState.Presets.Add(10);
-            ViewState.Presets.Add(15);
-            ViewState.Presets.Add(20);
-            ViewState.Presets.Add(25);
-            ViewState.Presets.Add(30);
-            ViewState.Presets.Add(35);
+        protected override async Task OnCustomValidationAsync(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        {
+            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
+
+            if (fieldIdentifier.FieldName == nameof(ViewState.Amount))
+            {
+                if (ViewState.Amount < ViewState.MinimumAmount)
+                {
+                    validationMessageStore.Add(() => ViewState.Amount, string.Format("Minimum amount is {0}.", ViewState.MinimumAmount)); //TODO: A TRANSLATE
+                }
+            }
         }
+
+        #endregion
     }
 }

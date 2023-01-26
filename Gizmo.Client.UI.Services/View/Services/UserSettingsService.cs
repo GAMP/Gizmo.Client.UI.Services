@@ -12,14 +12,20 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public UserSettingsService(UserSettingsViewState viewState,
             ILogger<UserSettingsService> logger,
-            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
-        {
-        }
-        #endregion
+            IServiceProvider serviceProvider,
+            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+		{
+			_gizmoClient = gizmoClient;
+		}
+		#endregion
 
-        #region FUNCTIONS
+		#region FIELDS
+		private readonly IGizmoClient _gizmoClient;
+		#endregion
 
-        public void SetUsername(string value)
+		#region FUNCTIONS
+
+		public void SetUsername(string value)
         {
             ViewState.Username = value;
             ViewState.RaiseChanged();
@@ -105,8 +111,35 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return Task.CompletedTask;
 
-            //TODO: A UPDATE PROFILE
+            _gizmoClient.UpdateUserProfileAsync(new UserModelUpdate()
+            {
+                Id = 0000,
+                //Password = ,
+                Username = ViewState.Username,
+                Email = ViewState.Email,
+                UserGroupId = 0000,
+                //IsNegativeBalanceAllowed = ,
+                //IsPersonalInfoRequested = ,
+                //EnableDate = ,
+                //DisabledDate = ,
+                FirstName = ViewState.FirstName,
+                LastName = ViewState.LastName,
+                BirthDate = ViewState.BirthDate,
+                Address = ViewState.Address,
+                //City = ,
+                Country = ViewState.Country,
+                //PostCode = ,
+                Phone = ViewState.Phone,
+                MobilePhone = ViewState.MobilePhone,
+                Sex = ViewState.Sex,
+                //IsDeleted = ,
+                //IsDisabled = ,
+                //SmartCardUid = ,
+                //Identification = 
+            });
 
+            //TODO: A Update loaded profile instantly or wait for event?
+            
             var userViewState = ServiceProvider.GetRequiredService<UserViewState>();
 
             userViewState.Username = ViewState.Username;
@@ -119,11 +152,11 @@ namespace Gizmo.Client.UI.View.Services
             userViewState.Email = ViewState.Email;
             userViewState.Phone = ViewState.Phone;
             userViewState.MobilePhone = ViewState.MobilePhone;
-            //TODO: A POST CODE, IMAGE
+			//TODO: A POST CODE, IMAGE
 
 
 
-            ViewState.RaiseChanged();
+			ViewState.RaiseChanged();
 
             return Task.CompletedTask;
         }

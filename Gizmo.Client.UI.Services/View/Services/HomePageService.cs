@@ -1,12 +1,14 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
+    [Route(ClientRoutes.HomeRoute)]
     public sealed class HomePageService : ViewStateServiceBase<HomePageViewState>
     {
         #region CONSTRUCTOR
@@ -73,6 +75,13 @@ namespace Gizmo.Client.UI.View.Services
             //End Test
         }
 
-        #endregion
-    }
+		#endregion
+
+		protected override async Task OnNavigatedIn()
+		{
+			await base.OnNavigatedIn();
+
+            await LoadPopularProductsAsync();
+		}
+	}
 }

@@ -1,13 +1,18 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Web;
+using System;
 using static System.Net.Mime.MediaTypeNames;
+using System.Numerics;
 
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
+    [Route(ClientRoutes.ProductDetailsRoute)]
     public sealed class ProductDetailsPageService : ViewStateServiceBase<ProductDetailsPageViewState>
     {
         #region CONSTRUCTOR
@@ -32,7 +37,7 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public async Task LoadProductAsync(int id)
+        private async Task LoadProductAsync(int id)
         {
             var userCartService = ServiceProvider.GetRequiredService<UserCartService>();
 
@@ -88,5 +93,22 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
+
+        protected override async Task OnNavigatedIn()
+        {
+            await base.OnNavigatedIn();
+
+            if (Uri.TryCreate(NavigationService.GetUri(), UriKind.Absolute, out var uri))
+            {
+                string? productId = HttpUtility.ParseQueryString(uri.Query).Get("ProductId");
+                if (!string.IsNullOrEmpty(productId))
+                {
+                    if (int.TryParse(productId, out int id))
+                    {
+                        await LoadProductAsync(id);
+                    }
+                }
+            }
+        }
     }
 }

@@ -11,6 +11,8 @@ namespace Gizmo.Client.UI.View.States
         private bool _isLoading;
         private int _pageIndex;
         private List<decimal> _presets = new();
+        private bool _allowCustomValue;
+        private decimal _minimumAmount;
         private decimal _amount;
         #endregion
 
@@ -32,6 +34,18 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _presets; }
             internal set { _presets = value; }
+        }
+
+        public bool AllowCustomValue
+        {
+            get { return _allowCustomValue; }
+            internal set { _allowCustomValue = value; }
+        }
+
+        public decimal MinimumAmount
+        {
+            get { return _minimumAmount; }
+            internal set { _minimumAmount = value; }
         }
 
         [ValidatingProperty()]

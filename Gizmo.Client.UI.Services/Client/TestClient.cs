@@ -1,4 +1,5 @@
-﻿using Gizmo.Web.Api.Models;
+﻿using Gizmo.Client.UI.View.States;
+using Gizmo.Web.Api.Models;
 
 namespace Gizmo.Client
 {
@@ -61,16 +62,47 @@ namespace Gizmo.Client
             return new UserLogoutResult();
         }
 
-        #region Registration
-
-        public async Task<bool> AccountCreationByEmailStartAsync(string email)
+        public async Task<UserModel> GetUserProfileAsync()
         {
-            return false;
+            return new UserModel()
+            {
+                Username = "#Test Username",
+                FirstName = "#Test First Name",
+                LastName = "#Test Last Name",
+                BirthDate = new DateTime(1950, 1, 2),
+                Sex = Sex.Male,
+                Country = "#Greece",
+                Address = "#Test Address 123",
+                Email = "#test@test.test",
+                Phone = "#0123456789",
+                MobilePhone = "#1234567890",
+                //TODO: A DOES NOT EXISTS IN API RegistrationDate = new DateTime(2020, 3, 4)
+            };
         }
 
-        public async Task<bool> AccountCreationByMobilePhoneStartAsync(string mobilePhone)
+        public async Task<UpdateResult> UpdateUserProfileAsync(UserModelUpdate user)
         {
-            return false;
+            return new UpdateResult();
+        }
+
+        public async Task<bool> GetUserBalanceAsync()
+        {
+            return true;
+        }
+
+        #region Top Up
+
+        public async Task<PaymentOnlineConfigurationModel> GetOnlinePaymentsConfigurationAsync()
+        {
+            return new PaymentOnlineConfigurationModel()
+            {
+                Presets = new List<decimal>() { 5, 10, 15, 20, 25, 30, 35 }
+            };
+        }
+
+        public async Task<PaymentIntentCreateResultModel> CreatePaymentIntentAsync(PaymentIntentCreateParametersDepositModel paymentIntentCreateParametersDeposit)
+        {
+            return new PaymentIntentCreateResultModel();
         }
 
         #endregion
@@ -156,12 +188,32 @@ namespace Gizmo.Client
 
         public async Task<bool> UsernameExistAsync(string username)
         {
-            return true;
+            return false;
         }
 
         public async Task<UserModelRequiredInfo> GetDefaultUserGroupRequiredInfoAsync()
         {
             return new UserModelRequiredInfo();
+        }
+
+        public async Task<AccountCreationResultModelByEmail> AccountCreationByEmailStartAsync(string email)
+        {
+            return new AccountCreationResultModelByEmail();
+        }
+
+        public async Task<AccountCreationResultModelByMobilePhone> AccountCreationByMobilePhoneStartAsync(string mobilePhone)
+        {
+            return new AccountCreationResultModelByMobilePhone();
+        }
+
+        public async Task<AccountCreationCompleteResultModel> AccountCreationCompleteAsync(UserModelUpdate user, string password)
+        {
+            return new AccountCreationCompleteResultModel();
+        }
+
+        public async Task<AccountCreationCompleteResultModelByToken> AccountCreationByTokenCompleteAsync(string token, UserModelUpdate user, string password)
+        {
+            return new AccountCreationCompleteResultModelByToken();
         }
 
         #endregion
