@@ -14,7 +14,7 @@ namespace Gizmo.Client.UI.Services
         #region FIELDS
         private static readonly bool _isWebBrowser = RuntimeInformation.IsOSPlatform(OSPlatform.Create("browser"));
         private static readonly Assembly _executingAssembly = Assembly.GetExecutingAssembly();
-        private static readonly Assembly _uiAssembly = typeof(Gizmo.UI.Services.ComponentDiscoveryServiceBase).Assembly;
+        private static readonly Assembly _uiAssembly = typeof(Gizmo.UI.Services.UICompositionServiceBase).Assembly;
         private static readonly ClientInMemoryConfiurationSource _clientInMemoryConfiurationSource = new();
         #endregion
 
@@ -56,20 +56,21 @@ namespace Gizmo.Client.UI.Services
             //add localization service
             services.AddSingleton<ILocalizationService, UILocalizationService>();
 
-            services.AddSingleton<ImageService>();
+            //add image service implementation
+            services.AddSingleton<IImageService,ImageService>();
 
             //use appropriate component discovery service based on current platform
             if (_isWebBrowser)
             {
-                services.AddSingleton<WebAssemblyComponentDiscoveryService>();
-                services.AddSingleton<IComponentDiscoveryService>((sp) => sp.GetRequiredService<WebAssemblyComponentDiscoveryService>());
+                services.AddSingleton<WebAssemblyUICompositionService>();
+                services.AddSingleton<IUICompositionService>((sp) => sp.GetRequiredService<WebAssemblyUICompositionService>());
             }
             else
             {
                 //add in memory configuration store as singelton
                 services.AddSingleton((sp) => _clientInMemoryConfiurationSource);
-                services.AddSingleton<DesktopComponentDiscoveryService>();
-                services.AddSingleton<IComponentDiscoveryService>((sp) => sp.GetRequiredService<DesktopComponentDiscoveryService>());
+                services.AddSingleton<DesktopUICompositionService>();
+                services.AddSingleton<IUICompositionService>((sp) => sp.GetRequiredService<DesktopUICompositionService>());
             }
 
             //add any Gizmo.UI services.

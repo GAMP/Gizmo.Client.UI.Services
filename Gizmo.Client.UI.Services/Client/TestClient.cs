@@ -3,7 +3,7 @@ using Gizmo.Web.Api.Models;
 
 namespace Gizmo.Client
 {
-    public class TestClient : IGizmoClient
+    public partial class TestClient : IGizmoClient
     {
         public TestClient()
         {
