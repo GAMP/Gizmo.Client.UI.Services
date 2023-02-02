@@ -54,7 +54,7 @@ namespace Gizmo.Client.UI.View.Services
 
             var userViewState = ServiceProvider.GetRequiredService<UserViewState>();
 
-            await _gizmoClient.UserPasswordChange(userViewState.Id, ViewState.OldPassword, ViewState.NewPassword);
+            //await _gizmoClient.UserPasswordChange(userViewState.Id, ViewState.OldPassword, ViewState.NewPassword);
 
 
             //TODO: A UPDATE PASSWORD
