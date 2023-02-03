@@ -37,6 +37,12 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
+        public void SetOrderPaymentMethod(int? paymentMethodId)
+        {
+            ViewState.PaymentMethodId = paymentMethodId;
+            ViewState.RaiseChanged();
+        }
+
         public UserCartProductViewState? GetProduct(int productId)
         {
             return ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault();
@@ -161,13 +167,6 @@ namespace Gizmo.Client.UI.View.Services
             return false;
         }
 
-        public void SetOrderPaymentMethod(int? paymentMethodId)
-        {
-            ViewState.PaymentMethodId = paymentMethodId;
-
-            ViewState.RaiseChanged();
-        }
-
         public async Task SubmitAsync()
         {
             ViewState.IsValid = EditContext.Validate();
@@ -180,17 +179,26 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
+                //TODO: A USER ID
+                int userId = 0;
+                OrderCalculateModelOptions calculateOrderOptions = new OrderCalculateModelOptions();
+                var result = await _gizmoClient.CreateUserOrderAsync(userId, calculateOrderOptions);
+
                 // Simulate task.
                 await Task.Delay(2000);
 
                 ViewState.IsLoading = false;
 
                 ViewState.IsComplete = true;
+                
+                ViewState.Products.Clear();
+                ViewState.PaymentMethodId = null;
+
                 ViewState.RaiseChanged();
             }
             catch
             {
-
+                //TODO: A HANDLE ERROR
             }
             finally
             {
@@ -200,8 +208,6 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task ResetAsync()
         {
-            ViewState.Products.Clear();
-            ViewState.PaymentMethodId = null;
             ViewState.IsComplete = false;
 
             ViewState.RaiseChanged();

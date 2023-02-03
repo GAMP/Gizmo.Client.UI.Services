@@ -1,39 +1,39 @@
 ﻿using Gizmo.Client.UI.View.States;
-using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
 
 namespace Gizmo.Client
 {
-    public class TestClient : IGizmoClient
+    public partial class TestClient : IGizmoClient
     {
         public TestClient()
         {
-            Random random = new Random();
+            Random random = new();
 
-            _productGroups = new List<ProductGroup>();
-            _productGroups.Add(new ProductGroup() { Id = 1, Name = "#Coffee" });
-            _productGroups.Add(new ProductGroup() { Id = 2, Name = "#Beverages" });
-            _productGroups.Add(new ProductGroup() { Id = 3, Name = "#Sandwiches" });
-            _productGroups.Add(new ProductGroup() { Id = 4, Name = "#Snacks" });
-            _productGroups.Add(new ProductGroup() { Id = 5, Name = "#Time offers" });
+            _productGroups = new List<ProductGroupModel>
+            {
+                new() { Id = 1, Name = "#Coffee" },
+                new() { Id = 2, Name = "#Beverages" },
+                new() { Id = 3, Name = "#Sandwiches" },
+                new() { Id = 4, Name = "#Snacks" },
+                new() { Id = 5, Name = "#Time offers" },
+                new() { Id = 6, Name = "#Coffee" },
+                new() { Id = 7, Name = "#Beverages" },
+                new() { Id = 8, Name = "#Sandwiches" },
+                new() { Id = 9, Name = "#Snacks" },
+                new() { Id = 10, Name = "#Time offers" },
+                new() { Id = 11, Name = "#Coffee" },
+                new() { Id = 12, Name = "#Beverages" },
+                new() { Id = 13, Name = "#Sandwiches" },
+                new() { Id = 14, Name = "#Snacks" },
+                new() { Id = 15, Name = "#Time offers" },
+                new() { Id = 16, Name = "#Coffee" },
+                new() { Id = 17, Name = "#Beverages" },
+                new() { Id = 18, Name = "#Sandwiches" },
+                new() { Id = 19, Name = "#Snacks" },
+                new() { Id = 20, Name = "#Time offers" }
+            };
 
-            _productGroups.Add(new ProductGroup() { Id = 6, Name = "#Coffee" });
-            _productGroups.Add(new ProductGroup() { Id = 7, Name = "#Beverages" });
-            _productGroups.Add(new ProductGroup() { Id = 8, Name = "#Sandwiches" });
-            _productGroups.Add(new ProductGroup() { Id = 9, Name = "#Snacks" });
-            _productGroups.Add(new ProductGroup() { Id = 10, Name = "#Time offers" });
-            _productGroups.Add(new ProductGroup() { Id = 11, Name = "#Coffee" });
-            _productGroups.Add(new ProductGroup() { Id = 12, Name = "#Beverages" });
-            _productGroups.Add(new ProductGroup() { Id = 13, Name = "#Sandwiches" });
-            _productGroups.Add(new ProductGroup() { Id = 14, Name = "#Snacks" });
-            _productGroups.Add(new ProductGroup() { Id = 15, Name = "#Time offers" });
-            _productGroups.Add(new ProductGroup() { Id = 16, Name = "#Coffee" });
-            _productGroups.Add(new ProductGroup() { Id = 17, Name = "#Beverages" });
-            _productGroups.Add(new ProductGroup() { Id = 18, Name = "#Sandwiches" });
-            _productGroups.Add(new ProductGroup() { Id = 19, Name = "#Snacks" });
-            _productGroups.Add(new ProductGroup() { Id = 20, Name = "#Time offers" });
-
-            _products = Enumerable.Range(1, 18).Select(i => new Product()
+            _products = Enumerable.Range(1, 18).Select(i => new ProductModel()
             {
                 Id = i,
                 ProductGroupId = random.Next(1, 5),
@@ -47,25 +47,108 @@ namespace Gizmo.Client
             }).ToList();
         }
 
-        private List<ProductGroup> _productGroups;
-        private List<Product> _products;
+        private List<ProductGroupModel> _productGroups;
+        private List<ProductModel> _products;
 
-        public async Task<PagedList<UserAgreement>> GetUserAgreementsAsync(UserAgreementsFilter filter)
+        public async Task<UserLoginResult> LoginAsync(string loginName, string password, CancellationToken cancellationToken)
         {
-            var userAgreements = Enumerable.Range(1, 3).Select(i => new UserAgreement()
+            await Task.Delay(3000, cancellationToken);
+            return new UserLoginResult() { AccessToken = string.Empty, Result = UserLoginCode.Sucess };
+        }
+
+        public async Task<UserLogoutResult> UserLogoutAsync(CancellationToken cancellationToken)
+        {
+            await Task.Delay(3000, cancellationToken);
+            return new UserLogoutResult();
+        }
+
+        public async Task<UserModel> GetUserProfileAsync()
+        {
+            return new UserModel()
+            {
+                Username = "#Test Username",
+                FirstName = "#Test First Name",
+                LastName = "#Test Last Name",
+                BirthDate = new DateTime(1950, 1, 2),
+                Sex = Sex.Male,
+                Country = "#Greece",
+                Address = "#Test Address 123",
+                Email = "#test@test.test",
+                Phone = "#0123456789",
+                MobilePhone = "#1234567890",
+                //TODO: A DOES NOT EXISTS IN API RegistrationDate = new DateTime(2020, 3, 4)
+            };
+        }
+
+        public async Task<UpdateResult> UpdateUserProfileAsync(UserModelUpdate user)
+        {
+            return new UpdateResult();
+        }
+
+        public async Task<bool> GetUserBalanceAsync()
+        {
+            return true;
+        }
+
+        #region Top Up
+
+        public async Task<PaymentOnlineConfigurationModel> GetOnlinePaymentsConfigurationAsync()
+        {
+            return new PaymentOnlineConfigurationModel()
+            {
+                Presets = new List<decimal>() { 5, 10, 15, 20, 25, 30, 35 }
+            };
+        }
+
+        public async Task<PaymentIntentCreateResultModel> CreatePaymentIntentAsync(PaymentIntentCreateParametersDepositModel paymentIntentCreateParametersDeposit)
+        {
+            return new PaymentIntentCreateResultModel();
+        }
+
+        #endregion
+
+        #region Password Recovery
+
+        public async Task<bool> UserRecoveryMethodGetAsync(string username)
+        {
+            return false;
+        }
+
+        public async Task<bool> UserRecoveryByMobileStartAsync(string username)
+        {
+            return false;
+        }
+
+        public async Task<bool> UserRecoveryByEmailStartAsync(string email)
+        {
+            return false;
+        }
+
+        public async Task<bool> UserRecoveryPasswordCompleteAsync(string token, string confirmationCode, string newPassword)
+        {
+            return false;
+        }
+
+        #endregion
+
+        #region User Agreements
+
+        public async Task<PagedList<UserAgreementModel>> GetUserAgreementsAsync(UserAgreementsFilter filter)
+        {
+            var userAgreements = Enumerable.Range(1, 3).Select(i => new UserAgreementModel()
             {
                 Id = i,
                 Agreement = $"#{i} Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
             }).ToList();
 
-            var pagedList = new PagedList<UserAgreement>(userAgreements, new PaginationMetadata());
+            var pagedList = new PagedList<UserAgreementModel>(userAgreements, new PaginationMetadata());
 
             return pagedList;
         }
 
-        public async Task<List<UserAgreementState>> GetUserAgreementStatesAsync(int userId)
+        public async Task<List<UserAgreementModelState>> GetUserAgreementStatesAsync(int userId)
         {
-            var userAgreementStates = Enumerable.Range(1, 3).Select(i => new UserAgreementState()
+            var userAgreementStates = Enumerable.Range(1, 3).Select(i => new UserAgreementModelState()
             {
                 UserAgreementId = i,
                 AcceptState = UserAgreementAcceptState.None
@@ -84,31 +167,66 @@ namespace Gizmo.Client
             return new UpdateResult();
         }
 
-        public async Task<UserLoginResult> LoginAsync(string loginName, string password, CancellationToken cancellationToken)
+        #endregion
+
+        #region Registration
+
+        public async Task<bool> EmailExistAsync(string email)
         {
-            await Task.Delay(3000, cancellationToken);
-            return new UserLoginResult() { AccessToken = string.Empty, Result = UserLoginCode.Sucess };
+            return false;
         }
 
-        public async Task<UserLogoutResult> UserLogoutAsync(CancellationToken cancellationToken)
+        public async Task<bool> MobileExistAsync(string mobilePhone)
         {
-            await Task.Delay(3000, cancellationToken);
-            return new UserLogoutResult();
+            return false;
         }
 
-        public async Task UserPasswordChange(int userId, string oldPassword, string newPassword)
+        public async Task<bool> TokenIsValidAsync(int tokenType, string token, string confirmationCode)
         {
-
+            return true;
         }
 
-        public async Task<PagedList<ProductGroup>> GetProductGroupsAsync(ProductGroupsFilter filter)
+        public async Task<bool> UsernameExistAsync(string username)
         {
-            var pagedList = new PagedList<ProductGroup>(_productGroups, new PaginationMetadata());
+            return false;
+        }
+
+        public async Task<UserModelRequiredInfo> GetDefaultUserGroupRequiredInfoAsync()
+        {
+            return new UserModelRequiredInfo();
+        }
+
+        public async Task<AccountCreationResultModelByEmail> AccountCreationByEmailStartAsync(string email)
+        {
+            return new AccountCreationResultModelByEmail();
+        }
+
+        public async Task<AccountCreationResultModelByMobilePhone> AccountCreationByMobilePhoneStartAsync(string mobilePhone)
+        {
+            return new AccountCreationResultModelByMobilePhone();
+        }
+
+        public async Task<AccountCreationCompleteResultModel> AccountCreationCompleteAsync(UserModelUpdate user, string password)
+        {
+            return new AccountCreationCompleteResultModel();
+        }
+
+        public async Task<AccountCreationCompleteResultModelByToken> AccountCreationByTokenCompleteAsync(string token, UserModelUpdate user, string password)
+        {
+            return new AccountCreationCompleteResultModelByToken();
+        }
+
+        #endregion
+
+        #region Products
+        public async Task<PagedList<ProductGroupModel>> GetProductGroupsAsync(ProductGroupsFilter filter)
+        {
+            var pagedList = new PagedList<ProductGroupModel>(_productGroups, new PaginationMetadata());
 
             return pagedList;
         }
 
-        public async Task<PagedList<Product>> GetProductsAsync(ProductsFilter filter)
+        public async Task<PagedList<ProductModel>> GetProductsAsync(ProductsFilter filter)
         {
             var query = _products.AsQueryable();
 
@@ -117,21 +235,21 @@ namespace Gizmo.Client
                 query = _products.Where(a => a.ProductGroupId == filter.ProductGroupId.Value).AsQueryable();
             }
 
-            var pagedList = new PagedList<Product>(query.ToList(), new PaginationMetadata());
+            var pagedList = new PagedList<ProductModel>(query.ToList(), new PaginationMetadata());
 
             return pagedList;
         }
 
-        public async Task<Product> GetProductByIdAsync(int id, GetOptions? options = null)
+        public async Task<ProductModel> GetProductByIdAsync(int id, ModelFilterOptions? options = null)
         {
             return _products.Where(a => a.Id == id).FirstOrDefault();
         }
 
-        public async Task<PagedList<BundledProduct>> GetBundledProductsAsync(int id)
+        public async Task<PagedList<ProductBundledModel>> GetBundledProductsAsync(int id)
         {
-            Random random = new Random();
+            Random random = new();
 
-            var bundledProducts = Enumerable.Range(1, 5).Select(i => new BundledProduct()
+            var bundledProducts = Enumerable.Range(1, 5).Select(i => new ProductBundledModel()
             {
                 Id = i,
                 ProductId = random.Next(1, 5),
@@ -139,42 +257,46 @@ namespace Gizmo.Client
                 UnitPrice = random.Next(1, 5)
             }).ToList();
 
-            var pagedList = new PagedList<BundledProduct>(bundledProducts, new PaginationMetadata());
+            var pagedList = new PagedList<ProductBundledModel>(bundledProducts, new PaginationMetadata());
 
             return pagedList;
         }
 
-        public async Task<PagedList<ApplicationGroup>> GetApplicationGroupsAsync(ApplicationGroupsFilter filter)
+        #endregion
+
+        #region Applications
+
+        public async Task<PagedList<ApplicationGroupModel>> GetApplicationGroupsAsync(ApplicationGroupsFilter filter)
         {
-            List<ApplicationGroup> applicationGroups = Enumerable.Range(1, 5).Select(i => new ApplicationGroup()
+            List<ApplicationGroupModel> applicationGroups = Enumerable.Range(1, 5).Select(i => new ApplicationGroupModel()
             {
                 Id = i,
                 Name = $"#Category ({i})"
             }).ToList();
 
-            var pagedList = new PagedList<ApplicationGroup>(applicationGroups, new PaginationMetadata());
+            var pagedList = new PagedList<ApplicationGroupModel>(applicationGroups, new PaginationMetadata());
 
             return pagedList;
         }
 
-        public async Task<PagedList<ApplicationEnterprise>> GetAppEnterprisesAsync(ApplicationEnterprisesFilter filter)
+        public async Task<PagedList<ApplicationEnterpriseModel>> GetAppEnterprisesAsync(ApplicationEnterprisesFilter filter)
         {
-            List<ApplicationEnterprise> applicationEnterprises = Enumerable.Range(1, 5).Select(i => new ApplicationEnterprise()
+            List<ApplicationEnterpriseModel> applicationEnterprises = Enumerable.Range(1, 5).Select(i => new ApplicationEnterpriseModel()
             {
                 Id = i,
                 Name = $"#Test ({i})"
             }).ToList();
 
-            var pagedList = new PagedList<ApplicationEnterprise>(applicationEnterprises, new PaginationMetadata());
+            var pagedList = new PagedList<ApplicationEnterpriseModel>(applicationEnterprises, new PaginationMetadata());
 
             return pagedList;
         }
 
-        public async Task<PagedList<Application>> GetApplicationsAsync(ApplicationsFilter filter)
+        public async Task<PagedList<ApplicationModel>> GetApplicationsAsync(ApplicationsFilter filter)
         {
-            Random random = new Random();
+            Random random = new();
 
-            List<Application> applications = Enumerable.Range(1, 15).Select(i => new Application()
+            List<ApplicationModel> applications = Enumerable.Range(1, 15).Select(i => new ApplicationModel()
             {
                 Id = i,
                 ApplicationCategoryId = random.Next(1, 5),
@@ -184,53 +306,67 @@ namespace Gizmo.Client
                 ReleaseDate = DateTime.Now
             }).ToList();
 
-            var pagedList = new PagedList<Application>(applications, new PaginationMetadata());
+            var pagedList = new PagedList<ApplicationModel>(applications, new PaginationMetadata());
 
             return pagedList;
         }
 
-        public async Task<PagedList<ApplicationExecutable>> GetApplicationExecutablesAsync(ApplicationExecutablesFilter filter)
+        public async Task<PagedList<ApplicationExecutableModel>> GetApplicationExecutablesAsync(ApplicationExecutablesFilter filter)
         {
-            List<ApplicationExecutable> executables = new List<ApplicationExecutable>();
-            executables.Add(new ApplicationExecutable() { Id = 1, Caption = "#battlenet.exe" });
-            executables.Add(new ApplicationExecutable() { Id = 2, Caption = "#DOTA" });
-            executables.Add(new ApplicationExecutable() { Id = 3, Caption = "#Spotify" });
-            executables.Add(new ApplicationExecutable() { Id = 4, Caption = "#valve_steamclient.exe" });
-            executables.Add(new ApplicationExecutable() { Id = 5, Caption = "#Chrome.exe" });
-            executables.Add(new ApplicationExecutable() { Id = 6, Caption = "#Chrome.exe" });
-            executables.Add(new ApplicationExecutable() { Id = 7, Caption = "#Chrome.exe" });
-            executables.Add(new ApplicationExecutable() { Id = 8, Caption = "#Chrome.exe" });
-            executables.Add(new ApplicationExecutable() { Id = 9, Caption = "#Chrome.exe" });
-            executables.Add(new ApplicationExecutable() { Id = 10, Caption = "#Chrome.exe" });
-            executables.Add(new ApplicationExecutable() { Id = 11, Caption = "#Chrome.exe" });
-            executables.Add(new ApplicationExecutable() { Id = 12, Caption = "#Chrome.exe" });
+            List<ApplicationExecutableModel> executables = new()
+            {
+                new() { Id = 1, Caption = "#battlenet.exe" },
+                new() { Id = 2, Caption = "#DOTA" },
+                new() { Id = 3, Caption = "#Spotify" },
+                new() { Id = 4, Caption = "#valve_steamclient.exe" },
+                new() { Id = 5, Caption = "#Chrome.exe" },
+                new() { Id = 6, Caption = "#Chrome.exe" },
+                new() { Id = 7, Caption = "#Chrome.exe" },
+                new() { Id = 8, Caption = "#Chrome.exe" },
+                new() { Id = 9, Caption = "#Chrome.exe" },
+                new() { Id = 10, Caption = "#Chrome.exe" },
+                new() { Id = 11, Caption = "#Chrome.exe" },
+                new() { Id = 12, Caption = "#Chrome.exe" }
+            };
 
-            var pagedList = new PagedList<ApplicationExecutable>(executables, new PaginationMetadata());
+            var pagedList = new PagedList<ApplicationExecutableModel>(executables, new PaginationMetadata());
 
             return pagedList;
         }
 
-        public async Task<PagedList<PaymentMethod>> GetPaymentMethodsAsync(PaymentMethodsFilter filter)
+        public Task<ApplicationModelImage> GetApplicationImageAsync(int id)
         {
-            List<PaymentMethod> paymentMethods = Enumerable.Range(1, 5).Select(i => new PaymentMethod()
+            throw new NotImplementedException();
+        }
+
+        public Task<ApplicationExecutableModelImage> GetApplicationExecutableImageAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        public async Task<PagedList<PaymentMethodModel>> GetPaymentMethodsAsync(PaymentMethodsFilter filter)
+        {
+            List<PaymentMethodModel> paymentMethods = Enumerable.Range(1, 5).Select(i => new PaymentMethodModel()
             {
                 Id = i,
                 Name = $"#Payment method {i}"
             }).ToList();
 
-            var pagedList = new PagedList<PaymentMethod>(paymentMethods, new PaginationMetadata());
+            var pagedList = new PagedList<PaymentMethodModel>(paymentMethods, new PaginationMetadata());
 
             return pagedList;
         }
 
-        public Task<ApplicationImage> GetApplicationImageAsync(int id)
+        public async Task ChangeUserPasswordAsync(int userId, string oldPassword, string newPassword)
         {
-            throw new NotImplementedException();
+
         }
 
-        public Task<ApplicationExecutableImage> GetApplicationExecutableImageAsync(int id)
+        public async Task<CreateResult> CreateUserOrderAsync(int userId, OrderCalculateModelOptions calculateOrderOptions)
         {
-            throw new NotImplementedException();
+            return new CreateResult();
         }
     }
 

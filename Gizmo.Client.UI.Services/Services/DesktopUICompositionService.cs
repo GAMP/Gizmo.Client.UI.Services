@@ -7,15 +7,15 @@ using System.Reflection;
 namespace Gizmo.Client.UI.Services
 {
     /// <summary>
-    /// Component discovery service used in desktop host.
+    /// UI Composition service used in desktop host.
     /// </summary>
-    public class DesktopComponentDiscoveryService : ComponentDiscoveryServiceBase
+    public sealed class DesktopUICompositionService : UICompositionServiceBase
     {
         #region CONSTRUCTOR
-        public DesktopComponentDiscoveryService(IOptionsMonitor<UICompositionOptions> optionsMonitor,
+        public DesktopUICompositionService(IOptionsMonitor<UICompositionOptions> optionsMonitor,
             ClientInMemoryConfiurationSource clientInMemoryConfiurationSource,
             IServiceProvider serviceProvider,
-            ILogger<DesktopComponentDiscoveryService> logger) : base(optionsMonitor, logger, serviceProvider)
+            ILogger<DesktopUICompositionService> logger) : base(optionsMonitor, logger, serviceProvider)
         {
             _configurationSource = clientInMemoryConfiurationSource;            
         }

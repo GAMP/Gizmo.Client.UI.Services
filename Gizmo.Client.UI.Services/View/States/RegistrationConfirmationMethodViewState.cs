@@ -1,10 +1,11 @@
-﻿using Gizmo.UI.View.States;
+﻿using Gizmo.UI;
+using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gizmo.Client.UI.View.States
 {
-    [Register]
-    public sealed class UserRegistrationViewState : ValidatingViewStateBase
+    [Register()]
+    public sealed class RegistrationConfirmationMethodViewState : ValidatingViewStateBase
     {
         #region FIELDS
         private UserRegistrationMethod _confirmationMethod;

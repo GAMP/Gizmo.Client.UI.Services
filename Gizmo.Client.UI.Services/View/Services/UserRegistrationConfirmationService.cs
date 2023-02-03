@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,9 +13,15 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public UserRegistrationConfirmationService(UserRegistrationConfirmationViewState viewState,
             ILogger<UserRegistrationConfirmationService> logger,
-            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
+            _gizmoClient = gizmoClient;
         }
+        #endregion
+
+        #region FIELDS
+        private readonly IGizmoClient _gizmoClient;
         #endregion
 
         #region FUNCTIONS
@@ -40,13 +47,26 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        protected override async Task OnCustomValidationAsync(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
         {
             base.OnCustomValidation(fieldIdentifier, validationMessageStore);
 
-            if (fieldIdentifier.FieldName == nameof(ViewState.ConfirmationCode) && ViewState.ConfirmationCode.Length != 6)
+            if (fieldIdentifier.FieldName == nameof(ViewState.ConfirmationCode))
             {
-                validationMessageStore.Add(() => ViewState.ConfirmationCode, "Confirmation code should have 6 digits!");
+                if (ViewState.ConfirmationCode.Length != 6)
+                {
+                    validationMessageStore.Add(() => ViewState.ConfirmationCode, "Confirmation code should have 6 digits!"); //TODO: A TRANSLATE
+                }
+                else
+                {
+                    int tokenType = 0;
+                    string token = string.Empty;
+                    //TODO: A MOVE TokenType FROM DATAINTERFACES tokenType;
+                    if (!await _gizmoClient.TokenIsValidAsync(tokenType, token, ViewState.ConfirmationCode))
+                    {
+                        validationMessageStore.Add(() => ViewState.ConfirmationCode, "The confirmation code is invalid."); //TODO: A TRANSLATE
+                    }
+                }
             }
         }
 

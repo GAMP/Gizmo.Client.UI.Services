@@ -52,7 +52,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldName == nameof(ViewState.ConfirmationCode) && ViewState.ConfirmationCode.Length != 6)
             {
-                validationMessageStore.Add(() => ViewState.ConfirmationCode, "Confirmation code should have 6 digits!");
+                validationMessageStore.Add(() => ViewState.ConfirmationCode, "Confirmation code should have 6 digits!"); //TODO: A TRANSLATE
             }
         }
 

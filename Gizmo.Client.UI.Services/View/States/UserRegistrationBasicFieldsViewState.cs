@@ -1,5 +1,6 @@
 ﻿using Gizmo.UI;
 using Gizmo.UI.View.States;
+using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel.DataAnnotations;
 
@@ -48,6 +49,8 @@ namespace Gizmo.Client.UI.View.States
             get { return _repeatPassword; }
             internal set { SetProperty(ref _repeatPassword, value); }
         }
+
+        public UserModelRequiredInfo DefaultUserGroupRequiredInfo { get; internal set; }
 
         #endregion
     }

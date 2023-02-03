@@ -55,7 +55,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (!string.IsNullOrEmpty(ViewState.NewPassword) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.NewPassword, ViewState.RepeatPassword) != 0)
                 {
-                    validationMessageStore.Add(() => ViewState.RepeatPassword, "Passwords do not match!");
+                    validationMessageStore.Add(() => ViewState.RepeatPassword, "Passwords do not match!"); //TODO: A TRANSLATE
                 }
             }
         }

@@ -7,15 +7,15 @@ using Gizmo.UI;
 namespace Gizmo.Client.UI.Services
 {
     /// <summary>
-    /// Component discovery service used in web assembly host.
+    /// UI Composition service used in web assembly host.
     /// </summary>
-    public sealed class WebAssemblyComponentDiscoveryService : ComponentDiscoveryServiceBase
+    public sealed class WebAssemblyUICompositionService : UICompositionServiceBase
     {
         #region CONSTRUCTOR
-        public WebAssemblyComponentDiscoveryService(IOptionsMonitor<UICompositionOptions> optionsMonitor,
+        public WebAssemblyUICompositionService(IOptionsMonitor<UICompositionOptions> optionsMonitor,
             IServiceProvider serviceProvider,
             IHttpClientFactory httpClientFactory,
-            ILogger<WebAssemblyComponentDiscoveryService> logger) : base(optionsMonitor, logger, serviceProvider)
+            ILogger<WebAssemblyUICompositionService> logger) : base(optionsMonitor, logger, serviceProvider)
         {
             _httpClientFactory = httpClientFactory;
         }

@@ -2,19 +2,23 @@
 using Gizmo.UI.View.Services;
 using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Web;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    public sealed class ApplicationDetailsPageService : ViewStateServiceBase<ApplicationDetailsPageViewState>
+	[Route(ClientRoutes.ApplicationDetailsRoute)]
+	public sealed class ApplicationDetailsPageService : ViewStateServiceBase<ApplicationDetailsPageViewState>
     {
         #region CONSTRUCTOR
         public ApplicationDetailsPageService(ApplicationDetailsPageViewState viewState,
             ILogger<ApplicationDetailsPageService> logger,
-            IServiceProvider serviceProvider, IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
         }
@@ -30,7 +34,7 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public async Task LoadApplicationAsync(int id)
+        private async Task LoadApplicationAsync(int id)
         {
             //TODO: A Load application from cache or get by id?
             var applicationsPageService = ServiceProvider.GetRequiredService<ApplicationsPageService>();
@@ -44,5 +48,22 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
+
+        protected override async Task OnNavigatedIn()
+        {
+            await base.OnNavigatedIn();
+
+            if (Uri.TryCreate(NavigationService.GetUri(), UriKind.Absolute, out var uri))
+            {
+                string? applicationId = HttpUtility.ParseQueryString(uri.Query).Get("ApplicationId");
+                if (!string.IsNullOrEmpty(applicationId))
+                {
+                    if (int.TryParse(applicationId, out int id))
+                    {
+                        await LoadApplicationAsync(id);
+                    }
+                }
+            }
+        }
     }
 }

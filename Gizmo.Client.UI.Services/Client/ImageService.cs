@@ -11,7 +11,7 @@ namespace Gizmo.Client.UI.Services
     /// <summary>
     /// Image service.
     /// </summary>
-    public sealed class ImageService
+    public sealed class ImageService : IImageService
     {
         #region CONSTRUCTOR
         public ImageService(ILogger<ImageService> logger, NavigationManager navigationManager)
@@ -78,14 +78,14 @@ namespace Gizmo.Client.UI.Services
             }
         }
 
-        private async ValueTask<byte[]> ImageGetAsync(ImageType imageType, int imageId, CancellationToken cancellationToken =default, bool ignoreCache= false)
+        private async ValueTask<byte[]> ImageGetAsync(ImageType imageType, int imageId, CancellationToken cancellationToken = default, bool ignoreCache = false)
         {
             byte[] image;
 
             if (!_isWebBrowser)
             {
                 //obtain image from source or memorty cache
-                image = await File.ReadAllBytesAsync("C:\\Users\\Dabuzz\\Desktop\\modern-warfare-2-cover-art.webp", cancellationToken);
+                image = Array.Empty<byte>();
             }
             else
             {
@@ -119,7 +119,7 @@ namespace Gizmo.Client.UI.Services
                     result.Append(hashData[i].ToString("x2"));
 
                 return result.ToString();
-            }               
+            }
         }
     }
 }

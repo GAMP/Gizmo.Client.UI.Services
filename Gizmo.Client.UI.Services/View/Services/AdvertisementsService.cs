@@ -12,7 +12,8 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public AdvertisementsService(AdvertisementsViewState viewState,
             ILogger<AdvertisementsService> logger,
-            IServiceProvider serviceProvider, IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
         }

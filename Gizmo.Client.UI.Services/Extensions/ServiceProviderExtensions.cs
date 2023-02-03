@@ -30,7 +30,7 @@ namespace Gizmo.Client.UI.Services
         /// <returns>Associated task.</returns>
         private static async Task InitializeClientUIServices(this IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
         {
-            var services = serviceProvider.GetServices<IComponentDiscoveryService>();
+            var services = serviceProvider.GetServices<IUICompositionService>();
             foreach (var service in services)
             {
                 await service.InitializeAsync(cancellationToken);
