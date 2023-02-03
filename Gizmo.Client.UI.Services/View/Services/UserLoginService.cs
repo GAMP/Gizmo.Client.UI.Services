@@ -37,6 +37,11 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
+        public async Task<bool> UsernameCharacterIsValid(char value)
+        {
+            return value != '!';
+        }
+
         public void SetLoginName(string value)
         {
             ViewState.LoginName = value;
