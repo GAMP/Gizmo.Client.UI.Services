@@ -111,17 +111,10 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return Task.CompletedTask;
 
-            _gizmoClient.UserProfileUpdateAsync(new UserModelUpdate()
+            _gizmoClient.UserProfileUpdateAsync(new UserProfileModelUpdate()
             {
-                Id = 0000,
-                //Password = ,
                 Username = ViewState.Username,
                 Email = ViewState.Email,
-                UserGroupId = 0000,
-                //IsNegativeBalanceAllowed = ,
-                //IsPersonalInfoRequested = ,
-                //EnableDate = ,
-                //DisabledDate = ,
                 FirstName = ViewState.FirstName,
                 LastName = ViewState.LastName,
                 BirthDate = ViewState.BirthDate,
@@ -131,11 +124,7 @@ namespace Gizmo.Client.UI.View.Services
                 //PostCode = ,
                 Phone = ViewState.Phone,
                 MobilePhone = ViewState.MobilePhone,
-                Sex = ViewState.Sex,
-                //IsDeleted = ,
-                //IsDisabled = ,
-                //SmartCardUid = ,
-                //Identification = 
+                Sex = ViewState.Sex
             });
 
             //TODO: A Update loaded profile instantly or wait for event?

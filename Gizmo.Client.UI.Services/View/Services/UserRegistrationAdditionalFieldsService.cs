@@ -59,7 +59,7 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     string password = string.Empty; //TODO: A
 
-                    await _gizmoClient.UserCreateCompleteAsync(new Web.Api.Models.UserModelUpdate()
+                    await _gizmoClient.UserCreateCompleteAsync(new Web.Api.Models.UserProfileModelCreate()
                     {
 
                     }, password);
@@ -69,7 +69,7 @@ namespace Gizmo.Client.UI.View.Services
                     string token = string.Empty; //TODO: A DON'T WE NEED CONFIRMATION CODE AGAIN?
                     string password = string.Empty; //TODO: A
 
-                    await _gizmoClient.UserCreateByTokenCompleteAsync(token, new Web.Api.Models.UserModelUpdate()
+                    await _gizmoClient.UserCreateByTokenCompleteAsync(token, new Web.Api.Models.UserProfileModelCreate()
                     {
 
                     }, password);

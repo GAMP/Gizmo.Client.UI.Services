@@ -80,7 +80,7 @@ namespace Gizmo.Client
             };
         }
 
-        public async Task<UpdateResult> UpdateUserProfileAsync(UserModelUpdate user)
+        public async Task<UpdateResult> UpdateUserProfileAsync(UserProfileModelCreate user)
         {
             return new UpdateResult();
         }
@@ -439,12 +439,12 @@ namespace Gizmo.Client
             throw new NotImplementedException();
         }
 
-        public Task<AccountCreationCompleteResultModel> UserCreateCompleteAsync(UserModelUpdate user, string password, CancellationToken cancellationToken = default)
+        public Task<AccountCreationCompleteResultModel> UserCreateCompleteAsync(UserProfileModelCreate user, string password, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        public Task<AccountCreationCompleteResultModelByToken> UserCreateByTokenCompleteAsync(string token, UserModelUpdate user, string password, CancellationToken cancellationToken = default)
+        public Task<AccountCreationCompleteResultModelByToken> UserCreateByTokenCompleteAsync(string token, UserProfileModelCreate user, string password, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
@@ -474,17 +474,17 @@ namespace Gizmo.Client
             throw new NotImplementedException();
         }
 
-        public Task<UserModel> UserProfileGetAsync(CancellationToken cancellationToken = default)
+        public Task<UserProfileModel> UserProfileGetAsync(CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        public Task<UpdateResult> UserProfileUpdateAsync(UserModelUpdate user, CancellationToken cancellationToken = default)
+        public Task<UpdateResult> UserProfileUpdateAsync(UserProfileModelUpdate user, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        public Task UserPasswordChangeAsync(string oldPassword, string newPassword, CancellationToken cancellationToken = default)
+        public Task UserPasswordUpdateAsync(string oldPassword, string newPassword, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
