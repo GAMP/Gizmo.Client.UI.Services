@@ -105,11 +105,11 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (ViewState.ConfirmationMethod == UserRegistrationMethod.Email)
                 {
-                    await _gizmoClient.AccountCreationByEmailStartAsync(ViewState.Email);
+                    await _gizmoClient.UserCreateByEmailStartAsync(ViewState.Email);
                 }
                 else if (ViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone)
                 {
-                    await _gizmoClient.AccountCreationByMobilePhoneStartAsync(ViewState.MobilePhone);
+                    await _gizmoClient.UserCreateByMobileStartAsync(ViewState.MobilePhone);
                 }
 
                 // Simulate task.
@@ -168,7 +168,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    if (await _gizmoClient.EmailExistAsync(ViewState.Email))
+                    if (await _gizmoClient.UserEmailExistAsync(ViewState.Email))
                     {
                         validationMessageStore.Add(() => ViewState.Email, "The email is in use."); //TODO: A TRANSLATE
                     }
@@ -184,7 +184,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    if (await _gizmoClient.MobileExistAsync(ViewState.MobilePhone))
+                    if (await _gizmoClient.UserMobileExistAsync(ViewState.MobilePhone))
                     {
                         validationMessageStore.Add(() => ViewState.MobilePhone, "The phone number is in use."); //TODO: A TRANSLATE
                     }

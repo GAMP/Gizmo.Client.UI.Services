@@ -59,7 +59,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    int tokenType = 0;
+                    TokenType tokenType = 0;
                     string token = string.Empty;
                     //TODO: A MOVE TokenType FROM DATAINTERFACES tokenType;
                     if (!await _gizmoClient.TokenIsValidAsync(tokenType, token, ViewState.ConfirmationCode))

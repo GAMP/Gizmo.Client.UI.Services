@@ -111,7 +111,7 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return Task.CompletedTask;
 
-            _gizmoClient.UpdateUserProfileAsync(new UserModelUpdate()
+            _gizmoClient.UserProfileUpdateAsync(new UserModelUpdate()
             {
                 Id = 0000,
                 //Password = ,

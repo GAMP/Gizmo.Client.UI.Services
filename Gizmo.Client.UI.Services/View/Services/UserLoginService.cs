@@ -146,7 +146,7 @@ namespace Gizmo.Client.UI.View.Services
 
         private async Task LoadUserProfileAsync()
         {
-            var userProfile = await _gizmoClient.GetUserProfileAsync();
+            var userProfile = await _gizmoClient.UserProfileGetAsync();
 
             //TODO: A
             var userViewState = ServiceProvider.GetRequiredService<UserViewState>();
@@ -171,7 +171,7 @@ namespace Gizmo.Client.UI.View.Services
 
         private async Task LoadUserBalanceAsync()
 		{
-			var userBalance = await _gizmoClient.GetUserBalanceAsync();
+			var userBalance = await _gizmoClient.UserBalanceGetAsync();
             //TODO: A UPDATE FROM USERBALANCE
 			var userBalanceViewState = ServiceProvider.GetRequiredService<UserBalanceViewState>();
 
