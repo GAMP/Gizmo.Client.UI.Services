@@ -48,7 +48,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (ViewState.UserId.HasValue)
             {
-                var userAgreementStates = await _gizmoClient.UserAgreementsGetStatesAsync(new());
+                var userAgreementStates = await _gizmoClient.UserAgreementsStatesGetAsync(new());
                 foreach (var item in userAgreementStates)
                 {
                     var userAgreement = tmpUserAgreements.Where(a => a.Id == item.UserAgreementId).FirstOrDefault();

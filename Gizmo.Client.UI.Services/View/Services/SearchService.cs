@@ -176,7 +176,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Applications)
                 {
-                    var applications = await _gizmoClient.GetApplicationsAsync(new ApplicationsFilter());
+                    var applications = await _gizmoClient.ApplicationsGetAsync(new ApplicationsFilter());
                     var tmpApplications = applications.Data.Select(a => new ApplicationViewState()
                     {
                         Id = a.Id,
@@ -198,7 +198,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Products)
                 {
-                    var products = await _gizmoClient.GetProductsAsync(new ProductsFilter());
+                    var products = await _gizmoClient.ProductsGetAsync(new ProductsFilter());
                     var tmpProducts = products.Data.Select(a => new ProductViewState()
                     {
                         Id = a.Id,

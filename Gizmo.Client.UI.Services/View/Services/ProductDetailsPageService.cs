@@ -23,7 +23,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             _gizmoClient = gizmoClient;
 
-            _gizmoClient.GetProductsAsync(new ProductsFilter());
+            _gizmoClient.ProductsGetAsync(new ProductsFilter());
         }
         #endregion
 
@@ -44,7 +44,7 @@ namespace Gizmo.Client.UI.View.Services
             //TODO: A Load product from cache or get by id?
 
             //Test
-            var product = await _gizmoClient.GetProductByIdAsync(id);
+            var product = await _gizmoClient.ProductGetAsync(id);
             ViewState.Product.Id = product.Id;
             ViewState.Product.ProductGroupId = product.ProductGroupId;
             ViewState.Product.Name = product.Name;
@@ -61,11 +61,11 @@ namespace Gizmo.Client.UI.View.Services
             {
                 ViewState.Product.BundledProducts = new List<ProductViewState>();
 
-                var bundledProducts = await _gizmoClient.GetBundledProductsAsync(product.Id);
+                var bundledProducts = await _gizmoClient.ProductsBundleGetAsync(product.Id);
 
                 foreach (var bundledProduct in bundledProducts.Data)
                 {
-                    var item = await _gizmoClient.GetProductByIdAsync(bundledProduct.ProductId);
+                    var item = await _gizmoClient.ProductGetAsync(bundledProduct.ProductId);
 
                     ViewState.Product.BundledProducts.Add(new ProductViewState()
                     {
@@ -76,7 +76,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            var products = await _gizmoClient.GetProductsAsync(new ProductsFilter());
+            var products = await _gizmoClient.ProductsGetAsync(new ProductsFilter());
             ViewState.RelatedProducts = products.Data.Select(a => new ProductViewState()
             {
                 Id = a.Id,

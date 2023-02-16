@@ -64,7 +64,7 @@ namespace Gizmo.Client.UI.View.Services
                 var shopPageViewState = ServiceProvider.GetRequiredService<ShopPageViewState>();
                 var productDetailsPageService = ServiceProvider.GetRequiredService<ProductDetailsPageService>();
 
-                var product = await _gizmoClient.GetProductByIdAsync(productId);
+                var product = await _gizmoClient.ProductGetAsync(productId);
 
                 if (product != null)
                 {
@@ -182,7 +182,7 @@ namespace Gizmo.Client.UI.View.Services
                 //TODO: A USER ID
                 int userId = 0;
                 OrderCalculateModelOptions calculateOrderOptions = new OrderCalculateModelOptions();
-                var result = await _gizmoClient.CreateUserOrderAsync(userId, calculateOrderOptions);
+                var result = await _gizmoClient.UserOrderCreateAsync(userId, calculateOrderOptions);
 
                 // Simulate task.
                 await Task.Delay(2000);

@@ -33,7 +33,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             var userCartService = ServiceProvider.GetRequiredService<UserCartService>();
 
-            var products = await _gizmoClient.GetProductsAsync(new ProductsFilter() { ProductGroupId = ViewState.SelectedProductGroupId });
+            var products = await _gizmoClient.ProductsGetAsync(new ProductsFilter() { ProductGroupId = ViewState.SelectedProductGroupId });
             ViewState.Products = products.Data.Select(a => new ProductViewState()
             {
                 Id = a.Id,
@@ -57,11 +57,11 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     product.BundledProducts = new List<ProductViewState>();
 
-                    var bundledProducts = await _gizmoClient.GetBundledProductsAsync(product.Id);
+                    var bundledProducts = await _gizmoClient.ProductsBundleGetAsync(product.Id);
 
                     foreach (var bundledProduct in bundledProducts.Data)
                     {
-                        var item = await _gizmoClient.GetProductByIdAsync(bundledProduct.ProductId);
+                        var item = await _gizmoClient.ProductGetAsync(bundledProduct.ProductId);
 
                         product.BundledProducts.Add(new ProductViewState()
                         {
@@ -93,7 +93,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             await base.OnInitializing(ct);
 
-            var productGroups = await _gizmoClient.GetProductGroupsAsync(new ProductGroupsFilter());
+            var productGroups = await _gizmoClient.ProductGroupsGetAsync(new ProductGroupsFilter());
             ViewState.ProductGroups = productGroups.Data.Select(a => new ProductGroupViewState()
             {
                 Id = a.Id,

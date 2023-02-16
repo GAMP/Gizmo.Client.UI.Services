@@ -122,7 +122,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (!string.IsNullOrEmpty(ViewState.Username))
                 {
-                    if (await _gizmoClient.UsernameExistAsync(ViewState.Username))
+                    if (await _gizmoClient.UserExistAsync(ViewState.Username))
                     {
                         validationMessageStore.Add(() => ViewState.Username, "The Username is in use."); //TODO: A TRANSLATE
                     }

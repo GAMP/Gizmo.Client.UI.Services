@@ -48,7 +48,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task ShowDialogAsync()
         {
-            var configuration = await _gizmoClient.GetOnlinePaymentsConfigurationAsync();
+            var configuration = await _gizmoClient.OnlinePaymentsConfigurationGetAsync();
 
             ViewState.Presets = configuration.Presets;
             ViewState.AllowCustomValue = configuration.AllowCustomValue;

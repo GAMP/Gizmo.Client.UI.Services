@@ -35,7 +35,7 @@ namespace Gizmo.Client.UI.View.Services
             //Test
             Random random = new Random();
 
-            var paymentMethods = await _gizmoClient.GetPaymentMethodsAsync(new PaymentMethodsFilter());
+            var paymentMethods = await _gizmoClient.PaymentMethodsGetAsync(new PaymentMethodsFilter());
             ViewState.PaymentMethods = paymentMethods.Data.Select(a => new PaymentMethodViewState()
             {
                 Id = a.Id,
