@@ -57,9 +57,8 @@ namespace Gizmo.Client
 
         public async Task UserLogoutAsync(CancellationToken cancellationToken)
         {
-            await Task.Delay(3000, cancellationToken);          ;
+            await Task.Delay(3000, cancellationToken);
         }
-
 
         #region Password Recovery
 
@@ -82,7 +81,6 @@ namespace Gizmo.Client
         {
             throw new NotImplementedException();
         }
-
 
         #endregion
 
@@ -176,16 +174,6 @@ namespace Gizmo.Client
 
         #endregion
 
-        public Task<CreateResult> UserOrderCreateAsync(int userId, OrderCalculateModelOptions calculateOrderOptions)
-        {
-            return Task.FromResult(new CreateResult());
-        }
-  
-        Task IGizmoClient.UserLogoutAsync(CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<PagedList<UserAgreementModel>> UserAgreementsGetAsync(UserAgreementsFilter filter, CancellationToken cancellationToken = default)
         {
             var userAgreements = Enumerable.Range(1, 3).Select(i => new UserAgreementModel()
@@ -210,17 +198,6 @@ namespace Gizmo.Client
             var pagedList = new PagedList<UserAgreementModel>(userAgreements, new PaginationMetadata());
 
             return Task.FromResult(pagedList);
-        }
-
-        public Task<List<UserAgreementModelState>> UserAgreementsGetStatesAsync(CancellationToken cancellationToken = default)
-        {
-            var userAgreementStates = Enumerable.Range(1, 3).Select(i => new UserAgreementModelState()
-            {
-                UserAgreementId = i,
-                AcceptState = UserAgreementAcceptState.None
-            }).ToList();
-
-            return Task.FromResult(userAgreementStates);
         }
 
         public Task<UpdateResult> UserAgreementAcceptAsync(int userAgreementId, CancellationToken cancellationToken = default)
@@ -273,7 +250,6 @@ namespace Gizmo.Client
             throw new NotImplementedException();
         }
 
-
         public Task<UserBalanceModel> UserBalanceGetAsync(CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
@@ -298,11 +274,6 @@ namespace Gizmo.Client
         }
 
         public Task<UpdateResult> UserProfileUpdateAsync(UserProfileModelUpdate user, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UserPasswordUpdateAsync(string oldPassword, string newPassword, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
