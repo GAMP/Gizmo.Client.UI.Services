@@ -64,7 +64,7 @@ namespace Gizmo.Client.UI.View.Services
                 var shopPageViewState = ServiceProvider.GetRequiredService<ShopPageViewState>();
                 var productDetailsPageService = ServiceProvider.GetRequiredService<ProductDetailsPageService>();
 
-                var product = await _gizmoClient.ProductGetAsync(productId);
+                var product = await ((TestClient)_gizmoClient).ProductGetAsync(productId);
 
                 if (product != null)
                 {

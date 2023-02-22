@@ -198,7 +198,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Products)
                 {
-                    var products = await _gizmoClient.ProductsGetAsync(new ProductsFilter());
+                    var products = await ((TestClient)_gizmoClient).ProductsGetAsync(new ProductsFilter());
                     var tmpProducts = products.Data.Select(a => new ProductViewState()
                     {
                         Id = a.Id,

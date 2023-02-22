@@ -36,7 +36,7 @@ namespace Gizmo.Client.UI.View.Services
             //TODO: A Load popular products on page loading.
 
             //Test
-            var products = await _gizmoClient.ProductsGetAsync(new ProductsFilter());
+            var products = await ((TestClient)_gizmoClient).ProductsGetAsync(new ProductsFilter());
             ViewState.PopularProducts = products.Data.Select(a => new ProductViewState()
             {
                 Id = a.Id,
@@ -58,11 +58,11 @@ namespace Gizmo.Client.UI.View.Services
             {
                 product.BundledProducts = new List<ProductViewState>();
 
-                var bundledProducts = await _gizmoClient.ProductsBundleGetAsync(product.Id);
+                var bundledProducts = await ((TestClient)_gizmoClient).ProductsBundleGetAsync(product.Id);
 
                 foreach (var bundledProduct in bundledProducts.Data)
                 {
-                    var item = await _gizmoClient.ProductGetAsync(bundledProduct.ProductId);
+                    var item = await ((TestClient)_gizmoClient).ProductGetAsync(bundledProduct.ProductId);
 
                     product.BundledProducts.Add(new ProductViewState()
                     {
