@@ -117,7 +117,7 @@ namespace Gizmo.Client
 
         public Task<PagedList<ProductGroupModel>> ProductGroupsGetAsync(ProductGroupsFilter filter, CancellationToken cancellationToken = default)
         {
-            var pagedList = new PagedList<ProductGroupModel>(_productGroups, new PaginationMetadata());
+            var pagedList = new PagedList<ProductGroupModel>(_productGroups);
 
             return Task.FromResult(pagedList);
         }
@@ -131,7 +131,7 @@ namespace Gizmo.Client
                 query = _products.Where(a => a.ProductGroupId == filter.ProductGroupId.Value).AsQueryable();
             }
 
-            var pagedList = new PagedList<ProductModel>(query.ToList(), new PaginationMetadata());
+            var pagedList = new PagedList<ProductModel>(query.ToList());
 
             return Task.FromResult(pagedList);
         }
@@ -153,7 +153,7 @@ namespace Gizmo.Client
                 UnitPrice = random.Next(1, 5)
             }).ToList();
 
-            var pagedList = new PagedList<ProductBundledModel>(bundledProducts, new PaginationMetadata());
+            var pagedList = new PagedList<ProductBundledModel>(bundledProducts);
 
             return Task.FromResult(pagedList);
         }
@@ -182,7 +182,7 @@ namespace Gizmo.Client
                 Agreement = $"#{i} Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
             }).ToList();
 
-            var pagedList = new PagedList<UserAgreementModel>(userAgreements, new PaginationMetadata());
+            var pagedList = new PagedList<UserAgreementModel>(userAgreements);
 
             return Task.FromResult(pagedList);
         }
@@ -195,7 +195,7 @@ namespace Gizmo.Client
                 Agreement = $"#{i} Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
             }).ToList();
 
-            var pagedList = new PagedList<UserAgreementModel>(userAgreements, new PaginationMetadata());
+            var pagedList = new PagedList<UserAgreementModel>(userAgreements);
 
             return Task.FromResult(pagedList);
         }
@@ -339,7 +339,7 @@ namespace Gizmo.Client
                 Name = $"#Payment method {i}"
             }).ToList();
 
-            var pagedList = new PagedList<PaymentMethodModel>(paymentMethods, new PaginationMetadata());
+            var pagedList = new PagedList<PaymentMethodModel>(paymentMethods);
 
             return Task.FromResult(pagedList);
         }
@@ -357,7 +357,7 @@ namespace Gizmo.Client
                 Name = $"#Category ({i})"
             }).ToList();
 
-            var pagedList = new PagedList<ApplicationGroupModel>(applicationGroups, new PaginationMetadata());
+            var pagedList = new PagedList<ApplicationGroupModel>(applicationGroups);
 
             return Task.FromResult(pagedList);
         }
@@ -370,7 +370,7 @@ namespace Gizmo.Client
                 Name = $"#Test ({i})"
             }).ToList();
 
-            var pagedList = new PagedList<ApplicationEnterpriseModel>(applicationEnterprises, new PaginationMetadata());
+            var pagedList = new PagedList<ApplicationEnterpriseModel>(applicationEnterprises);
 
             return Task.FromResult(pagedList);
         }
@@ -389,7 +389,7 @@ namespace Gizmo.Client
                 ReleaseDate = DateTime.Now
             }).ToList();
 
-            var pagedList = new PagedList<ApplicationModel>(applications, new PaginationMetadata());
+            var pagedList = new PagedList<ApplicationModel>(applications);
 
             return Task.FromResult(pagedList);
         }
@@ -412,7 +412,7 @@ namespace Gizmo.Client
                 new() { Id = 12, Caption = "#Chrome.exe" }
             };
 
-            var pagedList = new PagedList<ApplicationExecutableModel>(executables, new PaginationMetadata());
+            var pagedList = new PagedList<ApplicationExecutableModel>(executables);
 
             return Task.FromResult(pagedList);
         }
