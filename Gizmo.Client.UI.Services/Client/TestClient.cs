@@ -46,7 +46,7 @@ namespace Gizmo.Client
             }).ToList();
         }
 
-        private List<ProductGroupModel> _productGroups;
+        private readonly List<ProductGroupModel> _productGroups;
         private List<ProductModel> _products;
 
         public async Task<LoginResult> UserLoginAsync(string loginName, string? password, CancellationToken cancellationToken)
@@ -117,9 +117,7 @@ namespace Gizmo.Client
 
         public Task<PagedList<ProductGroupModel>> ProductGroupsGetAsync(ProductGroupsFilter filter, CancellationToken cancellationToken = default)
         {
-            var pagedList = new PagedList<ProductGroupModel>(_productGroups);
-
-            return Task.FromResult(pagedList);
+            return Task.FromResult(new PagedList<ProductGroupModel>(_productGroups));
         }
 
         public Task<PagedList<ProductModel>> ProductsGetAsync(ProductsFilter filter, CancellationToken cancellationToken = default)
@@ -141,7 +139,7 @@ namespace Gizmo.Client
             return Task.FromResult(_products.Where(a => a.Id == id).First());
         }
 
-        public Task<PagedList<ProductBundledModel>> ProductsBundleGetAsync(int id, CancellationToken cancellationToken =default)
+        public Task<PagedList<ProductBundledModel>> ProductsBundleGetAsync(int id, CancellationToken cancellationToken = default)
         {
             Random random = new();
 
@@ -347,7 +345,7 @@ namespace Gizmo.Client
         public Task<CreateResult> UserOrderCreateAsync(int userId, OrderCalculateModelOptions calculateOrderOptions, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
-        }    
+        }
 
         public Task<PagedList<ApplicationGroupModel>> ApplicationGroupsGetAsync(ApplicationGroupsFilter filter, CancellationToken cancellationToken = default)
         {
@@ -436,6 +434,19 @@ namespace Gizmo.Client
         {
             throw new NotImplementedException();
         }
+
+        public Task<AccountCreationResultModelByMobilePhone> UserCreateByMobileStartAsync(string mobilePhone, ConfirmationCodeDeliveryMethod confirmationCodeDeliveryMethod = ConfirmationCodeDeliveryMethod.Undetermined, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PasswordRecoveryStartResultModelByMobile> UserPasswordRecoveryByMobileStartAsync(string username, ConfirmationCodeDeliveryMethod confirmationCodeDeliveryMethod = ConfirmationCodeDeliveryMethod.Undetermined, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ProductGroupModel?> ProductGroupGetAsync(int id, CancellationToken cToken = default) =>
+            Task.FromResult(_productGroups.Find(x => x.Id == id));
     }
- 
+
 }

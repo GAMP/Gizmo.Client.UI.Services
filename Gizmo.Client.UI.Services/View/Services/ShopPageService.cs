@@ -10,17 +10,21 @@ namespace Gizmo.Client.UI.View.Services
     public sealed class ShopPageService : ViewStateServiceBase<ShopPageViewState>
     {
         #region CONSTRUCTOR
-        public ShopPageService(ShopPageViewState viewState,
+        public ShopPageService(
+            ShopPageViewState viewState,
+            ProductGroupViewStateLookupService productGroupService,
             ILogger<ShopPageService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
+            _productGroupService = productGroupService;
         }
         #endregion
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
+        private readonly ProductGroupViewStateLookupService _productGroupService;
         #endregion
 
         #region PROPERTIES
@@ -89,16 +93,13 @@ namespace Gizmo.Client.UI.View.Services
 
         #endregion
 
-        protected override async Task OnInitializing(CancellationToken ct)
+        protected override async Task OnInitializing(CancellationToken cToken)
         {
-            await base.OnInitializing(ct);
+            await base.OnInitializing(cToken);
 
-            var productGroups = await ((TestClient)_gizmoClient).ProductGroupsGetAsync(new ProductGroupsFilter());
-            ViewState.ProductGroups = productGroups.Data.Select(a => new ProductGroupViewState()
-            {
-                Id = a.Id,
-                Name = a.Name
-            }).ToList();
+            var productGroups = await _productGroupService.GetAsync(cToken);
+
+            ViewState.ProductGroups = productGroups.ToList();
         }
     }
 }
