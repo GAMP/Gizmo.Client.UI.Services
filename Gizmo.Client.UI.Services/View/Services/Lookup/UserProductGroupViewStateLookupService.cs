@@ -19,7 +19,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task<bool> DataInitializeAsync(CancellationToken cancellationToken)
         {
-            return base.DataInitializeAsync(cancellationToken);
+            return Task.FromResult(true);
         }
 
         protected override ValueTask<UserProductGroupViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cancellationToken = default)
