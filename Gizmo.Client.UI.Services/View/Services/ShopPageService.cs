@@ -12,7 +12,7 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public ShopPageService(
             ShopPageViewState viewState,
-            ProductGroupViewStateLookupService productGroupService,
+            UserProductGroupViewStateLookupService productGroupService,
             ILogger<ShopPageService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
@@ -24,7 +24,7 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
-        private readonly ProductGroupViewStateLookupService _productGroupService;
+        private readonly UserProductGroupViewStateLookupService _productGroupService;
         #endregion
 
         #region PROPERTIES
@@ -97,9 +97,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             await base.OnInitializing(cToken);
 
-            var productGroups = await _productGroupService.GetAsync(cToken);
-
-            ViewState.ProductGroups = productGroups.ToList();
+            ViewState.ProductGroups = await _productGroupService.GetAsync(cToken);
         }
     }
 }

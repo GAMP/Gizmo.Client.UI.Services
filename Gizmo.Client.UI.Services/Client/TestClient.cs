@@ -8,7 +8,7 @@ namespace Gizmo.Client
         {
             Random random = new();
 
-            _productGroups = new List<ProductGroupModel>
+            _productGroups = new List<UserProductGroupModel>
             {
                 new() { Id = 1, Name = "#Coffee" },
                 new() { Id = 2, Name = "#Beverages" },
@@ -46,7 +46,7 @@ namespace Gizmo.Client
             }).ToList();
         }
 
-        private readonly List<ProductGroupModel> _productGroups;
+        private readonly List<UserProductGroupModel> _productGroups;
         private List<ProductModel> _products;
 
         public async Task<LoginResult> UserLoginAsync(string loginName, string? password, CancellationToken cancellationToken)
@@ -114,11 +114,6 @@ namespace Gizmo.Client
         #endregion
 
         #region Products
-
-        public Task<PagedList<ProductGroupModel>> ProductGroupsGetAsync(ProductGroupsFilter filter, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(new PagedList<ProductGroupModel>(_productGroups));
-        }
 
         public Task<PagedList<ProductModel>> ProductsGetAsync(ProductsFilter filter, CancellationToken cancellationToken = default)
         {
@@ -417,7 +412,7 @@ namespace Gizmo.Client
 
         public Task<PagedList<UserProductGroupModel>> UserProductGroupsGetAsync(UserProductGroupsFilter filters, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new PagedList<UserProductGroupModel>(_productGroups));
         }
 
         public Task<PagedList<UserProductModel>> UserProductsGetAsync(UserProductsFilter filters, CancellationToken cancellationToken = default)
@@ -445,7 +440,7 @@ namespace Gizmo.Client
             throw new NotImplementedException();
         }
 
-        public Task<ProductGroupModel?> ProductGroupGetAsync(int id, CancellationToken cToken = default) =>
+        public Task<UserProductGroupModel?> UserProductGroupGetAsync(int id, CancellationToken cToken = default) =>
             Task.FromResult(_productGroups.Find(x => x.Id == id));
     }
 

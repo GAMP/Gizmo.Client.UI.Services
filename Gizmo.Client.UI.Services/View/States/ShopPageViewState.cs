@@ -11,7 +11,7 @@ namespace Gizmo.Client.UI.View.States
 
         public int? SelectedProductGroupId { get; internal set; }
 
-        public List<ProductGroupViewState> ProductGroups { get; internal set; } = new();
+        public IEnumerable<UserProductGroupViewState> ProductGroups { get; internal set; } = Enumerable.Empty<UserProductGroupViewState>();
 
         public List<ProductViewState> Products { get; internal set; } = new();
 
