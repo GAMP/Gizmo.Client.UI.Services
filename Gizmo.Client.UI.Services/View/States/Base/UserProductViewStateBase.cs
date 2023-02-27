@@ -7,9 +7,6 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets product id.
         /// </summary>
-        public int ProductId
-        {
-            get;init;
-        }
+        public int ProductId { get; set; }
     }
 }

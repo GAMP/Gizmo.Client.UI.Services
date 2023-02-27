@@ -9,11 +9,11 @@ namespace Gizmo.Client.UI.View.States
 
         #region PROPERTIES
 
-        public int? SelectedProductGroupId { get; internal set; }
+        public int? SelectedUserProductGroupId { get; internal set; }
 
-        public IEnumerable<UserProductGroupViewState> ProductGroups { get; internal set; } = Enumerable.Empty<UserProductGroupViewState>();
+        public IEnumerable<UserProductGroupViewState> UserProductGroups { get; internal set; } = Enumerable.Empty<UserProductGroupViewState>();
 
-        public List<ProductViewState> Products { get; internal set; } = new();
+        public IEnumerable<ProductViewState> Products { get; internal set; } = Enumerable.Empty<ProductViewState>();
 
         #endregion
     }

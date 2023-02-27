@@ -4,39 +4,27 @@ namespace Gizmo.Client
 {
     public partial class TestClient : IGizmoClient
     {
+        private readonly List<ProductGroupModel> _productGroups;
+        private readonly List<ProductModel> _products;
+        private readonly List<UserProductGroupModel> _userProductGroups;
+        private readonly List<UserProductModel> _userProducts;
+
         public TestClient()
         {
             Random random = new();
-
-            _productGroups = new List<UserProductGroupModel>
+            _productGroups = new List<ProductGroupModel>
             {
                 new() { Id = 1, Name = "#Coffee" },
                 new() { Id = 2, Name = "#Beverages" },
                 new() { Id = 3, Name = "#Sandwiches" },
                 new() { Id = 4, Name = "#Snacks" },
                 new() { Id = 5, Name = "#Time offers" },
-                new() { Id = 6, Name = "#Coffee" },
-                new() { Id = 7, Name = "#Beverages" },
-                new() { Id = 8, Name = "#Sandwiches" },
-                new() { Id = 9, Name = "#Snacks" },
-                new() { Id = 10, Name = "#Time offers" },
-                new() { Id = 11, Name = "#Coffee" },
-                new() { Id = 12, Name = "#Beverages" },
-                new() { Id = 13, Name = "#Sandwiches" },
-                new() { Id = 14, Name = "#Snacks" },
-                new() { Id = 15, Name = "#Time offers" },
-                new() { Id = 16, Name = "#Coffee" },
-                new() { Id = 17, Name = "#Beverages" },
-                new() { Id = 18, Name = "#Sandwiches" },
-                new() { Id = 19, Name = "#Snacks" },
-                new() { Id = 20, Name = "#Time offers" }
             };
-
-            _products = Enumerable.Range(1, 18).Select(i => new ProductModel()
+            _products = Enumerable.Range(1, 20).Select(x => new ProductModel()
             {
-                Id = i,
-                ProductGroupId = random.Next(1, 5),
-                Name = $"#Coca Cola {i} 500ml",
+                Id = x,
+                ProductGroupId = random.Next(1, _productGroups.Count + 1),
+                Name = $"#Coca Cola {x} 500ml",
                 Description = "#Iced coffee is a coffee beverage served cold. It may be prepared either by brewing coffee in the normal way and then serving it over ice.",
                 Price = random.Next(1, 5),
                 PointsPrice = random.Next(0, 100),
@@ -44,10 +32,23 @@ namespace Gizmo.Client
                 ProductType = (ProductType)random.Next(0, 3),
                 PurchaseOptions = (PurchaseOptionType)random.Next(0, 2),
             }).ToList();
+            _userProductGroups = _productGroups.ConvertAll(x => new UserProductGroupModel
+            {
+                Id = x.Id,
+                Name = x.Name
+            });
+            _userProducts = _products.ConvertAll(x => new UserProductModel
+            {
+                Id = x.Id,
+                ProductGroupId = x.ProductGroupId,
+                Name = x.Name,
+                Description = x.Description,
+                Price = x.Price,
+                PointsPrice = x.PointsPrice,
+                ProductType = x.ProductType,
+                PurchaseOptions = x.PurchaseOptions
+            });
         }
-
-        private readonly List<UserProductGroupModel> _productGroups;
-        private List<ProductModel> _products;
 
         public async Task<LoginResult> UserLoginAsync(string loginName, string? password, CancellationToken cancellationToken)
         {
@@ -115,23 +116,19 @@ namespace Gizmo.Client
 
         #region Products
 
-        public Task<PagedList<ProductModel>> ProductsGetAsync(ProductsFilter filter, CancellationToken cancellationToken = default)
+
+        public Task<ProductModel?> ProductGetAsync(int id, ModelFilterOptions? options = null, CancellationToken cToken = default)
         {
-            var query = _products.AsQueryable();
+            var product = _products.Find(x => x.Id == id);
 
-            if (filter.ProductGroupId.HasValue)
-            {
-                query = _products.Where(a => a.ProductGroupId == filter.ProductGroupId.Value).AsQueryable();
-            }
-
-            var pagedList = new PagedList<ProductModel>(query.ToList());
-
-            return Task.FromResult(pagedList);
+            return Task.FromResult(product);
         }
 
-        public Task<ProductModel> ProductGetAsync(int id, ModelFilterOptions? options = null)
+        public Task<PagedList<ProductModel>> ProductsGetAsync(ProductsFilter filter, CancellationToken cToken = default)
         {
-            return Task.FromResult(_products.Where(a => a.Id == id).First());
+            var pagedList = new PagedList<ProductModel>(_products);
+
+            return Task.FromResult(pagedList);
         }
 
         public Task<PagedList<ProductBundledModel>> ProductsBundleGetAsync(int id, CancellationToken cancellationToken = default)
@@ -291,6 +288,37 @@ namespace Gizmo.Client
             throw new NotImplementedException();
         }
 
+        public Task<UserProductGroupModel?> UserProductGroupGetAsync(int id, CancellationToken cToken = default) =>
+            Task.FromResult(_userProductGroups.Find(x => x.Id == id));
+
+        public Task<PagedList<UserProductGroupModel>> UserProductGroupsGetAsync(UserProductGroupsFilter filters, CancellationToken cancellationToken = default) =>
+            Task.FromResult(new PagedList<UserProductGroupModel>(_userProductGroups));
+
+        public Task<UserProductModel?> UserProductGetAsync(int id, CancellationToken cancellationToken = default)
+        {
+            var product = _userProducts.Find(x => x.Id == id);
+
+            if (product != null)
+            {
+                var productGroup = _userProductGroups.Find(x => x.Id == product.ProductGroupId);
+
+                if (productGroup != null)
+                    product.ProductGroupName = productGroup.Name;
+            }
+
+            return Task.FromResult(product);
+        }
+
+        public Task<PagedList<UserProductModel>> UserProductsGetAsync(UserProductsFilter filters, CancellationToken cancellationToken = default)
+        {
+            foreach (var item in _userProducts.Join(_productGroups, x => x.ProductGroupId, y => y.Id, (x, y) => new { Product = x, ProductGroupName = y.Name }))
+            {
+                item.Product.ProductGroupName = item.ProductGroupName;
+            }
+
+            return Task.FromResult(new PagedList<UserProductModel>(_userProducts));
+        }
+
         public Task<PaymentIntentCreateResultModel> PaymentIntentCreateAsync(PaymentIntentCreateParametersDepositModel parameters, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
@@ -410,20 +438,6 @@ namespace Gizmo.Client
             return Task.FromResult(pagedList);
         }
 
-        public Task<PagedList<UserProductGroupModel>> UserProductGroupsGetAsync(UserProductGroupsFilter filters, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(new PagedList<UserProductGroupModel>(_productGroups));
-        }
-
-        public Task<PagedList<UserProductModel>> UserProductsGetAsync(UserProductsFilter filters, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<UserProductModel> UserProductGetAsync(int id, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
 
         public Task<PagedList<UserPaymentMethodModel>> UserPaymentMethodsGetAsync(UserPaymentMethodsFilter filters, CancellationToken cancellationToken = default)
         {
@@ -440,8 +454,5 @@ namespace Gizmo.Client
             throw new NotImplementedException();
         }
 
-        public Task<UserProductGroupModel?> UserProductGroupGetAsync(int id, CancellationToken cToken = default) =>
-            Task.FromResult(_productGroups.Find(x => x.Id == id));
     }
-
 }

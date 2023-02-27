@@ -24,11 +24,11 @@ namespace Gizmo.Client.UI.View.Services
 
             foreach (var item in groups.Data)
             {
-                var state = CreateDefaultViewState(item.Id);
+                var viewState = CreateDefaultViewState(item.Id);
 
-                state.Name = item.Name;
+                viewState.Name = item.Name;
 
-                AddViewState(item.Id, state);
+                AddViewState(item.Id, viewState);
             }
 
             return true;
@@ -37,14 +37,14 @@ namespace Gizmo.Client.UI.View.Services
         {
             var group = await _gizmoClient.UserProductGroupGetAsync(lookUpkey, cToken);
 
-            var defaultState = CreateDefaultViewState(lookUpkey);
+            var viewState = CreateDefaultViewState(lookUpkey);
 
             if (group is null)
-                return defaultState;
+                return viewState;
 
-            defaultState.Name = group.Name;
+            viewState.Name = group.Name;
 
-            return defaultState;
+            return viewState;
         }
         protected override UserProductGroupViewState CreateDefaultViewState(int lookUpkey)
         {
