@@ -32,9 +32,9 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.SelectedUserProductGroupId = selectedProductGroupId;
 
             if (selectedProductGroupId.HasValue)
-                ViewState.SelectedProductGroups = GetSelectedProductGroups(selectedProductGroupId.Value);
+                ViewState.ProductGroups = GetSelectedProductGroups(selectedProductGroupId.Value);
             else
-                ViewState.SelectedProductGroups = GetAllProductGroups();
+                ViewState.ProductGroups = GetAllProductGroups();
         }
 
         private IEnumerable<IGrouping<string, ProductViewState>> GetAllProductGroups() => ViewState.Products
@@ -52,7 +52,7 @@ namespace Gizmo.Client.UI.View.Services
 
             ViewState.Products = await _productService.GetStatesAsync(cToken);
 
-            ViewState.SelectedProductGroups = ViewState.SelectedUserProductGroupId.HasValue
+            ViewState.ProductGroups = ViewState.SelectedUserProductGroupId.HasValue
                 ? GetSelectedProductGroups(ViewState.SelectedUserProductGroupId.Value)
                 : GetAllProductGroups();
         }
