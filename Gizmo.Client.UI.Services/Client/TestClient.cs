@@ -455,7 +455,7 @@ namespace Gizmo.Client
             throw new NotImplementedException();
         }
 
-        public Task<PagedList<UserApplicationExecutableModel>> UserApplicationExecutablesGetAsync(UserApplicationExecutablesFilter filters, CancellationToken cancellationToken = default)
+        public Task<PagedList<UserExecutableModel>> UserApplicationExecutablesGetAsync(UserExecutablesFilter filters, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
