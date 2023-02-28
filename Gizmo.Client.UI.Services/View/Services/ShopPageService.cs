@@ -1,32 +1,30 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Gizmo.Client.UI.View.Services
 {
     [Register]
+    [Route(ClientRoutes.ShopRoute)]
     public sealed class ShopPageService : ViewStateServiceBase<ShopPageViewState>
     {
         private readonly ProductViewStateLookupService _productService;
         private readonly UserProductGroupViewStateLookupService _userProductGroupService;
 
         public ShopPageService(
+            IServiceProvider serviceProvider,
+            ILogger<ShopPageService> logger,
             ShopPageViewState viewState,
             ProductViewStateLookupService productService,
-            UserProductGroupViewStateLookupService userProductGroupService,
-            ILogger<ShopPageService> logger,
-            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
+            UserProductGroupViewStateLookupService userProductGroupService) : base(viewState, logger, serviceProvider)
         {
             _productService = productService;
             _userProductGroupService = userProductGroupService;
         }
 
-        /// <summary>
-        /// Select user product group
-        /// </summary>
-        /// <param name="selectedProductGroupId"></param>
         public async Task SetSelectedProductsGroupIdAsync(int? selectedProductGroupId)
         {
             ViewState.SelectedUserProductGroupId = selectedProductGroupId;
@@ -51,19 +49,23 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
-        protected override async Task OnInitializing(CancellationToken cToken)
+        private async void UserProductGroupStatesChanged(object? sender, EventArgs e)
         {
-            await base.OnInitializing(cToken);
-
-            _userProductGroupService.Changed += SetUserProductGroupsAsync;
-
-            await SetUserProductGroupsAsync(cToken);
-            await SetUserGroupedProductsAsync(ViewState.SelectedUserProductGroupId, cToken);
+            await SetUserProductGroupsAsync();
         }
 
-        protected override void OnDisposing(bool isDisposing)
+        protected override async Task OnNavigatedIn()
         {
-            base.OnDisposing(isDisposing);
+            _userProductGroupService.Changed += UserProductGroupStatesChanged;
+
+            await SetUserProductGroupsAsync();
+            await SetUserGroupedProductsAsync(ViewState.SelectedUserProductGroupId);
+        }
+        protected override Task OnNavigatedOut()
+        {
+            _userProductGroupService.Changed -= UserProductGroupStatesChanged;
+
+            return base.OnNavigatedOut();
         }
     }
 }
