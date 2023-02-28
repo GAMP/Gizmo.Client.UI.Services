@@ -150,20 +150,6 @@ namespace Gizmo.Client
 
         #endregion
 
-        #region Applications
-
-        public Task<ApplicationModelImage> GetApplicationImageAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ApplicationExecutableModelImage> GetApplicationExecutableImageAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
         public Task<PagedList<UserAgreementModel>> UserAgreementsGetAsync(UserAgreementsFilter filter, CancellationToken cancellationToken = default)
         {
             var userAgreements = Enumerable.Range(1, 3).Select(i => new UserAgreementModel()
@@ -454,5 +440,34 @@ namespace Gizmo.Client
             throw new NotImplementedException();
         }
 
+        public Task<PagedList<UserApplicationEnterpriseModel>> UserApplicationEnterprisesGetAsync(UserApplicationEnterprisesFilter filters, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedList<UserApplicationCategoryModel>> UserApplicationCategoriesGetAsync(UserApplicationCategoriesFilter filters, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedList<UserApplicationModel>> UserApplicationsGetAsync(UserApplicationsFilter filters, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedList<UserApplicationExecutableModel>> UserApplicationExecutablesGetAsync(UserApplicationExecutablesFilter filters, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedList<UserApplicationLinkModel>> UserApplicationLinksGetAsync(UserApplicationLinksFilter filters, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedList<UserExecutablePersonalFileModel>> UserExecutablePersonalFilesGetAsync(UserExecutablePersonalFilesFilter filters, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
