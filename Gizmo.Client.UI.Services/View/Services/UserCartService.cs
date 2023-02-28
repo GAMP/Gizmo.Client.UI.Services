@@ -1,8 +1,10 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+
 using System.Collections.Concurrent;
 
 namespace Gizmo.Client.UI.View.Services
@@ -11,22 +13,23 @@ namespace Gizmo.Client.UI.View.Services
     public sealed class UserCartService : ValidatingViewStateServiceBase<UserCartViewState>
     {
         #region CONSTRUCTOR
-        public UserCartService(UserCartViewState viewState,
+        public UserCartService(
+            IServiceProvider serviceProvider,
             ILogger<UserCartService> logger,
-            IServiceProvider serviceProvider, IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            UserCartViewState viewState,
+            ProductViewStateLookupService userProductService,
+            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
+            _userProductService = userProductService;
             _gizmoClient = gizmoClient;
         }
+
         #endregion
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
         private readonly ConcurrentDictionary<int, int> _products = new();
-        #endregion
-
-        #region PROPERTIES
-
-
+        private readonly ProductViewStateLookupService _userProductService;
         #endregion
 
         #region FUNCTIONS
@@ -34,7 +37,7 @@ namespace Gizmo.Client.UI.View.Services
         public void SetNotes(string value)
         {
             ViewState.Notes = value;
-            ViewState.RaiseChanged();
+            DebounceViewStateChange();
         }
 
         public void SetOrderPaymentMethod(int? paymentMethodId)
@@ -53,6 +56,7 @@ namespace Gizmo.Client.UI.View.Services
             Random random = new Random();
 
             var existingProductViewState = ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault();
+
             if (existingProductViewState != null)
             {
                 existingProductViewState.Quantity += quantity;
@@ -61,7 +65,6 @@ namespace Gizmo.Client.UI.View.Services
             }
             else
             {
-                var shopPageViewState = ServiceProvider.GetRequiredService<ShopPageViewState>();
                 var productDetailsPageService = ServiceProvider.GetRequiredService<ProductDetailsPageService>();
 
                 var product = await ((TestClient)_gizmoClient).ProductGetAsync(productId);
@@ -82,12 +85,10 @@ namespace Gizmo.Client.UI.View.Services
 
                     ViewState.Products.Add(productViewState);
 
-                    var shopProduct = shopPageViewState.Products.Where(a => a.Id == productId).FirstOrDefault();
-                    if (shopProduct != null)
-                    {
-                        shopProduct.CartProduct.UserCartProduct = productViewState;
-                        shopProduct.CartProduct.RaiseChanged();
-                    }
+                    var userShopProduct = await _userProductService.GetStateAsync(productId);
+
+                    userShopProduct.CartProduct.UserCartProduct = productViewState;
+                    userShopProduct.CartProduct.RaiseChanged();
 
                     if (productDetailsPageService.ViewState.Product != null && productDetailsPageService.ViewState.Product.Id == productId)
                     {
@@ -190,7 +191,7 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.IsLoading = false;
 
                 ViewState.IsComplete = true;
-                
+
                 ViewState.Products.Clear();
                 ViewState.PaymentMethodId = null;
 

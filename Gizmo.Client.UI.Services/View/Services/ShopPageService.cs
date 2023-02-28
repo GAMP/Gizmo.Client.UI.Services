@@ -11,30 +11,25 @@ namespace Gizmo.Client.UI.View.Services
     [Route(ClientRoutes.ShopRoute)]
     public sealed class ShopPageService : ViewStateServiceBase<ShopPageViewState>
     {
-        private readonly ProductViewStateLookupService _productService;
+        private readonly ProductViewStateLookupService _userProductService;
         private readonly UserProductGroupViewStateLookupService _userProductGroupService;
 
         public ShopPageService(
             IServiceProvider serviceProvider,
             ILogger<ShopPageService> logger,
             ShopPageViewState viewState,
-            ProductViewStateLookupService productService,
+            ProductViewStateLookupService userProductService,
             UserProductGroupViewStateLookupService userProductGroupService) : base(viewState, logger, serviceProvider)
         {
-            _productService = productService;
+            _userProductService = userProductService;
             _userProductGroupService = userProductGroupService;
         }
 
-        public async Task SetSelectedProductsGroupIdAsync(int? selectedProductGroupId)
+        public async Task UpdateUserGroupedProductsAsync(int? selectedProductGroupId, CancellationToken cToken = default)
         {
             ViewState.SelectedUserProductGroupId = selectedProductGroupId;
 
-            await SetUserGroupedProductsAsync(selectedProductGroupId);
-        }
-
-        private async Task SetUserGroupedProductsAsync(int? selectedProductGroupId, CancellationToken cToken = default)
-        {
-            var productStates = await _productService.GetStatesAsync(cToken);
+            var productStates = await _userProductService.GetStatesAsync(cToken);
 
             ViewState.UserGroupedProducts = selectedProductGroupId.HasValue
                 ? ViewState.UserGroupedProducts = productStates.Where(x => x.ProductGroupId == selectedProductGroupId).GroupBy(x => x.ProductGroupName)
@@ -42,28 +37,30 @@ namespace Gizmo.Client.UI.View.Services
 
             ViewState.RaiseChanged();
         }
-        private async Task SetUserProductGroupsAsync(CancellationToken cToken = default)
+        public async Task UpdateUserProductGroupsAsync(CancellationToken cToken = default)
         {
             ViewState.UserProductGroups = await _userProductGroupService.GetStatesAsync(cToken);
 
             ViewState.RaiseChanged();
         }
 
-        private async void UserProductGroupStatesChanged(object? sender, EventArgs e)
-        {
-            await SetUserProductGroupsAsync();
-        }
+        private async void UpdateUserGroupedProductsOnChangeAsync(object? _, EventArgs __) => 
+            await UpdateUserGroupedProductsAsync(ViewState.SelectedUserProductGroupId);
+        private async void UpdateUserProductGroupsOnChangeAsync(object? _, EventArgs __) =>
+            await UpdateUserProductGroupsAsync();
 
         protected override async Task OnNavigatedIn()
         {
-            _userProductGroupService.Changed += UserProductGroupStatesChanged;
+            _userProductService.Changed += UpdateUserGroupedProductsOnChangeAsync;
+            _userProductGroupService.Changed += UpdateUserProductGroupsOnChangeAsync;
 
-            await SetUserProductGroupsAsync();
-            await SetUserGroupedProductsAsync(ViewState.SelectedUserProductGroupId);
+            await UpdateUserProductGroupsAsync();
+            await UpdateUserGroupedProductsAsync(null);
         }
         protected override Task OnNavigatedOut()
         {
-            _userProductGroupService.Changed -= UserProductGroupStatesChanged;
+            _userProductService.Changed -= UpdateUserGroupedProductsOnChangeAsync;
+            _userProductGroupService.Changed -= UpdateUserProductGroupsOnChangeAsync;
 
             return base.OnNavigatedOut();
         }

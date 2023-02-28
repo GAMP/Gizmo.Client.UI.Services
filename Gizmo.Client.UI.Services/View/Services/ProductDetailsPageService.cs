@@ -1,13 +1,12 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System.Web;
+
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
+
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Web;
-using System;
-using static System.Net.Mime.MediaTypeNames;
-using System.Numerics;
 
 namespace Gizmo.Client.UI.View.Services
 {

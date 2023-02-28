@@ -10,16 +10,13 @@ namespace Gizmo.Client.UI.View.Services
     public sealed class ProductViewStateLookupService : ViewStateLookupServiceBase<int, ProductViewState>
     {
         private readonly IGizmoClient _gizmoClient;
-        private readonly UserCartService _userCartService;
 
         public ProductViewStateLookupService(
             IGizmoClient gizmoClient,
-            UserCartService userCartService,
             ILogger<ProductViewStateLookupService> logger,
             IServiceProvider serviceProvider) : base(logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
-            _userCartService = userCartService;
         }
 
         protected override async Task<bool> DataInitializeAsync(CancellationToken cToken)
@@ -75,8 +72,6 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (product.Description is not null)
                     viewState.Description = product.Description;
-
-                viewState.CartProduct.UserCartProduct = _userCartService.GetProduct(product.Id);
 
                 AddViewState(product.Id, viewState);
             }
@@ -139,8 +134,6 @@ namespace Gizmo.Client.UI.View.Services
 
             if (product.Description is not null)
                 viewState.Description = product.Description;
-
-            viewState.CartProduct.UserCartProduct = _userCartService.GetProduct(product.Id);
 
             return viewState;
         }
