@@ -27,14 +27,34 @@ namespace Gizmo.Client.UI.View.Services
         /// Select user product group
         /// </summary>
         /// <param name="selectedProductGroupId"></param>
-        public void SetSelectedProductGroup(int? selectedProductGroupId) => ViewState.SelectedUserProductGroupId = selectedProductGroupId;
+        public void SetSelectedProductGroup(int? selectedProductGroupId)
+        {
+            ViewState.SelectedUserProductGroupId = selectedProductGroupId;
+
+            if (selectedProductGroupId.HasValue)
+                ViewState.SelectedProductGroups = GetSelectedProductGroups(selectedProductGroupId.Value);
+            else
+                ViewState.SelectedProductGroups = GetAllProductGroups();
+        }
+
+        private IEnumerable<IGrouping<string, ProductViewState>> GetAllProductGroups() => ViewState.Products
+            .GroupBy(x => x.ProductGroupName);
+
+        private IEnumerable<IGrouping<string, ProductViewState>> GetSelectedProductGroups(int selectedProductGroupId) => ViewState.Products
+            .Where(x => x.ProductGroupId == selectedProductGroupId)
+            .GroupBy(x => x.ProductGroupName);
 
         protected override async Task OnInitializing(CancellationToken cToken)
         {
             await base.OnInitializing(cToken);
 
             ViewState.UserProductGroups = await _userProductGroupService.GetStatesAsync(cToken);
+
             ViewState.Products = await _productService.GetStatesAsync(cToken);
+
+            ViewState.SelectedProductGroups = ViewState.SelectedUserProductGroupId.HasValue
+                ? GetSelectedProductGroups(ViewState.SelectedUserProductGroupId.Value)
+                : GetAllProductGroups();
         }
     }
 }
