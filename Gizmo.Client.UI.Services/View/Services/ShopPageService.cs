@@ -27,34 +27,43 @@ namespace Gizmo.Client.UI.View.Services
         /// Select user product group
         /// </summary>
         /// <param name="selectedProductGroupId"></param>
-        public void SetSelectedProductGroup(int? selectedProductGroupId)
+        public async Task SetSelectedProductsGroupIdAsync(int? selectedProductGroupId)
         {
             ViewState.SelectedUserProductGroupId = selectedProductGroupId;
 
-            if (selectedProductGroupId.HasValue)
-                ViewState.ProductGroups = GetSelectedProductGroups(selectedProductGroupId.Value);
-            else
-                ViewState.ProductGroups = GetAllProductGroups();
+            await SetUserGroupedProductsAsync(selectedProductGroupId);
         }
 
-        private IEnumerable<IGrouping<string, ProductViewState>> GetAllProductGroups() => ViewState.Products
-            .GroupBy(x => x.ProductGroupName);
+        private async Task SetUserGroupedProductsAsync(int? selectedProductGroupId, CancellationToken cToken = default)
+        {
+            var productStates = await _productService.GetStatesAsync(cToken);
 
-        private IEnumerable<IGrouping<string, ProductViewState>> GetSelectedProductGroups(int selectedProductGroupId) => ViewState.Products
-            .Where(x => x.ProductGroupId == selectedProductGroupId)
-            .GroupBy(x => x.ProductGroupName);
+            ViewState.UserGroupedProducts = selectedProductGroupId.HasValue
+                ? ViewState.UserGroupedProducts = productStates.Where(x => x.ProductGroupId == selectedProductGroupId).GroupBy(x => x.ProductGroupName)
+                : ViewState.UserGroupedProducts = productStates.GroupBy(x => x.ProductGroupName);
+
+            ViewState.RaiseChanged();
+        }
+        private async Task SetUserProductGroupsAsync(CancellationToken cToken = default)
+        {
+            ViewState.UserProductGroups = await _userProductGroupService.GetStatesAsync(cToken);
+
+            ViewState.RaiseChanged();
+        }
 
         protected override async Task OnInitializing(CancellationToken cToken)
         {
             await base.OnInitializing(cToken);
 
-            ViewState.UserProductGroups = await _userProductGroupService.GetStatesAsync(cToken);
+            _userProductGroupService.Changed += SetUserProductGroupsAsync;
 
-            ViewState.Products = await _productService.GetStatesAsync(cToken);
+            await SetUserProductGroupsAsync(cToken);
+            await SetUserGroupedProductsAsync(ViewState.SelectedUserProductGroupId, cToken);
+        }
 
-            ViewState.ProductGroups = ViewState.SelectedUserProductGroupId.HasValue
-                ? GetSelectedProductGroups(ViewState.SelectedUserProductGroupId.Value)
-                : GetAllProductGroups();
+        protected override void OnDisposing(bool isDisposing)
+        {
+            base.OnDisposing(isDisposing);
         }
     }
 }
