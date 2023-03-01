@@ -40,9 +40,9 @@ namespace Gizmo.Client.UI.View.Services
 
             Random random = new Random();
 
-            var enterprises = await _gizmoClient.EnterprisesGetAsync(new ApplicationEnterprisesFilter());
+            var enterprises = await _gizmoClient.UserApplicationEnterprisesGetAsync(new UserApplicationEnterprisesFilter());
 
-            var applications = await _gizmoClient.ApplicationsGetAsync(new ApplicationsFilter());
+            var applications = await _gizmoClient.UserApplicationsGetAsync(new UserApplicationsFilter());
             ViewState.Applications = applications.Data.Select(a => new ApplicationViewState()
             {
                 Id = a.Id,
@@ -59,7 +59,7 @@ namespace Gizmo.Client.UI.View.Services
                 ApplicationGroupName = "Shooter"
             }).ToList();
 
-            var executables = await _gizmoClient.ExecutablesGetAsync(new ApplicationExecutablesFilter() { });
+            var executables = await _gizmoClient.UserExecutablesGetAsync(new UserExecutablesFilter() { });
 
             var executablesList = executables.Data.Select(a => new ExecutableViewState()
              {
@@ -123,7 +123,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             await base.OnInitializing(ct);
 
-            var applicationGroups = await _gizmoClient.ApplicationGroupsGetAsync(new ApplicationGroupsFilter());
+            var applicationGroups = await _gizmoClient.UserApplicationCategoriesGetAsync(new UserApplicationCategoriesFilter());
             ViewState.ApplicationGroups = applicationGroups.Data.Select(a => new ApplicationGroupViewState()
             {
                 Id = a.Id,

@@ -455,17 +455,27 @@ namespace Gizmo.Client
             throw new NotImplementedException();
         }
 
-        public Task<PagedList<UserExecutableModel>> UserApplicationExecutablesGetAsync(UserExecutablesFilter filters, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<PagedList<UserApplicationLinkModel>> UserApplicationLinksGetAsync(UserApplicationLinksFilter filters, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        public Task<PagedList<UserExecutablePersonalFileModel>> UserExecutablePersonalFilesGetAsync(UserExecutablePersonalFilesFilter filters, CancellationToken cancellationToken = default)
+        public Task<UserApplicationModel> UserApplicationGetAsync(int id, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedList<UserExecutableModel>> UserExecutablesGetAsync(UserExecutablesFilter filters, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UserExecutableModel> UserExecutableGetAsync(int id, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedList<UserPersonalFileModel>> UserPersonalFilesGetAsync(UserPersonalFilesFilter filters, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

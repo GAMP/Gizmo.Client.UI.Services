@@ -24,7 +24,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task<bool> DataInitializeAsync(CancellationToken cToken)
         {
-            var products = await _gizmoClient.ProductsGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
+            var products = await _gizmoClient.UserProductsGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
             var productsDictionary = products.Data.ToDictionary(x => x.Id);
             var productGroups = await _gizmoClient.UserProductGroupsGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
 
@@ -42,13 +42,11 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (product.ProductType == ProductType.ProductBundle)
                 {
-                    var bundledProducts = await _gizmoClient.ProductsBundleGetAsync(product.Id, cToken);
-
-                    if (bundledProducts.Data.Any())
+                    if (product.Bundle != null && product.Bundle.BundledProducts.Any())
                     {
-                        viewState.BundledProducts = new List<ProductViewState>(bundledProducts.Data.Count());
+                        viewState.BundledProducts = new List<ProductViewState>();
 
-                        foreach (var bundledProduct in bundledProducts.Data)
+                        foreach (var bundledProduct in product.Bundle.BundledProducts)
                         {
                             if (productsDictionary.ContainsKey(bundledProduct.ProductId))
                             {
@@ -85,7 +83,7 @@ namespace Gizmo.Client.UI.View.Services
         }
         protected override async ValueTask<ProductViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
         {
-            var product = await _gizmoClient.ProductGetAsync(lookUpkey, null, cToken);
+            var product = await _gizmoClient.UserProductGetAsync(lookUpkey, cToken);
 
             var viewState = CreateDefaultViewState(lookUpkey);
 
@@ -96,17 +94,15 @@ namespace Gizmo.Client.UI.View.Services
 
             if (product.ProductType == ProductType.ProductBundle)
             {
-                var bundledProducts = await _gizmoClient.ProductsBundleGetAsync(product.Id, cToken);
-
-                if (bundledProducts.Data.Any())
+                if (product.Bundle != null && product.Bundle.BundledProducts.Any())
                 {
-                    var products = await _gizmoClient.ProductsGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
+                    var products = await _gizmoClient.UserProductsGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
 
                     var productsDictionary = products.Data.ToDictionary(x => x.Id);
 
-                    viewState.BundledProducts = new List<ProductViewState>(bundledProducts.Data.Count());
+                    viewState.BundledProducts = new List<ProductViewState>();
 
-                    foreach (var bundledProduct in bundledProducts.Data)
+                    foreach (var bundledProduct in product.Bundle.BundledProducts)
                     {
                         if (productsDictionary.ContainsKey(bundledProduct.ProductId))
                         {
