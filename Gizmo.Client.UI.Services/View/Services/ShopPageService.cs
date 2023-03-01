@@ -11,14 +11,14 @@ namespace Gizmo.Client.UI.View.Services
     [Route(ClientRoutes.ShopRoute)]
     public sealed class ShopPageService : ViewStateServiceBase<ShopPageViewState>
     {
-        private readonly ProductViewStateLookupService _userProductService;
+        private readonly UserProductViewStateLookupService _userProductService;
         private readonly UserProductGroupViewStateLookupService _userProductGroupService;
 
         public ShopPageService(
             IServiceProvider serviceProvider,
             ILogger<ShopPageService> logger,
             ShopPageViewState viewState,
-            ProductViewStateLookupService userProductService,
+            UserProductViewStateLookupService userProductService,
             UserProductGroupViewStateLookupService userProductGroupService) : base(viewState, logger, serviceProvider)
         {
             _userProductService = userProductService;
@@ -44,7 +44,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
-        private async void UpdateUserGroupedProductsOnChangeAsync(object? _, EventArgs __) => 
+        private async void UpdateUserGroupedProductsOnChangeAsync(object? _, EventArgs __) =>
             await UpdateUserGroupedProductsAsync(ViewState.SelectedUserProductGroupId);
         private async void UpdateUserProductGroupsOnChangeAsync(object? _, EventArgs __) =>
             await UpdateUserProductGroupsAsync();

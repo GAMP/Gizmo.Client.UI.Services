@@ -1,15 +1,15 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System.Collections.Concurrent;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
-
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-using System.Collections.Concurrent;
-
 namespace Gizmo.Client.UI.View.Services
 {
-    [Register()]
+    [Register]
+    [Route(ClientRoutes.ShopRoute)]
     public sealed class UserCartService : ValidatingViewStateServiceBase<UserCartViewState>
     {
         #region CONSTRUCTOR
@@ -17,10 +17,10 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             ILogger<UserCartService> logger,
             UserCartViewState viewState,
-            ProductViewStateLookupService userProductService,
+            UserCartProductViewStateLookupService userCartProductLookupService,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
-            _userProductService = userProductService;
+            _userCartProductLookupService = userCartProductLookupService;
             _gizmoClient = gizmoClient;
         }
 
@@ -29,7 +29,7 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
         private readonly ConcurrentDictionary<int, int> _products = new();
-        private readonly ProductViewStateLookupService _userProductService;
+        private readonly UserCartProductViewStateLookupService _userCartProductLookupService;
         #endregion
 
         #region FUNCTIONS
@@ -53,77 +53,46 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task AddProductAsyc(int productId, int quantity = 1)
         {
-            Random random = new Random();
+            var product = await _userCartProductLookupService.GetStateAsync(productId);
 
-            var existingProductViewState = ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault();
-
-            if (existingProductViewState != null)
+            if (product is not null)
             {
-                existingProductViewState.Quantity += quantity;
 
-                existingProductViewState.RaiseChanged();
-            }
-            else
-            {
-                var productDetailsPageService = ServiceProvider.GetRequiredService<ProductDetailsPageService>();
-
-                var product = await ((TestClient)_gizmoClient).ProductGetAsync(productId);
-
-                if (product != null)
+                if (ViewState.UserCartProducts.ContainsKey(product.ProductId))
                 {
-                    var productViewState = ServiceProvider.GetRequiredService<UserCartProductViewState>();
-                    productViewState.Quantity = quantity;
-                    productViewState.ProductId = product.Id;
-                    productViewState.ProductName = product.Name;
-                    //TODO: A Get user price.
-                    productViewState.UnitPrice = product.Price;
-                    productViewState.UnitPointsPrice = product.PointsPrice;
-                    productViewState.UnitPointsAward = product.Points;
-                    productViewState.PurchaseOptions = product.PurchaseOptions;
-                    //TODO: A CALCULATE PAY TYPE
-                    productViewState.PayType = productViewState.PurchaseOptions == PurchaseOptionType.And ? OrderLinePayType.Mixed : OrderLinePayType.Cash;
-
-                    ViewState.Products.Add(productViewState);
-
-                    var userShopProduct = await _userProductService.GetStateAsync(productId);
-
-                    userShopProduct.CartProduct.UserCartProduct = productViewState;
-                    userShopProduct.CartProduct.RaiseChanged();
-
-                    if (productDetailsPageService.ViewState.Product != null && productDetailsPageService.ViewState.Product.Id == productId)
-                    {
-                        productDetailsPageService.ViewState.Product.CartProduct.UserCartProduct = productViewState;
-                        productDetailsPageService.ViewState.Product.CartProduct.RaiseChanged();
-                    }
+                    ViewState.UserCartProducts[product.ProductId].Quantity += quantity;
                 }
                 else
                 {
-                    //TODO: A ERROR?
+                    ViewState.UserCartProducts.Add(product.ProductId, product);
                 }
+            }
+            else
+            {
+                ViewState.UserCartProducts.Remove(productId);
             }
 
             ViewState.RaiseChanged();
-
-            //If current uri is not shop or product details then navigate to shop.
-            var currentUri = NavigationService.GetUri();
-
-            //TODO: A USE CONSTS?
-            if (!currentUri.EndsWith("/shop") && !currentUri.Contains("/productdetails/"))
-                NavigationService.NavigateTo(ClientRoutes.ShopRoute);
         }
 
         public Task RemoveProductAsync(int productId, int? quantity)
         {
-            var existingProductState = ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault();
-            if (existingProductState != null)
+            if (ViewState.UserCartProducts.ContainsKey(productId))
             {
-                if (quantity.HasValue && quantity.Value < existingProductState.Quantity)
+                if (quantity.HasValue)
                 {
-                    existingProductState.Quantity -= quantity.Value;
+                    if (ViewState.UserCartProducts[productId].Quantity >= quantity.Value)
+                    {
+                        ViewState.UserCartProducts[productId].Quantity -= quantity.Value;
+                    }
+                    else
+                    {
+                        ViewState.UserCartProducts.Remove(productId);
+                    }
                 }
                 else
                 {
-                    ViewState.Products.Remove(existingProductState);
+                    ViewState.UserCartProducts.Remove(productId);
                 }
             }
 
@@ -217,5 +186,29 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
+
+        private async Task UpdateUserCartProductsAsync()
+        {
+            var products = await _userCartProductLookupService.GetStatesAsync();
+            ViewState.UserCartProducts = new Dictionary<int, UserCartProductViewState>(products.Count());
+            // ViewState.Products = products.ToList();
+            ViewState.RaiseChanged();
+        }
+
+        private async void UpdateUserCartProductsOnChangeAsync(object? _, EventArgs __) =>
+            await UpdateUserCartProductsAsync();
+
+        protected override async Task OnNavigatedIn()
+        {
+            _userCartProductLookupService.Changed += UpdateUserCartProductsOnChangeAsync;
+
+            await UpdateUserCartProductsAsync();
+        }
+        protected override Task OnNavigatedOut()
+        {
+            _userCartProductLookupService.Changed -= UpdateUserCartProductsOnChangeAsync;
+
+            return base.OnNavigatedOut();
+        }
     }
 }

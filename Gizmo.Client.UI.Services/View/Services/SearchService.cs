@@ -11,7 +11,7 @@ namespace Gizmo.Client.UI.View.Services
     public sealed class SearchService : ViewStateServiceBase<SearchViewState>
     {
         #region FIELDS
-        private readonly ProductViewStateLookupService _productService;
+        private readonly UserProductViewStateLookupService _userProductStateLookupService;
         private readonly IGizmoClient _gizmoClient;
         private bool _ignoreLocationChange = false;
         #endregion
@@ -19,12 +19,12 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public SearchService(
             SearchViewState viewState,
-            ProductViewStateLookupService productService,
+            UserProductViewStateLookupService userProductStateLookupService,
             ILogger<SearchService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
-            _productService = productService;
+            this._userProductStateLookupService = userProductStateLookupService;
             _gizmoClient = gizmoClient;
         }
         #endregion
@@ -197,7 +197,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Products)
                 {
-                    var productStates = await _productService.GetStatesAsync();
+                    var productStates = await _userProductStateLookupService.GetStatesAsync();
 
                     foreach (var product in productStates.Where(a => a.Name.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
                     {

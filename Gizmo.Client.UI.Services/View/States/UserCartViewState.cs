@@ -1,7 +1,7 @@
-﻿using Gizmo.UI;
+﻿using System.ComponentModel.DataAnnotations;
+using Gizmo.UI;
 using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
-using System.ComponentModel.DataAnnotations;
 
 namespace Gizmo.Client.UI.View.States
 {
@@ -9,7 +9,6 @@ namespace Gizmo.Client.UI.View.States
     public sealed class UserCartViewState : ValidatingViewStateBase
     {
         #region FIELDS
-        private readonly List<UserCartProductViewState> _products = new();
         //private decimal _total;
         //private int _pointsAward;
         private string _notes = string.Empty;
@@ -23,17 +22,16 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets current user cart product states.
         /// </summary>
-        public List<UserCartProductViewState> Products
-        {
-            get { return _products; }
-        }
+        public List<UserCartProductViewState> Products { get; internal set; } = new();
+
+        public IDictionary<int, UserCartProductViewState> UserCartProducts { get; internal set; } = null!;
 
         /// <summary>
         /// Gets cart total.
         /// </summary>
         public decimal Total
         {
-            get { return _products.Where(a => a.PayType == OrderLinePayType.Cash || a.PayType == OrderLinePayType.Mixed).Select(a => a.UnitPrice * a.Quantity).Sum(); }
+            get { return Products.Where(a => a.PayType == OrderLinePayType.Cash || a.PayType == OrderLinePayType.Mixed).Select(a => a.UnitPrice * a.Quantity).Sum(); }
             //internal set { SetProperty(ref _total, value); }
         }
 
@@ -42,7 +40,7 @@ namespace Gizmo.Client.UI.View.States
         /// </summary>
         public int PointsTotal
         {
-            get { return _products.Where(a => a.PayType == OrderLinePayType.Points || a.PayType == OrderLinePayType.Mixed).Select(a => (a.UnitPointsPrice ?? 0) * a.Quantity).Sum(); }
+            get { return Products.Where(a => a.PayType == OrderLinePayType.Points || a.PayType == OrderLinePayType.Mixed).Select(a => (a.UnitPointsPrice ?? 0) * a.Quantity).Sum(); }
         }
 
         /// <summary>
@@ -50,7 +48,7 @@ namespace Gizmo.Client.UI.View.States
         /// </summary>
         public int PointsAward
         {
-            get { return _products.Select(a => (a.UnitPointsAward ?? 0) * a.Quantity).Sum(); }
+            get { return Products.Select(a => (a.UnitPointsAward ?? 0) * a.Quantity).Sum(); }
             //internal set { SetProperty(ref _pointsAward, value); }
         }
 

@@ -28,7 +28,7 @@ namespace Gizmo.Client.UI.View.States
         public int ProductId
         {
             get { return _productId; }
-            internal set { SetProperty(ref _productId, value); }        
+            internal set { SetProperty(ref _productId, value); }
         }
 
         /// <summary>

@@ -17,6 +17,6 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets product group name.
         /// </summary>
-        public string Name { get;internal set; } = string.Empty;
+        public string Name { get; internal set; } = null!;
     }
 }

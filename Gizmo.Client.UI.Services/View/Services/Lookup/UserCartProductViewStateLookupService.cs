@@ -7,13 +7,12 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register]
-    public sealed class UserProductViewStateLookupService : ViewStateLookupServiceBase<int, ProductViewState>
+    public sealed class UserCartProductViewStateLookupService : ViewStateLookupServiceBase<int, UserCartProductViewState>
     {
         private readonly IGizmoClient _gizmoClient;
-
-        public UserProductViewStateLookupService(
+        public UserCartProductViewStateLookupService(
             IGizmoClient gizmoClient,
-            ILogger<UserProductViewStateLookupService> logger,
+            ILogger<UserCartProductViewStateLookupService> logger,
             IServiceProvider serviceProvider) : base(logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
@@ -27,22 +26,17 @@ namespace Gizmo.Client.UI.View.Services
             {
                 var viewState = CreateDefaultViewState(product.Id);
 
-                viewState.Id = product.Id;
-                viewState.Name = product.Name;
-
-                viewState.ProductGroupId = product.ProductGroupId;
-                viewState.Description = product.Description;
-                viewState.ProductType = product.ProductType;
+                viewState.ProductId = product.Id;
                 viewState.UnitPrice = product.Price;
                 viewState.UnitPointsPrice = product.PointsPrice;
-                viewState.ProductGroupName = product.ProductGroupName;
+                viewState.ProductName = product.Name;
 
                 AddViewState(product.Id, viewState);
             }
 
             return true;
         }
-        protected override async ValueTask<ProductViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
+        protected override async ValueTask<UserCartProductViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
         {
             var product = await _gizmoClient.UserProductGetAsync(lookUpkey, cToken);
 
@@ -51,26 +45,19 @@ namespace Gizmo.Client.UI.View.Services
             if (product is null)
                 return viewState;
 
-            viewState.Id = product.Id;
-            viewState.Name = product.Name;
+            viewState.ProductId = lookUpkey;
 
-            viewState.ProductGroupId = product.ProductGroupId;
-            viewState.Description = product.Description;
-            viewState.ProductType = product.ProductType;
             viewState.UnitPrice = product.Price;
             viewState.UnitPointsPrice = product.PointsPrice;
-            viewState.ProductGroupName = product.ProductGroupName;
+            viewState.ProductName = product.Name;
 
             return viewState;
         }
-        protected override ProductViewState CreateDefaultViewState(int lookUpkey)
+        protected override UserCartProductViewState CreateDefaultViewState(int lookUpkey)
         {
-            var defaultState = ServiceProvider.GetRequiredService<ProductViewState>();
+            var defaultState = ServiceProvider.GetRequiredService<UserCartProductViewState>();
 
-            defaultState.Id = lookUpkey;
-
-            defaultState.Name = "Default namer";
-            defaultState.ProductGroupName = "Default group name";
+            defaultState.ProductId = lookUpkey;
 
             return defaultState;
         }
