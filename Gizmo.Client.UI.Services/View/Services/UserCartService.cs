@@ -18,9 +18,11 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserCartService> logger,
             UserCartViewState viewState,
             UserCartProductViewStateLookupService userCartProductLookupService,
+            UserCartProductItemViewStateLookupService userCartProductItemLookupService,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
             _userCartProductLookupService = userCartProductLookupService;
+            _userCartProductItemLookupService = userCartProductItemLookupService;
             _gizmoClient = gizmoClient;
         }
 
@@ -30,6 +32,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IGizmoClient _gizmoClient;
         private readonly ConcurrentDictionary<int, int> _products = new();
         private readonly UserCartProductViewStateLookupService _userCartProductLookupService;
+        private readonly UserCartProductItemViewStateLookupService _userCartProductItemLookupService;
         #endregion
 
         #region FUNCTIONS
@@ -37,7 +40,7 @@ namespace Gizmo.Client.UI.View.Services
         public void SetNotes(string value)
         {
             ViewState.Notes = value;
-            DebounceViewStateChange();
+            ViewState.RaiseChanged();
         }
 
         public void SetOrderPaymentMethod(int? paymentMethodId)
@@ -46,67 +49,31 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
-        public UserCartProductViewState? GetProduct(int productId)
+        public async Task<UserCartProductViewState> GetCartProductViewStateAsync(int productId) => 
+            await _userCartProductLookupService.GetStateAsync(productId);
+        public async Task<UserCartProductItemViewState> GetCartProductItemViewStateAsync(int productId) => 
+            await _userCartProductItemLookupService.GetStateAsync(productId);
+
+        public async Task AddProductAsync(int productId, int quantity = 1)
         {
-            return ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault();
+            var productItem = await _userCartProductItemLookupService.GetStateAsync(productId);
+
+            productItem.Quantity += quantity;
+
+            productItem.RaiseChanged();
+
+            await UpdateUserCartProductsAsync();
         }
 
-        public async Task AddProductAsyc(int productId, int quantity = 1)
+        public async Task RemoveProductAsync(int productId, int quantity = 1)
         {
-            var product = await _userCartProductLookupService.GetStateAsync(productId);
+            var productItem = await _userCartProductItemLookupService.GetStateAsync(productId);
 
-            if (product is not null)
-            {
+            productItem.Quantity -= quantity;
 
-                if (ViewState.UserCartProducts.ContainsKey(product.ProductId))
-                {
-                    ViewState.UserCartProducts[product.ProductId].Quantity += quantity;
-                }
-                else
-                {
-                    ViewState.UserCartProducts.Add(product.ProductId, product);
-                }
-            }
-            else
-            {
-                ViewState.UserCartProducts.Remove(productId);
-            }
+            productItem.RaiseChanged();
 
-            ViewState.RaiseChanged();
-        }
-
-        public Task RemoveProductAsync(int productId, int? quantity)
-        {
-            if (ViewState.UserCartProducts.ContainsKey(productId))
-            {
-                if (quantity.HasValue)
-                {
-                    if (ViewState.UserCartProducts[productId].Quantity >= quantity.Value)
-                    {
-                        ViewState.UserCartProducts[productId].Quantity -= quantity.Value;
-                    }
-                    else
-                    {
-                        ViewState.UserCartProducts.Remove(productId);
-                    }
-                }
-                else
-                {
-                    ViewState.UserCartProducts.Remove(productId);
-                }
-            }
-
-            ViewState.RaiseChanged();
-
-            return Task.CompletedTask;
-        }
-
-        public Task DeleteProduct(int productId)
-        {
-            if (_products.TryGetValue(productId, out var product))
-            {
-            }
-            return Task.CompletedTask;
+            await UpdateUserCartProductsAsync();
         }
 
         public Task ChangeProductPayType(int productId, OrderLinePayType payType)
@@ -120,21 +87,6 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
 
             return Task.CompletedTask;
-        }
-
-        public Task<bool> IsProductInCartAync(int productId)
-        {
-            return Task.FromResult(_products.ContainsKey(productId));
-        }
-
-        public async ValueTask<bool> TryGetProductViewStateAsync(int productId)
-        {
-            if (_products.TryGetValue(productId, out var productViewState))
-                return true;
-
-            await Task.Delay(1000);
-
-            return false;
         }
 
         public async Task SubmitAsync()
@@ -161,7 +113,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 ViewState.IsComplete = true;
 
-                ViewState.Products.Clear();
+                ViewState.Products = Enumerable.Empty<UserCartProductViewState>();
                 ViewState.PaymentMethodId = null;
 
                 ViewState.RaiseChanged();
@@ -189,9 +141,11 @@ namespace Gizmo.Client.UI.View.Services
 
         private async Task UpdateUserCartProductsAsync()
         {
+            var productItems = await _userCartProductItemLookupService.GetStatesAsync();
             var products = await _userCartProductLookupService.GetStatesAsync();
-            ViewState.UserCartProducts = new Dictionary<int, UserCartProductViewState>(products.Count());
-            // ViewState.Products = products.ToList();
+            
+            ViewState.Products = products.Join(productItems.Where(x => x.Quantity > 0), x => x.ProductId, y => y.ProductId, (x, _) => x);
+            
             ViewState.RaiseChanged();
         }
 
@@ -200,9 +154,9 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnNavigatedIn()
         {
-            _userCartProductLookupService.Changed += UpdateUserCartProductsOnChangeAsync;
-
             await UpdateUserCartProductsAsync();
+            
+            _userCartProductLookupService.Changed += UpdateUserCartProductsOnChangeAsync;
         }
         protected override Task OnNavigatedOut()
         {

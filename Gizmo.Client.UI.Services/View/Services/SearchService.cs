@@ -113,7 +113,7 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         //Only one result execute action.
                         var userCartService = ServiceProvider.GetRequiredService<UserCartService>();
-                        await userCartService.AddProductAsyc(ViewState.ProductResults[0].Id);
+                        await userCartService.AddProductAsync(ViewState.ProductResults[0].Id);
                     }
                     else
                     {

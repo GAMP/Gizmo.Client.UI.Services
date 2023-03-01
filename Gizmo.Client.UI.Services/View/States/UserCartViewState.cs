@@ -22,9 +22,7 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets current user cart product states.
         /// </summary>
-        public List<UserCartProductViewState> Products { get; internal set; } = new();
-
-        public IDictionary<int, UserCartProductViewState> UserCartProducts { get; internal set; } = null!;
+        public IEnumerable<UserCartProductViewState> Products { get; internal set; } = Enumerable.Empty<UserCartProductViewState>();
 
         /// <summary>
         /// Gets cart total.

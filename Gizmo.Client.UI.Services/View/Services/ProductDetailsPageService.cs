@@ -54,7 +54,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Product.HostGroup = "Vip";
             ViewState.Product.ProductGroupName = "Beverages";
 
-            ViewState.Product.CartProduct.UserCartProduct = userCartService.GetProduct(product.Id);
+            ViewState.Product.CartProduct.UserCartProduct = await userCartService.GetCartProductViewStateAsync(product.Id);
 
             if (ViewState.Product.ProductType == ProductType.ProductBundle)
             {
