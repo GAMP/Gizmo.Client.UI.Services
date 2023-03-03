@@ -8,5 +8,6 @@ namespace Gizmo.Client.UI.View.States
     [Register(Scope = RegisterScope.Transient)]
     public sealed class UserProductTimeViewState : UserProductViewStateBase
     {
+        public int Minutes { get; internal set; }
     }
 }

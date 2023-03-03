@@ -10,7 +10,6 @@ namespace Gizmo.Client.UI.View.States
     {
         public string Name { get; internal set; } = null!;
         public int ProductGroupId { get; internal set; }
-        public string ProductGroupName { get; internal set; } = null!;
         public ProductType ProductType { get; internal set; }
         public string? Description { get; internal set; }
         public decimal UnitPrice { get; internal set; }
@@ -18,6 +17,7 @@ namespace Gizmo.Client.UI.View.States
         public int? UnitPointsAward { get; internal set; }
         public PurchaseOptionType PurchaseOptions { get; internal set; }
         public IEnumerable<UserProductBundledViewState> BundledProducts { get; internal set; } = Enumerable.Empty<UserProductBundledViewState>();
+        public UserProductTimeViewState TimeProduct { get; internal set; } = null!;
         public int? ImageId { get; internal set; }
     }
 }

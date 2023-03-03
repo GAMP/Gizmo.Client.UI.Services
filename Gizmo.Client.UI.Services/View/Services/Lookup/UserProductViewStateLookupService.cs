@@ -35,7 +35,35 @@ namespace Gizmo.Client.UI.View.Services
                 viewState.ProductType = product.ProductType;
                 viewState.UnitPrice = product.Price;
                 viewState.UnitPointsPrice = product.PointsPrice;
-                viewState.ProductGroupName = product.ProductGroupName;
+
+                if (product.ProductType == ProductType.ProductBundle)
+                {
+                    var tmp = new List<UserProductBundledViewState>();
+
+                    var bundledProducts = await ((TestClient)_gizmoClient).ProductsBundleGetAsync(product.Id);
+
+                    foreach (var bundledProduct in bundledProducts.Data)
+                    {
+                        tmp.Add(new UserProductBundledViewState()
+                        {
+                            Id = bundledProduct.ProductId,
+                            Quantity = bundledProduct.Quantity
+                        });
+                    }
+
+                    viewState.BundledProducts = tmp;
+                }
+
+                if (product.ProductType == ProductType.ProductTime)
+                {
+                    if (product.TimeProduct != null)
+                    {
+                        viewState.TimeProduct = new UserProductTimeViewState()
+                        {
+                            Minutes = product.TimeProduct.Minutes
+                        };
+                    }
+                }
 
                 AddViewState(product.Id, viewState);
             }
@@ -59,7 +87,6 @@ namespace Gizmo.Client.UI.View.Services
             viewState.ProductType = product.ProductType;
             viewState.UnitPrice = product.Price;
             viewState.UnitPointsPrice = product.PointsPrice;
-            viewState.ProductGroupName = product.ProductGroupName;
 
             return viewState;
         }
@@ -70,7 +97,6 @@ namespace Gizmo.Client.UI.View.Services
             defaultState.Id = lookUpkey;
 
             defaultState.Name = "Default namer";
-            defaultState.ProductGroupName = "Default group name";
 
             return defaultState;
         }
