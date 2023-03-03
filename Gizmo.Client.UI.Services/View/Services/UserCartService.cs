@@ -17,11 +17,11 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             ILogger<UserCartService> logger,
             UserCartViewState viewState,
-            UserCartProductViewStateLookupService userCartProductLookupService,
+            UserProductViewStateLookupService userProductViewStateLookupService,
             UserCartProductItemViewStateLookupService userCartProductItemLookupService,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
-            _userCartProductLookupService = userCartProductLookupService;
+            _userProductViewStateLookupService = userProductViewStateLookupService;
             _userCartProductItemLookupService = userCartProductItemLookupService;
             _gizmoClient = gizmoClient;
         }
@@ -29,13 +29,13 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
-        private readonly UserCartProductViewStateLookupService _userCartProductLookupService;
+        private readonly UserProductViewStateLookupService _userProductViewStateLookupService;
         private readonly UserCartProductItemViewStateLookupService _userCartProductItemLookupService;
         #endregion
 
         #region FUNCTIONS
         public async Task<UserProductViewState> GetCartProductViewStateAsync(int productId) =>
-           await _userCartProductLookupService.GetStateAsync(productId);
+           await _userProductViewStateLookupService.GetStateAsync(productId);
         public async Task<UserCartProductItemViewState> GetCartProductItemViewStateAsync(int productId) =>
             await _userCartProductItemLookupService.GetStateAsync(productId);
 
@@ -45,9 +45,9 @@ namespace Gizmo.Client.UI.View.Services
 
             productItem.Quantity += quantity;
 
-            productItem.RaiseChanged();
-
             await UpdateUserCartProductsAsync();
+
+            productItem.RaiseChanged();
         }
         public async Task RemoveUserCartProductAsync(int productId, int quantity = 1)
         {
@@ -55,19 +55,29 @@ namespace Gizmo.Client.UI.View.Services
 
             productItem.Quantity -= quantity;
 
-            productItem.RaiseChanged();
-
             await UpdateUserCartProductsAsync();
+
+            productItem.RaiseChanged();
         }
-        
+
         private async Task UpdateUserCartProductsAsync()
         {
             var productItems = await _userCartProductItemLookupService.GetStatesAsync();
-            var products = await _userCartProductLookupService.GetStatesAsync();
 
             ViewState.Products = productItems.Where(x => x.Quantity > 0).ToList();
 
-            //TODO: AAA RECALCULATE TOTALS.
+            foreach (var item in ViewState.Products)
+            {
+                var product = await _userProductViewStateLookupService.GetStateAsync(item.ProductId);
+
+                item.TotalPrice = product.UnitPrice * item.Quantity;
+                item.TotalPointsPrice = product.UnitPointsPrice * item.Quantity;
+                item.TotalPointsAward = product.UnitPointsAward * item.Quantity;
+            }
+
+            ViewState.Total = ViewState.Products.Where(a => a.PayType == OrderLinePayType.Cash || a.PayType == OrderLinePayType.Mixed).Select(a => a.TotalPrice).Sum();
+            ViewState.PointsTotal = ViewState.Products.Where(a => a.PayType == OrderLinePayType.Points || a.PayType == OrderLinePayType.Mixed).Select(a => (a.TotalPointsPrice ?? 0)).Sum();
+            ViewState.PointsAward = ViewState.Products.Select(a => (a.TotalPointsAward ?? 0)).Sum();
 
             ViewState.RaiseChanged();
         }
@@ -147,11 +157,11 @@ namespace Gizmo.Client.UI.View.Services
         {
             await UpdateUserCartProductsAsync();
 
-            _userCartProductLookupService.Changed += OnUpdateUserCartProductsAsync;
+            _userProductViewStateLookupService.Changed += OnUpdateUserCartProductsAsync;
         }
         protected override Task OnNavigatedOut()
         {
-            _userCartProductLookupService.Changed -= OnUpdateUserCartProductsAsync;
+            _userProductViewStateLookupService.Changed -= OnUpdateUserCartProductsAsync;
 
             return base.OnNavigatedOut();
         }
