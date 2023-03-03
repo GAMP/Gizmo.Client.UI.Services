@@ -49,8 +49,7 @@ namespace Gizmo.Client.UI.View.Services
                 UnitPrice = a.Price,
                 UnitPointsPrice = a.PointsPrice,
                 UnitPointsAward = a.Points,
-                PurchaseOptions = a.PurchaseOptions,
-                ProductGroupName = "Beverages"
+                PurchaseOptions = a.PurchaseOptions
             }).ToList();
 
             foreach (var product in ViewState.PopularProducts.Where(a => a.ProductType == ProductType.ProductBundle))
@@ -72,6 +71,15 @@ namespace Gizmo.Client.UI.View.Services
 
                 product.BundledProducts = tmp;
             }
+
+            foreach (var product in ViewState.PopularProducts.Where(a => a.ProductType == ProductType.ProductTime))
+            {
+                product.TimeProduct = new UserProductTimeViewState()
+                {
+                    Minutes = 45
+                };
+            }
+
             //End Test
         }
 

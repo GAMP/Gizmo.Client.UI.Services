@@ -32,8 +32,8 @@ namespace Gizmo.Client.UI.View.Services
             var productStates = await _userProductService.GetStatesAsync(cToken);
 
             ViewState.UserGroupedProducts = selectedProductGroupId.HasValue
-                ? ViewState.UserGroupedProducts = productStates.Where(x => x.ProductGroupId == selectedProductGroupId).GroupBy(x => x.ProductGroupName)
-                : ViewState.UserGroupedProducts = productStates.GroupBy(x => x.ProductGroupName);
+                ? ViewState.UserGroupedProducts = productStates.Where(x => x.ProductGroupId == selectedProductGroupId).GroupBy(x => x.ProductGroupId)
+                : ViewState.UserGroupedProducts = productStates.GroupBy(x => x.ProductGroupId);
 
             ViewState.RaiseChanged();
         }

@@ -10,6 +10,6 @@ namespace Gizmo.Client.UI.View.States
 
         public IEnumerable<UserProductGroupViewState> UserProductGroups { get; internal set; } = Enumerable.Empty<UserProductGroupViewState>();
 
-        public IEnumerable<IGrouping<string, UserProductViewState>> UserGroupedProducts { get; internal set; } = Enumerable.Empty<IGrouping<string, UserProductViewState>>();
+        public IEnumerable<IGrouping<int, UserProductViewState>> UserGroupedProducts { get; internal set; } = Enumerable.Empty<IGrouping<int, UserProductViewState>>();
     }
 }

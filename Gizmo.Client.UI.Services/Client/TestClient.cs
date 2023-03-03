@@ -303,25 +303,11 @@ namespace Gizmo.Client
         public Task<UserProductModel?> UserProductGetAsync(int id, CancellationToken cancellationToken = default)
         {
             var product = _userProducts.Find(x => x.Id == id);
-
-            if (product != null)
-            {
-                var productGroup = _userProductGroups.Find(x => x.Id == product.ProductGroupId);
-
-                if (productGroup != null)
-                    product.ProductGroupName = productGroup.Name;
-            }
-
             return Task.FromResult(product);
         }
 
         public Task<PagedList<UserProductModel>> UserProductsGetAsync(UserProductsFilter filters, CancellationToken cancellationToken = default)
         {
-            foreach (var item in _userProducts.Join(_productGroups, x => x.ProductGroupId, y => y.Id, (x, y) => new { Product = x, ProductGroupName = y.Name }))
-            {
-                item.Product.ProductGroupName = item.ProductGroupName;
-            }
-
             return Task.FromResult(new PagedList<UserProductModel>(_userProducts));
         }
 

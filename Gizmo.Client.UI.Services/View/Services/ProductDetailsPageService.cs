@@ -49,7 +49,6 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Product.ProductType = product.ProductType;
             //TODO: A
             ViewState.Product.ImageId = null;
-            ViewState.Product.ProductGroupName = "Beverages";
 
             if (ViewState.Product.ProductType == ProductType.ProductBundle)
             {
@@ -78,8 +77,7 @@ namespace Gizmo.Client.UI.View.Services
                 Description = a.Description,
                 ProductType = a.ProductType,
                 //TODO: A Get image.
-                ImageId = null,
-                ProductGroupName = "Beverages"
+                ImageId = null
             }).Take(5).ToList();
             //End Test
         }

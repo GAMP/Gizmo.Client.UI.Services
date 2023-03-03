@@ -48,6 +48,13 @@ namespace Gizmo.Client.UI.View.Services
             await UpdateUserCartProductsAsync();
 
             productItem.RaiseChanged();
+
+            //If current uri is not shop or product details then navigate to shop.
+            var currentUri = NavigationService.GetUri();
+
+            //TODO: A USE CONSTS?
+            if (!currentUri.EndsWith("/shop") && !currentUri.Contains("/productdetails"))
+                NavigationService.NavigateTo(ClientRoutes.ShopRoute);
         }
         public async Task RemoveUserCartProductAsync(int productId, int quantity = 1)
         {
