@@ -1,4 +1,5 @@
-﻿using Gizmo.Web.Api.Models;
+﻿using Gizmo.Client.UI.View.States;
+using Gizmo.Web.Api.Models;
 
 namespace Gizmo.Client
 {
@@ -9,6 +10,7 @@ namespace Gizmo.Client
         private readonly List<UserProductGroupModel> _userProductGroups;
         private readonly List<UserProductModel> _userProducts;
         private readonly List<UserPaymentMethodModel> _userPaymentMethods;
+        private readonly List<NewsModel> _newsModel;
 
         public TestClient()
         {
@@ -54,6 +56,33 @@ namespace Gizmo.Client
                 Id = i,
                 Name = $"#User Payment method {i}"
             }).ToList();
+            _newsModel = new()
+            {
+                { new ()
+                    {
+                        Id = 1,
+                        Title = $"#Title 1",
+                        Data = "<div style=\"max-width: 40.0rem; margin: 8.6rem 3.2rem 6.5rem 3.2rem\">#1 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                        MediaUrl = $"carousel_1.jpg"
+                    }
+                },
+                { new ()
+                    {
+                        Id = 2,
+                        Title = $"#Title 2",
+                        Data = "#2 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                        MediaUrl = $"carousel_2.jpg"
+                    }
+                },
+                { new ()
+                    {
+                        Id = 3,
+                        Title = $"#Title 3",
+                        Data = "#3 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                        MediaUrl = $"carousel_3.jpg"
+                    }
+                }
+            };
         }
 
         public async Task<LoginResult> UserLoginAsync(string loginName, string? password, CancellationToken cancellationToken)
@@ -334,15 +363,11 @@ namespace Gizmo.Client
             throw new NotImplementedException();
         }
 
-        public Task<PagedList<NewsModel>> NewsGetAsync(NewsFilter filters, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<PagedList<NewsModel>> NewsGetAsync(NewsFilter filters, CancellationToken cancellationToken = default) =>
+            Task.FromResult(new PagedList<NewsModel>(_newsModel));
 
-        public Task<NewsModel?> NewsGetAsync(int id, CancellationToken cToken = default)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<NewsModel?> NewsGetAsync(int id, CancellationToken cToken = default) =>
+            Task.FromResult(_newsModel.Find(x => x.Id == id));
         public Task<PagedList<FeedModel>> FeedsGetAsync(FeedsFilter filters, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();

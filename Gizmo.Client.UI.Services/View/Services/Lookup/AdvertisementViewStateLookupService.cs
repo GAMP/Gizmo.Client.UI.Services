@@ -1,6 +1,7 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -33,7 +34,10 @@ namespace Gizmo.Client.UI.View.Services
                 viewState.Url = item.Url;
                 viewState.VideoUrl = item.MediaUrl;
                 viewState.ThumbnailUrl = item.MediaUrl;
-                viewState.CustomTemplate = false;
+                viewState.CustomTemplate = true;
+
+                if (!viewState.CustomTemplate)
+                    viewState.Command = ParseCommand(item.Url);
 
                 AddViewState(item.Id, viewState);
             }
@@ -56,7 +60,10 @@ namespace Gizmo.Client.UI.View.Services
             viewState.Url = clientResult.Url;
             viewState.VideoUrl = clientResult.MediaUrl;
             viewState.ThumbnailUrl = clientResult.MediaUrl;
-            viewState.CustomTemplate = false;
+            viewState.CustomTemplate = true;
+
+            if (!viewState.CustomTemplate)
+                viewState.Command = ParseCommand(clientResult.Url);
 
             return viewState;
         }
@@ -69,6 +76,30 @@ namespace Gizmo.Client.UI.View.Services
             defaultState.Body = "Default body";
 
             return defaultState;
+        }
+
+        private static AdvertisementCommand? ParseCommand(string url)
+        {
+            try
+            {
+                var commandUrl = new Uri(url);
+                return new()
+                {
+                    CommandType = commandUrl.Segments[1] switch
+                    {
+                        "addcart" => AdvertisementCommandType.AddToCart,
+                        "launch" => AdvertisementCommandType.Launch,
+                        "navigate" => AdvertisementCommandType.Navigate,
+                        _ => throw new NotImplementedException(),
+                    },
+                    Parts = commandUrl.Segments[1..^1],
+                    PathId = int.Parse(commandUrl.Segments[^1])
+                };
+            }
+            catch (Exception exeption)
+            {
+                throw new NotSupportedException($"Advertisement command was not parsed. {exeption.Message}");
+            }
         }
     }
 }

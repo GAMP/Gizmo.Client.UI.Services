@@ -15,5 +15,13 @@ namespace Gizmo.Client.UI.View.States
         public string? VideoUrl { get; internal set; }
         public string? ThumbnailUrl { get; internal set; }
         public bool CustomTemplate { get; internal set; }
+        public AdvertisementCommand? Command { get; internal set; }
+    }
+
+    public sealed class AdvertisementCommand
+    {
+        public int PathId { get; internal set; }
+        public string[] Parts { get; internal set; } = Array.Empty<string>();
+        public AdvertisementCommandType CommandType { get; internal set; }
     }
 }
