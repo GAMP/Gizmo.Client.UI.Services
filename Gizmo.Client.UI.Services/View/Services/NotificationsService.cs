@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -33,7 +34,7 @@ namespace Gizmo.Client.UI.View.Services
             var existingNotification = ViewState.Notifications.Where(a => a.Id == id).FirstOrDefault();
             if (existingNotification != null)
             {
-                ViewState.Notifications.Remove(existingNotification);
+                ViewState.Notifications = ViewState.Notifications.Where(a => a != existingNotification).ToList();
             }
             ViewState.RaiseChanged();
             return Task.CompletedTask;
@@ -41,7 +42,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task MarkAllAsReadAsync()
         {
-            ViewState.Notifications.Clear();
+            ViewState.Notifications = Enumerable.Empty<NotificationViewState>();
             ViewState.RaiseChanged();
             return Task.CompletedTask;
         }

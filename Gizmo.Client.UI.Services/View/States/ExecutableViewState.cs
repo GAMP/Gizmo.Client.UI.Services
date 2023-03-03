@@ -13,7 +13,7 @@ namespace Gizmo.Client.UI.View.States
         private ExecutableState _state;
         private decimal _statePercentage;
 
-        private List<string> _personalFiles = new();
+        private IEnumerable<string> _personalFiles = Enumerable.Empty<string>();
         #endregion
 
         #region PROPERTIES
@@ -48,7 +48,7 @@ namespace Gizmo.Client.UI.View.States
             internal set { SetProperty(ref _statePercentage, value); }
         }
 
-        public List<string> PersonalFiles
+        public IEnumerable<string> PersonalFiles
         {
             get { return _personalFiles; }
             internal set { _personalFiles = value; }

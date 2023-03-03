@@ -10,7 +10,7 @@ namespace Gizmo.Client.UI.View.States
         #region FIELDS
         private bool _isLoading;
         private int _pageIndex;
-        private List<decimal> _presets = new();
+        private IEnumerable<decimal> _presets = Enumerable.Empty<decimal>();
         private bool _allowCustomValue;
         private decimal _minimumAmount;
         private decimal _amount;
@@ -30,7 +30,7 @@ namespace Gizmo.Client.UI.View.States
             internal set { _pageIndex = value; }
         }
 
-        public List<decimal> Presets
+        public IEnumerable<decimal> Presets
         {
             get { return _presets; }
             internal set { _presets = value; }

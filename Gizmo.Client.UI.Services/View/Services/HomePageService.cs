@@ -37,7 +37,7 @@ namespace Gizmo.Client.UI.View.Services
 
             //Test
             var products = await ((TestClient)_gizmoClient).ProductsGetAsync(new ProductsFilter());
-            ViewState.PopularProducts = products.Data.Select(a => new ProductViewState()
+            ViewState.PopularProducts = products.Data.Select(a => new UserProductViewState()
             {
                 Id = a.Id,
                 ProductGroupId = a.ProductGroupId,
@@ -46,7 +46,6 @@ namespace Gizmo.Client.UI.View.Services
                 ProductType = a.ProductType,
                 //TODO: A Get image and user price.
                 ImageId = 2, //TODO: A Default image id is not included in the product dto.
-                HostGroup = "Vip",
                 UnitPrice = a.Price,
                 UnitPointsPrice = a.PointsPrice,
                 UnitPointsAward = a.Points,
@@ -56,32 +55,33 @@ namespace Gizmo.Client.UI.View.Services
 
             foreach (var product in ViewState.PopularProducts.Where(a => a.ProductType == ProductType.ProductBundle))
             {
-                product.BundledProducts = new List<ProductViewState>();
+                product.BundledProducts = new List<UserProductBundledViewState>();
 
                 var bundledProducts = await ((TestClient)_gizmoClient).ProductsBundleGetAsync(product.Id);
 
+                var tmp = new List<UserProductBundledViewState>();
+
                 foreach (var bundledProduct in bundledProducts.Data)
                 {
-                    var item = await ((TestClient)_gizmoClient).ProductGetAsync(bundledProduct.ProductId);
-
-                    product.BundledProducts.Add(new ProductViewState()
+                    tmp.Add(new UserProductBundledViewState()
                     {
-                        Id = item.Id,
-                        Name = item.Name,
-                        ImageId = null //TODO: A
+                        Id = bundledProduct.ProductId,
+                        Quantity = bundledProduct.Quantity
                     });
                 }
+
+                product.BundledProducts = tmp;
             }
             //End Test
         }
 
-		#endregion
+        #endregion
 
-		protected override async Task OnNavigatedIn()
-		{
-			await base.OnNavigatedIn();
+        protected override async Task OnNavigatedIn()
+        {
+            await base.OnNavigatedIn();
 
             await LoadPopularProductsAsync();
-		}
-	}
+        }
+    }
 }

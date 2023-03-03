@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -43,24 +44,30 @@ namespace Gizmo.Client.UI.View.Services
 
             Random random = new Random();
 
+            var tmp = new List<ExecutableViewState>();
+            var tmp2 = new List<ExecutableViewState>();
+
             foreach (var application in applicationsPageService.ViewState.Applications)
             {
                 foreach (var exe in application.Executables)
                 {
-                    if (!ViewState.Executables.Contains(exe))
+                    if (!tmp.Contains(exe))
                     {
-                        ViewState.Executables.Add(exe);
+                        tmp.Add(exe);
 
                         exe.State = (ExecutableState)random.Next(0, 4);
                         exe.RaiseChanged();
 
                         if (exe.State != ExecutableState.None)
                         {
-                            activeApplicationsService.ViewState.Executables.Add(exe);
+                            tmp2.Add(exe);
                         }
                     }
                 }
             }
+
+            ViewState.Executables = tmp;
+            activeApplicationsService.ViewState.Executables = tmp2;
 
             activeApplicationsService.ViewState.RaiseChanged();
             //End Test

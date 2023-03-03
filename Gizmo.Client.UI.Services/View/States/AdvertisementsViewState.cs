@@ -7,12 +7,12 @@ namespace Gizmo.Client.UI.View.States
     public sealed class AdvertisementsViewState : ViewStateBase
     {
         #region FIELDS
-        private List<AdvertisementViewState> _advertisements = new();
+        private IEnumerable<AdvertisementViewState> _advertisements = Enumerable.Empty<AdvertisementViewState>();
         #endregion
 
         #region PROPERTIES
 
-        public List<AdvertisementViewState> Advertisements
+        public IEnumerable<AdvertisementViewState> Advertisements
         {
             get { return _advertisements; }
             internal set { _advertisements = value; }

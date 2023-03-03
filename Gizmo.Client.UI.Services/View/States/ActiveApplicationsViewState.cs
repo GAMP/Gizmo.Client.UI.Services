@@ -7,12 +7,12 @@ namespace Gizmo.Client.UI.View.States
     public sealed class ActiveApplicationsViewState : ViewStateBase
     {
         #region FIELDS
-        private List<ExecutableViewState> _executables = new();
+        private IEnumerable<ExecutableViewState> _executables = Enumerable.Empty<ExecutableViewState>();
         #endregion
 
         #region PROPERTIES
 
-        public List<ExecutableViewState> Executables
+        public IEnumerable<ExecutableViewState> Executables
         {
             get { return _executables; }
             internal set { _executables = value; }

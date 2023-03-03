@@ -67,6 +67,8 @@ namespace Gizmo.Client.UI.View.Services
 
             ViewState.Products = productItems.Where(x => x.Quantity > 0).ToList();
 
+            //TODO: AAA RECALCULATE TOTALS.
+
             ViewState.RaiseChanged();
         }
 

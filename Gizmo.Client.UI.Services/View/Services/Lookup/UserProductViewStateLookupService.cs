@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register]
-    public sealed class UserProductViewStateLookupService : ViewStateLookupServiceBase<int, ProductViewState>
+    public sealed class UserProductViewStateLookupService : ViewStateLookupServiceBase<int, UserProductViewState>
     {
         private readonly IGizmoClient _gizmoClient;
 
@@ -42,7 +42,7 @@ namespace Gizmo.Client.UI.View.Services
 
             return true;
         }
-        protected override async ValueTask<ProductViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
+        protected override async ValueTask<UserProductViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
         {
             var product = await _gizmoClient.UserProductGetAsync(lookUpkey, cToken);
 
@@ -63,9 +63,9 @@ namespace Gizmo.Client.UI.View.Services
 
             return viewState;
         }
-        protected override ProductViewState CreateDefaultViewState(int lookUpkey)
+        protected override UserProductViewState CreateDefaultViewState(int lookUpkey)
         {
-            var defaultState = ServiceProvider.GetRequiredService<ProductViewState>();
+            var defaultState = ServiceProvider.GetRequiredService<UserProductViewState>();
 
             defaultState.Id = lookUpkey;
 

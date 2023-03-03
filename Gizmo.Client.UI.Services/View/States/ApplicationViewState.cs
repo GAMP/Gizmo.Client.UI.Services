@@ -20,7 +20,7 @@ namespace Gizmo.Client.UI.View.States
         private DateTime? _releaseDate;
         private DateTime _dateAdded;
 
-        private List<ExecutableViewState> _executables = new();
+        private IEnumerable<ExecutableViewState> _executables = Enumerable.Empty<ExecutableViewState>();
         #endregion
 
         #region PROPERTIES
@@ -97,7 +97,7 @@ namespace Gizmo.Client.UI.View.States
             internal set { _dateAdded = value; }
         }
 
-        public List<ExecutableViewState> Executables
+        public IEnumerable<ExecutableViewState> Executables
         {
             get { return _executables; }
             internal set { _executables = value; }

@@ -1,5 +1,7 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Gizmo.UI.View.States;
+using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -35,9 +37,9 @@ namespace Gizmo.Client.UI.View.Services
             //Test
             Random random = new Random();
 
-            ViewState.Advertisements = new List<AdvertisementViewState>();
+            var tmp = new List<AdvertisementViewState>();
 
-            ViewState.Advertisements.Add(new AdvertisementViewState()
+            tmp.Add(new AdvertisementViewState()
             {
                 Id = 1,
                 Title = $"#Title 1",
@@ -45,7 +47,7 @@ namespace Gizmo.Client.UI.View.Services
                 ThumbnailUrl = $"carousel_1.jpg"
             });
 
-            ViewState.Advertisements.Add(new AdvertisementViewState()
+            tmp.Add(new AdvertisementViewState()
             {
                 Id = 2,
                 Title = $"#Title 2",
@@ -53,7 +55,7 @@ namespace Gizmo.Client.UI.View.Services
                 ThumbnailUrl = $"carousel_2.jpg"
             });
 
-            ViewState.Advertisements.Add(new AdvertisementViewState()
+            tmp.Add(new AdvertisementViewState()
             {
                 Id = 3,
                 Title = $"#Title 3",
@@ -61,6 +63,8 @@ namespace Gizmo.Client.UI.View.Services
                 ThumbnailUrl = $"carousel_3.jpg"
             });
             //End Test
+
+            ViewState.Advertisements = tmp;
 
             ViewState.RaiseChanged();
         }

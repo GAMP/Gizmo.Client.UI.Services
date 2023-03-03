@@ -7,12 +7,12 @@ namespace Gizmo.Client.UI.View.States
     public sealed class DepositTransactionsViewState : ViewStateBase
     {
         #region FIELDS
-        private List<DepositTransactionViewState> _depositTransactions = new();
+        private IEnumerable<DepositTransactionViewState> _depositTransactions = Enumerable.Empty<DepositTransactionViewState>();
         #endregion
 
         #region PROPERTIES
 
-        public List<DepositTransactionViewState> DepositTransactions
+        public IEnumerable<DepositTransactionViewState> DepositTransactions
         {
             get { return _depositTransactions; }
             internal set { _depositTransactions = value; }

@@ -38,8 +38,6 @@ namespace Gizmo.Client.UI.View.Services
 
         private async Task LoadProductAsync(int id)
         {
-            var userCartService = ServiceProvider.GetRequiredService<UserCartService>();
-
             //TODO: A Load product from cache or get by id?
 
             //Test
@@ -51,32 +49,28 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Product.ProductType = product.ProductType;
             //TODO: A
             ViewState.Product.ImageId = null;
-            ViewState.Product.HostGroup = "Vip";
             ViewState.Product.ProductGroupName = "Beverages";
-
-            ViewState.Product.CartProduct.UserCartProduct = await userCartService.GetCartProductViewStateAsync(product.Id);
 
             if (ViewState.Product.ProductType == ProductType.ProductBundle)
             {
-                ViewState.Product.BundledProducts = new List<ProductViewState>();
+                var tmp = new List<UserProductBundledViewState>();
 
                 var bundledProducts = await ((TestClient)_gizmoClient).ProductsBundleGetAsync(product.Id);
 
                 foreach (var bundledProduct in bundledProducts.Data)
                 {
-                    var item = await ((TestClient)_gizmoClient).ProductGetAsync(bundledProduct.ProductId);
-
-                    ViewState.Product.BundledProducts.Add(new ProductViewState()
+                    tmp.Add(new UserProductBundledViewState()
                     {
-                        Id = item.Id,
-                        Name = item.Name,
-                        ImageId = null //TODO: A
+                        Id = bundledProduct.ProductId,
+                        Quantity = bundledProduct.Quantity
                     });
                 }
+
+                ViewState.Product.BundledProducts = tmp;
             }
 
             var products = await ((TestClient)_gizmoClient).ProductsGetAsync(new ProductsFilter());
-            ViewState.RelatedProducts = products.Data.Select(a => new ProductViewState()
+            ViewState.RelatedProducts = products.Data.Select(a => new UserProductViewState()
             {
                 Id = a.Id,
                 ProductGroupId = a.ProductGroupId,
@@ -85,7 +79,6 @@ namespace Gizmo.Client.UI.View.Services
                 ProductType = a.ProductType,
                 //TODO: A Get image.
                 ImageId = null,
-                HostGroup = "Vip",
                 ProductGroupName = "Beverages"
             }).Take(5).ToList();
             //End Test

@@ -7,12 +7,12 @@ namespace Gizmo.Client.UI.View.States
     public sealed class PurchasesViewState : ViewStateBase
     {
         #region FIELDS
-        private List<PurchaseViewState> _purchases = new();
+        private IEnumerable<PurchaseViewState> _purchases = Enumerable.Empty<PurchaseViewState>();
         #endregion
 
         #region PROPERTIES
 
-        public List<PurchaseViewState> Purchases
+        public IEnumerable<PurchaseViewState> Purchases
         {
             get { return _purchases; }
             internal set { _purchases = value; }

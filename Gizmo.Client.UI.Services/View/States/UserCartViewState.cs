@@ -8,15 +8,6 @@ namespace Gizmo.Client.UI.View.States
     [Register()]
     public sealed class UserCartViewState : ValidatingViewStateBase
     {
-        #region FIELDS
-        //private decimal _total;
-        //private int _pointsAward;
-        private string _notes = string.Empty;
-        private int? _paymentMethodId;
-        private bool _isLoading;
-        private bool _isComplete;
-        #endregion
-
         #region PROPERTIES
 
         /// <summary>
@@ -25,31 +16,21 @@ namespace Gizmo.Client.UI.View.States
         public IEnumerable<UserCartProductItemViewState> Products { get; internal set; } = Enumerable.Empty<UserCartProductItemViewState>();
 
         [ValidatingProperty()]
-        public string Notes
-        {
-            get { return _notes; }
-            internal set { SetProperty(ref _notes, value); }
-        }
+        public string? Notes { get; internal set; } = null!;
 
         [ValidatingProperty()]
         [Required()]
-        public int? PaymentMethodId
-        {
-            get { return _paymentMethodId; }
-            internal set { SetProperty(ref _paymentMethodId, value); }
-        }
+        public int? PaymentMethodId { get; internal set; } = null!;
 
-        public bool IsLoading
-        {
-            get { return _isLoading; }
-            internal set { _isLoading = value; }
-        }
+        public bool IsLoading { get; internal set; }
 
-        public bool IsComplete
-        {
-            get { return _isComplete; }
-            internal set { SetProperty(ref _isComplete, value); }
-        }
+        public bool IsComplete { get; internal set; }
+        
+        public decimal Total { get; internal set; }
+
+        public decimal PointsTotal { get; internal set; }
+
+        public decimal PointsAward { get; internal set; }
 
         #endregion
     }

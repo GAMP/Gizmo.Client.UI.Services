@@ -12,12 +12,12 @@ namespace Gizmo.Client.UI.View.States
         private bool _showAll;
         
         private string _searchPattern = string.Empty;
-        private List<SearchResultViewState> _applicationResults = new();
-        private List<SearchResultViewState> _productResults = new();
+        private IEnumerable<SearchResultViewState> _applicationResults = Enumerable.Empty<SearchResultViewState>();
+        private IEnumerable<SearchResultViewState> _productResults = Enumerable.Empty<SearchResultViewState>();
 
         private string _appliedSearchPattern = string.Empty;
-        private List<SearchResultViewState> _appliedApplicationResults = new();
-        private List<SearchResultViewState> _appliedProductResults = new();
+        private IEnumerable<SearchResultViewState> _appliedApplicationResults = Enumerable.Empty<SearchResultViewState>();
+        private IEnumerable<SearchResultViewState> _appliedProductResults = Enumerable.Empty<SearchResultViewState>();
         #endregion
 
         #region PROPERTIES
@@ -46,13 +46,13 @@ namespace Gizmo.Client.UI.View.States
             internal set { _searchPattern = value; }
         }
 
-        public List<SearchResultViewState> ApplicationResults
+        public IEnumerable<SearchResultViewState> ApplicationResults
         {
             get { return _applicationResults; }
             internal set { _applicationResults = value; }
         }
 
-        public List<SearchResultViewState> ProductResults
+        public IEnumerable<SearchResultViewState> ProductResults
         {
             get { return _productResults; }
             internal set { _productResults = value; }
@@ -64,13 +64,13 @@ namespace Gizmo.Client.UI.View.States
             internal set { _appliedSearchPattern = value; }
         }
 
-        public List<SearchResultViewState> AppliedApplicationResults
+        public IEnumerable<SearchResultViewState> AppliedApplicationResults
         {
             get { return _appliedApplicationResults; }
             internal set { _appliedApplicationResults = value; }
         }
 
-        public List<SearchResultViewState> AppliedProductResults
+        public IEnumerable<SearchResultViewState> AppliedProductResults
         {
             get { return _appliedProductResults; }
             internal set { _appliedProductResults = value; }

@@ -7,12 +7,12 @@ namespace Gizmo.Client.UI.View.States
     public sealed class PaymentMethodsViewState : ViewStateBase
     {
         #region FIELDS
-        private List<PaymentMethodViewState> _paymentMethods = new();
+        private IEnumerable<PaymentMethodViewState> _paymentMethods = Enumerable.Empty<PaymentMethodViewState>();
         #endregion
 
         #region PROPERTIES
 
-        public List<PaymentMethodViewState> PaymentMethods
+        public IEnumerable<PaymentMethodViewState> PaymentMethods
         {
             get { return _paymentMethods; }
             internal set { _paymentMethods = value; }

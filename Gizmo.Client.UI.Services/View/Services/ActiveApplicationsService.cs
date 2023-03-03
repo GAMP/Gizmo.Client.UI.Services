@@ -53,7 +53,9 @@ namespace Gizmo.Client.UI.View.Services
                     return;
 
                 //Add executable view state to the list.
-                ViewState.Executables.Add(executable);
+                var tmp = ViewState.Executables.ToList();
+                tmp.Add(executable);
+                ViewState.Executables = tmp;
                 ViewState.RaiseChanged();
             }
 
@@ -97,7 +99,7 @@ namespace Gizmo.Client.UI.View.Services
                 executable.State = ExecutableState.None;
                 executable.RaiseChanged();
 
-                ViewState.Executables.Remove(executable);
+                ViewState.Executables = ViewState.Executables.Where(a => a != executable).ToList();
                 //End Test
                 
                 ViewState.RaiseChanged();

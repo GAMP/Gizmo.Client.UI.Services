@@ -44,8 +44,8 @@ namespace Gizmo.Client.UI.View.Services
         {
             //Clear current search.
             ViewState.SearchPattern = string.Empty;
-            ViewState.ProductResults.Clear();
-            ViewState.ApplicationResults.Clear();
+            ViewState.ProductResults = Enumerable.Empty<SearchResultViewState>();
+            ViewState.ApplicationResults = Enumerable.Empty<SearchResultViewState>();
 
             ViewState.OpenDropDown = false;
 
@@ -69,10 +69,8 @@ namespace Gizmo.Client.UI.View.Services
                 NavigationService.NavigateTo(ClientRoutes.ShopRoute);
             }
 
-            ViewState.AppliedApplicationResults.Clear();
-            ViewState.AppliedApplicationResults.AddRange(ViewState.ApplicationResults);
-            ViewState.AppliedProductResults.Clear();
-            ViewState.AppliedProductResults.AddRange(ViewState.ProductResults);
+            ViewState.AppliedApplicationResults = ViewState.ApplicationResults.ToList();
+            ViewState.AppliedProductResults = ViewState.ProductResults.ToList();
 
             ViewState.ShowAll = true;
 
@@ -85,16 +83,16 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task ProcessEnterAsync()
         {
-            if (ViewState.ApplicationResults.Count > 0 && ViewState.ProductResults.Count > 0)
+            if (ViewState.ApplicationResults.Count() > 0 && ViewState.ProductResults.Count() > 0)
             {
                 //Found results on both categories. Do nothing.
             }
             else
             {
-                if (ViewState.ApplicationResults.Count > 0)
+                if (ViewState.ApplicationResults.Count() > 0)
                 {
                     //Results found only in applications.
-                    if (ViewState.ApplicationResults.Count == 1)
+                    if (ViewState.ApplicationResults.Count() == 1)
                     {
                         //Only one result execute action.
                         //TODO: A
@@ -106,14 +104,14 @@ namespace Gizmo.Client.UI.View.Services
                     }
                 }
 
-                if (ViewState.ProductResults.Count > 0)
+                if (ViewState.ProductResults.Count() > 0)
                 {
                     //Results found only in applications.
-                    if (ViewState.ProductResults.Count == 1)
+                    if (ViewState.ProductResults.Count() == 1)
                     {
                         //Only one result execute action.
                         var userCartService = ServiceProvider.GetRequiredService<UserCartService>();
-                        await userCartService.AddUserCartProductAsync(ViewState.ProductResults[0].Id);
+                        await userCartService.AddUserCartProductAsync(ViewState.ProductResults.First().Id);
                     }
                     else
                     {
@@ -137,15 +135,15 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.IsLoading = false;
 
             ViewState.SearchPattern = string.Empty;
-            ViewState.ProductResults.Clear();
-            ViewState.ApplicationResults.Clear();
+            ViewState.ProductResults = Enumerable.Empty<SearchResultViewState>();
+            ViewState.ApplicationResults = Enumerable.Empty<SearchResultViewState>();
 
             //Clear applied search.
             ViewState.ShowAll = false;
 
             ViewState.AppliedSearchPattern = string.Empty;
-            ViewState.AppliedApplicationResults.Clear();
-            ViewState.AppliedProductResults.Clear();
+            ViewState.AppliedApplicationResults = Enumerable.Empty<SearchResultViewState>();
+            ViewState.AppliedProductResults = Enumerable.Empty<SearchResultViewState>();
 
             ViewState.RaiseChanged();
 
@@ -154,8 +152,8 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task SearchAsync(SearchResultTypes? searchResultTypes = null)
         {
-            ViewState.ProductResults.Clear();
-            ViewState.ApplicationResults.Clear();
+            ViewState.ProductResults = Enumerable.Empty<SearchResultViewState>();
+            ViewState.ApplicationResults = Enumerable.Empty<SearchResultViewState>();
 
             if (ViewState.SearchPattern.Length == 0)
             {
@@ -189,19 +187,25 @@ namespace Gizmo.Client.UI.View.Services
                         ApplicationGroupName = "Shooter"
                     }).ToList();
 
+                    var tmp = new List<SearchResultViewState>();
+
                     foreach (var app in tmpApplications.Where(a => a.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
                     {
-                        ViewState.ApplicationResults.Add(new SearchResultViewState() { Type = SearchResultTypes.Applications, Id = app.Id, Name = app.Title, ImageId = app.ImageId });
+                        tmp.Add(new SearchResultViewState() { Type = SearchResultTypes.Applications, Id = app.Id, Name = app.Title, ImageId = app.ImageId });
                     }
+
+                    ViewState.ApplicationResults = tmp;
                 }
 
                 if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Products)
                 {
                     var productStates = await _userProductStateLookupService.GetStatesAsync();
 
+                    var tmp = new List<SearchResultViewState>();
+
                     foreach (var product in productStates.Where(a => a.Name.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
                     {
-                        ViewState.ProductResults.Add(new SearchResultViewState()
+                        tmp.Add(new SearchResultViewState()
                         {
                             Type = SearchResultTypes.Products,
                             Id = product.Id,
@@ -209,6 +213,8 @@ namespace Gizmo.Client.UI.View.Services
                             ImageId = product.ImageId
                         });
                     }
+
+                    ViewState.ProductResults = tmp;
                 }
                 //End Test
 

@@ -25,6 +25,8 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnInitializing(CancellationToken ct)
         {
+            var tmp = new List<RegionViewState>();
+
             foreach (var culture in _localizationService.SupportedRegions)
             {
                 var viewState = GetViewState<RegionViewState>((state) =>
@@ -33,8 +35,10 @@ namespace Gizmo.Client.UI.View.Services
                     state.TwoLetterISORegionName = culture.TwoLetterISORegionName;
                 });
 
-                ViewState.Regions.Add(viewState);
+                tmp.Add(viewState);
             }
+
+            ViewState.Regions = tmp;
 
             ViewState.SelectedRegion = ViewState.Regions.FirstOrDefault();
 

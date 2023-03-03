@@ -74,7 +74,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 ViewState.CurrentUserAgreement.AcceptState = UserAgreementAcceptState.Accepted;
 
-                if (ViewState.CurrentUserAgreementIndex != ViewState.UserAgreements.Count - 1)
+                if (ViewState.CurrentUserAgreementIndex != ViewState.UserAgreements.Count() - 1)
                 {
                     ViewState.CurrentUserAgreementIndex += 1;
                     ViewState.CurrentUserAgreement = ViewState.UserAgreements[ViewState.CurrentUserAgreementIndex.Value];
@@ -97,7 +97,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 ViewState.CurrentUserAgreement.AcceptState = UserAgreementAcceptState.Rejected;
 
-                if (ViewState.CurrentUserAgreementIndex != ViewState.UserAgreements.Count - 1)
+                if (ViewState.CurrentUserAgreementIndex != ViewState.UserAgreements.Count() - 1)
                 {
                     ViewState.CurrentUserAgreementIndex += 1;
                     ViewState.CurrentUserAgreement = ViewState.UserAgreements[ViewState.CurrentUserAgreementIndex.Value];

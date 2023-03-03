@@ -7,12 +7,12 @@ namespace Gizmo.Client.UI.View.States
     public sealed class TimeProductsViewState : ViewStateBase
     {
         #region FIELDS
-        private List<TimeProductViewState> _timeProducts = new();
+        private IEnumerable<TimeProductViewState> _timeProducts = Enumerable.Empty<TimeProductViewState>();
         #endregion
 
         #region PROPERTIES
 
-        public List<TimeProductViewState> TimeProducts
+        public IEnumerable<TimeProductViewState> TimeProducts
         {
             get { return _timeProducts; }
             internal set { _timeProducts = value; }

@@ -7,12 +7,12 @@ namespace Gizmo.Client.UI.View.States
     public sealed class NotificationsViewState : ViewStateBase
     {
         #region FIELDS
-        private List<NotificationViewState> _notifications = new();
+        private IEnumerable<NotificationViewState> _notifications = Enumerable.Empty<NotificationViewState>();
         #endregion
 
         #region PROPERTIES
 
-        public List<NotificationViewState> Notifications
+        public IEnumerable<NotificationViewState> Notifications
         {
             get { return _notifications; }
             internal set { _notifications = value; }

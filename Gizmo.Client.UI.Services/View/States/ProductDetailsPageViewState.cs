@@ -7,19 +7,19 @@ namespace Gizmo.Client.UI.View.States
     public sealed class ProductDetailsPageViewState : ViewStateBase
     {
         #region FIELDS
-        private ProductViewState _product = new();
-        private List<ProductViewState> _relatedProducts = new();
+        private UserProductViewState _product = new();
+        private IEnumerable<UserProductViewState> _relatedProducts = Enumerable.Empty<UserProductViewState>();
         #endregion
 
         #region PROPERTIES
 
-        public ProductViewState Product
+        public UserProductViewState Product
         {
             get { return _product; }
             internal set { _product = value; }
         }
 
-        public List<ProductViewState> RelatedProducts
+        public IEnumerable<UserProductViewState> RelatedProducts
         {
             get { return _relatedProducts; }
             internal set { _relatedProducts = value; }

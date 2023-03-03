@@ -8,9 +8,9 @@ namespace Gizmo.Client.UI.View.States
     public abstract class LanguagesViewStateBase : ViewStateBase
     {
         #region FIELDS
-        private readonly List<RegionViewState> _regions = new();
+        private IEnumerable<RegionViewState> _regions = Enumerable.Empty<RegionViewState>();
         private RegionViewState? _selectedRegion;
-        private readonly List<LanguageViewState> _languages = new();
+        private IEnumerable<LanguageViewState> _languages = Enumerable.Empty<LanguageViewState>();
         private LanguageViewState? _selectedLanguage;
         #endregion
 
@@ -19,9 +19,10 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets available regions.
         /// </summary>
-        public List<RegionViewState> Regions
+        public IEnumerable<RegionViewState> Regions
         {
             get { return _regions; }
+            internal set { SetProperty(ref _regions, value); }
         }
 
         /// <summary>
@@ -36,9 +37,10 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets available languages.
         /// </summary>
-        public List<LanguageViewState> Languages
+        public IEnumerable<LanguageViewState> Languages
         {
             get { return _languages; }
+            internal set { SetProperty(ref _languages, value); }
         }
 
         /// <summary>

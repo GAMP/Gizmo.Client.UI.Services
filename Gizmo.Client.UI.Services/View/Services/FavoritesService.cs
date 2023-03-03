@@ -42,7 +42,9 @@ namespace Gizmo.Client.UI.View.Services
                 if (executable == null)
                     return;
 
-                ViewState.Executables.Add(executable);
+                var tmp = ViewState.Executables.ToList();
+                tmp.Add(executable);
+                ViewState.Executables = tmp;
                 ViewState.RaiseChanged();
             }
         }

@@ -16,7 +16,7 @@ namespace Gizmo.Client.UI.View.States
         private decimal _total;
         private string _paymentMethod = string.Empty;
         private DateTime _orderDate;
-        private List<ProductViewState> _bundledProducts = new();
+        private IEnumerable<UserProductViewState> _bundledProducts = Enumerable.Empty<UserProductViewState>();
         #endregion
 
         #region PROPERTIES
@@ -69,7 +69,7 @@ namespace Gizmo.Client.UI.View.States
             internal set { _orderDate = value; }
         }
 
-        public List<ProductViewState> BundledProducts
+        public IEnumerable<UserProductViewState> BundledProducts
         {
             get { return _bundledProducts; }
             internal set { SetProperty(ref _bundledProducts, value); }

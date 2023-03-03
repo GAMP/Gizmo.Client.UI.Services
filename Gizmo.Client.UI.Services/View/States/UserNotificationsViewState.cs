@@ -7,7 +7,7 @@ namespace Gizmo.Client.UI.View.States
     public sealed class UserNotificationsViewState : ViewStateBase
     {
         #region FIELDS
-        private readonly List<UserNotificationViewState> _notifications = new();
+        private readonly IEnumerable<UserNotificationViewState> _notifications = Enumerable.Empty<UserNotificationViewState>();
         #endregion
 
         #region PROPERTIES
