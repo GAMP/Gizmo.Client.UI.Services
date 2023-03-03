@@ -10,16 +10,22 @@ namespace Gizmo.Client.UI.View.Services
     public sealed class PaymentMethodsService : ViewStateServiceBase<PaymentMethodsViewState>
     {
         #region CONSTRUCTOR
-        public PaymentMethodsService(PaymentMethodsViewState viewState,
+        public PaymentMethodsService(
             ILogger<PaymentMethodsService> logger,
-            IServiceProvider serviceProvider, IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            PaymentMethodsViewState viewState,
+            PaymentMethodViewStateLookupService paymentMethodLookupService,
+            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
+            _paymentMethodLookupService = paymentMethodLookupService;
             _gizmoClient = gizmoClient;
         }
+
         #endregion
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
+        private readonly PaymentMethodViewStateLookupService _paymentMethodLookupService;
         #endregion
 
         #region PROPERTIES
