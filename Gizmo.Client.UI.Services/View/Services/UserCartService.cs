@@ -34,7 +34,7 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region FUNCTIONS
-        public async Task<UserCartProductViewState> GetCartProductViewStateAsync(int productId) =>
+        public async Task<UserProductViewState> GetCartProductViewStateAsync(int productId) =>
            await _userCartProductLookupService.GetStateAsync(productId);
         public async Task<UserCartProductItemViewState> GetCartProductItemViewStateAsync(int productId) =>
             await _userCartProductItemLookupService.GetStateAsync(productId);
@@ -65,12 +65,7 @@ namespace Gizmo.Client.UI.View.Services
             var productItems = await _userCartProductItemLookupService.GetStatesAsync();
             var products = await _userCartProductLookupService.GetStatesAsync();
 
-            ViewState.Products = products.Join(productItems.Where(x => x.Quantity > 0), x => x.ProductId, y => y.ProductId, (product, productItem) =>
-            {
-                product.Quantity = productItem.Quantity;
-
-                return product;
-            });
+            ViewState.Products = productItems.Where(x => x.Quantity > 0).ToList();
 
             ViewState.RaiseChanged();
         }
@@ -121,7 +116,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 ViewState.IsComplete = true;
 
-                ViewState.Products = Enumerable.Empty<UserCartProductViewState>();
+                ViewState.Products = Enumerable.Empty<UserCartProductItemViewState>();
                 ViewState.PaymentMethodId = null;
 
                 ViewState.RaiseChanged();

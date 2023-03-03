@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register]
-    public sealed class UserCartProductViewStateLookupService : ViewStateLookupServiceBase<int, UserCartProductViewState>
+    public sealed class UserCartProductViewStateLookupService : ViewStateLookupServiceBase<int, UserProductViewState>
     {
         private readonly IGizmoClient _gizmoClient;
         public UserCartProductViewStateLookupService(
@@ -26,17 +26,17 @@ namespace Gizmo.Client.UI.View.Services
             {
                 var viewState = CreateDefaultViewState(product.Id);
 
-                viewState.ProductId = product.Id;
+                viewState.Id = product.Id;
                 viewState.UnitPrice = product.Price;
                 viewState.UnitPointsPrice = product.PointsPrice;
-                viewState.ProductName = product.Name;
+                viewState.Name = product.Name;
 
                 AddViewState(product.Id, viewState);
             }
 
             return true;
         }
-        protected override async ValueTask<UserCartProductViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
+        protected override async ValueTask<UserProductViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
         {
             var product = await _gizmoClient.UserProductGetAsync(lookUpkey, cToken);
 
@@ -45,19 +45,19 @@ namespace Gizmo.Client.UI.View.Services
             if (product is null)
                 return viewState;
 
-            viewState.ProductId = lookUpkey;
+            viewState.Id = lookUpkey;
 
             viewState.UnitPrice = product.Price;
             viewState.UnitPointsPrice = product.PointsPrice;
-            viewState.ProductName = product.Name;
+            viewState.Name = product.Name;
 
             return viewState;
         }
-        protected override UserCartProductViewState CreateDefaultViewState(int lookUpkey)
+        protected override UserProductViewState CreateDefaultViewState(int lookUpkey)
         {
-            var defaultState = ServiceProvider.GetRequiredService<UserCartProductViewState>();
+            var defaultState = ServiceProvider.GetRequiredService<UserProductViewState>();
 
-            defaultState.ProductId = lookUpkey;
+            defaultState.Id = lookUpkey;
 
             return defaultState;
         }

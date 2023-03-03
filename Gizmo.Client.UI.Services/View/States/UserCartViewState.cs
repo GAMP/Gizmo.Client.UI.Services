@@ -22,33 +22,7 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets current user cart product states.
         /// </summary>
-        public IEnumerable<UserCartProductViewState> Products { get; internal set; } = Enumerable.Empty<UserCartProductViewState>();
-
-        /// <summary>
-        /// Gets cart total.
-        /// </summary>
-        public decimal Total
-        {
-            get { return Products.Where(a => a.PayType == OrderLinePayType.Cash || a.PayType == OrderLinePayType.Mixed).Select(a => a.UnitPrice * a.Quantity).Sum(); }
-            //internal set { SetProperty(ref _total, value); }
-        }
-
-        /// <summary>
-        /// Gets cart points total.
-        /// </summary>
-        public int PointsTotal
-        {
-            get { return Products.Where(a => a.PayType == OrderLinePayType.Points || a.PayType == OrderLinePayType.Mixed).Select(a => (a.UnitPointsPrice ?? 0) * a.Quantity).Sum(); }
-        }
-
-        /// <summary>
-        /// Gets cart points award.
-        /// </summary>
-        public int PointsAward
-        {
-            get { return Products.Select(a => (a.UnitPointsAward ?? 0) * a.Quantity).Sum(); }
-            //internal set { SetProperty(ref _pointsAward, value); }
-        }
+        public IEnumerable<UserCartProductItemViewState> Products { get; internal set; } = Enumerable.Empty<UserCartProductItemViewState>();
 
         [ValidatingProperty()]
         public string Notes

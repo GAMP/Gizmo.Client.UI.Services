@@ -17,9 +17,7 @@ namespace Gizmo.Client.UI.View.States
         public int? UnitPointsPrice { get; internal set; }
         public int? ImageId { get; internal set; }
         // public int? UnitPointsAward { get; internal set; }
-        // public string? HostGroup { get; internal set; }
-        // public PurchaseOptionType PurchaseOptions { get; internal set; }
+        public PurchaseOptionType PurchaseOptions { get; internal set; }
         //public List<UserProductViewState>? BundledProducts { get; internal set; }
-        //public UserCartProductViewState? CartProduct { get; internal set; }
     }
 }
