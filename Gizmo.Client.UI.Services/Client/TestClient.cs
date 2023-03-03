@@ -8,6 +8,7 @@ namespace Gizmo.Client
         private readonly List<ProductModel> _products;
         private readonly List<UserProductGroupModel> _userProductGroups;
         private readonly List<UserProductModel> _userProducts;
+        private readonly List<UserPaymentMethodModel> _userPaymentMethods;
 
         public TestClient()
         {
@@ -48,6 +49,11 @@ namespace Gizmo.Client
                 ProductType = x.ProductType,
                 PurchaseOptions = x.PurchaseOptions
             });
+            _userPaymentMethods = Enumerable.Range(1, 5).Select(i => new UserPaymentMethodModel
+            {
+                Id = i,
+                Name = $"#User Payment method {i}"
+            }).ToList();
         }
 
         public async Task<LoginResult> UserLoginAsync(string loginName, string? password, CancellationToken cancellationToken)
@@ -424,12 +430,10 @@ namespace Gizmo.Client
             return Task.FromResult(pagedList);
         }
 
-
-        public Task<PagedList<UserPaymentMethodModel>> UserPaymentMethodsGetAsync(UserPaymentMethodsFilter filters, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
+        public Task<PagedList<UserPaymentMethodModel>> UserPaymentMethodsGetAsync(UserPaymentMethodsFilter filters, CancellationToken cancellationToken = default) =>
+            Task.FromResult(new PagedList<UserPaymentMethodModel>(_userPaymentMethods));
+        public Task<UserPaymentMethodModel?> UserPaymentMethodGetAsync(int id, CancellationToken cToken = default) =>
+            Task.FromResult(_userPaymentMethods.Find(x => x.Id == id));
         public Task<AccountCreationResultModelByMobilePhone> UserCreateByMobileStartAsync(string mobilePhone, ConfirmationCodeDeliveryMethod confirmationCodeDeliveryMethod = ConfirmationCodeDeliveryMethod.Undetermined, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
@@ -439,6 +443,5 @@ namespace Gizmo.Client
         {
             throw new NotImplementedException();
         }
-
     }
 }
