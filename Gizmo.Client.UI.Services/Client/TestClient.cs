@@ -353,6 +353,10 @@ namespace Gizmo.Client
             throw new NotImplementedException();
         }
 
+        public Task<NewsModel?> NewsGetAsync(int id, CancellationToken cToken = default)
+        {
+            throw new NotImplementedException();
+        }
         public Task<PagedList<FeedModel>> FeedsGetAsync(FeedsFilter filters, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();

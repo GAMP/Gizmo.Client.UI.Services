@@ -6,74 +6,14 @@ namespace Gizmo.Client.UI.View.States
     [Register(Scope = RegisterScope.Transient)]
     public sealed class AdvertisementViewState : ViewStateBase
     {
-        #region FIELDS
-        private int _id;
-        private string _title = string.Empty;
-        private string _body = string.Empty;
-        private DateTime? _startDate;
-        private DateTime? _endDate;
-        private string _url = string.Empty;
-        private string _videoUrl = string.Empty;
-        private string _thumbnailUrl = string.Empty;
-        private bool _customTemplate;
-        #endregion
-
-        #region PROPERTIES
-
-        public int Id
-        {
-            get { return _id; }
-            internal set { SetProperty(ref _id, value); }
-        }
-
-        public string Title
-        {
-            get { return _title; }
-            internal set { SetProperty(ref _title, value); }
-        }
-
-        public string Body
-        {
-            get { return _body; }
-            internal set { SetProperty(ref _body, value); }
-        }
-
-        public DateTime? StartDate
-        {
-            get { return _startDate; }
-            internal set { SetProperty(ref _startDate, value); }
-        }
-
-        public DateTime? EndDate
-        {
-            get { return _endDate; }
-            internal set { SetProperty(ref _endDate, value); }
-        }
-
-        public string Url
-        {
-            get { return _url; }
-            internal set { SetProperty(ref _url, value); }
-        }
-
-        public string VideoUrl
-        {
-            get { return _videoUrl; }
-            internal set { SetProperty(ref _videoUrl, value); }
-        }
-
-        public string ThumbnailUrl
-        {
-            get { return _thumbnailUrl; }
-            internal set { SetProperty(ref _thumbnailUrl, value); }
-        }
-
-        public bool CustomTemplate
-        {
-            get { return _customTemplate; }
-            internal set { SetProperty(ref _customTemplate, value); }
-        }
-
-        #endregion
+        public int Id { get; internal set; }
+        public string? Title { get; internal set; }
+        public string Body { get; internal set; } = string.Empty;
+        public DateTime? StartDate { get; internal set; }
+        public DateTime? EndDate { get; internal set; }
+        public string? Url { get; internal set; }
+        public string? VideoUrl { get; internal set; }
+        public string? ThumbnailUrl { get; internal set; }
+        public bool CustomTemplate { get; internal set; }
     }
 }
