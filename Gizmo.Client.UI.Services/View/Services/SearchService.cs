@@ -210,7 +210,7 @@ namespace Gizmo.Client.UI.View.Services
                             Type = SearchResultTypes.Products,
                             Id = product.Id,
                             Name = product.Name,
-                            ImageId = product.ImageId
+                            ImageId = product.DefaultImageId
                         });
                     }
 

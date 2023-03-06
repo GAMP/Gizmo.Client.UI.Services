@@ -35,9 +35,7 @@ namespace Gizmo.Client.UI.View.Services
                 viewState.ProductType = product.ProductType;
                 viewState.UnitPrice = product.Price;
                 viewState.UnitPointsPrice = product.PointsPrice;
-
-                //TODO We need to add default image id on the UserProductModel
-                viewState.ImageId = 1; 
+                viewState.DefaultImageId = product.DefaultImageId; 
 
                 if (product.ProductType == ProductType.ProductBundle)
                 {
