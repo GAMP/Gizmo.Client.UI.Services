@@ -89,8 +89,6 @@ namespace Gizmo.Client.UI.View.Services
             defaultState.Id = lookUpkey;
 
             defaultState.Body = "Default body";
-            defaultState.ThumbnailUrl = "carousel_1.jpg";
-            defaultState.ThumbnailType = AdvertisementThumbnailType.Internal;
 
             return defaultState;
         }
