@@ -88,8 +88,10 @@ namespace Gizmo.Client.UI.Services
                 {
                     if (imageType == ImageType.Application)
                         url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/Apex.png";
-                    else
+                    else if (imageType == ImageType.ProductDefault)
                         url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/Cola2.png";
+                    else
+                        url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/Chrome-icon_1.png";
                 }
                 else
                 {
