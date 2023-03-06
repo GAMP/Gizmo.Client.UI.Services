@@ -57,9 +57,9 @@ namespace Gizmo.Client
                {
                    product.Bundle = new UserProductBundleModel()
                    {
-                        BundledProducts = Enumerable.Range(1,20)
-                        .Take(random.Next(1,5))
-                        .Select(x => new UserProductBundledModel() { ProductId =x, Quantity = random.Next(1,3) })
+                       BundledProducts = Enumerable.Range(1, 20)
+                        .Take(random.Next(1, 5))
+                        .Select(x => new UserProductBundledModel() { ProductId = x, Quantity = random.Next(1, 3) })
                    };
                });
 
@@ -321,7 +321,7 @@ namespace Gizmo.Client
             throw new NotImplementedException();
         }
 
-        public Task<UserApplicationModel> UserApplicationGetAsync(int id, CancellationToken cancellationToken = default)
+        public Task<UserApplicationModel?> UserApplicationGetAsync(int id, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
