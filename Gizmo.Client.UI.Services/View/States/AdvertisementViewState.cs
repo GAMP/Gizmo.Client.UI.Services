@@ -8,13 +8,14 @@ namespace Gizmo.Client.UI.View.States
     {
         public int Id { get; internal set; }
         public string? Title { get; internal set; }
-        public string Body { get; internal set; } = string.Empty;
+        public string Body { get; internal set; } = null!;
         public DateTime? StartDate { get; internal set; }
         public DateTime? EndDate { get; internal set; }
         public string? Url { get; internal set; }
-        public string? VideoUrl { get; internal set; }
-        public string? ThumbnailUrl { get; internal set; }
-        public bool CustomTemplate { get; internal set; }
+        public string? MediaUrl { get; internal set; }
+        public string ThumbnailUrl { get; internal set; } = null!;
+        public AdvertisementThumbnailType ThumbnailType { get; internal set; }
+        public bool IsCustomTemplate { get; internal set; }
         public AdvertisementCommand? Command { get; internal set; }
     }
 

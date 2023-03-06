@@ -27,17 +27,25 @@ namespace Gizmo.Client.UI.View.Services
             {
                 var viewState = CreateDefaultViewState(item.Id);
 
-                viewState.Title = item.Title;
+                viewState.IsCustomTemplate = item.IsCustomTemplate;
                 viewState.Body = item.Data;
-                viewState.StartDate = item.StartDate;
-                viewState.EndDate = item.EndDate;
-                viewState.Url = item.Url;
-                viewState.VideoUrl = item.MediaUrl;
-                viewState.ThumbnailUrl = item.MediaUrl;
-                viewState.CustomTemplate = true;
 
-                if (!viewState.CustomTemplate)
-                    viewState.Command = ParseCommand(item.Url);
+                if (!viewState.IsCustomTemplate)
+                {
+                    viewState.Title = item.Title;
+                    viewState.StartDate = item.StartDate;
+                    viewState.EndDate = item.EndDate;
+                    viewState.Url = item.Url;
+                    viewState.MediaUrl = item.MediaUrl;
+
+                    if (!string.IsNullOrWhiteSpace(item.ThumbnailUrl))
+                    {
+                        viewState.ThumbnailUrl = item.ThumbnailUrl;
+                        viewState.ThumbnailType = GetThumbnaiType(item.ThumbnailUrl);
+                    }
+
+                    viewState.Command = GetCommand(item.Url);
+                }
 
                 AddViewState(item.Id, viewState);
             }
@@ -53,17 +61,25 @@ namespace Gizmo.Client.UI.View.Services
             if (clientResult is null)
                 return viewState;
 
-            viewState.Title = clientResult.Title;
+            viewState.IsCustomTemplate = clientResult.IsCustomTemplate;
             viewState.Body = clientResult.Data;
-            viewState.StartDate = clientResult.StartDate;
-            viewState.EndDate = clientResult.EndDate;
-            viewState.Url = clientResult.Url;
-            viewState.VideoUrl = clientResult.MediaUrl;
-            viewState.ThumbnailUrl = clientResult.MediaUrl;
-            viewState.CustomTemplate = true;
 
-            if (!viewState.CustomTemplate)
-                viewState.Command = ParseCommand(clientResult.Url);
+            if (!viewState.IsCustomTemplate)
+            {
+                viewState.Title = clientResult.Title;
+                viewState.StartDate = clientResult.StartDate;
+                viewState.EndDate = clientResult.EndDate;
+                viewState.Url = clientResult.Url;
+                viewState.MediaUrl = clientResult.MediaUrl;
+
+                if (!string.IsNullOrWhiteSpace(clientResult.ThumbnailUrl))
+                {
+                    viewState.ThumbnailUrl = clientResult.ThumbnailUrl;
+                    viewState.ThumbnailType = GetThumbnaiType(clientResult.ThumbnailUrl);
+                }
+
+                viewState.Command = GetCommand(clientResult.Url);
+            }
 
             return viewState;
         }
@@ -74,14 +90,19 @@ namespace Gizmo.Client.UI.View.Services
             defaultState.Id = lookUpkey;
 
             defaultState.Body = "Default body";
+            defaultState.ThumbnailUrl = "carousel_1.jpg";
+            defaultState.ThumbnailType = AdvertisementThumbnailType.Internal;
 
             return defaultState;
         }
 
-        private static AdvertisementCommand? ParseCommand(string url)
+        private static AdvertisementCommand? GetCommand(string? url)
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(url))
+                    return null;
+
                 var commandUrl = new Uri(url);
                 return new()
                 {
@@ -98,7 +119,22 @@ namespace Gizmo.Client.UI.View.Services
             }
             catch (Exception exeption)
             {
-                throw new NotSupportedException($"Advertisement command was not parsed. {exeption.Message}");
+                throw new NotSupportedException($"Advertisement command from '{url}' was not recognized. {exeption.Message}");
+            }
+        }
+        private static AdvertisementThumbnailType GetThumbnaiType(string url)
+        {
+            try
+            {
+                return !Path.HasExtension(url)
+                    ? throw new NotSupportedException($"Thumbnail source '{url}' had no extension.")
+                    : Uri.TryCreate(url, UriKind.Absolute, out var _)
+                        ? AdvertisementThumbnailType.External
+                        : AdvertisementThumbnailType.Internal;
+            }
+            catch (Exception exeption)
+            {
+                throw new NotSupportedException($"Thumbnail source from '{url}' was not recognized. {exeption.Message}");
             }
         }
     }
