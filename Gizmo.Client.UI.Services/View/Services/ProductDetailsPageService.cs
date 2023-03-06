@@ -40,6 +40,11 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         var productViewState = await _productLookupService.GetStateAsync(id);
                         ViewState.Product = productViewState;
+
+                        //TODO: A DEMO
+                        var products = await _productLookupService.GetStatesAsync();
+                        ViewState.RelatedProducts = products.Take(2);
+
                         DebounceViewStateChange(productViewState);
                     }
                 }
