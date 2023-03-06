@@ -1,5 +1,4 @@
-﻿using Gizmo.Client.UI.View.States;
-using Gizmo.Web.Api.Models;
+﻿using Gizmo.Web.Api.Models;
 
 namespace Gizmo.Client
 {
@@ -63,7 +62,7 @@ namespace Gizmo.Client
                         Id = 1,
                         Title = $"#Title 1",
                         Data = "<div style=\"max-width: 40.0rem; margin: 8.6rem 3.2rem 6.5rem 3.2rem\">#1 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
-                        MediaUrl = $"carousel_1.jpg"
+                        ThumbnailUrl = $"carousel_1.jpg"
                     }
                 },
                 { new ()
@@ -71,15 +70,15 @@ namespace Gizmo.Client
                         Id = 2,
                         Title = $"#Title 2",
                         Data = "#2 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                        MediaUrl = $"carousel_2.jpg"
+                        ThumbnailUrl = $"carousel_2.jpg"
                     }
                 },
                 { new ()
                     {
-                        Id = 3,
-                        Title = $"#Title 3",
-                        Data = "#3 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                        MediaUrl = $"carousel_3.jpg"
+                        Id = 4,
+                        Title = "Test title",
+                        Data = "test data",
+                        ThumbnailUrl = "https://i3.ytimg.com/vi/erLk59H86ww/maxresdefault.jpg"
                     }
                 }
             };

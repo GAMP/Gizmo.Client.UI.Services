@@ -2,6 +2,7 @@
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -41,10 +42,10 @@ namespace Gizmo.Client.UI.View.Services
                     if (!string.IsNullOrWhiteSpace(item.ThumbnailUrl))
                     {
                         viewState.ThumbnailUrl = item.ThumbnailUrl;
-                        viewState.ThumbnailType = GetThumbnaiType(item.ThumbnailUrl);
+                        viewState.ThumbnailType = GetThumbnailType(item.ThumbnailUrl);
                     }
 
-                    viewState.Command = GetCommand(item.Url);
+                    viewState.Command = GetUrlCommand(item.Url);
                 }
 
                 AddViewState(item.Id, viewState);
@@ -75,10 +76,10 @@ namespace Gizmo.Client.UI.View.Services
                 if (!string.IsNullOrWhiteSpace(clientResult.ThumbnailUrl))
                 {
                     viewState.ThumbnailUrl = clientResult.ThumbnailUrl;
-                    viewState.ThumbnailType = GetThumbnaiType(clientResult.ThumbnailUrl);
+                    viewState.ThumbnailType = GetThumbnailType(clientResult.ThumbnailUrl);
                 }
 
-                viewState.Command = GetCommand(clientResult.Url);
+                viewState.Command = GetUrlCommand(clientResult.Url);
             }
 
             return viewState;
@@ -96,7 +97,7 @@ namespace Gizmo.Client.UI.View.Services
             return defaultState;
         }
 
-        private static AdvertisementCommand? GetCommand(string? url)
+        private static AdvertisementCommand? GetUrlCommand(string? url)
         {
             try
             {
@@ -122,7 +123,7 @@ namespace Gizmo.Client.UI.View.Services
                 throw new NotSupportedException($"Advertisement command from '{url}' was not recognized. {exeption.Message}");
             }
         }
-        private static AdvertisementThumbnailType GetThumbnaiType(string url)
+        private static AdvertisementThumbnailType GetThumbnailType(string url)
         {
             try
             {

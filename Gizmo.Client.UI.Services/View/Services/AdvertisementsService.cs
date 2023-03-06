@@ -34,6 +34,7 @@ namespace Gizmo.Client.UI.View.Services
         public async Task LoadAdvertisementsAsync(CancellationToken cToken = default)
         {
             ViewState.Advertisements = await _advertisementViewStateLookupService.GetStatesAsync(cToken);
+            ViewState.AdvertisementsCount = ViewState.Advertisements.Count();
             ViewState.RaiseChanged();
         }
 
