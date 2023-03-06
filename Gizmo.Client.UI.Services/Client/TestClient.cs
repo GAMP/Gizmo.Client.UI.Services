@@ -78,7 +78,16 @@ namespace Gizmo.Client
                         Id = 4,
                         Title = "Test title",
                         Data = "test data",
-                        ThumbnailUrl = "https://i3.ytimg.com/vi/erLk59H86ww/maxresdefault.jpg"
+                        ThumbnailUrl = "https://i3.ytimg.com/vi/DIQzxJNR9iI/maxresdefault.jpg"
+                    }
+                },
+                { new ()
+                    {
+                        Id = 5,
+                        Title = "COMMAND",
+                        Data = "TEST COMMAND",
+                        ThumbnailUrl = "https://i3.ytimg.com/vi/erLk59H86ww/maxresdefault.jpg",
+                        Url = "gizmo://addcart/3"
                     }
                 }
             };

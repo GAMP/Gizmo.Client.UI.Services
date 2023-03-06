@@ -1,8 +1,6 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
-
-using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -104,23 +102,28 @@ namespace Gizmo.Client.UI.View.Services
                 if (string.IsNullOrWhiteSpace(url))
                     return null;
 
-                var commandUrl = new Uri(url);
+                if (!Uri.TryCreate(url, UriKind.Absolute, out var commandUrl))
+                    throw new NotSupportedException($"Url '{url}' is not supported.");
+
+                if (!commandUrl.Scheme.Equals("gizmo"))
+                    throw new NotSupportedException($"Scheme from the '{url}' is not supported.");
+
                 return new()
                 {
-                    CommandType = commandUrl.Segments[1] switch
+                    CommandType = commandUrl.Host switch
                     {
                         "addcart" => AdvertisementCommandType.AddToCart,
                         "launch" => AdvertisementCommandType.Launch,
                         "navigate" => AdvertisementCommandType.Navigate,
-                        _ => throw new NotImplementedException(),
+                        _ => throw new NotImplementedException(commandUrl.Host),
                     },
-                    Parts = commandUrl.Segments[1..^1],
+                    Parts = commandUrl.Segments[0..^1],
                     PathId = int.Parse(commandUrl.Segments[^1])
                 };
             }
             catch (Exception exeption)
             {
-                throw new NotSupportedException($"Advertisement command from '{url}' was not recognized. {exeption.Message}");
+                throw new NotSupportedException($"Advertisement command was not recognized. {exeption.Message}");
             }
         }
         private static AdvertisementThumbnailType GetThumbnailType(string url)
