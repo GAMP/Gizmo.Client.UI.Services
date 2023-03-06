@@ -142,21 +142,6 @@ namespace Gizmo.Client
 
         #region Products
 
-
-        public Task<ProductModel?> ProductGetAsync(int id, ModelFilterOptions? options = null, CancellationToken cToken = default)
-        {
-            var product = _products.Find(x => x.Id == id);
-
-            return Task.FromResult(product);
-        }
-
-        public Task<PagedList<ProductModel>> ProductsGetAsync(ProductsFilter filter, CancellationToken cToken = default)
-        {
-            var pagedList = new PagedList<ProductModel>(_products);
-
-            return Task.FromResult(pagedList);
-        }
-
         public Task<PagedList<ProductBundledModel>> ProductsBundleGetAsync(int id, CancellationToken cancellationToken = default)
         {
             Random random = new();
