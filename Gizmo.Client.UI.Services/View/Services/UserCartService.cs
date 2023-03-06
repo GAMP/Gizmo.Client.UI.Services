@@ -123,10 +123,8 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                //TODO: A USER ID
-                int userId = 0;
                 OrderCalculateModelOptions calculateOrderOptions = new OrderCalculateModelOptions();
-                var result = await _gizmoClient.UserOrderCreateAsync(userId, calculateOrderOptions);
+                var result = await _gizmoClient.UserOrderCreateAsync(calculateOrderOptions);
 
                 // Simulate task.
                 await Task.Delay(2000);

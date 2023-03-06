@@ -312,7 +312,7 @@ namespace Gizmo.Client
             return Task.FromResult(pagedList);
         }
 
-        public Task<CreateResult> UserOrderCreateAsync(int userId, OrderCalculateModelOptions calculateOrderOptions, CancellationToken cancellationToken = default)
+        public Task<CreateResult> UserOrderCreateAsync(OrderCalculateModelOptions calculateOrderOptions, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(new CreateResult());
         }
