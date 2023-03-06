@@ -183,7 +183,7 @@ namespace Gizmo.Client.UI.View.Services
                         PublisherId = a.PublisherId,
                         ReleaseDate = a.ReleaseDate,
                         //TODO: A
-                        ImageId = null,
+                        ImageId = 1,
                         ApplicationGroupName = "Shooter"
                     }).ToList();
 
@@ -191,7 +191,15 @@ namespace Gizmo.Client.UI.View.Services
 
                     foreach (var app in tmpApplications.Where(a => a.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
                     {
-                        tmp.Add(new SearchResultViewState() { Type = SearchResultTypes.Applications, Id = app.Id, Name = app.Title, ImageId = app.ImageId });
+                        tmp.Add(new SearchResultViewState()
+                        {
+                            Type = SearchResultTypes.Applications,
+                            Id = app.Id,
+                            Name = app.Title,
+                            ImageId = app.ImageId,
+                            //TODO: A
+                            Category = "Apps"
+                        });
                     }
 
                     ViewState.ApplicationResults = tmp;
@@ -210,7 +218,9 @@ namespace Gizmo.Client.UI.View.Services
                             Type = SearchResultTypes.Products,
                             Id = product.Id,
                             Name = product.Name,
-                            ImageId = product.DefaultImageId
+                            ImageId = product.DefaultImageId,
+                            //TODO: A
+                            Category = "Coffee"
                         });
                     }
 

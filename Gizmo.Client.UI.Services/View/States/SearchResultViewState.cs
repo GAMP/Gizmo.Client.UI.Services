@@ -9,6 +9,7 @@ namespace Gizmo.Client.UI.View.States
         #region FIELDS
         private SearchResultTypes _type;
         private int _id;
+        private string _category = string.Empty;
         private string _name = string.Empty;
         private int? _image;
         #endregion
@@ -25,6 +26,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _id; }
             internal set { _id = value; }
+        }
+
+        public string Category
+        {
+            get { return _category; }
+            internal set { _category = value; }
         }
 
         public string Name

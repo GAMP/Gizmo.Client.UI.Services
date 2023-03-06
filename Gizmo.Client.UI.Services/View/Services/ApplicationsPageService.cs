@@ -66,6 +66,7 @@ namespace Gizmo.Client.UI.View.Services
                  Id = a.Id,
                  Caption = a.Caption,
                  //TODO: A
+                 ImageId = 1,
                  PersonalFiles = new List<string>() { "Personal File 1", "Personal File 2", "Personal File 3" }
              }).ToList();
 
