@@ -18,6 +18,6 @@ namespace Gizmo.Client.UI.View.States
         public PurchaseOptionType PurchaseOptions { get; internal set; }
         public IEnumerable<UserProductBundledViewState> BundledProducts { get; internal set; } = Enumerable.Empty<UserProductBundledViewState>();
         public UserProductTimeViewState TimeProduct { get; internal set; } = null!;
-        public int? ImageId { get; internal set; }
+        public int? DefaultImageId { get; internal set; }
     }
 }
