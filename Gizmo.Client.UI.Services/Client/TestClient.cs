@@ -4,8 +4,6 @@ namespace Gizmo.Client
 {
     public partial class TestClient : IGizmoClient
     {
-        private readonly List<ProductGroupModel> _productGroups;
-        private readonly List<ProductModel> _products;
         private readonly List<UserProductGroupModel> _userProductGroups;
         private readonly List<UserProductModel> _userProducts;
         private readonly List<UserPaymentMethodModel> _userPaymentMethods;
@@ -13,47 +11,69 @@ namespace Gizmo.Client
         public TestClient()
         {
             Random random = new();
-            _productGroups = new List<ProductGroupModel>
+
+            #region PRODUCT GROUPS
+            _userProductGroups = new List<UserProductGroupModel>
             {
                 new() { Id = 1, Name = "#Coffee" },
                 new() { Id = 2, Name = "#Beverages" },
                 new() { Id = 3, Name = "#Sandwiches" },
                 new() { Id = 4, Name = "#Snacks" },
                 new() { Id = 5, Name = "#Time offers" },
+                new() { Id = 6, Name = "#Toasts" },
+                new() { Id = 7, Name = "#Burgers" }
             };
-            _products = Enumerable.Range(1, 20).Select(x => new ProductModel()
+            #endregion
+
+            #region PRODUCTS
+            _userProducts = Enumerable.Range(1, 20).Select(x => new UserProductModel()
             {
                 Id = x,
-                ProductGroupId = random.Next(1, _productGroups.Count + 1),
+                ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
                 Name = $"#Coca Cola {x} 500ml",
                 Description = "#Iced coffee is a coffee beverage served cold. It may be prepared either by brewing coffee in the normal way and then serving it over ice.",
                 Price = random.Next(1, 5),
                 PointsPrice = random.Next(0, 100),
-                Points = random.Next(1, 500),
+                PointsAward = random.Next(1, 500),
                 ProductType = (ProductType)random.Next(0, 3),
                 PurchaseOptions = (PurchaseOptionType)random.Next(0, 2),
+
             }).ToList();
-            _userProductGroups = _productGroups.ConvertAll(x => new UserProductGroupModel
+
+            _userProducts.Where(product => product.ProductType == ProductType.ProductTime)
+                .ToList()
+                .ForEach(product =>
+                {
+                    product.TimeProduct = new UserProductTimeModel()
+                    {
+                        Minutes = random.Next(30, 180)
+                    };
+                });
+
+            _userProducts.Where(product => product.ProductType == ProductType.ProductBundle)
+               .ToList()
+               .ForEach(product =>
+               {
+                   product.Bundle = new UserProductBundleModel()
+                   {
+                        BundledProducts = Enumerable.Range(1,20)
+                        .Take(random.Next(1,5))
+                        .Select(x => new UserProductBundledModel() { ProductId =x, Quantity = random.Next(1,3) })
+                   };
+               });
+
+
+
+            #endregion
+
+            #region PAYMENT METHODS
+            _userPaymentMethods = new List<UserPaymentMethodModel>()
             {
-                Id = x.Id,
-                Name = x.Name
-            });
-            _userProducts = _products.ConvertAll(x => new UserProductModel
-            {
-                Id = x.Id,
-                ProductGroupId = x.ProductGroupId,
-                Name = x.Name,
-                Description = x.Description,
-                Price = x.Price,
-                PointsPrice = x.PointsPrice,
-                ProductType = x.ProductType,
-                PurchaseOptions = x.PurchaseOptions
-            });
-            _userPaymentMethods = Enumerable.Range(1, 5).Select(i => new UserPaymentMethodModel
-            {
-                Id = i,
-                Name = $"#User Payment method {i}"
-            }).ToList();
+                new UserPaymentMethodModel() { Id = -1 , Name= "Cash" , DisplayOrder =0},
+                new UserPaymentMethodModel() { Id = -2 , Name= "Credit card" , DisplayOrder =0},
+                new UserPaymentMethodModel() { Id = -3 , Name= "Balance" , DisplayOrder =0},
+            };
+            #endregion
         }
 
         public async Task<LoginResult> UserLoginAsync(string loginName, string? password, CancellationToken cancellationToken)
@@ -116,42 +136,6 @@ namespace Gizmo.Client
         public Task<AccountCreationCompleteResultModelByToken> AccountCreationByTokenCompleteAsync(string token, UserModelUpdate user, string password)
         {
             return Task.FromResult(new AccountCreationCompleteResultModelByToken());
-        }
-
-        #endregion
-
-        #region Products
-
-
-        public Task<ProductModel?> ProductGetAsync(int id, ModelFilterOptions? options = null, CancellationToken cToken = default)
-        {
-            var product = _products.Find(x => x.Id == id);
-
-            return Task.FromResult(product);
-        }
-
-        public Task<PagedList<ProductModel>> ProductsGetAsync(ProductsFilter filter, CancellationToken cToken = default)
-        {
-            var pagedList = new PagedList<ProductModel>(_products);
-
-            return Task.FromResult(pagedList);
-        }
-
-        public Task<PagedList<ProductBundledModel>> ProductsBundleGetAsync(int id, CancellationToken cancellationToken = default)
-        {
-            Random random = new();
-
-            var bundledProducts = Enumerable.Range(1, 5).Select(i => new ProductBundledModel()
-            {
-                Id = i,
-                ProductId = random.Next(1, 5),
-                Quantity = random.Next(1, 5),
-                UnitPrice = random.Next(1, 5)
-            }).ToList();
-
-            var pagedList = new PagedList<ProductBundledModel>(bundledProducts);
-
-            return Task.FromResult(pagedList);
         }
 
         #endregion
@@ -392,7 +376,7 @@ namespace Gizmo.Client
         {
             Random random = new();
 
-            List<ApplicationModel> applications = Enumerable.Range(1, 15).Select(i => new ApplicationModel()
+            List<ApplicationModel> applications = Enumerable.Range(1, 100).Select(i => new ApplicationModel()
             {
                 Id = i,
                 ApplicationCategoryId = random.Next(1, 5),

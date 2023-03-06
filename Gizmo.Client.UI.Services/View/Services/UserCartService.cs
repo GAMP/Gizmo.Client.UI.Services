@@ -160,18 +160,20 @@ namespace Gizmo.Client.UI.View.Services
 
         #endregion
 
-        protected override async Task OnNavigatedIn()
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
             await UpdateUserCartProductsAsync();
 
             _userProductViewStateLookupService.Changed += OnUpdateUserCartProductsAsync;
         }
-        protected override Task OnNavigatedOut()
+
+        protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
             _userProductViewStateLookupService.Changed -= OnUpdateUserCartProductsAsync;
 
-            return base.OnNavigatedOut();
+            return base.OnNavigatedOut(navigationParameters, cancellationToken);
         }
+
         private async void OnUpdateUserCartProductsAsync(object? _, EventArgs __) =>
             await UpdateUserCartProductsAsync();
     }

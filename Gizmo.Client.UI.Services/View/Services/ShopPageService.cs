@@ -49,7 +49,7 @@ namespace Gizmo.Client.UI.View.Services
         private async void UpdateUserProductGroupsOnChangeAsync(object? _, EventArgs __) =>
             await UpdateUserProductGroupsAsync();
 
-        protected override async Task OnNavigatedIn()
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
             _userProductService.Changed += UpdateUserGroupedProductsOnChangeAsync;
             _userProductGroupService.Changed += UpdateUserProductGroupsOnChangeAsync;
@@ -57,12 +57,14 @@ namespace Gizmo.Client.UI.View.Services
             await UpdateUserProductGroupsAsync();
             await UpdateUserGroupedProductsAsync(null);
         }
-        protected override Task OnNavigatedOut()
+
+        protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
             _userProductService.Changed -= UpdateUserGroupedProductsOnChangeAsync;
             _userProductGroupService.Changed -= UpdateUserProductGroupsOnChangeAsync;
 
-            return base.OnNavigatedOut();
+            return base.OnNavigatedOut(navigationParameters, cancellationToken);
         }
+
     }
 }

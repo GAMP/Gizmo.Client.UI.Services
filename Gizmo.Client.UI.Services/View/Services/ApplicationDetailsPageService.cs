@@ -49,10 +49,8 @@ namespace Gizmo.Client.UI.View.Services
 
         #endregion
 
-        protected override async Task OnNavigatedIn()
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            await base.OnNavigatedIn();
-
             if (Uri.TryCreate(NavigationService.GetUri(), UriKind.Absolute, out var uri))
             {
                 string? applicationId = HttpUtility.ParseQueryString(uri.Query).Get("ApplicationId");

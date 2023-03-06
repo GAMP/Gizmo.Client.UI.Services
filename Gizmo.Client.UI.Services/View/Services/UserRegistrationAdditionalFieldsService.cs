@@ -91,11 +91,9 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        protected override async Task OnNavigatedIn()
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            await base.OnNavigatedIn();
-
-            ViewState.DefaultUserGroupRequiredInfo = await _gizmoClient.UserGroupDefaultRequiredInfoGetAsync() ?? new();
+            ViewState.DefaultUserGroupRequiredInfo = await _gizmoClient.UserGroupDefaultRequiredInfoGetAsync(cancellationToken) ?? new();
         }
 
         #endregion

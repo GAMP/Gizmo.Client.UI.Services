@@ -52,7 +52,7 @@ namespace Gizmo.Client.UI.View.Services
                 PublisherId = a.PublisherId,
                 ReleaseDate = a.ReleaseDate,
                 //TODO: A
-                ImageId = null,
+                ImageId = a.Id,
                 Ratings = random.Next(0, 100),
                 Rate = ((decimal)random.Next(1, 50)) / 10,
                 DateAdded = new DateTime(2021, 3, 12),
