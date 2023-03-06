@@ -37,6 +37,7 @@ namespace Gizmo.Client
                 PointsAward = random.Next(1, 500),
                 ProductType = (ProductType)random.Next(0, 3),
                 PurchaseOptions = (PurchaseOptionType)random.Next(0, 2),
+                DefaultImageId = x,
 
             }).ToList();
 
