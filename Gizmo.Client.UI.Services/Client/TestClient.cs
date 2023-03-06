@@ -140,16 +140,38 @@ namespace Gizmo.Client
 
         #endregion
 
-        #region Applications
+        #region Products
 
-        public Task<ApplicationModelImage> GetApplicationImageAsync(int id)
+
+        public Task<ProductModel?> ProductGetAsync(int id, ModelFilterOptions? options = null, CancellationToken cToken = default)
         {
-            throw new NotImplementedException();
+            var product = _products.Find(x => x.Id == id);
+
+            return Task.FromResult(product);
         }
 
-        public Task<ApplicationExecutableModelImage> GetApplicationExecutableImageAsync(int id)
+        public Task<PagedList<ProductModel>> ProductsGetAsync(ProductsFilter filter, CancellationToken cToken = default)
         {
-            throw new NotImplementedException();
+            var pagedList = new PagedList<ProductModel>(_products);
+
+            return Task.FromResult(pagedList);
+        }
+
+        public Task<PagedList<ProductBundledModel>> ProductsBundleGetAsync(int id, CancellationToken cancellationToken = default)
+        {
+            Random random = new();
+
+            var bundledProducts = Enumerable.Range(1, 5).Select(i => new ProductBundledModel()
+            {
+                Id = i,
+                ProductId = random.Next(1, 5),
+                Quantity = random.Next(1, 5),
+                UnitPrice = random.Next(1, 5)
+            }).ToList();
+
+            var pagedList = new PagedList<ProductBundledModel>(bundledProducts);
+
+            return Task.FromResult(pagedList);
         }
 
         #endregion
@@ -424,6 +446,46 @@ namespace Gizmo.Client
         }
 
         public Task<PasswordRecoveryStartResultModelByMobile> UserPasswordRecoveryByMobileStartAsync(string username, ConfirmationCodeDeliveryMethod confirmationCodeDeliveryMethod = ConfirmationCodeDeliveryMethod.Undetermined, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedList<UserApplicationEnterpriseModel>> UserApplicationEnterprisesGetAsync(UserApplicationEnterprisesFilter filters, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedList<UserApplicationCategoryModel>> UserApplicationCategoriesGetAsync(UserApplicationCategoriesFilter filters, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedList<UserApplicationModel>> UserApplicationsGetAsync(UserApplicationsFilter filters, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedList<UserApplicationLinkModel>> UserApplicationLinksGetAsync(UserApplicationLinksFilter filters, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UserApplicationModel> UserApplicationGetAsync(int id, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedList<UserExecutableModel>> UserExecutablesGetAsync(UserExecutablesFilter filters, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UserExecutableModel> UserExecutableGetAsync(int id, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PagedList<UserPersonalFileModel>> UserPersonalFilesGetAsync(UserPersonalFilesFilter filters, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

@@ -173,7 +173,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Applications)
                 {
-                    var applications = await _gizmoClient.ApplicationsGetAsync(new ApplicationsFilter());
+                    var applications = await _gizmoClient.UserApplicationsGetAsync(new UserApplicationsFilter());
                     var tmpApplications = applications.Data.Select(a => new ApplicationViewState()
                     {
                         Id = a.Id,
