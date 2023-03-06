@@ -95,8 +95,12 @@ namespace Gizmo.Client.UI.Services
                 {
                     if (imageType == ImageType.ProductDefault)
                         url = "https://api.lorem.space/image/burger?w=200&h=300";
-                    else
+                    else if (imageType == ImageType.Application)
                         url = "https://api.lorem.space/image/game?w=200&h=300";
+                    else
+                    {
+                        url = $"https://www.iconfinder.com/icons/87865/download/png/64";
+                    }
                 }
                 
 
@@ -128,6 +132,7 @@ namespace Gizmo.Client.UI.Services
         }
 
         private ConcurrentDictionary<int, byte[]> _imageCache = new();
+        private ConcurrentDictionary<int, byte[]> _exeImageCache = new();
         private ConcurrentDictionary<int, byte[]> _productImageCache = new();
 
         private ValueTask<Tuple<bool, byte[]?>> TryGetCachedImage(ImageType imageType, int imageId, CancellationToken cancellationToken = default)
@@ -152,6 +157,8 @@ namespace Gizmo.Client.UI.Services
         {
             if (imageType == ImageType.Application)
                 return _imageCache;
+            else if(imageType == ImageType.Executable) 
+                return _exeImageCache;
 
             return _productImageCache;
 
