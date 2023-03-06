@@ -4,6 +4,9 @@ namespace Gizmo.Client
 {
     public partial class TestClient : IGizmoClient
     {
+        private readonly List<UserApplicationModel> _userApplications;
+        private readonly List<UserExecutableModel> _userExecutables;
+
         private readonly List<UserProductGroupModel> _userProductGroups;
         private readonly List<UserProductModel> _userProducts;
         private readonly List<UserPaymentMethodModel> _userPaymentMethods;
@@ -11,6 +14,32 @@ namespace Gizmo.Client
         public TestClient()
         {
             Random random = new();
+
+            _userApplications = Enumerable.Range(1, 100).Select(i => new UserApplicationModel()
+            {
+                Id = i,
+                ApplicationCategoryId = random.Next(1, 5),
+                Title = $"#Fortnite ({i})",
+                Description = "#Fall Guys is a massively multiplayer party game with up to 60 players online in a free-for-all struggle through round after round of escalating chaos until one victor remains!",
+                PublisherId = random.Next(1, 5),
+                ReleaseDate = DateTime.Now
+            }).ToList();
+
+            _userExecutables = new()
+            {
+                new() { Id = 1, Caption = "#battlenet.exe" },
+                new() { Id = 2, Caption = "#DOTA" },
+                new() { Id = 3, Caption = "#Spotify" },
+                new() { Id = 4, Caption = "#valve_steamclient.exe" },
+                new() { Id = 5, Caption = "#Chrome.exe" },
+                new() { Id = 6, Caption = "#Chrome.exe" },
+                new() { Id = 7, Caption = "#Chrome.exe" },
+                new() { Id = 8, Caption = "#Chrome.exe" },
+                new() { Id = 9, Caption = "#Chrome.exe" },
+                new() { Id = 10, Caption = "#Chrome.exe" },
+                new() { Id = 11, Caption = "#Chrome.exe" },
+                new() { Id = 12, Caption = "#Chrome.exe" }
+            };
 
             #region PRODUCT GROUPS
             _userProductGroups = new List<UserProductGroupModel>
@@ -90,17 +119,17 @@ namespace Gizmo.Client
 
         public Task<UserRecoveryMethodGetResultModel> UserPasswordRecoveryMethodGetAsync(string userNameEmailOrMobile, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new UserRecoveryMethodGetResultModel());
         }
 
         public Task<PasswordRecoveryStartResultModelByEmail> UserPasswordRecoveryByEmailStartAsync(string email, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new PasswordRecoveryStartResultModelByEmail());
         }
 
         public Task<PasswordRecoveryCompleteResultCode> UserPasswordRecoveryCompleteAsync(string token, string confirmationCode, string newPassword, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new PasswordRecoveryCompleteResultCode());
         }
 
         public Task<PagedList<UserAgreementModel>> UserAgreementsGetAsync(UserAgreementsFilter filter, CancellationToken cancellationToken = default)
@@ -131,52 +160,55 @@ namespace Gizmo.Client
 
         public Task<UpdateResult> UserAgreementAcceptAsync(int userAgreementId, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new UpdateResult());
         }
 
         public Task<UpdateResult> UserAgreementRejectAsync(int userAgreementId, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new UpdateResult());
         }
 
         public Task<bool> UserEmailExistAsync(string email, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(false);
         }
 
         public Task<bool> UserMobileExistAsync(string mobilePhone, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(false);
         }
 
         public Task<bool> TokenIsValidAsync(TokenType tokenType, string token, string confirmationCode, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(true);
         }
 
         public Task<UserModelRequiredInfo?> UserGroupDefaultRequiredInfoGetAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult((UserModelRequiredInfo?)new UserModelRequiredInfo());
         }
 
         public Task<AccountCreationResultModelByEmail> UserCreateByEmailStartAsync(string email, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new AccountCreationResultModelByEmail());
         }
 
         public Task<AccountCreationCompleteResultModel> UserCreateCompleteAsync(UserProfileModelCreate user, string password, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new AccountCreationCompleteResultModel());
         }
 
         public Task<AccountCreationCompleteResultModelByToken> UserCreateByTokenCompleteAsync(string token, UserProfileModelCreate user, string password, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new AccountCreationCompleteResultModelByToken());
         }
 
         public Task<UserBalanceModel> UserBalanceGetAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new UserBalanceModel()
+            {
+
+            });
         }
 
         public Task<UserProfileModel> UserProfileGetAsync(CancellationToken cancellationToken = default)
@@ -199,22 +231,22 @@ namespace Gizmo.Client
 
         public Task<UpdateResult> UserProfileUpdateAsync(UserProfileModelUpdate user, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new UpdateResult());
         }
 
         public Task<List<UserAgreementModelState>> UserAgreementsStatesGetAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new List<UserAgreementModelState>());
         }
 
         public Task<UpdateResult> UserAgreementStateSetAsync(int userAgreementId, UserAgreementAcceptState state, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new UpdateResult());
         }
 
         public Task<bool> UserExistAsync(string userNameEmailOrMobile, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(false);
         }
 
         public Task<UserProductGroupModel?> UserProductGroupGetAsync(int id, CancellationToken cToken = default) =>
@@ -236,7 +268,7 @@ namespace Gizmo.Client
 
         public Task<PaymentIntentCreateResultModel> PaymentIntentCreateAsync(PaymentIntentCreateParametersDepositModel parameters, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new PaymentIntentCreateResultModel());
         }
 
         public Task<PaymentOnlineConfigurationModel> OnlinePaymentsConfigurationGetAsync(CancellationToken cancellationToken = default)
@@ -249,12 +281,12 @@ namespace Gizmo.Client
 
         public Task<UserUsageSessionModel> UserUsageSessionGetAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new UserUsageSessionModel());
         }
 
         public Task<ClientReservationModel> ClientReservationGetAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new ClientReservationModel());
         }
 
         public Task<PagedList<NewsModel>> NewsGetAsync(NewsFilter filters, CancellationToken cancellationToken = default)
@@ -282,7 +314,7 @@ namespace Gizmo.Client
 
         public Task<CreateResult> UserOrderCreateAsync(int userId, OrderCalculateModelOptions calculateOrderOptions, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new CreateResult());
         }
 
         public Task<PagedList<UserPaymentMethodModel>> UserPaymentMethodsGetAsync(UserPaymentMethodsFilter filters, CancellationToken cancellationToken = default) =>
@@ -293,27 +325,43 @@ namespace Gizmo.Client
 
         public Task<AccountCreationResultModelByMobilePhone> UserCreateByMobileStartAsync(string mobilePhone, ConfirmationCodeDeliveryMethod confirmationCodeDeliveryMethod = ConfirmationCodeDeliveryMethod.Undetermined, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new AccountCreationResultModelByMobilePhone());
         }
 
-        public Task<PasswordRecoveryStartResultModelByMobile> UserPasswordRecoveryByMobileStartAsync(string username, ConfirmationCodeDeliveryMethod confirmationCodeDeliveryMethod = ConfirmationCodeDeliveryMethod.Undetermined, CancellationToken cancellationToken = default)
+        public Task<PasswordRecoveryStartResultModelByMobile> UserPasswordRecoveryByMobileStartAsync(string username, Gizmo.ConfirmationCodeDeliveryMethod confirmationCodeDeliveryMethod = Gizmo.ConfirmationCodeDeliveryMethod.Undetermined, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new PasswordRecoveryStartResultModelByMobile());
         }
 
         public Task<PagedList<UserApplicationEnterpriseModel>> UserApplicationEnterprisesGetAsync(UserApplicationEnterprisesFilter filters, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            List<UserApplicationEnterpriseModel> applicationEnterprises = Enumerable.Range(1, 5).Select(i => new UserApplicationEnterpriseModel()
+            {
+                Id = i,
+                Name = $"#Test ({i})"
+            }).ToList();
+
+            var pagedList = new PagedList<UserApplicationEnterpriseModel>(applicationEnterprises);
+
+            return Task.FromResult(pagedList);
         }
 
         public Task<PagedList<UserApplicationCategoryModel>> UserApplicationCategoriesGetAsync(UserApplicationCategoriesFilter filters, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            List<UserApplicationCategoryModel> applicationGroups = Enumerable.Range(1, 5).Select(i => new UserApplicationCategoryModel()
+            {
+                Id = i,
+                Name = $"#Category ({i})"
+            }).ToList();
+
+            var pagedList = new PagedList<UserApplicationCategoryModel>(applicationGroups);
+
+            return Task.FromResult(pagedList);
         }
 
         public Task<PagedList<UserApplicationModel>> UserApplicationsGetAsync(UserApplicationsFilter filters, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new PagedList<UserApplicationModel>(_userApplications));
         }
 
         public Task<PagedList<UserApplicationLinkModel>> UserApplicationLinksGetAsync(UserApplicationLinksFilter filters, CancellationToken cancellationToken = default)
@@ -323,7 +371,8 @@ namespace Gizmo.Client
 
         public Task<UserApplicationModel?> UserApplicationGetAsync(int id, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var app = _userApplications.Find(x => x.Id == id);
+            return Task.FromResult(app);
         }
 
         public Task<PagedList<UserExecutableModel>> UserExecutablesGetAsync(UserExecutablesFilter filters, CancellationToken cancellationToken = default)
@@ -331,9 +380,10 @@ namespace Gizmo.Client
             throw new NotImplementedException();
         }
 
-        public Task<UserExecutableModel> UserExecutableGetAsync(int id, CancellationToken cancellationToken = default)
+        public Task<UserExecutableModel?> UserExecutableGetAsync(int id, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var exe = _userExecutables.Find(x => x.Id == id);
+            return Task.FromResult(exe);
         }
 
         public Task<PagedList<UserPersonalFileModel>> UserPersonalFilesGetAsync(UserPersonalFilesFilter filters, CancellationToken cancellationToken = default)
@@ -343,7 +393,7 @@ namespace Gizmo.Client
 
         public Task<UpdateResult> UserPasswordUpdateAsync(string oldPassword, string newPassword, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new UpdateResult());
         }
     }
 }
