@@ -13,7 +13,7 @@ namespace Gizmo.Client.UI.View.States
         public DateTime? EndDate { get; internal set; }
         public string? Url { get; internal set; }
         public string? MediaUrl { get; internal set; }
-        public string ThumbnailUrl { get; internal set; } = null!;
+        public string? ThumbnailUrl { get; internal set; }
         public AdvertisementThumbnailType ThumbnailType { get; internal set; }
         public bool IsCustomTemplate { get; internal set; }
         public AdvertisementCommand? Command { get; internal set; }

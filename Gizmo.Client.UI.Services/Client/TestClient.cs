@@ -62,32 +62,36 @@ namespace Gizmo.Client
                         Id = 1,
                         Title = $"#Title 1",
                         Data = "<div style=\"max-width: 40.0rem; margin: 8.6rem 3.2rem 6.5rem 3.2rem\">#1 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
-                        ThumbnailUrl = $"carousel_1.jpg"
+                        ThumbnailUrl = $"carousel_1.jpg",
+                        Url = "gizmo://addcart"
                     }
                 },
                 { new ()
                     {
-                        Id = 2,
-                        Title = $"#Title 2",
-                        Data = "#2 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                        ThumbnailUrl = $"carousel_2.jpg"
+                        Id = 3,
+                        Title = "LAST OF US",
+                        Data = "LAST OF US",
+                        ThumbnailUrl = "https://i3.ytimg.com/vi/DIQzxJNR9iI/maxresdefault.jpg",
+                        Url = "gizmo://addcart/2"
                     }
                 },
                 { new ()
                     {
                         Id = 4,
-                        Title = "Test title",
-                        Data = "test data",
-                        ThumbnailUrl = "https://i3.ytimg.com/vi/DIQzxJNR9iI/maxresdefault.jpg"
+                        Title = "GTA - 5",
+                        Data = "GTA - 5",
+                        MediaUrl = "https://www.youtube.com/watch?v=TsAaH8yqB70&ab_channel=Punish",
+                        ThumbnailUrl = "https://i3.ytimg.com/vi/Ce1eUo0K3VE/maxresdefault.jpg",
+                        Url="kalsdlsn"
                     }
                 },
                 { new ()
                     {
                         Id = 5,
-                        Title = "COMMAND",
-                        Data = "TEST COMMAND",
-                        ThumbnailUrl = "https://i3.ytimg.com/vi/erLk59H86ww/maxresdefault.jpg",
-                        Url = "gizmo://addcart/3"
+                        Title = "CRYSIS - 4",
+                        Data = "CRYSIS - 4",
+                        MediaUrl = "https://www.youtube.com/watch?v=TsAaH8yqB70&ab_channel=Punish",
+                        Url = "https://www.theloadout.com/crysis-4/release-date"
                     }
                 }
             };
