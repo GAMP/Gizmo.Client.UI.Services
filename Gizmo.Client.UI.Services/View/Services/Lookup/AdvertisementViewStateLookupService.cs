@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web;
+﻿using System.Web;
 
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
@@ -35,13 +34,15 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (!viewState.IsCustomTemplate)
                 {
+                    var mediaUrl = ParseMediaUrl(item.MediaUrl);
+                    viewState.MediaUrl = mediaUrl?.AbsoluteUri;
+
+                    (viewState.Url, viewState.Command) = ParseUrl(item.Url);
+                    (viewState.ThumbnailType, viewState.ThumbnailUrl) = ParseThumbnail(item.ThumbnailUrl, mediaUrl);
+
                     viewState.Title = item.Title;
                     viewState.StartDate = item.StartDate;
                     viewState.EndDate = item.EndDate;
-
-                    (viewState.ThumbnailType, viewState.ThumbnailUrl) = GetThumbnailInfo(item.ThumbnailUrl, item.MediaUrl);
-                    (viewState.Url, viewState.Command) = GetUrlInfo(item.Url);
-                    viewState.MediaUrl = viewState.ThumbnailType == AdvertisementThumbnailType.None ? null : item.MediaUrl;
                 }
 
                 AddViewState(item.Id, viewState);
@@ -63,15 +64,15 @@ namespace Gizmo.Client.UI.View.Services
 
             if (!viewState.IsCustomTemplate)
             {
+                var mediaUrl = ParseMediaUrl(clientResult.MediaUrl);
+                viewState.MediaUrl = mediaUrl?.AbsoluteUri;
+
+                (viewState.Url, viewState.Command) = ParseUrl(clientResult.Url);
+                (viewState.ThumbnailType, viewState.ThumbnailUrl) = ParseThumbnail(clientResult.ThumbnailUrl, mediaUrl);
+
                 viewState.Title = clientResult.Title;
                 viewState.StartDate = clientResult.StartDate;
                 viewState.EndDate = clientResult.EndDate;
-
-                (viewState.ThumbnailType, viewState.ThumbnailUrl) = GetThumbnailInfo(clientResult.ThumbnailUrl, clientResult.MediaUrl);
-
-                (viewState.Url, viewState.Command) = GetUrlInfo(clientResult.Url);
-                
-                viewState.MediaUrl = viewState.ThumbnailType == AdvertisementThumbnailType.None ? null : clientResult.MediaUrl;
             }
 
             return viewState;
@@ -81,12 +82,15 @@ namespace Gizmo.Client.UI.View.Services
             var defaultState = ServiceProvider.GetRequiredService<AdvertisementViewState>();
 
             defaultState.Id = lookUpkey;
-            defaultState.Body = "DEFAULT";
+            defaultState.Body = "<div style=\"max-width: 40.0rem; margin: 8.6rem 3.2rem 6.5rem 3.2rem\">DEFAULT BODY</div>";
+            defaultState.ThumbnailType = AdvertisementThumbnailType.None;
 
             return defaultState;
         }
 
-        private static (string? Url, AdvertisementCommand? Command) GetUrlInfo(string? url)
+        private static Uri? ParseMediaUrl(string? mediaUrl) =>
+            !Uri.TryCreate(mediaUrl, UriKind.Absolute, out var result) ? null : result;
+        private static (string? Url, AdvertisementCommand? Command) ParseUrl(string? url)
         {
             if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
                 return (null, null);
@@ -94,37 +98,32 @@ namespace Gizmo.Client.UI.View.Services
             if (!uri.Scheme.Equals("gizmo"))
                 return (uri.AbsoluteUri, null);
 
-            try
-            {
-                var command = new AdvertisementCommand()
-                {
-                    CommandType = uri.Host switch
-                    {
-                        "addcart" => AdvertisementCommandType.AddToCart,
-                        "launch" => AdvertisementCommandType.Launch,
-                        "navigate" => AdvertisementCommandType.Navigate,
-                        _ => throw new NotSupportedException(uri.Host)
-                    },
-                    Parts = uri.Segments[0..^1],
-                    PathId = int.Parse(uri.Segments[^1])
-                };
+            var segments = uri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
-                return (uri.AbsoluteUri, command);
-            }
-            catch (Exception exeption)
+            if (segments.Length < 1)
+                return (null, null);
+
+            var command = new AdvertisementCommand()
             {
-                throw new NotSupportedException($"Advertisement command was not recognized. {exeption.Message}");
-            }
+                CommandType = uri.Host switch
+                {
+                    "addcart" => AdvertisementCommandType.AddToCart,
+                    "launch" => AdvertisementCommandType.Launch,
+                    "navigate" => AdvertisementCommandType.Navigate,
+                    _ => AdvertisementCommandType.NotSupported
+                },
+                Parts = segments[0..^1],
+                PathId = int.Parse(segments[^1])
+            };
+
+            return (null, command);
         }
-        private static (AdvertisementThumbnailType ThumbnailType, string? ThumbnailUrl) GetThumbnailInfo(string? thumbnailUrl, string? mediaUrl)
+        private static (AdvertisementThumbnailType ThumbnailType, string? ThumbnailUrl) ParseThumbnail(string? thumbnailUrl, Uri? mediaUri)
         {
             if (Uri.TryCreate(thumbnailUrl, UriKind.Absolute, out _))
                 return (AdvertisementThumbnailType.Manually, thumbnailUrl);
 
-            if (string.IsNullOrWhiteSpace(mediaUrl))
-                return (AdvertisementThumbnailType.None, null);
-
-            if (!Uri.TryCreate(mediaUrl, UriKind.Absolute, out var mediaUri))
+            if (mediaUri is null)
                 return (AdvertisementThumbnailType.None, null);
 
             var thumbnailUrlType = mediaUri.Host switch

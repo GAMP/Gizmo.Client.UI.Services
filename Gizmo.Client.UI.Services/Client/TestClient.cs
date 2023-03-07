@@ -59,11 +59,11 @@ namespace Gizmo.Client
             {
                 { new ()
                     {
-                        Id = 1,
+                        Id = 2,
                         Title = $"#Title 1",
                         Data = "<div style=\"max-width: 40.0rem; margin: 8.6rem 3.2rem 6.5rem 3.2rem\">#1 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                         ThumbnailUrl = $"carousel_1.jpg",
-                        Url = "gizmo://addcart"
+                        Url = "gizmo://addcart/prop/1"
                     }
                 },
                 { new ()
@@ -82,7 +82,7 @@ namespace Gizmo.Client
                         Data = "GTA - 5",
                         MediaUrl = "https://www.youtube.com/watch?v=TsAaH8yqB70&ab_channel=Punish",
                         ThumbnailUrl = "https://i3.ytimg.com/vi/Ce1eUo0K3VE/maxresdefault.jpg",
-                        Url="kalsdlsn"
+                        Url="gizmo://addcart"
                     }
                 },
                 { new ()
