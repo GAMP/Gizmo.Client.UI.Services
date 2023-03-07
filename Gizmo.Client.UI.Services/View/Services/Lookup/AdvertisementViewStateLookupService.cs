@@ -34,11 +34,13 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (!viewState.IsCustomTemplate)
                 {
-                    var mediaUrl = ParseMediaUrl(item.MediaUrl);
-                    viewState.MediaUrl = mediaUrl?.AbsoluteUri;
+                    var (midiaUrlType, mediaUri) = ParseMediaUrl(item.MediaUrl);
+                    viewState.MediaUrlType = midiaUrlType;
+                    viewState.MediaUrl = mediaUri?.AbsoluteUri;
+
+                    viewState.ThumbnailUrl = ParseThumbnailUrl(item.ThumbnailUrl, midiaUrlType, mediaUri);
 
                     (viewState.Url, viewState.Command) = ParseUrl(item.Url);
-                    (viewState.ThumbnailType, viewState.ThumbnailUrl) = ParseThumbnail(item.ThumbnailUrl, mediaUrl);
 
                     viewState.Title = item.Title;
                     viewState.StartDate = item.StartDate;
@@ -64,11 +66,13 @@ namespace Gizmo.Client.UI.View.Services
 
             if (!viewState.IsCustomTemplate)
             {
-                var mediaUrl = ParseMediaUrl(clientResult.MediaUrl);
-                viewState.MediaUrl = mediaUrl?.AbsoluteUri;
+                var (midiaUrlType, mediaUri) = ParseMediaUrl(clientResult.MediaUrl);
+                viewState.MediaUrlType = midiaUrlType;
+                viewState.MediaUrl = mediaUri?.AbsoluteUri;
+
+                viewState.ThumbnailUrl = ParseThumbnailUrl(clientResult.ThumbnailUrl, midiaUrlType, mediaUri);
 
                 (viewState.Url, viewState.Command) = ParseUrl(clientResult.Url);
-                (viewState.ThumbnailType, viewState.ThumbnailUrl) = ParseThumbnail(clientResult.ThumbnailUrl, mediaUrl);
 
                 viewState.Title = clientResult.Title;
                 viewState.StartDate = clientResult.StartDate;
@@ -83,13 +87,54 @@ namespace Gizmo.Client.UI.View.Services
 
             defaultState.Id = lookUpkey;
             defaultState.Body = "<div style=\"max-width: 40.0rem; margin: 8.6rem 3.2rem 6.5rem 3.2rem\">DEFAULT BODY</div>";
-            defaultState.ThumbnailType = AdvertisementThumbnailType.None;
+            defaultState.MediaUrlType = AdvertisementMediaUrlType.None;
 
             return defaultState;
         }
 
-        private static Uri? ParseMediaUrl(string? mediaUrl) =>
-            !Uri.TryCreate(mediaUrl, UriKind.Absolute, out var result) ? null : result;
+        private static (AdvertisementMediaUrlType MediaUrlType, Uri? MediaUri) ParseMediaUrl(string? mediaUrl)
+        {
+            if (!Uri.TryCreate(mediaUrl, UriKind.Absolute, out var mediaUri))
+                return (AdvertisementMediaUrlType.None, null);
+
+            var mediaUrlType = mediaUri.Host switch
+            {
+                "www.youtube.com" => AdvertisementMediaUrlType.YouTube,
+                "www.vk.ru" => AdvertisementMediaUrlType.Vk,
+                _ => AdvertisementMediaUrlType.None
+            };
+
+            switch (mediaUrlType)
+            {
+                case AdvertisementMediaUrlType.YouTube:
+                    var query = HttpUtility.ParseQueryString(mediaUri.Query);
+                    var videoId = query.AllKeys.Contains("v") ? query["v"] : mediaUri.Segments[^1];
+                    var url = $"https://www.youtube.com/embed/{videoId}";
+
+                    return (mediaUrlType, new Uri(url));
+
+                default:
+                    return (mediaUrlType, mediaUri);
+            }
+        }
+        private static string? ParseThumbnailUrl(string? thumbnailUrl, AdvertisementMediaUrlType mediaUrlType, Uri? mediaUri)
+        {
+            if (Uri.TryCreate(thumbnailUrl, UriKind.Absolute, out _))
+                return thumbnailUrl;
+
+            if (mediaUri is null)
+                return null;
+
+            switch (mediaUrlType)
+            {
+                case AdvertisementMediaUrlType.YouTube:
+                    var videoId = mediaUri.Segments[^1];
+                    return $"https://i3.ytimg.com/vi/{videoId}/maxresdefault.jpg";
+
+                default:
+                    return null;
+            }
+        }
         private static (string? Url, AdvertisementCommand? Command) ParseUrl(string? url)
         {
             if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
@@ -98,6 +143,17 @@ namespace Gizmo.Client.UI.View.Services
             if (!uri.Scheme.Equals("gizmo"))
                 return (uri.AbsoluteUri, null);
 
+            AdvertisementCommandType? commandType = uri.Host switch
+            {
+                "addcart" => AdvertisementCommandType.AddToCart,
+                "launch" => AdvertisementCommandType.Launch,
+                "navigate" => AdvertisementCommandType.Navigate,
+                _ => null
+            };
+
+            if (!commandType.HasValue)
+                return (null, null);
+
             var segments = uri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
             if (segments.Length < 1)
@@ -105,52 +161,12 @@ namespace Gizmo.Client.UI.View.Services
 
             var command = new AdvertisementCommand()
             {
-                CommandType = uri.Host switch
-                {
-                    "addcart" => AdvertisementCommandType.AddToCart,
-                    "launch" => AdvertisementCommandType.Launch,
-                    "navigate" => AdvertisementCommandType.Navigate,
-                    _ => AdvertisementCommandType.NotSupported
-                },
+                CommandType = commandType.Value,
                 Parts = segments[0..^1],
                 PathId = int.Parse(segments[^1])
             };
 
             return (null, command);
-        }
-        private static (AdvertisementThumbnailType ThumbnailType, string? ThumbnailUrl) ParseThumbnail(string? thumbnailUrl, Uri? mediaUri)
-        {
-            if (Uri.TryCreate(thumbnailUrl, UriKind.Absolute, out _))
-                return (AdvertisementThumbnailType.Manually, thumbnailUrl);
-
-            if (mediaUri is null)
-                return (AdvertisementThumbnailType.None, null);
-
-            var thumbnailUrlType = mediaUri.Host switch
-            {
-                "www.youtube.com" => AdvertisementThumbnailType.YouTube,
-                "www.vk.ru" => AdvertisementThumbnailType.Vk,
-                _ => AdvertisementThumbnailType.None
-            };
-
-            if (thumbnailUrlType == AdvertisementThumbnailType.None)
-                return (AdvertisementThumbnailType.None, null);
-
-            var query = HttpUtility.ParseQueryString(mediaUri.Query);
-
-            switch (thumbnailUrlType)
-            {
-                case AdvertisementThumbnailType.YouTube:
-                    {
-                        var videoId = query.AllKeys.Contains("v") ? query["v"] : mediaUri.Segments[^1];
-                        return (AdvertisementThumbnailType.YouTube, $"https://i3.ytimg.com/vi/{videoId}/maxresdefault.jpg");
-                    }
-                default:
-                    {
-                        return (AdvertisementThumbnailType.None, mediaUri.AbsoluteUri);
-                    }
-            }
-
         }
     }
 }

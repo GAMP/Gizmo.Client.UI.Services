@@ -1,4 +1,6 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -13,18 +15,37 @@ namespace Gizmo.Client.UI.View.Services
         public AdvertisementsService(
             ILogger<AdvertisementsService> logger,
             IServiceProvider serviceProvider,
+            IClientDialogService dialogService,
             AdvertisementsViewState viewState,
             AdvertisementViewStateLookupService advertisementViewStateLookupService) : base(viewState, logger, serviceProvider)
         {
+            _dialogService = dialogService;
             _advertisementViewStateLookupService = advertisementViewStateLookupService;
         }
+
         #endregion
 
         #region FIELDS
+        private readonly IClientDialogService _dialogService;
         private readonly AdvertisementViewStateLookupService _advertisementViewStateLookupService;
         #endregion
 
         #region FUNCTIONS
+
+        public async Task ShowMediaSync(AdvertisementViewState mediaType)
+        {
+            var dialog = await _dialogService.ShowAdvertisementDialogAsync(mediaType);
+            if (dialog.Result == DialogAddResult.Success)
+            {
+                try
+                {
+                    var result = await dialog.WaitForDialogResultAsync();
+                }
+                catch (OperationCanceledException)
+                {
+                }
+            }
+        }
 
         public async Task<AdvertisementViewState> GetAdvertisementViewStateAsync(int id)
         {
