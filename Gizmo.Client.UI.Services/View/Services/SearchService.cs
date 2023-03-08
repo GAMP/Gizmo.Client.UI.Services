@@ -174,17 +174,16 @@ namespace Gizmo.Client.UI.View.Services
                 if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Applications)
                 {
                     var applications = await _gizmoClient.UserApplicationsGetAsync(new UserApplicationsFilter());
-                    var tmpApplications = applications.Data.Select(a => new ApplicationViewState()
+                    var tmpApplications = applications.Data.Select(a => new AppViewState()
                     {
-                        Id = a.Id,
-                        ApplicationGroupId = a.ApplicationCategoryId,
+                        ApplicationId = a.Id,
+                        ApplicationCategoryId = a.ApplicationCategoryId,
                         Title = a.Title,
                         Description = a.Description,
                         PublisherId = a.PublisherId,
                         ReleaseDate = a.ReleaseDate,
                         //TODO: A
-                        ImageId = 1,
-                        ApplicationGroupName = "Shooter"
+                        ImageId = 1
                     }).ToList();
 
                     var tmp = new List<SearchResultViewState>();
@@ -194,7 +193,7 @@ namespace Gizmo.Client.UI.View.Services
                         tmp.Add(new SearchResultViewState()
                         {
                             Type = SearchResultTypes.Applications,
-                            Id = app.Id,
+                            Id = app.ApplicationId,
                             Name = app.Title,
                             ImageId = app.ImageId,
                             //TODO: A

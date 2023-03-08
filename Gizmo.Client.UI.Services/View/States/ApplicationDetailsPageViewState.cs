@@ -6,17 +6,11 @@ namespace Gizmo.Client.UI.View.States
     [Register()]
     public sealed class ApplicationDetailsPageViewState : ViewStateBase
     {
-        #region FIELDS
-        private ApplicationViewState _application = new();
-        #endregion
-
         #region PROPERTIES
 
-        public ApplicationViewState Application
-        {
-            get { return _application; }
-            internal set { _application = value; }
-        }
+        public AppViewState? Application { get; internal set; }
+
+        public IEnumerable<AppExeViewState> Executables { get; internal set; } = Enumerable.Empty<AppExeViewState>();
 
         #endregion
     }

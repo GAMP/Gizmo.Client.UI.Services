@@ -5,7 +5,7 @@ namespace Gizmo.Client.UI.Services
     public interface IClientDialogService : IDialogService
     {
         Task<ShowDialogResult<EmptyDialogResult>> ShowCheckoutDialogAsync(CancellationToken cancellationToken = default);
-        Task<ShowDialogResult<EmptyDialogResult>> ShowExecutableSelectorDialogAsync(CancellationToken cancellationToken = default);
+        Task<ShowDialogResult<EmptyDialogResult>> ShowExecutableSelectorDialogAsync(int applicationId, CancellationToken cancellationToken = default);
         Task<ShowDialogResult<UserAgreementResult>> ShowUserAgreementDialogAsync(CancellationToken cancellationToken = default);
         Task<ShowDialogResult<EmptyDialogResult>> ShowTopUpDialogAsync(CancellationToken cancellationToken = default);
         Task<ShowDialogResult<EmptyDialogResult>> ShowChangeEmailDialogAsync(CancellationToken cancellationToken = default);

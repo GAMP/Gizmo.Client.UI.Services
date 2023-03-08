@@ -40,30 +40,30 @@ namespace Gizmo.Client.UI.View.Services
             if (applicationsPageService == null)
                 return;
 
-            await applicationsPageService.LoadApplicationsAsync();
+            //await applicationsPageService.LoadApplicationsAsync();
 
             Random random = new Random();
 
-            var tmp = new List<ExecutableViewState>();
-            var tmp2 = new List<ExecutableViewState>();
+            var tmp = new List<AppExeViewState>();
+            var tmp2 = new List<AppExeViewState>();
 
             foreach (var application in applicationsPageService.ViewState.Applications)
             {
-                foreach (var exe in application.Executables)
-                {
-                    if (!tmp.Contains(exe))
-                    {
-                        tmp.Add(exe);
+                //foreach (var exe in application.Executables)
+                //{
+                //    if (!tmp.Contains(exe))
+                //    {
+                //        tmp.Add(exe);
 
-                        exe.State = (ExecutableState)random.Next(0, 4);
-                        exe.RaiseChanged();
+                //        exe.State = (ExecutableState)random.Next(0, 4);
+                //        exe.RaiseChanged();
 
-                        if (exe.State != ExecutableState.None)
-                        {
-                            tmp2.Add(exe);
-                        }
-                    }
-                }
+                //        if (exe.State != ExecutableState.None)
+                //        {
+                //            tmp2.Add(exe);
+                //        }
+                //    }
+                //}
             }
 
             ViewState.Executables = tmp;

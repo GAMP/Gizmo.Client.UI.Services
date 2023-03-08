@@ -25,21 +25,22 @@ namespace Gizmo.Client
                 ReleaseDate = DateTime.Now
             }).ToList();
 
-            _userExecutables = new()
+            List<string> executableNames = new List<string>()
             {
-                new() { Id = 1, Caption = "#battlenet.exe" },
-                new() { Id = 2, Caption = "#DOTA" },
-                new() { Id = 3, Caption = "#Spotify" },
-                new() { Id = 4, Caption = "#valve_steamclient.exe" },
-                new() { Id = 5, Caption = "#Chrome.exe" },
-                new() { Id = 6, Caption = "#Chrome.exe" },
-                new() { Id = 7, Caption = "#Chrome.exe" },
-                new() { Id = 8, Caption = "#Chrome.exe" },
-                new() { Id = 9, Caption = "#Chrome.exe" },
-                new() { Id = 10, Caption = "#Chrome.exe" },
-                new() { Id = 11, Caption = "#Chrome.exe" },
-                new() { Id = 12, Caption = "#Chrome.exe" }
+                "#battlenet.exe",
+                "#DOTA",
+                "#Spotify",
+                "#valve_steamclient.exe"
             };
+
+            _userExecutables = Enumerable.Range(1, 500).Select(i => new UserExecutableModel()
+            {
+                Id = i,
+                ApplicationId = random.Next(1, 100),
+                Caption = $"{ executableNames[ random.Next(1, 4)] } { i }",
+                Description = "",
+                PersonalFiles = Enumerable.Range(1, 4).Select(x => x)
+            }).ToList();
 
             #region PRODUCT GROUPS
             _userProductGroups = new List<UserProductGroupModel>
@@ -394,6 +395,21 @@ namespace Gizmo.Client
         public Task<UpdateResult> UserPasswordUpdateAsync(string oldPassword, string newPassword, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(new UpdateResult());
+        }
+
+        public Task<UserApplicationEnterpriseModel> UserApplicationEnterpriseGetAsync(int id, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UserApplicationCategoryModel> UserApplicationCategoryGetAsync(int id, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UserPersonalFileModel> UserPersonalFileGetAsync(int id, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
     }
 }
