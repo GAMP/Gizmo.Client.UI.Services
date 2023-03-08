@@ -77,7 +77,7 @@ namespace Gizmo.Client.UI.View.Services
                         await _gizmoClient.UserCreateCompleteAsync(new Web.Api.Models.UserProfileModelCreate()
                         {
 
-                        }, password);
+                        }, password, new List<Web.Api.Models.UserAgreementModelState>());
                     }
                     else
                     {
@@ -87,7 +87,7 @@ namespace Gizmo.Client.UI.View.Services
                         await _gizmoClient.UserCreateByTokenCompleteAsync(token, new Web.Api.Models.UserProfileModelCreate()
                         {
 
-                        }, password);
+                        }, password, new List<Web.Api.Models.UserAgreementModelState>());
                     }
 
                     NavigationService.NavigateTo(ClientRoutes.LoginRoute);
