@@ -68,10 +68,10 @@ namespace Gizmo.Client
                 { new ()
                     {
                         Id = 3,
-                        Title = "LAST OF US",
-                        Data = "LAST OF US",
+                        Title = "DEFAULT VIDEO",
+                        Data = "DEFAULT VIDEO",
                         MediaUrl = "https://media.geeksforgeeks.org/wp-content/uploads/20210314115545/sample-video.mp4",
-                        ThumbnailUrl = "https://i3.ytimg.com/vi/DIQzxJNR9iI/maxresdefault.jpg"
+                        Url="gizmo://addcart/1"
                     }
                 },
                 { new ()
