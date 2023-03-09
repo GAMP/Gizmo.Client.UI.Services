@@ -7,12 +7,12 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register]
-    public sealed class AppEnterprisesViewStateLookupService : ViewStateLookupServiceBase<int, AppEnterpriseViewState>
+    public sealed class AppEnterpriseViewStateLookupService : ViewStateLookupServiceBase<int, AppEnterpriseViewState>
     {
         private readonly IGizmoClient _gizmoClient;
-        public AppEnterprisesViewStateLookupService(
+        public AppEnterpriseViewStateLookupService(
             IGizmoClient gizmoClient,
-            ILogger<AppEnterprisesViewStateLookupService> logger,
+            ILogger<AppEnterpriseViewStateLookupService> logger,
             IServiceProvider serviceProvider) : base(logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
