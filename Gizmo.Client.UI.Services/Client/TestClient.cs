@@ -22,7 +22,8 @@ namespace Gizmo.Client
                 Title = $"#Fortnite ({i})",
                 Description = "#Fall Guys is a massively multiplayer party game with up to 60 players online in a free-for-all struggle through round after round of escalating chaos until one victor remains!",
                 PublisherId = random.Next(1, 5),
-                ReleaseDate = DateTime.Now
+                ReleaseDate = DateTime.Now,
+                ImageId = 1
             }).ToList();
 
             List<string> executableNames = new List<string>()
@@ -39,7 +40,8 @@ namespace Gizmo.Client
                 ApplicationId = random.Next(1, 100),
                 Caption = $"{ executableNames[ random.Next(1, 4)] } { i }",
                 Description = "",
-                PersonalFiles = Enumerable.Range(1, 4).Select(x => x)
+                PersonalFiles = Enumerable.Range(1, 4).Select(x => x),
+                ImageId = 1
             }).ToList();
 
             #region PRODUCT GROUPS
@@ -92,8 +94,6 @@ namespace Gizmo.Client
                         .Select(x => new UserProductBundledModel() { ProductId = x, Quantity = random.Next(1, 3) })
                    };
                });
-
-
 
             #endregion
 
@@ -408,6 +408,11 @@ namespace Gizmo.Client
         }
 
         public Task<UserPersonalFileModel> UserPersonalFileGetAsync(int id, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UserApplicationLinkModel> UserApplicationLinkGetAsync(int id, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

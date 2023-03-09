@@ -35,6 +35,7 @@ namespace Gizmo.Client.UI.View.Services
                 viewState.AddDate = item.AddDate;
                 viewState.DeveloperId = item.DeveloperId;
                 viewState.PublisherId = item.PublisherId;
+                viewState.ImageId = item.ImageId;
 
                 AddViewState(item.Id, viewState);
             }
@@ -58,6 +59,7 @@ namespace Gizmo.Client.UI.View.Services
             viewState.AddDate = item.AddDate;
             viewState.DeveloperId = item.DeveloperId;
             viewState.PublisherId = item.PublisherId;
+            viewState.ImageId = item.ImageId;
 
             return viewState;
         }
