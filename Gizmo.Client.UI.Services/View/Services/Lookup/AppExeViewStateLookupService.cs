@@ -31,7 +31,10 @@ namespace Gizmo.Client.UI.View.Services
                 viewState.Caption = item.Caption;
                 viewState.Description = item.Description;
                 viewState.DisplayOrder = item.DisplayOrder;
-                viewState.PersonalFiles = item.PersonalFiles;
+                viewState.PersonalFiles = item.PersonalFiles.Select(a => new AppExePersonalFileViewState()
+                {
+                    PersonalFileId = a.PersonalFileId
+                });
                 viewState.ImageId = item.ImageId;
 
                 AddViewState(item.Id, viewState);
@@ -53,7 +56,10 @@ namespace Gizmo.Client.UI.View.Services
             viewState.Caption = item.Caption;
             viewState.Description = item.Description;
             viewState.DisplayOrder = item.DisplayOrder;
-            viewState.PersonalFiles = item.PersonalFiles;
+            viewState.PersonalFiles = item.PersonalFiles.Select(a => new AppExePersonalFileViewState()
+            {
+                PersonalFileId = a.PersonalFileId
+            });
             viewState.ImageId = item.ImageId;
 
             return viewState;

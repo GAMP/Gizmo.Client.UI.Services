@@ -4,6 +4,10 @@ namespace Gizmo.Client
 {
     public partial class TestClient : IGizmoClient
     {
+        private readonly List<UserApplicationEnterpriseModel> _applicationEnterprises;
+        private readonly List<UserApplicationCategoryModel> _userApplicationCategories;
+        private readonly List<UserApplicationLinkModel> _userApplicationLinks;
+
         private readonly List<UserApplicationModel> _userApplications;
         private readonly List<UserExecutableModel> _userExecutables;
 
@@ -15,6 +19,18 @@ namespace Gizmo.Client
         {
             Random random = new();
 
+            _applicationEnterprises = Enumerable.Range(1, 5).Select(i => new UserApplicationEnterpriseModel()
+            {
+                Id = i,
+                Name = $"#Test ({i})"
+            }).ToList();
+
+            _userApplicationCategories = Enumerable.Range(1, 5).Select(i => new UserApplicationCategoryModel()
+            {
+                Id = i,
+                Name = $"#Category ({i})"
+            }).ToList();
+
             _userApplications = Enumerable.Range(1, 100).Select(i => new UserApplicationModel()
             {
                 Id = i,
@@ -24,6 +40,12 @@ namespace Gizmo.Client
                 PublisherId = random.Next(1, 5),
                 ReleaseDate = DateTime.Now,
                 ImageId = 1
+            }).ToList();
+
+            _userApplicationLinks = Enumerable.Range(1, 500).Select(i => new UserApplicationLinkModel()
+            {
+                Id = i,
+                ApplicationId = random.Next(1, 100),
             }).ToList();
 
             List<string> executableNames = new List<string>()
@@ -38,9 +60,13 @@ namespace Gizmo.Client
             {
                 Id = i,
                 ApplicationId = random.Next(1, 100),
-                Caption = $"{ executableNames[ random.Next(1, 4)] } { i }",
+                Caption = $"{executableNames[random.Next(1, 4)]} {i}",
                 Description = "",
-                PersonalFiles = Enumerable.Range(1, 4).Select(x => x),
+                PersonalFiles = Enumerable.Range(1, 4).Select(x => new UserExecutablePersonalFileModel()
+                {
+                    PersonalFileId = x,
+                    UseOrder = x
+                }),
                 ImageId = 1
             }).ToList();
 
@@ -336,28 +362,24 @@ namespace Gizmo.Client
 
         public Task<PagedList<UserApplicationEnterpriseModel>> UserApplicationEnterprisesGetAsync(UserApplicationEnterprisesFilter filters, CancellationToken cancellationToken = default)
         {
-            List<UserApplicationEnterpriseModel> applicationEnterprises = Enumerable.Range(1, 5).Select(i => new UserApplicationEnterpriseModel()
-            {
-                Id = i,
-                Name = $"#Test ({i})"
-            }).ToList();
+            return Task.FromResult(new PagedList<UserApplicationEnterpriseModel>(_applicationEnterprises));
+        }
 
-            var pagedList = new PagedList<UserApplicationEnterpriseModel>(applicationEnterprises);
-
-            return Task.FromResult(pagedList);
+        public Task<UserApplicationEnterpriseModel?> UserApplicationEnterpriseGetAsync(int id, CancellationToken cancellationToken = default)
+        {
+            var item = _applicationEnterprises.Find(x => x.Id == id);
+            return Task.FromResult(item);
         }
 
         public Task<PagedList<UserApplicationCategoryModel>> UserApplicationCategoriesGetAsync(UserApplicationCategoriesFilter filters, CancellationToken cancellationToken = default)
         {
-            List<UserApplicationCategoryModel> applicationGroups = Enumerable.Range(1, 5).Select(i => new UserApplicationCategoryModel()
-            {
-                Id = i,
-                Name = $"#Category ({i})"
-            }).ToList();
+            return Task.FromResult(new PagedList<UserApplicationCategoryModel>(_userApplicationCategories));
+        }
 
-            var pagedList = new PagedList<UserApplicationCategoryModel>(applicationGroups);
-
-            return Task.FromResult(pagedList);
+        public Task<UserApplicationCategoryModel?> UserApplicationCategoryGetAsync(int id, CancellationToken cancellationToken = default)
+        {
+            var item = _userApplicationCategories.Find(x => x.Id == id);
+            return Task.FromResult(item);
         }
 
         public Task<PagedList<UserApplicationModel>> UserApplicationsGetAsync(UserApplicationsFilter filters, CancellationToken cancellationToken = default)
@@ -367,7 +389,13 @@ namespace Gizmo.Client
 
         public Task<PagedList<UserApplicationLinkModel>> UserApplicationLinksGetAsync(UserApplicationLinksFilter filters, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new PagedList<UserApplicationLinkModel>(_userApplicationLinks));
+        }
+
+        public Task<UserApplicationLinkModel?> UserApplicationLinkGetAsync(int id, CancellationToken cancellationToken = default)
+        {
+            var item = _userApplicationLinks.Find(x => x.Id == id);
+            return Task.FromResult(item);
         }
 
         public Task<UserApplicationModel?> UserApplicationGetAsync(int id, CancellationToken cancellationToken = default)
@@ -392,29 +420,15 @@ namespace Gizmo.Client
             throw new NotImplementedException();
         }
 
-        public Task<UpdateResult> UserPasswordUpdateAsync(string oldPassword, string newPassword, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(new UpdateResult());
-        }
-
-        public Task<UserApplicationEnterpriseModel> UserApplicationEnterpriseGetAsync(int id, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<UserApplicationCategoryModel> UserApplicationCategoryGetAsync(int id, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<UserPersonalFileModel> UserPersonalFileGetAsync(int id, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        public Task<UserApplicationLinkModel> UserApplicationLinkGetAsync(int id, CancellationToken cancellationToken = default)
+        public Task<UpdateResult> UserPasswordUpdateAsync(string oldPassword, string newPassword, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new UpdateResult());
         }
+
     }
 }
