@@ -31,33 +31,31 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
         {
-            if(navigationParameters.IsInitial)
-            {
-                ViewState.AppCategories = await _categoryViewStateLookupService.GetStatesAsync(cToken);
-            }
-
-            
+            //if (navigationParameters.IsInitial)
+            //{
+            ViewState.AppCategories = await _categoryViewStateLookupService.GetStatesAsync(cToken);
+            //}
 
             await RefilterRequest(cToken);
-            
+
         }
 
         #endregion
 
         private async Task RefilterRequest(CancellationToken cancellationToken)
         {
+            ViewState.TotalFilters = 0;
+
             var allApplications = await _appViewStateLookupService.GetStatesAsync(cancellationToken);
 
-            if(ViewState.SelectedCategoryId.HasValue)
+            if (ViewState.SelectedCategoryId.HasValue)
             {
-                allApplications = allApplications.Where(app=>app.ApplicationCategoryId == ViewState.SelectedCategoryId);
+                allApplications = allApplications.Where(app => app.ApplicationCategoryId == ViewState.SelectedCategoryId);
+                ViewState.TotalFilters += 1;
             }
-
 
             ViewState.Applications = allApplications.ToList();
 
-           
-            
             ViewState.RaiseChanged();
         }
 
@@ -68,14 +66,25 @@ namespace Gizmo.Client.UI.View.Services
             await RefilterRequest(default);
 
             DebounceViewStateChange();
-         
         }
 
-        public Task ClearAllFilters()
+        public async Task ClearSearchPattern()
         {
-            ViewState.SelectedCategoryId = null;
+            ViewState.SearchPattern = string.Empty;
+
+            await RefilterRequest(default);
+
             DebounceViewStateChange();
-            return Task.CompletedTask;
+        }
+
+        public async Task ClearAllFilters()
+        {
+            ViewState.SearchPattern = string.Empty;
+            ViewState.SelectedCategoryId = null;
+
+            await RefilterRequest(default);
+
+            DebounceViewStateChange();
         }
     }
 }
