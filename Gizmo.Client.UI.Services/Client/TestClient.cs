@@ -4,6 +4,7 @@ namespace Gizmo.Client
 {
     public partial class TestClient : IGizmoClient
     {
+        private readonly List<UserPersonalFileModel> _personalFiles;
         private readonly List<UserApplicationEnterpriseModel> _applicationEnterprises;
         private readonly List<UserApplicationCategoryModel> _userApplicationCategories;
         private readonly List<UserApplicationLinkModel> _userApplicationLinks;
@@ -18,6 +19,12 @@ namespace Gizmo.Client
         public TestClient()
         {
             Random random = new();
+
+            _personalFiles = Enumerable.Range(1, 5).Select(i => new UserPersonalFileModel()
+            {
+                Id = i,
+                Caption = $"#Personal File ({i})"
+            }).ToList();
 
             _applicationEnterprises = Enumerable.Range(1, 5).Select(i => new UserApplicationEnterpriseModel()
             {
@@ -417,12 +424,13 @@ namespace Gizmo.Client
 
         public Task<PagedList<UserPersonalFileModel>> UserPersonalFilesGetAsync(UserPersonalFilesFilter filters, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new PagedList<UserPersonalFileModel>(_personalFiles));
         }
 
-        public Task<UserPersonalFileModel> UserPersonalFileGetAsync(int id, CancellationToken cancellationToken = default)
+        public Task<UserPersonalFileModel?> UserPersonalFileGetAsync(int id, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var item = _personalFiles.Find(x => x.Id == id);
+            return Task.FromResult(item);
         }
 
         public Task<UpdateResult> UserPasswordUpdateAsync(string oldPassword, string newPassword, CancellationToken cancellationToken = default)
