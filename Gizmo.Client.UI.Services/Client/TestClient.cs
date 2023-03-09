@@ -63,7 +63,7 @@ namespace Gizmo.Client
                         Title = "DEFAULT VIDEO",
                         Data = "DEFAULT VIDEO",
                         MediaUrl = "https://media.geeksforgeeks.org/wp-content/uploads/20210314115545/sample-video.mp4",
-                        Url="gizmo://cart/add?id=1&name=y"
+                        Url="gizmo://cart/add?id=1&name=andrey"
                     }
                 },
                 { new ()

@@ -1,6 +1,7 @@
 ﻿using System.Web;
 
 using Gizmo.Client.UI.View.States;
+using Gizmo.UI;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 
@@ -136,7 +137,7 @@ namespace Gizmo.Client.UI.View.Services
                     return null;
             }
         }
-        private static (string? Url, AdvertisementCommand? Command) ParseUrl(string? url)
+        private static (string? Url, ViewServiceCommand? Command) ParseUrl(string? url)
         {
             if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
                 return (null, null);
@@ -144,27 +145,52 @@ namespace Gizmo.Client.UI.View.Services
             if (!uri.Scheme.Equals("gizmo"))
                 return (uri.AbsoluteUri, null);
 
-            AdvertisementCommandType? commandType = uri.Host switch
+            var segments = uri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+            if (segments.Length < 1)
+                return (null, null);
+
+            ViewServiceCommandType? commandType = segments[^1] switch
             {
-                "addcart" => AdvertisementCommandType.AddToCart,
-                "launch" => AdvertisementCommandType.Launch,
-                "navigate" => AdvertisementCommandType.Navigate,
+                "add" => ViewServiceCommandType.Add,
+                "delete" => ViewServiceCommandType.Delete,
+                "launch" => ViewServiceCommandType.Launch,
+                "navigate" => ViewServiceCommandType.Navigate,
                 _ => null
             };
 
             if (!commandType.HasValue)
                 return (null, null);
 
-            var segments = uri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var subject = string.Join("/", segments[0..^1].Prepend(uri.Host));
 
-            if (segments.Length < 1)
-                return (null, null);
+            var queryParams = HttpUtility.ParseQueryString(uri.Query);
+            var comandParams = new Dictionary<string, object>(queryParams.Count);
 
-            var command = new AdvertisementCommand()
+            for (int i = 0; i < queryParams.Count; i++)
             {
-                CommandType = commandType.Value,
-                Parts = segments[0..^1],
-                PathId = int.Parse(segments[^1])
+                var key = queryParams.GetKey(i);
+
+                if (key is null)
+                    continue;
+
+                var values = queryParams.GetValues(key);
+
+                if (values?.Any() == true)
+                {
+                    if (values.Length == 1)
+                        comandParams.Add(key, values[0]);
+                    else
+                        continue;
+                }
+            }
+
+            var command = new ViewServiceCommand()
+            {
+                Name = $"{commandType.Value} {subject}",
+                Type = commandType.Value,
+                Subject = subject,
+                Params = comandParams
             };
 
             return (null, command);

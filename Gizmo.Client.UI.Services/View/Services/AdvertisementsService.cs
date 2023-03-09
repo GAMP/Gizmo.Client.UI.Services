@@ -47,19 +47,16 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
         }
-
         public async Task<AdvertisementViewState> GetAdvertisementViewStateAsync(int id)
         {
             return await _advertisementViewStateLookupService.GetStateAsync(id);
         }
-
         public async Task LoadAdvertisementsAsync(CancellationToken cToken = default)
         {
             ViewState.Advertisements = await _advertisementViewStateLookupService.GetStatesAsync(cToken);
             ViewState.AdvertisementsCount = ViewState.Advertisements.Count();
             ViewState.RaiseChanged();
         }
-
         private async void OnLoadAdvertisementsAsync(object? _, EventArgs __) =>
             await LoadAdvertisementsAsync();
 

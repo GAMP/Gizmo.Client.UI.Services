@@ -101,7 +101,7 @@ namespace Gizmo.Client.UI.View.Services
         }
         public Task ChangeProductPayType(int productId, OrderLinePayType payType)
         {
-            var existingProductState = ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault();
+            var existingProductState = ViewState.Products.FirstOrDefault(a => a.ProductId == productId);
             if (existingProductState != null)
             {
                 existingProductState.PayType = payType;
@@ -159,6 +159,15 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
+
+        public override async Task ExecuteCommandAsync<TCommand>(TCommand command)
+        {
+            var productId = int.Parse(command!.Params["id"].ToString());
+
+            await AddUserCartProductAsync(productId);
+
+            NavigationService.NavigateTo(ClientRoutes.ShopRoute);
+        }
 
         protected override async Task OnNavigatedIn()
         {
