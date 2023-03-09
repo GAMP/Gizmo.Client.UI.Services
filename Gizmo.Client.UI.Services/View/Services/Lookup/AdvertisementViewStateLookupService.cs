@@ -100,19 +100,20 @@ namespace Gizmo.Client.UI.View.Services
             var mediaUrlType = mediaUri.Host switch
             {
                 "www.youtube.com" => AdvertisementMediaUrlType.YouTube,
-                "www.vk.ru" => AdvertisementMediaUrlType.Vk,
+                "vk.com" => AdvertisementMediaUrlType.Vk,
                 _ => AdvertisementMediaUrlType.Custom
             };
 
             switch (mediaUrlType)
             {
                 case AdvertisementMediaUrlType.YouTube:
-                    var query = HttpUtility.ParseQueryString(mediaUri.Query);
-                    var videoId = query.AllKeys.Contains("v") ? query["v"] : mediaUri.Segments[^1];
-                    var url = $"https://www.youtube.com/embed/{videoId}?autoplay=1";
+                    {
+                        var query = HttpUtility.ParseQueryString(mediaUri.Query);
+                        var videoId = query.AllKeys.Contains("v") ? query["v"] : mediaUri.Segments[^1];
+                        var url = $"https://www.youtube.com/embed/{videoId}?autoplay=1";
 
-                    return (mediaUrlType, new Uri(url));
-
+                        return (mediaUrlType, new Uri(url));
+                    }
                 default:
                     return (mediaUrlType, mediaUri);
             }
