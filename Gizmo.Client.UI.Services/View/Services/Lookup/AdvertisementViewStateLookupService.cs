@@ -165,7 +165,7 @@ namespace Gizmo.Client.UI.View.Services
             var subject = string.Join("/", segments[0..^1].Prepend(uri.Host));
 
             var queryParams = HttpUtility.ParseQueryString(uri.Query);
-            var comandParams = new Dictionary<string, object>(queryParams.Count);
+            var comandParams = new Dictionary<string, object>(queryParams.Count, StringComparer.OrdinalIgnoreCase);
 
             for (int i = 0; i < queryParams.Count; i++)
             {
@@ -185,9 +185,18 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
+            var preposition = commandType.Value switch
+            {
+                ViewServiceCommandType.Add => " to ",
+                ViewServiceCommandType.Delete => " from ",
+                ViewServiceCommandType.Launch => " of ",
+                ViewServiceCommandType.Navigate => " to ",
+                _ => ""
+            };
+
             var command = new ViewServiceCommand()
             {
-                Name = $"{commandType.Value} {subject}",
+                Name = commandType.Value + " " + string.Join(preposition, subject.Split('/')),
                 Type = commandType.Value,
                 Subject = subject,
                 Params = comandParams

@@ -13,9 +13,9 @@ public sealed class ViewServiceCommandProvider : ViewServiceBase
         UserCartService userCartService,
         IServiceProvider serviceProvider) : base(logger, serviceProvider)
     {
-        _services = new()
+        _services = new(StringComparer.OrdinalIgnoreCase)
         {
-            {"cart", userCartService }
+            {"products/cart", userCartService }
         };
     }
 
