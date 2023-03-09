@@ -46,7 +46,7 @@ namespace Gizmo.Client
                 Description = "#Fall Guys is a massively multiplayer party game with up to 60 players online in a free-for-all struggle through round after round of escalating chaos until one victor remains!",
                 PublisherId = random.Next(1, 5),
                 ReleaseDate = DateTime.Now,
-                ImageId = 1
+                ImageId = i
             }).ToList();
 
             _userApplicationLinks = Enumerable.Range(1, 500).Select(i => new UserApplicationLinkModel()
