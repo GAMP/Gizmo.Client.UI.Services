@@ -10,7 +10,8 @@ namespace Gizmo.Client.UI.View.States
 
         public IEnumerable<AppViewState> Applications { get; internal set; } = Enumerable.Empty<AppViewState>();
 
-
+        public string SearchPattern { get; internal set; } = null!;
+        
         /// <summary>
         /// Gets currently selected application category id.
         /// </summary>
@@ -20,6 +21,8 @@ namespace Gizmo.Client.UI.View.States
         /// Gets current app categories.
         /// </summary>
         public IEnumerable<AppCategoryViewState> AppCategories { get; internal set; } = Enumerable.Empty<AppCategoryViewState>();
+
+        public int TotalFilters { get; internal set; }
 
         #endregion
     }

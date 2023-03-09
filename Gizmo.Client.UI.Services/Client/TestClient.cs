@@ -74,7 +74,7 @@ namespace Gizmo.Client
                     PersonalFileId = x,
                     UseOrder = x
                 }),
-                ImageId = 1
+                ImageId = i
             }).ToList();
 
             #region PRODUCT GROUPS
