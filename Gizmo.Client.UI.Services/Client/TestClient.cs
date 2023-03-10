@@ -73,7 +73,7 @@ namespace Gizmo.Client
                         Data = "GTA - 5",
                         ThumbnailUrl = "https://i3.ytimg.com/vi/Ce1eUo0K3VE/maxresdefault.jpg",
                         MediaUrl = "https://vk.com/video_ext.php?oid=-2000182257&id=118182257&hash=0f8faf02a738549a&hd=2",
-                        Url="gizmo://products/cart/delete?productId=1&count=1"
+                        Url="gizmo://products/details/navigate?productId=1"
                     }
                 },
                 { new ()

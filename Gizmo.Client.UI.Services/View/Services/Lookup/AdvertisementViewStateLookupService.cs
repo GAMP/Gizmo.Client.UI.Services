@@ -142,7 +142,7 @@ namespace Gizmo.Client.UI.View.Services
             if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
                 return (null, null);
 
-            if (!uri.Scheme.Equals("gizmo"))
+            if (!uri.Scheme.Equals("gizmo", StringComparison.OrdinalIgnoreCase))
                 return (uri.AbsoluteUri, null);
 
             var segments = uri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
@@ -150,7 +150,9 @@ namespace Gizmo.Client.UI.View.Services
             if (segments.Length < 1)
                 return (null, null);
 
-            ViewServiceCommandType? commandType = segments[^1] switch
+            var commandName = segments[^1].ToLower();
+
+            ViewServiceCommandType? commandType = commandName switch
             {
                 "add" => ViewServiceCommandType.Add,
                 "delete" => ViewServiceCommandType.Delete,
@@ -162,44 +164,36 @@ namespace Gizmo.Client.UI.View.Services
             if (!commandType.HasValue)
                 return (null, null);
 
-            var subject = string.Join("/", segments[0..^1].Prepend(uri.Host));
-
             var queryParams = HttpUtility.ParseQueryString(uri.Query);
-            var comandParams = new Dictionary<string, object>(queryParams.Count, StringComparer.OrdinalIgnoreCase);
+
+            var commandParams = new Dictionary<string, object>(queryParams.Count, StringComparer.OrdinalIgnoreCase);
 
             for (int i = 0; i < queryParams.Count; i++)
             {
-                var key = queryParams.GetKey(i);
+                var paramKey = queryParams.GetKey(i);
 
-                if (key is null)
+                if (paramKey is null)
                     continue;
 
-                var values = queryParams.GetValues(key);
+                var paramValues = queryParams.GetValues(paramKey);
 
-                if (values?.Any() == true)
+                if (paramValues?.Any() == true)
                 {
-                    if (values.Length == 1)
-                        comandParams.Add(key, values[0]);
+                    if (paramValues.Length == 1)
+                        commandParams.Add(paramKey, paramValues[0]);
                     else
                         continue;
                 }
             }
 
-            var preposition = commandType.Value switch
-            {
-                ViewServiceCommandType.Add => " to ",
-                ViewServiceCommandType.Delete => " from ",
-                ViewServiceCommandType.Launch => " of ",
-                ViewServiceCommandType.Navigate => " to ",
-                _ => ""
-            };
+            var routeKey = string.Join("/", segments[0..^1].Prepend(uri.Host)).ToLower();
 
             var command = new ViewServiceCommand()
             {
-                Name = commandType.Value + " " + string.Join(preposition, subject.Split('/')),
+                Key = routeKey,
+                Name = routeKey + '/' + commandName,
                 Type = commandType.Value,
-                Subject = subject,
-                Params = comandParams
+                Params = commandParams
             };
 
             return (null, command);

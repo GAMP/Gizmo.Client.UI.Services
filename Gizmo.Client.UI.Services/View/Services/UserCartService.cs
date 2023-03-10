@@ -161,10 +161,9 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
-
         public override async Task ExecuteCommandAsync<TCommand>(TCommand command, CancellationToken cToken = default)
         {
-            if (command.Params is null || !command.Params.Any())
+            if (command.Params?.Any() != true)
                 return;
 
             var paramProductId = command.Params.GetValueOrDefault("productId")?.ToString();
@@ -187,8 +186,6 @@ namespace Gizmo.Client.UI.View.Services
                     break;
                 case ViewServiceCommandType.Delete:
                     await RemoveUserCartProductAsync(productId, size);
-                    break;
-                default:
                     break;
             }
 
