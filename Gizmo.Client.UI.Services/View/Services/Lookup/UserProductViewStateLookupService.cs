@@ -35,33 +35,26 @@ namespace Gizmo.Client.UI.View.Services
                 viewState.ProductType = product.ProductType;
                 viewState.UnitPrice = product.Price;
                 viewState.UnitPointsPrice = product.PointsPrice;
+                viewState.DefaultImageId = product.DefaultImageId; 
 
                 if (product.ProductType == ProductType.ProductBundle)
                 {
-                    var tmp = new List<UserProductBundledViewState>();
-
-                    var bundledProducts = await ((TestClient)_gizmoClient).ProductsBundleGetAsync(product.Id);
-
-                    foreach (var bundledProduct in bundledProducts.Data)
+                    viewState.BundledProducts = product.Bundle?.BundledProducts.Select(bundle =>
                     {
-                        tmp.Add(new UserProductBundledViewState()
-                        {
-                            Id = bundledProduct.ProductId,
-                            Quantity = bundledProduct.Quantity
-                        });
-                    }
-
-                    viewState.BundledProducts = tmp;
+                        var bundledProductViewState = ServiceProvider.GetRequiredService<UserProductBundledViewState>();
+                        bundledProductViewState.Id = bundle.ProductId;
+                        bundledProductViewState.Quantity = bundle.Quantity;
+                        return bundledProductViewState;
+                    }).ToList() ?? Enumerable.Empty<UserProductBundledViewState>();
                 }
 
                 if (product.ProductType == ProductType.ProductTime)
                 {
                     if (product.TimeProduct != null)
                     {
-                        viewState.TimeProduct = new UserProductTimeViewState()
-                        {
-                            Minutes = product.TimeProduct.Minutes
-                        };
+                        var timeProductViewState = ServiceProvider.GetRequiredService<UserProductTimeViewState>();
+                        timeProductViewState.Minutes = product.TimeProduct.Minutes;
+                        viewState.TimeProduct = timeProductViewState;
                     }
                 }
 

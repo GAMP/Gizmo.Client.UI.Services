@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    public sealed class SearchService : ViewStateServiceBase<SearchViewState>
+    public sealed class GlobalSearchService : ViewStateServiceBase<GlobalSearchViewState>
     {
         #region FIELDS
         private readonly UserProductViewStateLookupService _userProductStateLookupService;
@@ -17,10 +17,10 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region CONSTRUCTOR
-        public SearchService(
-            SearchViewState viewState,
+        public GlobalSearchService(
+            GlobalSearchViewState viewState,
             UserProductViewStateLookupService userProductStateLookupService,
-            ILogger<SearchService> logger,
+            ILogger<GlobalSearchService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
@@ -44,8 +44,8 @@ namespace Gizmo.Client.UI.View.Services
         {
             //Clear current search.
             ViewState.SearchPattern = string.Empty;
-            ViewState.ProductResults = Enumerable.Empty<SearchResultViewState>();
-            ViewState.ApplicationResults = Enumerable.Empty<SearchResultViewState>();
+            ViewState.ProductResults = Enumerable.Empty<GlobalSearchResultViewState>();
+            ViewState.ApplicationResults = Enumerable.Empty<GlobalSearchResultViewState>();
 
             ViewState.OpenDropDown = false;
 
@@ -58,21 +58,14 @@ namespace Gizmo.Client.UI.View.Services
         {
             _ignoreLocationChange = true;
 
-            ViewState.AppliedSearchPattern = ViewState.SearchPattern;
-
             if (searchResultTypes == SearchResultTypes.Applications)
             {
-                NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute);
+                NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute + $"?SearchPattern={ViewState.SearchPattern}");
             }
             else
             {
-                NavigationService.NavigateTo(ClientRoutes.ShopRoute);
+                NavigationService.NavigateTo(ClientRoutes.ShopRoute + $"?SearchPattern={ViewState.SearchPattern}");
             }
-
-            ViewState.AppliedApplicationResults = ViewState.ApplicationResults.ToList();
-            ViewState.AppliedProductResults = ViewState.ProductResults.ToList();
-
-            ViewState.ShowAll = true;
 
             ViewState.RaiseChanged();
 
@@ -135,15 +128,8 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.IsLoading = false;
 
             ViewState.SearchPattern = string.Empty;
-            ViewState.ProductResults = Enumerable.Empty<SearchResultViewState>();
-            ViewState.ApplicationResults = Enumerable.Empty<SearchResultViewState>();
-
-            //Clear applied search.
-            ViewState.ShowAll = false;
-
-            ViewState.AppliedSearchPattern = string.Empty;
-            ViewState.AppliedApplicationResults = Enumerable.Empty<SearchResultViewState>();
-            ViewState.AppliedProductResults = Enumerable.Empty<SearchResultViewState>();
+            ViewState.ProductResults = Enumerable.Empty<GlobalSearchResultViewState>();
+            ViewState.ApplicationResults = Enumerable.Empty<GlobalSearchResultViewState>();
 
             ViewState.RaiseChanged();
 
@@ -152,8 +138,8 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task SearchAsync(SearchResultTypes? searchResultTypes = null)
         {
-            ViewState.ProductResults = Enumerable.Empty<SearchResultViewState>();
-            ViewState.ApplicationResults = Enumerable.Empty<SearchResultViewState>();
+            ViewState.ProductResults = Enumerable.Empty<GlobalSearchResultViewState>();
+            ViewState.ApplicationResults = Enumerable.Empty<GlobalSearchResultViewState>();
 
             if (ViewState.SearchPattern.Length == 0)
             {
@@ -173,25 +159,31 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Applications)
                 {
-                    var applications = await _gizmoClient.ApplicationsGetAsync(new ApplicationsFilter());
-                    var tmpApplications = applications.Data.Select(a => new ApplicationViewState()
+                    var applications = await _gizmoClient.UserApplicationsGetAsync(new UserApplicationsFilter());
+                    var tmpApplications = applications.Data.Select(a => new AppViewState()
                     {
-                        Id = a.Id,
-                        ApplicationGroupId = a.ApplicationCategoryId,
+                        ApplicationId = a.Id,
+                        ApplicationCategoryId = a.ApplicationCategoryId,
                         Title = a.Title,
                         Description = a.Description,
                         PublisherId = a.PublisherId,
                         ReleaseDate = a.ReleaseDate,
-                        //TODO: A
-                        ImageId = null,
-                        ApplicationGroupName = "Shooter"
+                        ImageId = a.ImageId
                     }).ToList();
 
-                    var tmp = new List<SearchResultViewState>();
+                    var tmp = new List<GlobalSearchResultViewState>();
 
                     foreach (var app in tmpApplications.Where(a => a.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
                     {
-                        tmp.Add(new SearchResultViewState() { Type = SearchResultTypes.Applications, Id = app.Id, Name = app.Title, ImageId = app.ImageId });
+                        tmp.Add(new GlobalSearchResultViewState()
+                        {
+                            Type = SearchResultTypes.Applications,
+                            Id = app.ApplicationId,
+                            Name = app.Title,
+                            ImageId = app.ImageId,
+                            //TODO: A
+                            Category = "Apps"
+                        });
                     }
 
                     ViewState.ApplicationResults = tmp;
@@ -201,16 +193,18 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     var productStates = await _userProductStateLookupService.GetStatesAsync();
 
-                    var tmp = new List<SearchResultViewState>();
+                    var tmp = new List<GlobalSearchResultViewState>();
 
                     foreach (var product in productStates.Where(a => a.Name.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
                     {
-                        tmp.Add(new SearchResultViewState()
+                        tmp.Add(new GlobalSearchResultViewState()
                         {
                             Type = SearchResultTypes.Products,
                             Id = product.Id,
                             Name = product.Name,
-                            ImageId = product.ImageId
+                            ImageId = product.DefaultImageId,
+                            //TODO: A
+                            Category = "Coffee"
                         });
                     }
 

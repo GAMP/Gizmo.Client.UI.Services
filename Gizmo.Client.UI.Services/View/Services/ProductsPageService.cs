@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System.Web;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 
 using Microsoft.AspNetCore.Components;
@@ -9,15 +10,15 @@ namespace Gizmo.Client.UI.View.Services
 {
     [Register]
     [Route(ClientRoutes.ShopRoute)]
-    public sealed class ShopPageService : ViewStateServiceBase<ShopPageViewState>
+    public sealed class ProductsPageService : ViewStateServiceBase<ProductsPageViewState>
     {
         private readonly UserProductViewStateLookupService _userProductService;
         private readonly UserProductGroupViewStateLookupService _userProductGroupService;
 
-        public ShopPageService(
+        public ProductsPageService(
             IServiceProvider serviceProvider,
-            ILogger<ShopPageService> logger,
-            ShopPageViewState viewState,
+            ILogger<ProductsPageService> logger,
+            ProductsPageViewState viewState,
             UserProductViewStateLookupService userProductService,
             UserProductGroupViewStateLookupService userProductGroupService) : base(viewState, logger, serviceProvider)
         {
@@ -25,17 +26,27 @@ namespace Gizmo.Client.UI.View.Services
             _userProductGroupService = userProductGroupService;
         }
 
+        private async Task RefilterRequest(CancellationToken cToken)
+        {
+            var productStates = await _userProductService.GetStatesAsync(cToken);
+
+            if (!string.IsNullOrEmpty(ViewState.SearchPattern))
+            {
+                productStates = productStates.Where(a => a.Name.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase));
+            }
+
+            ViewState.UserGroupedProducts = ViewState.SelectedUserProductGroupId.HasValue
+                ? ViewState.UserGroupedProducts = productStates.Where(x => x.ProductGroupId == ViewState.SelectedUserProductGroupId).GroupBy(x => x.ProductGroupId)
+                : ViewState.UserGroupedProducts = productStates.GroupBy(x => x.ProductGroupId);
+
+            ViewState.RaiseChanged();
+        }
+
         public async Task UpdateUserGroupedProductsAsync(int? selectedProductGroupId, CancellationToken cToken = default)
         {
             ViewState.SelectedUserProductGroupId = selectedProductGroupId;
 
-            var productStates = await _userProductService.GetStatesAsync(cToken);
-
-            ViewState.UserGroupedProducts = selectedProductGroupId.HasValue
-                ? ViewState.UserGroupedProducts = productStates.Where(x => x.ProductGroupId == selectedProductGroupId).GroupBy(x => x.ProductGroupId)
-                : ViewState.UserGroupedProducts = productStates.GroupBy(x => x.ProductGroupId);
-
-            ViewState.RaiseChanged();
+            await RefilterRequest(cToken);
         }
         public async Task UpdateUserProductGroupsAsync(CancellationToken cToken = default)
         {
@@ -49,20 +60,41 @@ namespace Gizmo.Client.UI.View.Services
         private async void UpdateUserProductGroupsOnChangeAsync(object? _, EventArgs __) =>
             await UpdateUserProductGroupsAsync();
 
-        protected override async Task OnNavigatedIn()
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
         {
+            if (Uri.TryCreate(NavigationService.GetUri(), UriKind.Absolute, out var uri))
+            {
+                string? searchPattern = HttpUtility.ParseQueryString(uri.Query).Get("SearchPattern");
+                if (!string.IsNullOrEmpty(searchPattern))
+                {
+                    ViewState.SearchPattern = searchPattern;
+                }
+            }
+
             _userProductService.Changed += UpdateUserGroupedProductsOnChangeAsync;
             _userProductGroupService.Changed += UpdateUserProductGroupsOnChangeAsync;
 
             await UpdateUserProductGroupsAsync();
             await UpdateUserGroupedProductsAsync(null);
+
+            await RefilterRequest(cToken);
         }
-        protected override Task OnNavigatedOut()
+
+        protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
             _userProductService.Changed -= UpdateUserGroupedProductsOnChangeAsync;
             _userProductGroupService.Changed -= UpdateUserProductGroupsOnChangeAsync;
 
-            return base.OnNavigatedOut();
+            return base.OnNavigatedOut(navigationParameters, cancellationToken);
+        }
+
+        public async Task ClearSearchPattern()
+        {
+            ViewState.SearchPattern = string.Empty;
+
+            await RefilterRequest(default);
+
+            DebounceViewStateChange();
         }
     }
 }

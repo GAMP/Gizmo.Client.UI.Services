@@ -1,7 +1,10 @@
 ﻿using Gizmo.UI;
+using Gizmo.UI.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -14,7 +17,7 @@ namespace Gizmo.Client.UI.Services
     public sealed class ImageService : IImageService
     {
         #region CONSTRUCTOR
-        public ImageService(ILogger<ImageService> logger, NavigationManager navigationManager)
+        public ImageService(ILogger<ImageService> logger, NavigationService navigationManager)
         {
             _logger = logger;
             _navigationManager = navigationManager;
@@ -23,7 +26,7 @@ namespace Gizmo.Client.UI.Services
 
         #region FIELDS
         private readonly ILogger _logger;
-        private readonly NavigationManager _navigationManager;
+        private readonly NavigationService _navigationManager;
         private static readonly bool _isWebBrowser = RuntimeInformation.IsOSPlatform(OSPlatform.Create("browser"));
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(100);
         private readonly RecyclableMemoryStreamManager _memoryStreamManager = new();
@@ -41,22 +44,17 @@ namespace Gizmo.Client.UI.Services
 
             try
             {
-                //first we need to obtain the image hash from server
-                var hash = await ImageHashGetAsync(imageType, imageId, cancellationToken);
-
-                //if hash obtained successfully we need to check if locally cached entry exist
-
-                bool cachedEntry = false;
-
                 byte[] imageData = Array.Empty<byte>();
-
-                if (!cachedEntry)
+                var cacheResult = await TryGetCachedImage(imageType, imageId, cancellationToken);
+                if (cacheResult.Item1 && cacheResult.Item2 != null)
                 {
-                    //if we failed to obtain image data from cache we need to call resepctive backend to obtain it
-                    //get image data
+                    imageData = cacheResult.Item2;
+                    await Task.Yield();
+                }
+                else
+                {
                     imageData = await ImageGetAsync(imageType, imageId, cancellationToken);
-
-                    //once the image data is obtained we need to store it in local cache
+                    await AddOrUpdateCache(imageType, imageId, imageData, cancellationToken);
                 }
 
                 //create recyclable stream from cached or newly obtain image buffer
@@ -80,27 +78,40 @@ namespace Gizmo.Client.UI.Services
 
         private async ValueTask<byte[]> ImageGetAsync(ImageType imageType, int imageId, CancellationToken cancellationToken = default, bool ignoreCache = false)
         {
-            byte[] image;
+            byte[] image = Array.Empty<byte>();
 
-            if (!_isWebBrowser)
+            using (var httpClient = new HttpClient())
             {
-                //obtain image from source or memorty cache
-                image = Array.Empty<byte>();
-            }
-            else
-            {
-                using (var httpClient = new HttpClient())
+                string url = string.Empty;
+
+                if(_isWebBrowser)
                 {
-                    string url = string.Empty;
-
                     if (imageType == ImageType.Application)
-                        url = _navigationManager.BaseUri.ToString() + @"_content/Gizmo.Client.UI/img/Apex.png";
+                        url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/Apex.png";
+                    else if (imageType == ImageType.ProductDefault)
+                        url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/Cola2.png";
                     else
-                        url = _navigationManager.BaseUri.ToString() + @"_content/Gizmo.Client.UI/img/Cola2.png";
-
-                    image = await httpClient.GetByteArrayAsync(url, cancellationToken);
-                    //image = await httpClient.GetByteArrayAsync(@"https://sportshub.cbsistatic.com/i/2022/05/25/a9564e17-4ae5-4637-8843-045cf48979dc/modern-warfare-2-cover-art.jpg?auto=webp&width=1539&height=1920&crop=0.802:1,smart", cancellationToken);
+                        url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/Chrome-icon_1.png";
                 }
+                else
+                {
+                    if (imageType == ImageType.ProductDefault)
+                        url = "https://api.lorem.space/image/burger?w=200&h=300";
+                    else if (imageType == ImageType.Application)
+                        url = "https://api.lorem.space/image/game?w=200&h=300";
+                    else
+                    {
+                        url = $"https://www.iconfinder.com/icons/87865/download/png/64";
+                    }
+                }
+                
+
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+
+                request.SetBrowserRequestMode(BrowserRequestMode.NoCors);
+
+                var response = await httpClient.SendAsync(request);
+                image = await response.Content.ReadAsByteArrayAsync(cancellationToken); 
             }
 
             return image;
@@ -120,6 +131,39 @@ namespace Gizmo.Client.UI.Services
 
                 return result.ToString();
             }
+        }
+
+        private ConcurrentDictionary<int, byte[]> _imageCache = new();
+        private ConcurrentDictionary<int, byte[]> _exeImageCache = new();
+        private ConcurrentDictionary<int, byte[]> _productImageCache = new();
+
+        private ValueTask<Tuple<bool, byte[]?>> TryGetCachedImage(ImageType imageType, int imageId, CancellationToken cancellationToken = default)
+        {
+            var cache = GetCache(imageType);
+
+            if (cache.TryGetValue(imageId, out var image))
+                return ValueTask.FromResult(new Tuple<bool, byte[]?>(true, image));
+
+            return ValueTask.FromResult(new Tuple<bool, byte[]?>(false, null));
+        }
+
+        private ValueTask AddOrUpdateCache(ImageType imageType, int imageId, byte[] image, CancellationToken cancellationToken = default)
+        {
+            var cache = GetCache(imageType);
+
+            cache.TryAdd(imageId, image);
+            return new ValueTask();
+        }
+
+        private IDictionary<int, byte[]> GetCache(ImageType imageType)
+        {
+            if (imageType == ImageType.Application)
+                return _imageCache;
+            else if(imageType == ImageType.Executable) 
+                return _exeImageCache;
+
+            return _productImageCache;
+
         }
     }
 }

@@ -125,10 +125,8 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                //TODO: A USER ID
-                int userId = 0;
                 OrderCalculateModelOptions calculateOrderOptions = new OrderCalculateModelOptions();
-                var result = await _gizmoClient.UserOrderCreateAsync(userId, calculateOrderOptions);
+                var result = await _gizmoClient.UserOrderCreateAsync(calculateOrderOptions);
 
                 // Simulate task.
                 await Task.Delay(2000);
@@ -192,18 +190,20 @@ namespace Gizmo.Client.UI.View.Services
             NavigationService.NavigateTo(ClientRoutes.ShopRoute);
         }
 
-        protected override async Task OnNavigatedIn()
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
             await UpdateUserCartProductsAsync();
 
             _userProductViewStateLookupService.Changed += OnUpdateUserCartProductsAsync;
         }
-        protected override Task OnNavigatedOut()
+
+        protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
             _userProductViewStateLookupService.Changed -= OnUpdateUserCartProductsAsync;
 
-            return base.OnNavigatedOut();
+            return base.OnNavigatedOut(navigationParameters, cancellationToken);
         }
+
         private async void OnUpdateUserCartProductsAsync(object? _, EventArgs __) =>
             await UpdateUserCartProductsAsync();
     }

@@ -62,7 +62,7 @@ namespace Gizmo.Client.UI.View.Services
                     await _gizmoClient.UserCreateCompleteAsync(new Web.Api.Models.UserProfileModelCreate()
                     {
 
-                    }, password);
+                    }, password, new List<Web.Api.Models.UserAgreementModelState>());
                 }
                 else
                 {
@@ -72,7 +72,7 @@ namespace Gizmo.Client.UI.View.Services
                     await _gizmoClient.UserCreateByTokenCompleteAsync(token, new Web.Api.Models.UserProfileModelCreate()
                     {
 
-                    }, password);
+                    }, password, new List<Web.Api.Models.UserAgreementModelState>());
                 }
 
                 NavigationService.NavigateTo(ClientRoutes.LoginRoute);
@@ -91,11 +91,9 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        protected override async Task OnNavigatedIn()
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            await base.OnNavigatedIn();
-
-            ViewState.DefaultUserGroupRequiredInfo = await _gizmoClient.UserGroupDefaultRequiredInfoGetAsync() ?? new();
+            ViewState.DefaultUserGroupRequiredInfo = await _gizmoClient.UserGroupDefaultRequiredInfoGetAsync(cancellationToken) ?? new();
         }
 
         #endregion

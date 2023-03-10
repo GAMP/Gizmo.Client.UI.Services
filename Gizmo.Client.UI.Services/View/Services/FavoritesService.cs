@@ -30,14 +30,14 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task AddToRecentAsync(int executableId)
         {
-            if (!ViewState.Executables.Where(a => a.Id == executableId).Any())
+            if (!ViewState.Executables.Where(a => a.ExecutableId == executableId).Any())
             {
-                var applicationsPageService = ServiceProvider.GetRequiredService<ApplicationsPageService>();
+                var applicationsPageService = ServiceProvider.GetRequiredService<AppsPageService>();
 
                 if (applicationsPageService == null)
                     return;
 
-                var executable = await applicationsPageService.GetExecutableAsync(executableId);
+                AppExeViewState executable = null; // = await applicationsPageService.GetExecutableAsync(executableId);
 
                 if (executable == null)
                     return;
@@ -49,6 +49,6 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-		#endregion
+        #endregion
     }
 }

@@ -38,16 +38,16 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             //Check if executable already exists in the list.
-            var executable = ViewState.Executables.Where(a => a.Id == executableId).FirstOrDefault();
+            var executable = ViewState.Executables.Where(a => a.ExecutableId == executableId).FirstOrDefault();
 
             if (executable == null)
             {
-                var applicationsPageService = ServiceProvider.GetRequiredService<ApplicationsPageService>();
+                var applicationsPageService = ServiceProvider.GetRequiredService<AppsPageService>();
 
                 if (applicationsPageService == null)
                     return;
 
-                executable = await applicationsPageService.GetExecutableAsync(executableId);
+                //executable = await applicationsPageService.GetExecutableAsync(executableId);
 
                 if (executable == null)
                     return;
@@ -63,18 +63,18 @@ namespace Gizmo.Client.UI.View.Services
             
             //Test
             //Change executable state.
-            executable.State = ExecutableState.Deployment;
-            executable.RaiseChanged();
+            //executable.State = ExecutableState.Deployment;
+            //executable.RaiseChanged();
 
-            await Task.Delay(2000);
+            //await Task.Delay(2000);
 
-            executable.State = ExecutableState.Loading;
-            executable.RaiseChanged();
+            //executable.State = ExecutableState.Loading;
+            //executable.RaiseChanged();
 
-            await Task.Delay(2000);
+            //await Task.Delay(2000);
 
-            //Change executable state.
-            executable.State = ExecutableState.Running;
+            ////Change executable state.
+            //executable.State = ExecutableState.Running;
             //End Test
 
             executable.RaiseChanged();
@@ -83,7 +83,7 @@ namespace Gizmo.Client.UI.View.Services
         public async Task TerminateExecutableAsyc(int executableId)
         {
             //Check if executable already exists in the list.
-            var executable = ViewState.Executables.Where(a => a.Id == executableId).FirstOrDefault();
+            var executable = ViewState.Executables.Where(a => a.ExecutableId == executableId).FirstOrDefault();
 
             if (executable != null)
             {
@@ -91,15 +91,15 @@ namespace Gizmo.Client.UI.View.Services
 
                 //Test
                 //Change executable state.
-                executable.State = ExecutableState.Terminating;
-                executable.RaiseChanged();
+                //executable.State = ExecutableState.Terminating;
+                //executable.RaiseChanged();
 
-                await Task.Delay(1000);
+                //await Task.Delay(1000);
 
-                executable.State = ExecutableState.None;
-                executable.RaiseChanged();
+                //executable.State = ExecutableState.None;
+                //executable.RaiseChanged();
 
-                ViewState.Executables = ViewState.Executables.Where(a => a != executable).ToList();
+                //ViewState.Executables = ViewState.Executables.Where(a => a != executable).ToList();
                 //End Test
                 
                 ViewState.RaiseChanged();
