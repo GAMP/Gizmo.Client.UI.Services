@@ -138,6 +138,8 @@ namespace Gizmo.Client
                 new UserPaymentMethodModel() { Id = -2 , Name= "Credit card" , DisplayOrder =0},
                 new UserPaymentMethodModel() { Id = -3 , Name= "Balance" , DisplayOrder =0},
             };
+            #endregion
+            #region ADVERTISMENT
             _newsModel = new()
             {
                 { new ()
