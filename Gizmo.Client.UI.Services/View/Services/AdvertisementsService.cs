@@ -63,15 +63,15 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region OVERRIDES
-        protected override async Task OnNavigatedIn()
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            await LoadAdvertisementsAsync();
+            await LoadAdvertisementsAsync(cancellationToken);
             _advertisementViewStateLookupService.Changed += OnLoadAdvertisementsAsync;
         }
-        protected override Task OnNavigatedOut()
+        protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
             _advertisementViewStateLookupService.Changed -= OnLoadAdvertisementsAsync;
-            return base.OnNavigatedOut();
+            return base.OnNavigatedOut(navigationParameters, cancellationToken);
         }
         #endregion
     }
