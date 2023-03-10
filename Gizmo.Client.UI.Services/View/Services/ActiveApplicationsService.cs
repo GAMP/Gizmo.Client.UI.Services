@@ -42,7 +42,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (executable == null)
             {
-                var applicationsPageService = ServiceProvider.GetRequiredService<ApplicationsPageService>();
+                var applicationsPageService = ServiceProvider.GetRequiredService<AppsPageService>();
 
                 if (applicationsPageService == null)
                     return;

@@ -32,7 +32,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (!ViewState.Executables.Where(a => a.ExecutableId == executableId).Any())
             {
-                var applicationsPageService = ServiceProvider.GetRequiredService<ApplicationsPageService>();
+                var applicationsPageService = ServiceProvider.GetRequiredService<AppsPageService>();
 
                 if (applicationsPageService == null)
                     return;

@@ -9,11 +9,11 @@ namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
     [Route(ClientRoutes.ApplicationDetailsRoute)]
-    public sealed class ApplicationDetailsPageService : ViewStateServiceBase<ApplicationDetailsPageViewState>
+    public sealed class AppDetailsPageService : ViewStateServiceBase<AppDetailsPageViewState>
     {
         #region CONSTRUCTOR
-        public ApplicationDetailsPageService(ApplicationDetailsPageViewState viewState,
-            ILogger<ApplicationDetailsPageService> logger,
+        public AppDetailsPageService(AppDetailsPageViewState viewState,
+            ILogger<AppDetailsPageService> logger,
             IServiceProvider serviceProvider,
             AppViewStateLookupService appLookupService,
             AppExeViewStateLookupService appExeLookupService) : base(viewState, logger, serviceProvider)

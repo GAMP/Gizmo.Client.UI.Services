@@ -34,7 +34,7 @@ namespace Gizmo.Client.UI.View.Services
             //TODO: A Load quick launch applications on user login?
 
             //Test
-            var applicationsPageService = ServiceProvider.GetRequiredService<ApplicationsPageService>();
+            var applicationsPageService = ServiceProvider.GetRequiredService<AppsPageService>();
             var activeApplicationsService = ServiceProvider.GetRequiredService<ActiveApplicationsService>();
 
             if (applicationsPageService == null)

@@ -6,5 +6,18 @@ namespace Gizmo.Client.UI.View.States
     [Register(Scope = RegisterScope.Transient)]
     public sealed class GlobalSearchResultViewState : ViewStateBase
     {
+        #region PROPERTIES
+
+        public SearchResultTypes Type { get; internal set; }
+
+        public int Id { get; internal set; }
+
+        public string Category { get; internal set; } = null!;
+
+        public string Name { get; internal set; } = null!;
+
+        public int? ImageId { get; internal set; }
+
+        #endregion
     }
 }
