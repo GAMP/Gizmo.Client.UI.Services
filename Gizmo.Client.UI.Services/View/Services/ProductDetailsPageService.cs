@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.Globalization;
+using System.Web;
 
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
@@ -28,7 +29,6 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region OVERRIDES
-
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
             if (Uri.TryCreate(NavigationService.GetUri(), UriKind.Absolute, out var uri))
@@ -49,6 +49,26 @@ namespace Gizmo.Client.UI.View.Services
                     }
                 }
             }
+        }
+
+        public override Task ExecuteCommandAsync<TCommand>(TCommand command, CancellationToken cToken = default)
+        {
+            if (command.Params?.Any() != true)
+                return Task.CompletedTask;
+
+            var paramProductId = command.Params.GetValueOrDefault("productId")?.ToString();
+
+            if (paramProductId is null)
+                return Task.CompletedTask;
+
+            switch (command.Type)
+            {
+                case ViewServiceCommandType.Navigate:
+                    NavigationService.NavigateTo(ClientRoutes.ProductDetailsRoute + "?ProductId=" + paramProductId);
+                    break;
+            }
+
+            return Task.CompletedTask;
         }
 
         #endregion

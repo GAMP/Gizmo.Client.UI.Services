@@ -22,13 +22,13 @@ namespace Gizmo.Client.UI.View.States
         /// </summary>
         public int? SelectedCategoryId { get; internal set; }
 
-        public IEnumerable<ApplicationFilterViewState> SortingOptions { get; internal set; } = Enumerable.Empty<ApplicationFilterViewState>();
+        public IEnumerable<EnumFilterViewState<ApplicationSortingOption>> SortingOptions { get; internal set; } = Enumerable.Empty<EnumFilterViewState<ApplicationSortingOption>>();
 
-        public int SelectedSortingOption { get; internal set; }
+        public ApplicationSortingOption SelectedSortingOption { get; internal set; }
 
-        public IEnumerable<ApplicationFilterViewState> ExecutableModes { get; internal set; } = Enumerable.Empty<ApplicationFilterViewState>();
+        public IEnumerable<EnumFilterViewState<ApplicationModes>> ExecutableModes { get; internal set; } = Enumerable.Empty<EnumFilterViewState<ApplicationModes>>();
 
-        public IEnumerable<int> SelectedExecutableModes { get; internal set; } = Enumerable.Empty<int>();
+        public IEnumerable<ApplicationModes> SelectedExecutableModes { get; internal set; } = Enumerable.Empty<ApplicationModes>();
 
         public int TotalFilters { get; internal set; }
 

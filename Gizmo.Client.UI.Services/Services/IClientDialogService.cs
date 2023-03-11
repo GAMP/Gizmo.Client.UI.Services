@@ -1,4 +1,5 @@
-﻿using Gizmo.UI.Services;
+﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 
 namespace Gizmo.Client.UI.Services
 {
@@ -13,5 +14,6 @@ namespace Gizmo.Client.UI.Services
         Task<ShowDialogResult<EmptyDialogResult>> ShowChangePasswordDialogAsync(CancellationToken cancellationToken = default);
         Task<ShowDialogResult<EmptyDialogResult>> ShowChangePictureDialogAsync(CancellationToken cancellationToken = default);
         Task<ShowDialogResult<EmptyDialogResult>> ShowPaymentDialogAsync(CancellationToken cancellationToken = default);
+        Task<ShowDialogResult<EmptyDialogResult>> ShowAdvertisementDialogAsync(AdvertisementViewState state, CancellationToken cancellationToken = default);
     }
 }

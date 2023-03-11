@@ -1,10 +1,12 @@
 ﻿using System.Web;
 using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.UI.View.States;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -14,19 +16,22 @@ namespace Gizmo.Client.UI.View.Services
     {
         #region CONSTRUCTOR
         public AppsPageService(AppsPageViewState viewState,
+            ILocalizationService localizationService,
             ILogger<AppsPageService> logger,
             IServiceProvider serviceProvider,
             AppCategoryViewStateLookupService categoryViewStateLookupService,
             AppViewStateLookupService appViewStateLookupService) : base(viewState, logger, serviceProvider)
         {
+            _localizationService = localizationService;
             _categoryViewStateLookupService = categoryViewStateLookupService;
             _appViewStateLookupService = appViewStateLookupService;
         }
         #endregion
 
         #region FIELDS
+        private readonly ILocalizationService _localizationService;
         private readonly AppViewStateLookupService _appViewStateLookupService;
-        private AppCategoryViewStateLookupService _categoryViewStateLookupService;
+        private readonly AppCategoryViewStateLookupService _categoryViewStateLookupService;
         #endregion
 
         #region OVERRIDES
@@ -35,26 +40,17 @@ namespace Gizmo.Client.UI.View.Services
         {
             await base.OnInitializing(ct);
 
-            List<ApplicationFilterViewState> sortingOptions = new List<ApplicationFilterViewState>();
+            ViewState.SortingOptions = Enum.GetValues(typeof(ApplicationSortingOption)).OfType<ApplicationSortingOption>().Select(a => new EnumFilterViewState<ApplicationSortingOption>()
+            {
+                Value = a,
+                DisplayName = _localizationService.GetString(a)
+            }).ToList();
 
-            sortingOptions.Add(new ApplicationFilterViewState() { Id = 0, Name = "Popularity" });
-            sortingOptions.Add(new ApplicationFilterViewState() { Id = 1, Name = "Add date" });
-            sortingOptions.Add(new ApplicationFilterViewState() { Id = 2, Name = "Title" });
-            sortingOptions.Add(new ApplicationFilterViewState() { Id = 3, Name = "Use" });
-            sortingOptions.Add(new ApplicationFilterViewState() { Id = 4, Name = "Rating" });
-            sortingOptions.Add(new ApplicationFilterViewState() { Id = 5, Name = "Release Date" });
-
-            ViewState.SortingOptions = sortingOptions;
-
-            List<ApplicationFilterViewState> executableModes = new List<ApplicationFilterViewState>();
-
-            executableModes.Add(new ApplicationFilterViewState() { Id = 1, Name = "Access" });
-            executableModes.Add(new ApplicationFilterViewState() { Id = 2, Name = "Rating" });
-            executableModes.Add(new ApplicationFilterViewState() { Id = 3, Name = "Type" });
-            executableModes.Add(new ApplicationFilterViewState() { Id = 4, Name = "Rating" });
-            executableModes.Add(new ApplicationFilterViewState() { Id = 5, Name = "Player mode" });
-
-            ViewState.ExecutableModes = executableModes;
+            ViewState.ExecutableModes = Enum.GetValues(typeof(ApplicationModes)).OfType<ApplicationModes>().Select(a => new EnumFilterViewState<ApplicationModes>()
+            {
+                Value = a,
+                DisplayName = _localizationService.GetString(a)
+            }).ToList();
         }
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
@@ -106,7 +102,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
-        public async Task SetSelectedSortingOption(int value)
+        public async Task SetSelectedSortingOption(ApplicationSortingOption value)
         {
             ViewState.SelectedSortingOption = value;
 
@@ -124,7 +120,7 @@ namespace Gizmo.Client.UI.View.Services
             DebounceViewStateChange();
         }
 
-        public async Task SetSelectedSelectedExecutableModes(IEnumerable<int> value)
+        public async Task SetSelectedSelectedExecutableModes(IEnumerable<ApplicationModes> value)
         {
             ViewState.SelectedExecutableModes = value;
 
@@ -148,7 +144,7 @@ namespace Gizmo.Client.UI.View.Services
 
             ViewState.SelectedSortingOption = 0;
             ViewState.SelectedCategoryId = null;
-            ViewState.SelectedExecutableModes = Enumerable.Empty<int>();
+            ViewState.SelectedExecutableModes = Enumerable.Empty<ApplicationModes>();
 
             await RefilterRequest(default);
 

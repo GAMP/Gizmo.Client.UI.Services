@@ -4,13 +4,13 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Gizmo.Client.UI.View.States
 {
     [Register()]
-    public sealed class ApplicationFilterViewState : ViewStateBase
+    public sealed class EnumFilterViewState<T> : ViewStateBase
     {
         #region PROPERTIES
 
-        public int Id { get; internal set; }
+        public T Value { get; internal set; } = default!;
 
-        public string Name { get; internal set; } = null!;
+        public string DisplayName { get; internal set; } = null!;
 
         #endregion
     }

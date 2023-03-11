@@ -1,74 +1,78 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
-using Gizmo.UI.View.States;
-using Gizmo.Web.Api.Models;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Gizmo.Client.UI.View.Services
 {
-    [Register()]
+    [Register]
+    [Route(ClientRoutes.HomeRoute)]
     public sealed class AdvertisementsService : ViewStateServiceBase<AdvertisementsViewState>
     {
         #region CONSTRUCTOR
-        public AdvertisementsService(AdvertisementsViewState viewState,
+        public AdvertisementsService(
             ILogger<AdvertisementsService> logger,
             IServiceProvider serviceProvider,
-            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IClientDialogService dialogService,
+            AdvertisementsViewState viewState,
+            AdvertisementViewStateLookupService advertisementViewStateLookupService) : base(viewState, logger, serviceProvider)
         {
-            _gizmoClient = gizmoClient;
+            _dialogService = dialogService;
+            _advertisementViewStateLookupService = advertisementViewStateLookupService;
         }
+
         #endregion
 
         #region FIELDS
-        private readonly IGizmoClient _gizmoClient;
-        #endregion
-
-        #region PROPERTIES
-
+        private readonly IClientDialogService _dialogService;
+        private readonly AdvertisementViewStateLookupService _advertisementViewStateLookupService;
         #endregion
 
         #region FUNCTIONS
 
-        public async Task LoadAdvertisementsAsync()
+        public async Task ShowMediaSync(AdvertisementViewState mediaType)
         {
-            //TODO: A Load advertisments on user login?
-
-            //Test
-            Random random = new Random();
-
-            var tmp = new List<AdvertisementViewState>();
-
-            tmp.Add(new AdvertisementViewState()
+            var dialog = await _dialogService.ShowAdvertisementDialogAsync(mediaType);
+            if (dialog.Result == DialogAddResult.Success)
             {
-                Id = 1,
-                Title = $"#Title 1",
-                Body = "<div style=\"max-width: 40.0rem; margin: 8.6rem 3.2rem 6.5rem 3.2rem\">#1 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
-                ThumbnailUrl = $"carousel_1.jpg"
-            });
-
-            tmp.Add(new AdvertisementViewState()
-            {
-                Id = 2,
-                Title = $"#Title 2",
-                Body = "#2 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                ThumbnailUrl = $"carousel_2.jpg"
-            });
-
-            tmp.Add(new AdvertisementViewState()
-            {
-                Id = 3,
-                Title = $"#Title 3",
-                Body = "#3 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                ThumbnailUrl = $"carousel_3.jpg"
-            });
-            //End Test
-
-            ViewState.Advertisements = tmp;
-
+                try
+                {
+                    var result = await dialog.WaitForDialogResultAsync();
+                }
+                catch (OperationCanceledException)
+                {
+                }
+            }
+        }
+        public async Task<AdvertisementViewState> GetAdvertisementViewStateAsync(int id)
+        {
+            return await _advertisementViewStateLookupService.GetStateAsync(id);
+        }
+        public async Task LoadAdvertisementsAsync(CancellationToken cToken = default)
+        {
+            ViewState.Advertisements = await _advertisementViewStateLookupService.GetStatesAsync(cToken);
+            ViewState.AdvertisementsCount = ViewState.Advertisements.Count();
             ViewState.RaiseChanged();
         }
+        private async void OnLoadAdvertisementsAsync(object? _, EventArgs __) =>
+            await LoadAdvertisementsAsync();
 
+        #endregion
+
+        #region OVERRIDES
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        {
+            await LoadAdvertisementsAsync(cancellationToken);
+            _advertisementViewStateLookupService.Changed += OnLoadAdvertisementsAsync;
+        }
+        protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        {
+            _advertisementViewStateLookupService.Changed -= OnLoadAdvertisementsAsync;
+            return base.OnNavigatedOut(navigationParameters, cancellationToken);
+        }
         #endregion
     }
 }

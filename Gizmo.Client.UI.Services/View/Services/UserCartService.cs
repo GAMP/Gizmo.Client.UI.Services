@@ -1,4 +1,6 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System.Globalization;
+
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 
@@ -101,7 +103,7 @@ namespace Gizmo.Client.UI.View.Services
         }
         public Task ChangeProductPayType(int productId, OrderLinePayType payType)
         {
-            var existingProductState = ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault();
+            var existingProductState = ViewState.Products.FirstOrDefault(a => a.ProductId == productId);
             if (existingProductState != null)
             {
                 existingProductState.PayType = payType;
@@ -157,6 +159,36 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
+        public override async Task ExecuteCommandAsync<TCommand>(TCommand command, CancellationToken cToken = default)
+        {
+            if (command.Params?.Any() != true)
+                return;
+
+            var paramProductId = command.Params.GetValueOrDefault("productId")?.ToString();
+
+            if (paramProductId is null)
+                return;
+
+            var productId = int.Parse(paramProductId, NumberStyles.Number);
+
+            var paramSize = command.Params.GetValueOrDefault("size")?.ToString();
+
+            var size = 1;
+            if (paramSize is not null)
+                size = int.Parse(paramSize, NumberStyles.Number);
+
+            switch (command.Type)
+            {
+                case ViewServiceCommandType.Add:
+                    await AddUserCartProductAsync(productId, size);
+                    break;
+                case ViewServiceCommandType.Delete:
+                    await RemoveUserCartProductAsync(productId, size);
+                    break;
+            }
+
+            NavigationService.NavigateTo(ClientRoutes.ShopRoute);
+        }
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
