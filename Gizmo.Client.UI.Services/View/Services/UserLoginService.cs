@@ -74,53 +74,9 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                //TODO: A _gizmoClient.LoginAsync();
-
-                //simulate login task
-                await Task.Delay(1000);
-
-                //initiate login
-                if (ViewState.LoginName == "1")
-                {
-                    //Failed login
-                    ViewState.IsLogginIn = false;
-                    ViewState.HasLoginError = true;
-                    ViewState.LoginError = "We couldn’t find an account matching the username and password you entered. Please check your username and password and try again.<br><a href='#'>Recover your password</a> or <a href='#'>create an account</a>"; //TODO: A TRANSLATE
-                    ViewState.RaiseChanged();
-
-                    //Reset after some time?
-                    await Task.Delay(10000);
-
-                    ViewState.SetDefaults();
-                    ResetValidationErrors();
-
-                    ViewState.RaiseChanged();
-                }
-                else
-                {
-                    //Successful login
+                var result = await _gizmoClient.UserLoginAsync(ViewState.LoginName,ViewState.Password);
+                if(result == LoginResult.Sucess)
                     NavigationService.NavigateTo(ClientRoutes.HomeRoute);
-
-                    await LoadUserProfileAsync();
-                    await LoadUserBalanceAsync();
-                    await ShowUserAgreementsAsync();
-
-                    //Cleanup
-                    ViewState.SetDefaults();
-                    ResetValidationErrors();
-
-                    ViewState.RaiseChanged();
-
-                    //TODO: A
-                    var advertisementsService = ServiceProvider.GetRequiredService<AdvertisementsService>();
-                    await advertisementsService.LoadAdvertisementsAsync();
-
-                    var quickLaunchService = ServiceProvider.GetRequiredService<QuickLaunchService>();
-                    await quickLaunchService.LoadQuickLaunchAsync();
-
-                    var paymentMethodsService = ServiceProvider.GetRequiredService<PaymentMethodsService>();
-                    await paymentMethodsService.LoadPaymentMethods();
-                }
             }
             catch
             {
@@ -128,8 +84,10 @@ namespace Gizmo.Client.UI.View.Services
             }
             finally
             {
-
+                ViewState.IsLogginIn = false;
             }
+
+            DebounceViewStateChange();
         }
 
         public Task OpenRegistrationAsync()
