@@ -14,7 +14,7 @@ namespace Gizmo.Client.UI.View.States
         private string _repeatPassword = string.Empty;
         private bool _isComplete;
         private bool _isSuccessful;
-        private string _message;
+        private string _message = string.Empty;
         #endregion
 
         #region PROPERTIES

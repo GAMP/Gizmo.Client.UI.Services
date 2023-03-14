@@ -144,7 +144,7 @@ namespace Gizmo.Client.UI.View.Services
         private async Task ShowUserAgreementsAsync()
         {
             var userAgreementsService = ServiceProvider.GetRequiredService<UserAgreementsService>();
-            await userAgreementsService.LoadUserAgreementsAsync(1); //TODO: A USER ID
+            await userAgreementsService.LoadUserAgreementsAsync();
 
             while (userAgreementsService.ViewState.HasUserAgreements)
             {

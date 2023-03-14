@@ -63,9 +63,9 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    TokenType tokenType = 0;
-                    string token = string.Empty;
-                    //TODO: A MOVE TokenType FROM DATAINTERFACES tokenType;
+                    TokenType tokenType = TokenType.CreateAccount;
+                    string token = string.Empty; //TODO: A Get token
+
                     if (!await _gizmoClient.TokenIsValidAsync(tokenType, token, ViewState.ConfirmationCode))
                     {
                         validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID"));

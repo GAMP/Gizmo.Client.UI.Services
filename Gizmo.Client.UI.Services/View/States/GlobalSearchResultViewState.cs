@@ -12,7 +12,7 @@ namespace Gizmo.Client.UI.View.States
 
         public int Id { get; internal set; }
 
-        public string Category { get; internal set; } = null!;
+        public int CategoryId { get; internal set; }
 
         public string Name { get; internal set; } = null!;
 

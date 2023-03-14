@@ -12,18 +12,9 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public UserQuickLaunchService(UserQuickLaunchViewState viewState,
             ILogger<UserQuickLaunchService> logger,
-            IServiceProvider serviceProvider, IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
-            _gizmoClient = gizmoClient;
         }
-        #endregion
-
-        #region FIELDS
-        private readonly IGizmoClient _gizmoClient;
-        #endregion
-
-        #region PROPERTIES
-
         #endregion
 
         #region FUNCTIONS
