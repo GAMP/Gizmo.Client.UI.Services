@@ -29,7 +29,7 @@ namespace Gizmo.Client.UI.View.Services
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
             var filteredProducts = await _userProductViewStateLookupService.GetStatesAsync(cancellationToken);
-            ViewState.PopularProducts = filteredProducts.Take(100);
+            ViewState.PopularProducts = filteredProducts;
         }
 
         #endregion
