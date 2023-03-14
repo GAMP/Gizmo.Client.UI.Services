@@ -1,4 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,9 +14,15 @@ namespace Gizmo.Client.UI.View.Services
         #region CONTRUCTOR
         public UserPasswordRecoverySetNewPasswordService(UserPasswordRecoverySetNewPasswordViewState viewState,
             ILogger<UserPasswordRecoveryService> logger,
-            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
         {
+            _localizationService = localizationService;
         }
+        #endregion
+
+        #region FIELDS
+        private readonly ILocalizationService _localizationService;
         #endregion
 
         #region FUNCTIONS
@@ -55,7 +62,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (!string.IsNullOrEmpty(ViewState.NewPassword) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.NewPassword, ViewState.RepeatPassword) != 0)
                 {
-                    validationMessageStore.Add(() => ViewState.RepeatPassword, "Passwords do not match!"); //TODO: A TRANSLATE
+                    validationMessageStore.Add(() => ViewState.RepeatPassword, _localizationService.GetString("PASSWORDS_DO_NOT_MATCH"));
                 }
             }
         }

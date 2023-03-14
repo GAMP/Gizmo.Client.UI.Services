@@ -6,17 +6,9 @@ namespace Gizmo.Client.UI.View.States
     [Register()]
     public sealed class QuickLaunchViewState : ViewStateBase
     {
-        #region FIELDS
-        private IEnumerable<AppExeViewState> _executables = Enumerable.Empty<AppExeViewState>();
-        #endregion
-
         #region PROPERTIES
 
-        public IEnumerable<AppExeViewState> Executables
-        {
-            get { return _executables; }
-            internal set { _executables = value; }
-        }
+        public IEnumerable<AppExeViewState> Executables { get; internal set; } = Enumerable.Empty<AppExeViewState>();
 
         #endregion
     }

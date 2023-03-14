@@ -31,6 +31,7 @@ namespace Gizmo.Client.UI.View.Services
                 viewState.Caption = item.Caption;
                 viewState.Description = item.Description;
                 viewState.DisplayOrder = item.DisplayOrder;
+                viewState.Options = item.Options;
                 viewState.PersonalFiles = item.PersonalFiles.Select(a => new AppExePersonalFileViewState()
                 {
                     PersonalFileId = a.PersonalFileId

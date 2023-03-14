@@ -1,80 +1,46 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
-using Gizmo.UI.View.States;
-using Gizmo.Web.Api.Models;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
+    [Route(ClientRoutes.HomeRoute)]
+    [Route(ClientRoutes.ApplicationsRoute)]
     public sealed class QuickLaunchService : ViewStateServiceBase<QuickLaunchViewState>
     {
         #region CONSTRUCTOR
         public QuickLaunchService(QuickLaunchViewState viewState,
             ILogger<QuickLaunchService> logger,
-            IServiceProvider serviceProvider, IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            AppExeViewStateLookupService appExeViewStateLookupService) : base(viewState, logger, serviceProvider)
         {
-            _gizmoClient = gizmoClient;
+            _appExeViewStateLookupService = appExeViewStateLookupService;
         }
         #endregion
 
         #region FIELDS
-        private readonly IGizmoClient _gizmoClient;
-        #endregion
-
-        #region PROPERTIES
-
+        private readonly AppExeViewStateLookupService _appExeViewStateLookupService;
         #endregion
 
         #region FUNCTIONS
 
-        public async Task LoadQuickLaunchAsync()
+        public async Task RefilterAsync(CancellationToken cToken)
         {
-            //TODO: A Load quick launch applications on user login?
+            var exes = await _appExeViewStateLookupService.GetStatesAsync(cToken);
 
-            //Test
-            var applicationsPageService = ServiceProvider.GetRequiredService<AppsPageService>();
-            var activeApplicationsService = ServiceProvider.GetRequiredService<ActiveApplicationsService>();
-
-            if (applicationsPageService == null)
-                return;
-
-            //await applicationsPageService.LoadApplicationsAsync();
-
-            Random random = new Random();
-
-            var tmp = new List<AppExeViewState>();
-            var tmp2 = new List<AppExeViewState>();
-
-            foreach (var application in applicationsPageService.ViewState.Applications)
-            {
-                //foreach (var exe in application.Executables)
-                //{
-                //    if (!tmp.Contains(exe))
-                //    {
-                //        tmp.Add(exe);
-
-                //        exe.State = (ExecutableState)random.Next(0, 4);
-                //        exe.RaiseChanged();
-
-                //        if (exe.State != ExecutableState.None)
-                //        {
-                //            tmp2.Add(exe);
-                //        }
-                //    }
-                //}
-            }
-
-            ViewState.Executables = tmp;
-            activeApplicationsService.ViewState.Executables = tmp2;
-
-            activeApplicationsService.ViewState.RaiseChanged();
-            //End Test
+            ViewState.Executables = exes.Where(a => a.Options.HasFlag(ExecutableOptionType.QuickLaunch)).ToList();
 
             ViewState.RaiseChanged();
         }
 
         #endregion
+
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
+        {
+            await RefilterAsync(cToken);
+        }
     }
 }

@@ -75,7 +75,8 @@ namespace Gizmo.Client
                     PersonalFileId = x,
                     UseOrder = x
                 }),
-                ImageId = i
+                ImageId = i,
+                Options = ExecutableOptionType.QuickLaunch
             }).ToList();
 
             #region PRODUCT GROUPS

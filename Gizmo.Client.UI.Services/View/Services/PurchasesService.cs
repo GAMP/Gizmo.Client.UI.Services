@@ -1,38 +1,31 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
+    [Route(ClientRoutes.UserPurchasesRoute)]
     public sealed class PurchasesService : ViewStateServiceBase<PurchasesViewState>
     {
         #region CONSTRUCTOR
         public PurchasesService(PurchasesViewState viewState,
             ILogger<PurchasesService> logger,
-            IServiceProvider serviceProvider,
-            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
-            _gizmoClient = gizmoClient;
         }
         #endregion
 
         #region FIELDS
-        private readonly IGizmoClient _gizmoClient;
-        #endregion
-
-        #region PROPERTIES
-
         #endregion
 
         #region FUNCTIONS
 
-        public async Task LoadPurchasesAsync()
+        public Task LoadAsync(CancellationToken cToken = default)
         {
-            //TODO: A Load user purchases on page loading.
-
             //Test
             Random random = new Random();
 
@@ -75,8 +68,15 @@ namespace Gizmo.Client.UI.View.Services
             //End Test
 
             ViewState.RaiseChanged();
+
+            return Task.CompletedTask;
         }
 
         #endregion
+
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
+        {
+            await LoadAsync(cToken);
+        }
     }
 }

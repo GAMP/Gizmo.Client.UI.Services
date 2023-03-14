@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,13 +15,16 @@ namespace Gizmo.Client.UI.View.Services
         public UserRegistrationConfirmationService(UserRegistrationConfirmationViewState viewState,
             ILogger<UserRegistrationConfirmationService> logger,
             IServiceProvider serviceProvider,
+            ILocalizationService localizationService,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
+            _localizationService = localizationService;
             _gizmoClient = gizmoClient;
         }
         #endregion
 
         #region FIELDS
+        private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
         #endregion
 
@@ -64,7 +68,7 @@ namespace Gizmo.Client.UI.View.Services
                     //TODO: A MOVE TokenType FROM DATAINTERFACES tokenType;
                     if (!await _gizmoClient.TokenIsValidAsync(tokenType, token, ViewState.ConfirmationCode))
                     {
-                        validationMessageStore.Add(() => ViewState.ConfirmationCode, "The confirmation code is invalid."); //TODO: A TRANSLATE
+                        validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID"));
                     }
                 }
             }

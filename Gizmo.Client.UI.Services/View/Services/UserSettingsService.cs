@@ -1,12 +1,14 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
+    [Route(ClientRoutes.UserSettingsRoute)]
     public sealed class UserSettingsService : ValidatingViewStateServiceBase<UserSettingsViewState>
     {
         #region CONSTRUCTOR
@@ -85,7 +87,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
-        public Task LoadAsync()
+        public Task LoadAsync(CancellationToken cToken = default)
         {
             var userViewState = ServiceProvider.GetRequiredService<UserViewState>();
 
@@ -151,5 +153,10 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
+
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
+        {
+            await LoadAsync(cToken);
+        }
     }
 }

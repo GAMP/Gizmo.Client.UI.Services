@@ -22,6 +22,8 @@ namespace Gizmo.Client.UI.View.States
 
         public int? ImageId { get; internal set; }
 
+        public ExecutableOptionType Options { get; internal set; }
+
         #endregion
     }
 }

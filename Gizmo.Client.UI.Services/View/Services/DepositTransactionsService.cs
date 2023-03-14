@@ -1,38 +1,30 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
-using Gizmo.Web.Api.Models;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
+    [Route(ClientRoutes.UserDepositsRoute)]
     public sealed class DepositTransactionsService : ViewStateServiceBase<DepositTransactionsViewState>
     {
         #region CONSTRUCTOR
         public DepositTransactionsService(DepositTransactionsViewState viewState,
             ILogger<DepositTransactionsService> logger,
-            IServiceProvider serviceProvider,
-            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
-            _gizmoClient = gizmoClient;
         }
         #endregion
 
         #region FIELDS
-        private readonly IGizmoClient _gizmoClient;
-        #endregion
-
-        #region PROPERTIES
-
         #endregion
 
         #region FUNCTIONS
 
-        public async Task LoadDepositTransactionsAsync()
+        public Task LoadAsync(CancellationToken cToken = default)
         {
-            //TODO: A Load user deposit transactions on page loading.
-
             //Test
             Random random = new Random();
 
@@ -47,8 +39,15 @@ namespace Gizmo.Client.UI.View.Services
             //End Test
 
             ViewState.RaiseChanged();
+
+            return Task.CompletedTask;
         }
 
         #endregion
+
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
+        {
+            await LoadAsync(cToken);
+        }
     }
 }

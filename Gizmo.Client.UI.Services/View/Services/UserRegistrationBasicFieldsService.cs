@@ -1,4 +1,6 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -16,13 +18,16 @@ namespace Gizmo.Client.UI.View.Services
         public UserRegistrationBasicFieldsService(UserRegistrationBasicFieldsViewState viewState,
             ILogger<UserRegistrationBasicFieldsService> logger,
             IServiceProvider serviceProvider,
+            ILocalizationService localizationService,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
+            _localizationService = localizationService;
             _gizmoClient = gizmoClient;
         }
         #endregion
 
         #region FIELDS
+        private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
         #endregion
 
@@ -122,7 +127,7 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     if (await _gizmoClient.UserExistAsync(ViewState.Username))
                     {
-                        validationMessageStore.Add(() => ViewState.Username, "The Username is in use."); //TODO: A TRANSLATE
+                        validationMessageStore.Add(() => ViewState.Username, _localizationService.GetString("USERNAME_IS_IN_USE"));
                     }
                 }
             }
@@ -131,7 +136,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (!string.IsNullOrEmpty(ViewState.NewPassword) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.NewPassword, ViewState.RepeatPassword) != 0)
                 {
-                    validationMessageStore.Add(() => ViewState.RepeatPassword, "Passwords do not match!"); //TODO: A TRANSLATE
+                    validationMessageStore.Add(() => ViewState.RepeatPassword, _localizationService.GetString("PASSWORDS_DO_NOT_MATCH"));
                 }
             }
         }

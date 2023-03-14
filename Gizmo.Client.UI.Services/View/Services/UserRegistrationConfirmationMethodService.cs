@@ -16,9 +16,11 @@ namespace Gizmo.Client.UI.View.Services
         public UserRegistrationConfirmationMethodService(UserRegistrationConfirmationMethodViewState viewState,
             ILogger<UserRegistrationConfirmationMethodService> logger,
             IServiceProvider serviceProvider,
+            ILocalizationService localizationService,
             IGizmoClient gizmoClient,
             IClientDialogService dialogService) : base(viewState, logger, serviceProvider)
         {
+            _localizationService = localizationService;
             //TODO: A GET FROM CLIENT
             ViewState.ConfirmationMethod = UserRegistrationMethod.MobilePhone;
 
@@ -30,6 +32,7 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region FIELDS
+        private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
         private readonly IClientDialogService _dialogService;
         private System.Timers.Timer _timer = new System.Timers.Timer(1000);
@@ -164,13 +167,13 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (string.IsNullOrEmpty(ViewState.Email))
                 {
-                    validationMessageStore.Add(() => ViewState.Email, "The e-mail field is required."); //TODO: A TRANSLATE
+                    validationMessageStore.Add(() => ViewState.Email, _localizationService.GetString("EMAIL_IS_REQUIRED"));
                 }
                 else
                 {
                     if (await _gizmoClient.UserEmailExistAsync(ViewState.Email))
                     {
-                        validationMessageStore.Add(() => ViewState.Email, "The email is in use."); //TODO: A TRANSLATE
+                        validationMessageStore.Add(() => ViewState.Email, _localizationService.GetString("EMAIL_IS_IN_USE"));
                     }
                 }
             }
@@ -180,13 +183,13 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (string.IsNullOrEmpty(ViewState.MobilePhone))
                 {
-                    validationMessageStore.Add(() => ViewState.MobilePhone, "The phone number field is required."); //TODO: A TRANSLATE
+                    validationMessageStore.Add(() => ViewState.MobilePhone, _localizationService.GetString("PHONE_IS_REQUIRED"));
                 }
                 else
                 {
                     if (await _gizmoClient.UserMobileExistAsync(ViewState.MobilePhone))
                     {
-                        validationMessageStore.Add(() => ViewState.MobilePhone, "The phone number is in use."); //TODO: A TRANSLATE
+                        validationMessageStore.Add(() => ViewState.MobilePhone, _localizationService.GetString("PHONE_IS_IN_USE"));
                     }
                 }
             }

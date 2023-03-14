@@ -1,4 +1,6 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,13 +14,15 @@ namespace Gizmo.Client.UI.View.Services
         #region CONTRUCTOR
         public UserPasswordRecoveryService(UserPasswordRecoveryViewState viewState,
             ILogger<UserPasswordRecoveryService> logger,
-            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
         {
+            _localizationService = localizationService;
         }
         #endregion
 
         #region FIELDS
-
+        private readonly ILocalizationService _localizationService;
         #endregion
 
         #region FUNCTIONS
@@ -90,7 +94,7 @@ namespace Gizmo.Client.UI.View.Services
                 fieldIdentifier.FieldName == nameof(ViewState.Email) &&
                 string.IsNullOrEmpty(ViewState.Email))
             {
-                validationMessageStore.Add(() => ViewState.Email, "The e-mail field is required."); //TODO: A TRANSLATION
+                validationMessageStore.Add(() => ViewState.Email, _localizationService.GetString("EMAIL_IS_REQUIRED"));
             }
 
 
@@ -98,7 +102,7 @@ namespace Gizmo.Client.UI.View.Services
                 fieldIdentifier.FieldName == nameof(ViewState.MobilePhone) &&
                 string.IsNullOrEmpty(ViewState.MobilePhone))
             {
-                validationMessageStore.Add(() => ViewState.MobilePhone, "The phone number field is required."); //TODO: A TRANSLATION
+                validationMessageStore.Add(() => ViewState.MobilePhone, _localizationService.GetString("PHONE_IS_REQUIRED"));
             }
         }
 
