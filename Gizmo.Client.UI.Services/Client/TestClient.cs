@@ -93,7 +93,7 @@ namespace Gizmo.Client
             #endregion
 
             #region PRODUCTS
-            _userProducts = Enumerable.Range(1, 20).Select(x => new UserProductModel()
+            _userProducts = Enumerable.Range(1, 500).Select(x => new UserProductModel()
             {
                 Id = x,
                 ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
