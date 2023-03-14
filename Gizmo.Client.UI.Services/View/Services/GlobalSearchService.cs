@@ -181,8 +181,7 @@ namespace Gizmo.Client.UI.View.Services
                             Id = app.ApplicationId,
                             Name = app.Title,
                             ImageId = app.ImageId,
-                            //TODO: A
-                            Category = "Apps"
+                            CategoryId = app.ApplicationCategoryId
                         });
                     }
 
@@ -203,8 +202,7 @@ namespace Gizmo.Client.UI.View.Services
                             Id = product.Id,
                             Name = product.Name,
                             ImageId = product.DefaultImageId,
-                            //TODO: A
-                            Category = "Coffee"
+                            CategoryId = product.ProductGroupId
                         });
                     }
 

@@ -31,11 +31,11 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public async Task LoadUserAgreementsAsync(int? userId = null)
+        public async Task LoadUserAgreementsAsync(int? userId = null, CancellationToken cToken = default)
         {
             ViewState.UserId = userId;
 
-            var userAgreements = await _gizmoClient.UserAgreementsGetAsync(new UserAgreementsFilter());
+            var userAgreements = await _gizmoClient.UserAgreementsGetAsync(new UserAgreementsFilter(), cToken);
             var tmpUserAgreements = userAgreements.Data.Select(a => new UserAgreementViewState()
             {
                 Id = a.Id,
@@ -48,7 +48,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (ViewState.UserId.HasValue)
             {
-                var userAgreementStates = await _gizmoClient.UserAgreementsStatesGetAsync(new());
+                var userAgreementStates = await _gizmoClient.UserAgreementsStatesGetAsync(cToken);
                 foreach (var item in userAgreementStates)
                 {
                     var userAgreement = tmpUserAgreements.Where(a => a.Id == item.UserAgreementId).FirstOrDefault();

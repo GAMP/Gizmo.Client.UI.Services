@@ -2,8 +2,6 @@
 using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
 
 namespace Gizmo.Client.UI.View.States
 {
@@ -48,7 +46,7 @@ namespace Gizmo.Client.UI.View.States
             internal set { SetProperty(ref _mobilePhone, value); }
         }
 
-        public UserModelRequiredInfo DefaultUserGroupRequiredInfo { get; internal set; }
+        public UserModelRequiredInfo DefaultUserGroupRequiredInfo { get; internal set; } = new UserModelRequiredInfo();
 
         #endregion
     }

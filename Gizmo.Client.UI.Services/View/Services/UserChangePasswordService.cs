@@ -1,4 +1,6 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 using Microsoft.AspNetCore.Components.Forms;
@@ -14,13 +16,16 @@ namespace Gizmo.Client.UI.View.Services
         public UserChangePasswordService(UserChangePasswordViewState viewState,
             ILogger<UserChangePasswordService> logger,
             IServiceProvider serviceProvider,
+            ILocalizationService localizationService,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
+            _localizationService = localizationService;
             _gizmoClient = gizmoClient;
         }
         #endregion
 
         #region FIELDS
+        private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
         #endregion
 
@@ -51,9 +56,6 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return;
 
-
-            var userViewState = ServiceProvider.GetRequiredService<UserViewState>();
-
             await _gizmoClient.UserPasswordUpdateAsync(ViewState.OldPassword, ViewState.NewPassword);
 
 
@@ -80,7 +82,10 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldName == nameof(ViewState.NewPassword) || fieldIdentifier.FieldName == nameof(ViewState.RepeatPassword))
             {
-                //TODO: A
+                if (!string.IsNullOrEmpty(ViewState.NewPassword) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.NewPassword, ViewState.RepeatPassword) != 0)
+                {
+                    validationMessageStore.Add(() => ViewState.RepeatPassword, _localizationService.GetString("PASSWORDS_DO_NOT_MATCH"));
+                }
             }
         }
     }

@@ -50,7 +50,7 @@ namespace Gizmo.Client.UI.View.States
             internal set { SetProperty(ref _repeatPassword, value); }
         }
 
-        public UserModelRequiredInfo DefaultUserGroupRequiredInfo { get; internal set; }
+        public UserModelRequiredInfo DefaultUserGroupRequiredInfo { get; internal set; } = new UserModelRequiredInfo();
 
         #endregion
     }

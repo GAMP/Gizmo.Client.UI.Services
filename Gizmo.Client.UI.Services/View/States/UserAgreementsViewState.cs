@@ -10,7 +10,7 @@ namespace Gizmo.Client.UI.View.States
         private int? _userId;
         private List<UserAgreementViewState> _userAgreements = new();
         private int? _currentUserAgreementIndex;
-        private UserAgreementViewState _currentUserAgreement;
+        private UserAgreementViewState? _currentUserAgreement;
         #endregion
 
         #region PROPERTIES
@@ -38,7 +38,7 @@ namespace Gizmo.Client.UI.View.States
             internal set { _currentUserAgreementIndex = value; }
         }
 
-        public UserAgreementViewState CurrentUserAgreement
+        public UserAgreementViewState? CurrentUserAgreement
         {
             get { return _currentUserAgreement; }
             internal set { _currentUserAgreement = value; }
