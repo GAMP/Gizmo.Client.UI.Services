@@ -30,7 +30,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (!ViewState.PopularProducts.Any())
             {
-                ViewState.PopularProducts = await _userProductViewStateLookupService.GetStatesAsync(cancellationToken);
+                ViewState.PopularProducts = (await _userProductViewStateLookupService.GetStatesAsync(cancellationToken)).Take(30);
                 ViewState.RaiseChanged();
             }
         }

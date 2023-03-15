@@ -32,6 +32,8 @@ namespace Gizmo.Client.UI.View.States
 
         public int TotalFilters { get; internal set; }
 
+        public byte CardsColumsCount { get; internal set; } = 8;
+
         #endregion
     }
 }
