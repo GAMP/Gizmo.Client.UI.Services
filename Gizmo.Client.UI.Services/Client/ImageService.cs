@@ -40,8 +40,6 @@ namespace Gizmo.Client.UI.Services
         /// <returns>Image stream.</returns>
         public async ValueTask<Stream> ImageStreamGetAsync(ImageType imageType, int imageId, CancellationToken cancellationToken)
         {
-            await _semaphore.WaitAsync(cancellationToken);
-
             try
             {
                 byte[] imageData = Array.Empty<byte>();
@@ -53,6 +51,7 @@ namespace Gizmo.Client.UI.Services
                 }
                 else
                 {
+        
                     imageData = await ImageGetAsync(imageType, imageId, cancellationToken);
                     await AddOrUpdateCache(imageType, imageId, imageData, cancellationToken);
                 }
@@ -70,51 +69,61 @@ namespace Gizmo.Client.UI.Services
                 //in case of error return empty stream
                 return Stream.Null;
             }
-            finally
-            {
-                _semaphore.Release();
-            }
         }
 
         private async ValueTask<byte[]> ImageGetAsync(ImageType imageType, int imageId, CancellationToken cancellationToken = default, bool ignoreCache = false)
         {
-            byte[] image = Array.Empty<byte>();
+            await _semaphore.WaitAsync(cancellationToken);
 
-            using (var httpClient = new HttpClient())
+            try
             {
-                string url = string.Empty;
+                byte[] image = Array.Empty<byte>();
 
-                if(_isWebBrowser)
+                using (var httpClient = new HttpClient())
                 {
-                    if (imageType == ImageType.Application)
-                        url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/Apex.png";
-                    else if (imageType == ImageType.ProductDefault)
-                        url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/Cola2.png";
-                    else
-                        url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/Chrome-icon_1.png";
-                }
-                else
-                {
-                    if (imageType == ImageType.ProductDefault)
-                        url = "https://api.lorem.space/image/burger?w=200&h=300";
-                    else if (imageType == ImageType.Application)
-                        url = "https://api.lorem.space/image/game?w=200&h=300";
+                    string url = string.Empty;
+
+                    if (_isWebBrowser)
+                    {
+                        if (imageType == ImageType.Application)
+                            url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/Apex.png";
+                        else if (imageType == ImageType.ProductDefault)
+                            url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/Cola2.png";
+                        else
+                            url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/Chrome-icon_1.png";
+                    }
                     else
                     {
-                        url = $"https://www.iconfinder.com/icons/87865/download/png/64";
+                        if (imageType == ImageType.ProductDefault)
+                            url = "https://api.lorem.space/image/burger?w=200&h=300";
+                        else if (imageType == ImageType.Application)
+                            url = "https://api.lorem.space/image/game?w=200&h=300";
+                        else
+                        {
+                            url = $"https://www.iconfinder.com/icons/87865/download/png/64";
+                        }
                     }
+
+
+                    var request = new HttpRequestMessage(HttpMethod.Get, url);
+
+                    request.SetBrowserRequestMode(BrowserRequestMode.NoCors);
+
+                    var response = await httpClient.SendAsync(request);
+                    image = await response.Content.ReadAsByteArrayAsync(cancellationToken);
                 }
-                
 
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
-
-                request.SetBrowserRequestMode(BrowserRequestMode.NoCors);
-
-                var response = await httpClient.SendAsync(request);
-                image = await response.Content.ReadAsByteArrayAsync(cancellationToken); 
+                return image;
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                _semaphore.Release();
             }
 
-            return image;
         }
 
         public async Task<string> ImageHashGetAsync(ImageType imageType, int imageId, CancellationToken cancellationToken)
