@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using Gizmo.Client.Interfaces;
+using Gizmo.UI;
 
 namespace Gizmo.Client.UI.Services
 {

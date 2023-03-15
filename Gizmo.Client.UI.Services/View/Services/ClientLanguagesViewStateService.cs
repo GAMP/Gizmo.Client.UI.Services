@@ -4,7 +4,7 @@ using Gizmo.UI.View.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using System.Globalization;
-using Gizmo.Client.Interfaces;
+using Gizmo.UI;
 
 namespace Gizmo.Client.UI.View.Services
 {
