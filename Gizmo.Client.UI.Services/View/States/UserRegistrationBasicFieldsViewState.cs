@@ -9,12 +9,6 @@ namespace Gizmo.Client.UI.View.States
     [Register]
     public sealed class UserRegistrationBasicFieldsViewState : ValidatingViewStateBase
     {
-        #region FIELDS
-        private string _username = string.Empty;
-        private string _newPassword = string.Empty;
-        private string _repeatPassword = string.Empty;
-        #endregion
-
         #region PROPERTIES
 
         /// <summary>
@@ -22,35 +16,33 @@ namespace Gizmo.Client.UI.View.States
         /// </summary>
         [ValidatingProperty()]
         [Required()]
-        public string Username
-        {
-            get { return _username; }
-            internal set { SetProperty(ref _username, value); }
-        }
+        public string Username { get; internal set; } = null!;
 
         /// <summary>
         /// Gets or sets new password.
         /// </summary>
         [ValidatingProperty()]
         [Required()]
-        public string NewPassword
-        {
-            get { return _newPassword; }
-            internal set { SetProperty(ref _newPassword, value); }
-        }
+        public string NewPassword { get; internal set; } = null!;
 
         /// <summary>
         /// Gets or sets repeat password.
         /// </summary>
         [ValidatingProperty()]
         [Required()]
-        public string RepeatPassword
-        {
-            get { return _repeatPassword; }
-            internal set { SetProperty(ref _repeatPassword, value); }
-        }
+        public string RepeatPassword { get; internal set; } = null!;
 
-        public UserModelRequiredInfo DefaultUserGroupRequiredInfo { get; internal set; } = new UserModelRequiredInfo();
+        [ValidatingProperty()]
+        public string FirstName { get; internal set; } = null!;
+
+        [ValidatingProperty()]
+        public string LastName { get; internal set; } = null!;
+
+        [ValidatingProperty()]
+        public DateTime? BirthDate { get; internal set; }
+
+        [ValidatingProperty()]
+        public Sex Sex { get; internal set; }
 
         #endregion
     }

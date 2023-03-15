@@ -1,4 +1,7 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System.Diagnostics.Metrics;
+using System.Net;
+using System.Numerics;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,28 +54,34 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return;
 
-            bool confirmationRequired = true; //TODO: A
+            var userRegistrationViewState = ServiceProvider.GetRequiredService<UserRegistrationViewState>();
+            //TODO: A FILL userRegistrationViewState
+
+            bool confirmationRequired = userRegistrationViewState.ConfirmationMethod != UserRegistrationMethod.None;
 
             try
             {
+                var profile = new Web.Api.Models.UserProfileModelCreate()
+                {
+                    Username = userRegistrationViewState.Username,
+                    FirstName = userRegistrationViewState.FirstName,
+                    LastName = userRegistrationViewState.LastName,
+                    BirthDate = userRegistrationViewState.BirthDate,
+                    Sex = userRegistrationViewState.Sex,
+                    Email = userRegistrationViewState.Email,
+                    Country = userRegistrationViewState.Country,
+                    MobilePhone = userRegistrationViewState.MobilePhone,
+                    Address = userRegistrationViewState.Address,
+                    PostCode = userRegistrationViewState.PostCode,
+                };
+
                 if (!confirmationRequired)
                 {
-                    string password = string.Empty; //TODO: A
-
-                    await _gizmoClient.UserCreateCompleteAsync(new Web.Api.Models.UserProfileModelCreate()
-                    {
-
-                    }, password, new List<Web.Api.Models.UserAgreementModelState>());
+                    await _gizmoClient.UserCreateCompleteAsync(profile, userRegistrationViewState.Password, userRegistrationViewState.UserAgreementStates.ToList());
                 }
                 else
                 {
-                    string token = string.Empty; //TODO: A DON'T WE NEED CONFIRMATION CODE AGAIN?
-                    string password = string.Empty; //TODO: A
-
-                    await _gizmoClient.UserCreateByTokenCompleteAsync(token, new Web.Api.Models.UserProfileModelCreate()
-                    {
-
-                    }, password, new List<Web.Api.Models.UserAgreementModelState>());
+                    await _gizmoClient.UserCreateByTokenCompleteAsync(userRegistrationViewState.Token, profile, userRegistrationViewState.Password, userRegistrationViewState.UserAgreementStates.ToList());
                 }
 
                 NavigationService.NavigateTo(ClientRoutes.LoginRoute);
@@ -91,9 +100,9 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            ViewState.DefaultUserGroupRequiredInfo = await _gizmoClient.UserGroupDefaultRequiredInfoGetAsync(cancellationToken) ?? new();
+            return Task.CompletedTask;
         }
 
         #endregion
