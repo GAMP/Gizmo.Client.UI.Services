@@ -14,6 +14,6 @@ namespace Gizmo.Client.UI.View.States
 
         public int? SelectedUserProductGroupId { get; internal set; }
 
-        public byte CardsColumsCount { get; internal set; } = 5;
+        public byte CardsColumsCount { get; internal set; } = 6;
     }
 }

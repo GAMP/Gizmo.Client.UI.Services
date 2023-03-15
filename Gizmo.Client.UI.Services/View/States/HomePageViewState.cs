@@ -18,7 +18,7 @@ namespace Gizmo.Client.UI.View.States
             internal set { _popularProducts = value; }
         }
 
-        public byte CardsColumsCount { get; internal set; } = 7;
+        public byte CardsColumsCount { get; internal set; } = 8;
 
         #endregion
     }
