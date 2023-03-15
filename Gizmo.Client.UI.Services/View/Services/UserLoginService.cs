@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.Services;
+﻿using System.Threading;
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
@@ -74,8 +75,8 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                var result = await _gizmoClient.UserLoginAsync(ViewState.LoginName,ViewState.Password);
-                if(result == LoginResult.Sucess)
+                var result = await _gizmoClient.UserLoginAsync(ViewState.LoginName, ViewState.Password);
+                if (result == LoginResult.Sucess)
                     NavigationService.NavigateTo(ClientRoutes.HomeRoute);
             }
             catch
@@ -102,36 +103,35 @@ namespace Gizmo.Client.UI.View.Services
             return Task.CompletedTask;
         }
 
-        private async Task LoadUserProfileAsync()
+        private async Task LoadUserProfileAsync(CancellationToken cancellationToken = default)
         {
-            var userProfile = await _gizmoClient.UserProfileGetAsync();
+            var userProfile = await _gizmoClient.UserProfileGetAsync(cancellationToken);
 
-            //TODO: A
             var userViewState = ServiceProvider.GetRequiredService<UserViewState>();
 
             userViewState.Id = userProfile.Id;
             userViewState.Username = userProfile.Username;
             userViewState.FirstName = userProfile.FirstName;
-			userViewState.LastName = userProfile.LastName;
-			userViewState.BirthDate = userProfile.BirthDate;
-			userViewState.Sex = userProfile.Sex;
-			userViewState.Country = userProfile.Country;
-			userViewState.Address = userProfile.Address;
-			userViewState.Email = userProfile.Email;
-			userViewState.Phone = userProfile.Phone;
-			userViewState.MobilePhone = userProfile.MobilePhone;
-			//TODO: A
-			//userViewState.RegistrationDate = userProfile.RegistrationDate;
-			userViewState.Picture = "_content/Gizmo.Client.UI/img/Cyber_Punk.png";
+            userViewState.LastName = userProfile.LastName;
+            userViewState.BirthDate = userProfile.BirthDate;
+            userViewState.Sex = userProfile.Sex;
+            userViewState.Country = userProfile.Country;
+            userViewState.Address = userProfile.Address;
+            userViewState.Email = userProfile.Email;
+            userViewState.Phone = userProfile.Phone;
+            userViewState.MobilePhone = userProfile.MobilePhone;
+            //TODO: A USER PICTURE
+            //userViewState.RegistrationDate = userProfile.RegistrationDate;
+            userViewState.Picture = "_content/Gizmo.Client.UI/img/Cyber_Punk.png";
 
             userViewState.RaiseChanged();
         }
 
-        private async Task LoadUserBalanceAsync()
-		{
-			var userBalance = await _gizmoClient.UserBalanceGetAsync();
+        private async Task LoadUserBalanceAsync(CancellationToken cancellationToken = default)
+        {
+            var userBalance = await _gizmoClient.UserBalanceGetAsync(cancellationToken);
             //TODO: A UPDATE FROM USERBALANCE
-			var userBalanceViewState = ServiceProvider.GetRequiredService<UserBalanceViewState>();
+            var userBalanceViewState = ServiceProvider.GetRequiredService<UserBalanceViewState>();
 
             userBalanceViewState.Balance = 10.76m;
             userBalanceViewState.CurrentTimeProduct = "#Six Hours (6) for 10$ Pack";
