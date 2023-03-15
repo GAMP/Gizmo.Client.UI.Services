@@ -31,6 +31,7 @@
 		<PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.2.1" />
 		<PackageReference Include="Microsoft.JSInterop" Version="6.0.7" />
 		<PackageReference Include="System.Reactive" Version="5.0.0" />
+		<PackageReference Include="System.Resources.ResourceManager" Version="4.3.0" />
 		<ProjectReference Include="..\..\Gizmo.Client.Shared\Gizmo.Client.Shared\Gizmo.Client.Shared.csproj" />
 		<ProjectReference Include="..\..\Gizmo.Client.UI.Resources\Gizmo.Client.UI.Resources\Gizmo.Client.UI.Resources.csproj" />
 		<ProjectReference Include="..\..\Gizmo.Shared\Gizmo.Shared.csproj" />

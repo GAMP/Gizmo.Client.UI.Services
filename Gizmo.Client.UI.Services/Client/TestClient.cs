@@ -177,7 +177,7 @@ namespace Gizmo.Client
 
         public async Task<LoginResult> UserLoginAsync(string loginName, string? password, CancellationToken cancellationToken)
         {
-            await Task.Delay(3000, cancellationToken);
+            await Task.Delay(new Random().Next(100,1000), cancellationToken);
             return LoginResult.Sucess;
         }
 

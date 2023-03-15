@@ -27,7 +27,7 @@ namespace Gizmo.Client.UI.View.States
         }
 
         /// <summary>
-        /// Gets two letter name.
+        /// Gets two letter ISO name.
         /// </summary>
         [DefaultValue(DefaultValues.EMPTY_STRING_VALUE)]
         public string TwoLetterName
