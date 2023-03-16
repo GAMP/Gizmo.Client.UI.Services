@@ -14,12 +14,19 @@ namespace Gizmo.Client.UI.Services
             _client = client;
         }
 
-        public async Task ExecutAsync(int appExeId, CancellationToken cancellationToken)
+        public async Task ExecutAsync(int appExeId, bool reprocess =false , CancellationToken cancellationToken = default)
         {
-            var executionContext = await _client.AppExecutionContextGetAsync(appExeId, cancellationToken);
-            if(executionContext.IsSuccess)
+            var executionContextResult = await _client.AppExecutionContextGetAsync(appExeId, cancellationToken);
+            if(executionContextResult.IsSuccess && executionContextResult.ExecutionContext!=null)
             {
-               
+                try
+                {
+                    await executionContextResult.ExecutionContext.ExecuteAsync(reprocess, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Execution failed for executable {appExeId}", appExeId);
+                }
             }
         }
     }
