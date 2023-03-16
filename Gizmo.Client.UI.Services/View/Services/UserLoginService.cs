@@ -1,9 +1,7 @@
-﻿using System.Threading;
-using Gizmo.Client.UI.Services;
+﻿using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
-using Gizmo.UI.View.States;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -136,7 +134,7 @@ namespace Gizmo.Client.UI.View.Services
             userBalanceViewState.Balance = 10.76m;
             userBalanceViewState.CurrentTimeProduct = "#Six Hours (6) for 10$ Pack";
             userBalanceViewState.Time = new TimeSpan(6, 36, 59);
-            userBalanceViewState.PointsBalance = 416;
+            userBalanceViewState.PointsBalance = userBalance.Points;
 
             userBalanceViewState.RaiseChanged();
         }
@@ -146,7 +144,7 @@ namespace Gizmo.Client.UI.View.Services
             var userAgreementsService = ServiceProvider.GetRequiredService<UserAgreementsService>();
             await userAgreementsService.LoadUserAgreementsAsync();
 
-            while (userAgreementsService.ViewState.HasUserAgreements)
+            while (userAgreementsService.ViewState.CurrentUserAgreement != null)
             {
                 var s = await _dialogService.ShowUserAgreementDialogAsync();
                 if (s.Result == DialogAddResult.Success)

@@ -40,17 +40,35 @@ namespace Gizmo.Client.UI.View.Services
         {
             await base.OnInitializing(ct);
 
-            ViewState.SortingOptions = Enum.GetValues(typeof(ApplicationSortingOption)).OfType<ApplicationSortingOption>().Select(a => new EnumFilterViewState<ApplicationSortingOption>()
-            {
-                Value = a,
-                DisplayName = _localizationService.GetString(a)
-            }).ToList();
+            List<EnumFilterViewState<ApplicationSortingOption>> sortingOptions = new List<EnumFilterViewState<ApplicationSortingOption>>();
 
-            ViewState.ExecutableModes = Enum.GetValues(typeof(ApplicationModes)).OfType<ApplicationModes>().Select(a => new EnumFilterViewState<ApplicationModes>()
-            {
-                Value = a,
-                DisplayName = _localizationService.GetString(a)
-            }).ToList();
+            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Popularity, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_POPULARITY") });
+            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.AddDate, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_ADD_DATE") });
+            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Title, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_TITLE") });
+            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Use, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_USE") });
+            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Rating, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_RATING") });
+            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.ReleaseDate, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_RELEASE_DATE") });
+
+            ViewState.SortingOptions = sortingOptions;
+
+            List<EnumFilterViewState<ApplicationModes>> executableModes = new List<EnumFilterViewState<ApplicationModes>>();
+            //executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.DefaultMode, DisplayName = "DefaultMode" });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.SinglePlayer, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_SINGLE_PLAYER") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Online, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_ONLINE") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Multiplayer, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_MULTIPLAYER") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Settings, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_SETTINGS") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Utility, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_UTILITY") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Game, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_GAME") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Application, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_APPLICATION") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.FreeToPlay, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_FREE_TO_PLAY") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.RequiresSubscription, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_REQUIRES_SUBSCRIPTION") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.FreeTrial, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_FREE_TRIAL") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.SplitScreenMultiPlayer, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_SPLIT_SCREEN_MULTIPLAYER") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.CoOpLan, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_CO_OP") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.CoOpOnline, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_CO_OP_ONLINE") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.OneTimePurchase, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_ONE_TIME_PURCHASE") });
+
+            ViewState.ExecutableModes = executableModes;
         }
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)

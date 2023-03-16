@@ -1,5 +1,4 @@
-﻿using Gizmo.Client.UI.Services;
-using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Forms;
@@ -16,16 +15,19 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserRegistrationConfirmationService> logger,
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
-            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IGizmoClient gizmoClient,
+            UserRegistrationViewState userRegistrationViewState) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _gizmoClient = gizmoClient;
+            _userRegistrationViewState = userRegistrationViewState;
         }
         #endregion
 
         #region FIELDS
         private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
+        private readonly UserRegistrationViewState _userRegistrationViewState;
         #endregion
 
         #region FUNCTIONS
@@ -57,16 +59,15 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldName == nameof(ViewState.ConfirmationCode))
             {
-                if (ViewState.ConfirmationCode.Length != 6)
+                if (ViewState.ConfirmationCode.Length != 6) //TODO: A ConfirmationCode IS NOT ANYMORE FIXED 6 DIGITS.
                 {
                     validationMessageStore.Add(() => ViewState.ConfirmationCode, "Confirmation code should have 6 digits!"); //TODO: A TRANSLATE
                 }
                 else
                 {
                     TokenType tokenType = TokenType.CreateAccount;
-                    string token = string.Empty; //TODO: A Get token
 
-                    if (!await _gizmoClient.TokenIsValidAsync(tokenType, token, ViewState.ConfirmationCode))
+                    if (!await _gizmoClient.TokenIsValidAsync(tokenType, _userRegistrationViewState.Token, ViewState.ConfirmationCode))
                     {
                         validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID"));
                     }

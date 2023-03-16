@@ -297,7 +297,7 @@ namespace Gizmo.Client
                 Email = "#test@test.test",
                 Phone = "#0123456789",
                 MobilePhone = "#1234567890",
-                //TODO: A DOES NOT EXISTS IN API RegistrationDate = new DateTime(2020, 3, 4)
+                //TODO: A Service RegistrationDate
             });
         }
 
