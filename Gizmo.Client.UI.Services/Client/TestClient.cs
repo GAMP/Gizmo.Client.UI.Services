@@ -478,7 +478,28 @@ namespace Gizmo.Client
 
         public Task<IAppExecutionContextResult> AppExecutionContextGetAsync(int appExeId, CancellationToken cancellationToken)
         {
+            
             throw new NotImplementedException();
+        }
+
+        public Task<string> AppExePathGetAsync(int appExeId, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(string.Empty);
+        }
+
+        public Task<bool> AppExeFileExistsAsync(int appExeId, bool ignoreDeployments = false, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(false);
+        }
+
+        public Task<bool> PersonalFileExistAsync(int appExeId, int personalFileId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(false);
+        }
+
+        public Task<string> PersonalFilePathGetAsync(int appExeId, int personalFileId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(string.Empty);
         }
     }
 }
