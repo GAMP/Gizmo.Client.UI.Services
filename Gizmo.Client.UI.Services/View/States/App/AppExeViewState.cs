@@ -12,9 +12,9 @@ namespace Gizmo.Client.UI.View.States
 
         public int ApplicationId { get; internal set; }
 
-        public string Caption { get; internal set; } = null!;
+        public string? Caption { get; internal set; }
 
-        public string Description { get; internal set; } = null!;
+        public string? Description { get; internal set; }
 
         public int DisplayOrder { get; internal set; }
 

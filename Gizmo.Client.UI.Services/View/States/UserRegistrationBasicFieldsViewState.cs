@@ -44,6 +44,9 @@ namespace Gizmo.Client.UI.View.States
         [ValidatingProperty()]
         public Sex Sex { get; internal set; }
 
+        [ValidatingProperty()]
+        public string? Email { get; internal set; }
+
         #endregion
     }
 }
