@@ -17,7 +17,7 @@ namespace Gizmo.Client.UI.Services
 
         public async Task AppExeExecuteAsync(int appExeId, bool reprocess = false, CancellationToken cancellationToken = default)
         {
-            var executionContextResult = await _client.AppExecutionContextGetAsync(appExeId, cancellationToken);
+            var executionContextResult = await _client.AppExeExecutionContextGetAsync(appExeId, cancellationToken);
             var executionContext = executionContextResult.ExecutionContext;
             if (executionContextResult.IsSuccess && executionContext != null)
             {
@@ -40,7 +40,7 @@ namespace Gizmo.Client.UI.Services
 
         public async Task AppExeTerminateAsync(int appExeId, CancellationToken cancellationToken = default)
         {
-            var executionContextResult = await _client.AppExecutionContextGetAsync(appExeId, cancellationToken);
+            var executionContextResult = await _client.AppExeExecutionContextGetAsync(appExeId, cancellationToken);
             var executionContext = executionContextResult.ExecutionContext;
             if (executionContextResult.IsSuccess && executionContext != null)
             {

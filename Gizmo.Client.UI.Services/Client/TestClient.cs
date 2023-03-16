@@ -476,7 +476,7 @@ namespace Gizmo.Client
             return Task.FromResult(new UpdateResult());
         }
 
-        public Task<IAppExecutionContextResult> AppExecutionContextGetAsync(int appExeId, CancellationToken cancellationToken)
+        public Task<IAppExecutionContextResult> AppExeExecutionContextGetAsync(int appExeId, CancellationToken cancellationToken)
         {
             
             throw new NotImplementedException();
@@ -500,6 +500,16 @@ namespace Gizmo.Client
         public Task<string> PersonalFilePathGetAsync(int appExeId, int personalFileId, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(string.Empty);
+        }
+
+        public Task<bool> AppExePassAgeRatingAsync(int appExeId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(false);
+        }
+
+        public Task<bool> AppExeExecutionLimitPassAsync(int appExeId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(false);
         }
     }
 }
