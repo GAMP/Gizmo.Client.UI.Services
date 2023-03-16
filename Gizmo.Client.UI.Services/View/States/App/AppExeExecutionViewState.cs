@@ -8,11 +8,21 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
-        public int ExecutableId { get; internal set; }
+        public int AppExeId { get; internal set; }
+
+        public int AppId { get; internal set; }
 
         public ExecutableState State { get; internal set; }
 
-        public decimal StatePercentage { get; internal set; }
+        public bool IsActive { get; internal set; }
+
+        public bool IsReady { get; internal set; }
+
+        public bool IsRunning { get; internal set; }
+
+        public decimal Progress { get; internal set; }
+
+        public bool IsIndeterminate { get;internal set; }
 
         #endregion
     }

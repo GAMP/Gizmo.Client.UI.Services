@@ -1,4 +1,5 @@
-﻿using Gizmo.Web.Api.Models;
+﻿using Gizmo.Client.Interfaces;
+using Gizmo.Web.Api.Models;
 
 namespace Gizmo.Client
 {
@@ -16,6 +17,8 @@ namespace Gizmo.Client
         private readonly List<UserProductModel> _userProducts;
         private readonly List<UserPaymentMethodModel> _userPaymentMethods;
         private readonly List<NewsModel> _newsModel;
+
+        public event EventHandler<ClientExecutionContextStateArgs>? ExecutionContextStateChage;
 
         public TestClient()
         {
@@ -473,5 +476,9 @@ namespace Gizmo.Client
             return Task.FromResult(new UpdateResult());
         }
 
+        public Task<IAppExecutionContextResult> AppExecutionContextGetAsync(int appExeId, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
