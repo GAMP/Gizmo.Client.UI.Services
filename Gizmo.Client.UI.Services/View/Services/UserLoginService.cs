@@ -91,8 +91,8 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task OpenRegistrationAsync()
         {
-            var userRegistrationConfirmationMethodService = ServiceProvider.GetRequiredService<UserRegistrationConfirmationMethodService>();
-            return userRegistrationConfirmationMethodService.StartRegistrationAsync();
+            NavigationService.NavigateTo(ClientRoutes.RegistrationIndexRoute);
+            return Task.CompletedTask;
         }
 
         public Task LogοutAsync()
@@ -152,19 +152,19 @@ namespace Gizmo.Client.UI.View.Services
                     try
                     {
                         var result = await s.WaitForDialogResultAsync();
-                        await userAgreementsService.AcceptCurrentUserAgreementAsync();
+                        userAgreementsService.AcceptCurrentUserAgreement();
                     }
                     catch (OperationCanceledException)
                     {
                         //TODO: A CLEANER SOLUTION?
                         if (userAgreementsService.ViewState.CurrentUserAgreement.IsRejectable)
                         {
-                            await userAgreementsService.RejectCurrentUserAgreementAsync();
+                            userAgreementsService.RejectCurrentUserAgreement();
                         }
                         else
                         {
                             //TODO: IF REJECTED CLEANUP AND LOGOUT?
-                            await userAgreementsService.RejectCurrentUserAgreementAsync();
+                            userAgreementsService.RejectCurrentUserAgreement();
                             return;
                         }
                     }

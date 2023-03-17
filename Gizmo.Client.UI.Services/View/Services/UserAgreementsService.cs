@@ -66,7 +66,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
-        public Task AcceptCurrentUserAgreementAsync()
+        public void AcceptCurrentUserAgreement()
         {
             if (ViewState.CurrentUserAgreement != null)
             {
@@ -85,11 +85,9 @@ namespace Gizmo.Client.UI.View.Services
 
                 ViewState.RaiseChanged();
             }
-
-            return Task.CompletedTask;
         }
 
-        public Task RejectCurrentUserAgreementAsync()
+        public void RejectCurrentUserAgreement()
         {
             if (ViewState.CurrentUserAgreement != null)
             {
@@ -108,8 +106,6 @@ namespace Gizmo.Client.UI.View.Services
 
                 ViewState.RaiseChanged();
             }
-
-            return Task.CompletedTask;
         }
 
         #endregion

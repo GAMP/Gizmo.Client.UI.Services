@@ -69,15 +69,15 @@ namespace Gizmo.Client.UI.View.Services
             productItem.RaiseChanged();
         }
 
-        private async Task UpdateUserCartProductsAsync()
+        private async Task UpdateUserCartProductsAsync(CancellationToken cancellationToken = default)
         {
-            var productItems = await _userCartProductItemLookupService.GetStatesAsync();
+            var productItems = await _userCartProductItemLookupService.GetStatesAsync(cancellationToken);
 
             ViewState.Products = productItems.Where(x => x.Quantity > 0).ToList();
 
             foreach (var item in ViewState.Products)
             {
-                var product = await _userProductViewStateLookupService.GetStateAsync(item.ProductId);
+                var product = await _userProductViewStateLookupService.GetStateAsync(item.ProductId, cancellationToken);
 
                 item.TotalPrice = product.UnitPrice * item.Quantity;
                 item.TotalPointsPrice = product.UnitPointsPrice * item.Quantity;
@@ -192,7 +192,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            await UpdateUserCartProductsAsync();
+            await UpdateUserCartProductsAsync(cancellationToken);
 
             _userProductViewStateLookupService.Changed += OnUpdateUserCartProductsAsync;
         }

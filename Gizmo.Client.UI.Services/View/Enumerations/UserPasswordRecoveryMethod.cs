@@ -7,5 +7,6 @@
     {
         MobilePhone,
         Email,
+        Both = MobilePhone | Email
     }
 }

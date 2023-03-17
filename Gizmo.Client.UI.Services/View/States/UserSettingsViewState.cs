@@ -10,6 +10,8 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
+        public UserRegistrationMethod ConfirmationMethod { get; internal set; } = UserRegistrationMethod.MobilePhone; //TODO: A DEMO
+
         /// <summary>
         /// Gets or sets username.
         /// </summary>

@@ -17,6 +17,10 @@ namespace Gizmo.Client.UI.View.States
 
         #region PROPERTIES
 
+        public UserPasswordRecoveryMethod AvailabledRecoveryMethod { get; internal set; }
+
+        public UserPasswordRecoveryMethod SelectedRecoveryMethod { get; internal set; }
+
         public UserPasswordRecoveryMethod Method
         {
             get { return _method; }
@@ -36,6 +40,8 @@ namespace Gizmo.Client.UI.View.States
             get { return _email; }
             internal set { SetProperty(ref _email, value); }
         }
+
+        public string? Token { get; internal set; }
 
         public bool IsLoading
         {
