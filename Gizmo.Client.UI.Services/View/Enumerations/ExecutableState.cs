@@ -4,9 +4,9 @@
     public enum ExecutableState
     {
         None,
-        Loading,
-        Deployment,
-        Running,
+        Loading, //IsActive
+        Deployment, //IsReady
+        Running, //IsRunning
         Terminating,
         Stopped
     }

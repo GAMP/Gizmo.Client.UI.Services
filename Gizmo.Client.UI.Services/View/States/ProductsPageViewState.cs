@@ -10,7 +10,7 @@ namespace Gizmo.Client.UI.View.States
 
         public IEnumerable<IGrouping<int, UserProductViewState>> UserGroupedProducts { get; internal set; } = Enumerable.Empty<IGrouping<int, UserProductViewState>>();
 
-        public string SearchPattern { get; internal set; } = null!;
+        public string? SearchPattern { get; internal set; }
 
         public int? SelectedUserProductGroupId { get; internal set; }
 

@@ -1,7 +1,4 @@
-﻿using System.Diagnostics.Metrics;
-using System.Net;
-using System.Numerics;
-using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,17 +51,11 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return;
 
-            //Fill UserRegistrationViewState
+            var userRegistrationIndexViewState = ServiceProvider.GetRequiredService<UserRegistrationIndexViewState>();
+
             var userRegistrationViewState = ServiceProvider.GetRequiredService<UserRegistrationViewState>();
-
-            if (userRegistrationViewState.ConfirmationMethod != UserRegistrationMethod.MobilePhone)
-            {
-                userRegistrationViewState.Country = ViewState.Country;
-                userRegistrationViewState.MobilePhone = ViewState.MobilePhone;
-            }
-
-            userRegistrationViewState.Address = ViewState.Address;
-            userRegistrationViewState.PostCode = ViewState.PostCode;
+            var userRegistrationConfirmationMethodViewState = ServiceProvider.GetRequiredService<UserRegistrationConfirmationMethodViewState>();
+            var userRegistrationBasicFieldsViewState = ServiceProvider.GetRequiredService<UserRegistrationBasicFieldsViewState>();
 
             bool confirmationRequired = userRegistrationViewState.ConfirmationMethod != UserRegistrationMethod.None;
 
@@ -72,25 +63,51 @@ namespace Gizmo.Client.UI.View.Services
             {
                 var profile = new Web.Api.Models.UserProfileModelCreate()
                 {
-                    Username = userRegistrationViewState.Username,
-                    FirstName = userRegistrationViewState.FirstName,
-                    LastName = userRegistrationViewState.LastName,
-                    BirthDate = userRegistrationViewState.BirthDate,
-                    Sex = userRegistrationViewState.Sex,
-                    Email = userRegistrationViewState.Email,
-                    Country = userRegistrationViewState.Country,
-                    MobilePhone = userRegistrationViewState.MobilePhone,
-                    Address = userRegistrationViewState.Address,
-                    PostCode = userRegistrationViewState.PostCode,
+                    Username = userRegistrationBasicFieldsViewState.Username,
+                    FirstName = userRegistrationBasicFieldsViewState.FirstName,
+                    LastName = userRegistrationBasicFieldsViewState.LastName,
+                    BirthDate = userRegistrationBasicFieldsViewState.BirthDate,
+                    Sex = userRegistrationBasicFieldsViewState.Sex,
+                    Email = userRegistrationBasicFieldsViewState.Email,
+                    Address = ViewState.Address,
+                    PostCode = ViewState.PostCode
                 };
-
-                if (!confirmationRequired)
+                
+                if (userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone)
                 {
-                    await _gizmoClient.UserCreateCompleteAsync(profile, userRegistrationViewState.Password, userRegistrationViewState.UserAgreementStates.ToList());
+                    profile.Country = userRegistrationConfirmationMethodViewState.Country;
+                    profile.MobilePhone = userRegistrationConfirmationMethodViewState.MobilePhone;
                 }
                 else
                 {
-                    await _gizmoClient.UserCreateByTokenCompleteAsync(userRegistrationViewState.Token, profile, userRegistrationViewState.Password, userRegistrationViewState.UserAgreementStates.ToList());
+                    profile.Country = ViewState.Country;
+                    profile.MobilePhone = ViewState.MobilePhone;
+                }
+
+                if (!confirmationRequired)
+                {
+                    var password = userRegistrationBasicFieldsViewState.Password;
+                    var userAgreements = userRegistrationIndexViewState.UserAgreementStates.ToList();
+
+                    var result = await _gizmoClient.UserCreateCompleteAsync(profile, password, userAgreements);
+
+                    if (result.Result != AccountCreationCompleteResultCode.Success)
+                    {
+                        //TODO: A HANDLE ERROR
+                    }
+                }
+                else
+                {
+                    var token = userRegistrationViewState.Token;
+                    var password = userRegistrationBasicFieldsViewState.Password;
+                    var userAgreements = userRegistrationIndexViewState.UserAgreementStates.ToList();
+
+                    var result = await _gizmoClient.UserCreateByTokenCompleteAsync(token, profile, password, userAgreements);
+
+                    if (result.Result != AccountCreationByTokenCompleteResultCode.Success)
+                    {
+                        //TODO: A HANDLE ERROR
+                    }
                 }
 
                 NavigationService.NavigateTo(ClientRoutes.LoginRoute);
@@ -103,15 +120,6 @@ namespace Gizmo.Client.UI.View.Services
             {
 
             }
-        }
-
-        #endregion
-
-        #region OVERRIDES
-
-        protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
         }
 
         #endregion

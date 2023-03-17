@@ -142,9 +142,9 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        protected override Task OnCustomValidationAsync(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        protected override async Task OnCustomValidationAsync(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
         {
-            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
+            await base.OnCustomValidationAsync(fieldIdentifier, validationMessageStore);
 
             if (fieldIdentifier.FieldName == nameof(ViewState.Amount))
             {
@@ -153,8 +153,6 @@ namespace Gizmo.Client.UI.View.Services
                     validationMessageStore.Add(() => ViewState.Amount, _localizationService.GetString("TOP_UP_MINIMUM_AMOUNT_IS", ViewState.MinimumAmount));
                 }
             }
-
-            return Task.CompletedTask;
         }
 
         #endregion

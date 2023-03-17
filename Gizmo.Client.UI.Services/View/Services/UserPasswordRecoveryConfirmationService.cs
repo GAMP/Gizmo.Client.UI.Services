@@ -1,4 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,16 +12,22 @@ namespace Gizmo.Client.UI.View.Services
     {
         #region CONTRUCTOR
         public UserPasswordRecoveryConfirmationService(UserPasswordRecoveryConfirmationViewState viewState,
-            UserPasswordRecoveryMethodViewState methodState,
             ILogger<UserPasswordRecoveryService> logger,
-            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            ILocalizationService localizationService,
+            IGizmoClient gizmoClient,
+            UserPasswordRecoveryViewState userPasswordRecoveryViewState) : base(viewState, logger, serviceProvider)
         {
-            _passwordRecoveryMethodState = methodState;
+            _localizationService = localizationService;
+            _gizmoClient = gizmoClient;
+            _userPasswordRecoveryViewState = userPasswordRecoveryViewState;
         }
         #endregion
 
         #region FIELDS
-        private readonly UserPasswordRecoveryMethodViewState _passwordRecoveryMethodState;
+        private readonly ILocalizationService _localizationService;
+        private readonly IGizmoClient _gizmoClient;
+        private readonly UserPasswordRecoveryViewState _userPasswordRecoveryViewState;
         #endregion
 
         #region FUNCTIONS
@@ -46,13 +53,23 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        protected override async Task OnCustomValidationAsync(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
         {
-            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
+            await base.OnCustomValidationAsync(fieldIdentifier, validationMessageStore);
 
-            if (fieldIdentifier.FieldName == nameof(ViewState.ConfirmationCode) && ViewState.ConfirmationCode.Length != 6)
+            if (fieldIdentifier.FieldName == nameof(ViewState.ConfirmationCode))
             {
-                validationMessageStore.Add(() => ViewState.ConfirmationCode, "Confirmation code should have 6 digits!"); //TODO: A TRANSLATE
+                if (ViewState.ConfirmationCode.Length != 6)
+                {
+                    validationMessageStore.Add(() => ViewState.ConfirmationCode, "Confirmation code should have 6 digits!"); //TODO: A TRANSLATE
+                }
+                else
+                {
+                    if (!await _gizmoClient.TokenIsValidAsync(TokenType.ResetPassword, _userPasswordRecoveryViewState.Token, ViewState.ConfirmationCode))
+                    {
+                        validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID"));
+                    }
+                }
             }
         }
 
