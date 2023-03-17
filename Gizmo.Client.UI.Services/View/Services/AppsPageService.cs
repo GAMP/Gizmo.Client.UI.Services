@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.Linq;
+using System.Web;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
@@ -6,7 +7,6 @@ using Gizmo.UI.View.States;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Linq;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -64,10 +64,10 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            //if (navigationParameters.IsInitial)
-            //{
-            ViewState.AppCategories = await _categoryViewStateLookupService.GetStatesAsync(cToken);
-            //}
+            if (navigationParameters.IsInitial)
+            {
+                ViewState.AppCategories = await _categoryViewStateLookupService.GetStatesAsync(cToken);
+            }
 
             await RefilterRequest(cToken);
         }
