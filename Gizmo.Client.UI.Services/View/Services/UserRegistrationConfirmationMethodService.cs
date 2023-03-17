@@ -1,9 +1,10 @@
-﻿using Gizmo.Client.UI.Services;
+﻿using System;
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Models;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -18,14 +19,14 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
             IGizmoClient gizmoClient,
-            IClientDialogService dialogService) : base(viewState, logger, serviceProvider)
+            IClientDialogService dialogService,
+            UserRegistrationViewState userRegistrationViewState) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
-            //TODO: A GET FROM CLIENT
-            ViewState.ConfirmationMethod = UserRegistrationMethod.MobilePhone;
 
             _gizmoClient = gizmoClient;
             _dialogService = dialogService;
+            _userRegistrationViewState = userRegistrationViewState;
 
             _timer.Elapsed += timer_Elapsed;
         }
@@ -35,6 +36,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
         private readonly IClientDialogService _dialogService;
+        private readonly UserRegistrationViewState _userRegistrationViewState;
         private System.Timers.Timer _timer = new System.Timers.Timer(1000);
         #endregion
 
@@ -43,6 +45,12 @@ namespace Gizmo.Client.UI.View.Services
         public void SetEmail(string value)
         {
             ViewState.Email = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetCountry(string value)
+        {
+            ViewState.Country = value;
             ViewState.RaiseChanged();
         }
 
@@ -57,7 +65,7 @@ namespace Gizmo.Client.UI.View.Services
             var userAgreementsService = ServiceProvider.GetRequiredService<UserAgreementsService>();
             await userAgreementsService.LoadUserAgreementsAsync();
 
-            while (userAgreementsService.ViewState.HasUserAgreements)
+            while (userAgreementsService.ViewState.CurrentUserAgreement != null)
             {
                 var s = await _dialogService.ShowUserAgreementDialogAsync();
                 if (s.Result == DialogAddResult.Success)
@@ -84,7 +92,14 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            if (ViewState.ConfirmationMethod == UserRegistrationMethod.None)
+            var userRegistrationViewState = ServiceProvider.GetRequiredService<UserRegistrationViewState>();
+            userRegistrationViewState.UserAgreementStates = userAgreementsService.ViewState.UserAgreements.Select(a => new UserAgreementModelState()
+            {
+                UserAgreementId = a.Id,
+                AcceptState = a.AcceptState
+            }).ToList();
+
+            if (_userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.None)
             {
                 NavigationService.NavigateTo(ClientRoutes.RegistrationBasicFieldsRoute);
             }
@@ -104,15 +119,26 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 
+            //Fill UserRegistrationViewState
+
             try
             {
-                if (ViewState.ConfirmationMethod == UserRegistrationMethod.Email)
+                if (_userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.Email)
                 {
-                    await _gizmoClient.UserCreateByEmailStartAsync(ViewState.Email);
+                    _userRegistrationViewState.Email = ViewState.Email;
+
+                    var result = await _gizmoClient.UserCreateByEmailStartAsync(ViewState.Email);
+
+                    _userRegistrationViewState.Token = result.Token;
                 }
-                else if (ViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone)
+                else if (_userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone)
                 {
-                    await _gizmoClient.UserCreateByMobileStartAsync(ViewState.MobilePhone);
+                    _userRegistrationViewState.Country = ViewState.Country;
+                    _userRegistrationViewState.MobilePhone = ViewState.MobilePhone;
+
+                    var result = await _gizmoClient.UserCreateByMobileStartAsync(ViewState.MobilePhone);
+
+                    _userRegistrationViewState.Token = result.Token;
                 }
 
                 // Simulate task.
@@ -126,8 +152,6 @@ namespace Gizmo.Client.UI.View.Services
 
                 NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationRoute);
 
-                //TODO: A
-                await Task.Delay(5000);
                 ViewState.RaiseChanged();
             }
             catch
@@ -162,7 +186,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             base.OnCustomValidation(fieldIdentifier, validationMessageStore);
 
-            if (ViewState.ConfirmationMethod == UserRegistrationMethod.Email &&
+            if (_userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.Email &&
                 fieldIdentifier.FieldName == nameof(ViewState.Email))
             {
                 if (string.IsNullOrEmpty(ViewState.Email))
@@ -171,6 +195,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
+                    //TODO: A VALIDATE EMAIL FORMAT
                     if (await _gizmoClient.UserEmailExistAsync(ViewState.Email))
                     {
                         validationMessageStore.Add(() => ViewState.Email, _localizationService.GetString("EMAIL_IS_IN_USE"));
@@ -178,7 +203,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            if (ViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone &&
+            if (_userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone &&
                 fieldIdentifier.FieldName == nameof(ViewState.MobilePhone))
             {
                 if (string.IsNullOrEmpty(ViewState.MobilePhone))
@@ -187,6 +212,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
+                    //TODO: A VALIDATE PHONE FORMAT?
                     if (await _gizmoClient.UserMobileExistAsync(ViewState.MobilePhone))
                     {
                         validationMessageStore.Add(() => ViewState.MobilePhone, _localizationService.GetString("PHONE_IS_IN_USE"));

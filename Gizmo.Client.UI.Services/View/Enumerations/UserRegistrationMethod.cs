@@ -5,7 +5,6 @@
     {
         None = 0,
         Email = 1,
-        MobilePhone = 2,
-        Both = Email | MobilePhone
+        MobilePhone = 2
     }
 }

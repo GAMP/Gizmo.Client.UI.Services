@@ -1,13 +1,10 @@
-﻿using Gizmo.Client.UI.Services;
-using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Threading;
-using System.Web;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -52,6 +49,36 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
+        public void SetFirstName(string value)
+        {
+            ViewState.FirstName = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetLastName(string value)
+        {
+            ViewState.LastName = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetBirthDate(DateTime? value)
+        {
+            ViewState.BirthDate = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetSex(Sex value)
+        {
+            ViewState.Sex = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetEmail(string value)
+        {
+            ViewState.Email = value;
+            ViewState.RaiseChanged();
+        }
+
         public async Task SubmitAsync()
         {
             ViewState.IsValid = EditContext.Validate();
@@ -59,11 +86,22 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return;
 
+            //Fill UserRegistrationViewState
             var userRegistrationViewState = ServiceProvider.GetRequiredService<UserRegistrationViewState>();
-            //TODO: A FILL userRegistrationViewState
+
+            if (userRegistrationViewState.ConfirmationMethod != UserRegistrationMethod.Email)
+            {
+                userRegistrationViewState.Email = ViewState.Email;
+            }
+
+            userRegistrationViewState.Username = ViewState.Username;
+            userRegistrationViewState.FirstName = ViewState.FirstName;
+            userRegistrationViewState.LastName = ViewState.LastName;
+            userRegistrationViewState.BirthDate = ViewState.BirthDate;
+            userRegistrationViewState.Sex = ViewState.Sex;
 
             bool confirmationRequired = userRegistrationViewState.ConfirmationMethod != UserRegistrationMethod.None;
-            bool confirmationWithMobilePhone = userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone; //TODO: A
+            bool confirmationWithMobilePhone = userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone; //TODO: A If both methods are available then get user selection.
 
             if (userRegistrationViewState.DefaultUserGroupRequiredInfo.Country ||
                 userRegistrationViewState.DefaultUserGroupRequiredInfo.Address ||
@@ -146,6 +184,8 @@ namespace Gizmo.Client.UI.View.Services
                     validationMessageStore.Add(() => ViewState.RepeatPassword, _localizationService.GetString("PASSWORDS_DO_NOT_MATCH"));
                 }
             }
+
+            //TODO: A VALIDATE EMAIL FORMAT
         }
 
         #endregion

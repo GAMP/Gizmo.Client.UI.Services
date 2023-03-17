@@ -1,6 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
-using Gizmo.Web.Api.Models;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -11,21 +10,20 @@ namespace Gizmo.Client.UI.View.Services
     public sealed class GlobalSearchService : ViewStateServiceBase<GlobalSearchViewState>
     {
         #region FIELDS
+        private readonly AppViewStateLookupService _appViewStateLookupService;
         private readonly UserProductViewStateLookupService _userProductStateLookupService;
-        private readonly IGizmoClient _gizmoClient;
-        private bool _ignoreLocationChange = false;
         #endregion
 
         #region CONSTRUCTOR
         public GlobalSearchService(
             GlobalSearchViewState viewState,
+            AppViewStateLookupService appViewStateLookupService,
             UserProductViewStateLookupService userProductStateLookupService,
             ILogger<GlobalSearchService> logger,
-            IServiceProvider serviceProvider,
-            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
-            this._userProductStateLookupService = userProductStateLookupService;
-            _gizmoClient = gizmoClient;
+            _appViewStateLookupService = appViewStateLookupService;
+            _userProductStateLookupService = userProductStateLookupService;
         }
         #endregion
 
@@ -56,8 +54,6 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task ViewAllResultsAsync(SearchResultTypes searchResultTypes)
         {
-            _ignoreLocationChange = true;
-
             if (searchResultTypes == SearchResultTypes.Applications)
             {
                 NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute + $"?SearchPattern={ViewState.SearchPattern}");
@@ -70,8 +66,6 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
 
             await CloseSearchAsync();
-
-            //_ignoreLocationChange = false;
         }
 
         public async Task ProcessEnterAsync()
@@ -88,7 +82,7 @@ namespace Gizmo.Client.UI.View.Services
                     if (ViewState.ApplicationResults.Count() == 1)
                     {
                         //Only one result execute action.
-                        //TODO: A
+                        //TODO: A Execute application?
                     }
                     else
                     {
@@ -153,27 +147,13 @@ namespace Gizmo.Client.UI.View.Services
 
                 ViewState.RaiseChanged();
 
-                //Test
-                //Simulate service call.
-                await Task.Delay(500);
-
                 if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Applications)
                 {
-                    var applications = await _gizmoClient.UserApplicationsGetAsync(new UserApplicationsFilter());
-                    var tmpApplications = applications.Data.Select(a => new AppViewState()
-                    {
-                        ApplicationId = a.Id,
-                        ApplicationCategoryId = a.ApplicationCategoryId,
-                        Title = a.Title,
-                        Description = a.Description,
-                        PublisherId = a.PublisherId,
-                        ReleaseDate = a.ReleaseDate,
-                        ImageId = a.ImageId
-                    }).ToList();
+                    var applicationStates = await _appViewStateLookupService.GetStatesAsync();
 
                     var tmp = new List<GlobalSearchResultViewState>();
 
-                    foreach (var app in tmpApplications.Where(a => a.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
+                    foreach (var app in applicationStates.Where(a => a.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
                     {
                         tmp.Add(new GlobalSearchResultViewState()
                         {
@@ -208,7 +188,6 @@ namespace Gizmo.Client.UI.View.Services
 
                     ViewState.ProductResults = tmp;
                 }
-                //End Test
 
                 ViewState.IsLoading = false;
 
@@ -227,13 +206,6 @@ namespace Gizmo.Client.UI.View.Services
 
         private async void NavigationService_LocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
         {
-            //TODO: A THIS DOES NOT SEEM SAFE.
-            if (_ignoreLocationChange)
-            {
-                _ignoreLocationChange = false;
-                return;
-            }
-
             await ClearResultsAsync();
             await CloseSearchAsync();
         }

@@ -9,7 +9,7 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
-        public UserRegistrationMethod ConfirmationMethod { get; internal set; }
+        public UserRegistrationMethod ConfirmationMethod { get; internal set; } = UserRegistrationMethod.MobilePhone; //TODO: A DEMO
 
         public UserModelRequiredInfo DefaultUserGroupRequiredInfo { get; internal set; } = new UserModelRequiredInfo()
         {
@@ -32,27 +32,27 @@ namespace Gizmo.Client.UI.View.States
 
         public string Password { get; internal set; } = null!;
 
-        public string FirstName { get; internal set; } = null!;
+        public string? FirstName { get; internal set; }
 
-        public string LastName { get; internal set; } = null!;
+        public string? LastName { get; internal set; }
 
         public DateTime? BirthDate { get; internal set; }
 
         public Sex Sex { get; internal set; }
 
-        public string Email { get; internal set; } = null!;
+        public string? Email { get; internal set; }
 
-        public string Country { get; internal set; } = null!;
+        public string? Country { get; internal set; }
 
-        public string MobilePhone { get; internal set; } = null!;
+        public string? MobilePhone { get; internal set; }
 
-        public string Address { get; internal set; } = null!;
+        public string? Address { get; internal set; }
 
-        public string PostCode { get; internal set; } = null!;
+        public string? PostCode { get; internal set; }
 
         public IEnumerable<UserAgreementModelState> UserAgreementStates { get; internal set; } = Enumerable.Empty<UserAgreementModelState>();
 
-        public string Token { get; internal set; } = null!;
+        public string? Token { get; internal set; }
 
         #endregion
     }

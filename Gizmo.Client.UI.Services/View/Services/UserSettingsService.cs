@@ -101,7 +101,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Email = userViewState.Email;
             ViewState.Phone = userViewState.Phone;
             ViewState.MobilePhone = userViewState.MobilePhone;
-            //TODO: A POST CODE, IMAGE
+            //TODO: A Service User POST CODE, IMAGE
 
             return Task.CompletedTask;
         }
@@ -121,7 +121,6 @@ namespace Gizmo.Client.UI.View.Services
                 LastName = ViewState.LastName,
                 BirthDate = ViewState.BirthDate,
                 Address = ViewState.Address,
-                //City = ,
                 Country = ViewState.Country,
                 //PostCode = ,
                 Phone = ViewState.Phone,
@@ -143,7 +142,7 @@ namespace Gizmo.Client.UI.View.Services
             userViewState.Email = ViewState.Email;
             userViewState.Phone = ViewState.Phone;
             userViewState.MobilePhone = ViewState.MobilePhone;
-			//TODO: A POST CODE, IMAGE
+			//TODO: A Service POST CODE, IMAGE
 
 
 

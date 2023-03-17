@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Web;
+﻿using System.Web;
 
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;

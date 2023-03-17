@@ -297,7 +297,7 @@ namespace Gizmo.Client
                 Email = "#test@test.test",
                 Phone = "#0123456789",
                 MobilePhone = "#1234567890",
-                //TODO: A DOES NOT EXISTS IN API RegistrationDate = new DateTime(2020, 3, 4)
+                //TODO: A Service RegistrationDate
             });
         }
 
@@ -476,9 +476,40 @@ namespace Gizmo.Client
             return Task.FromResult(new UpdateResult());
         }
 
-        public Task<IAppExecutionContextResult> AppExecutionContextGetAsync(int appExeId, CancellationToken cancellationToken)
+        public Task<IAppExecutionContextResult> AppExeExecutionContextGetAsync(int appExeId, CancellationToken cancellationToken)
         {
+            
             throw new NotImplementedException();
+        }
+
+        public Task<string> AppExePathGetAsync(int appExeId, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(string.Empty);
+        }
+
+        public Task<bool> AppExeFileExistsAsync(int appExeId, bool ignoreDeployments = false, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(false);
+        }
+
+        public Task<bool> PersonalFileExistAsync(int appExeId, int personalFileId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(false);
+        }
+
+        public Task<string> PersonalFilePathGetAsync(int appExeId, int personalFileId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(string.Empty);
+        }
+
+        public Task<bool> AppExePassAgeRatingAsync(int appExeId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(false);
+        }
+
+        public Task<bool> AppExeExecutionLimitPassAsync(int appExeId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(false);
         }
     }
 }

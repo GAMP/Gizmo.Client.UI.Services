@@ -54,8 +54,17 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return;
 
+            //Fill UserRegistrationViewState
             var userRegistrationViewState = ServiceProvider.GetRequiredService<UserRegistrationViewState>();
-            //TODO: A FILL userRegistrationViewState
+
+            if (userRegistrationViewState.ConfirmationMethod != UserRegistrationMethod.MobilePhone)
+            {
+                userRegistrationViewState.Country = ViewState.Country;
+                userRegistrationViewState.MobilePhone = ViewState.MobilePhone;
+            }
+
+            userRegistrationViewState.Address = ViewState.Address;
+            userRegistrationViewState.PostCode = ViewState.PostCode;
 
             bool confirmationRequired = userRegistrationViewState.ConfirmationMethod != UserRegistrationMethod.None;
 
