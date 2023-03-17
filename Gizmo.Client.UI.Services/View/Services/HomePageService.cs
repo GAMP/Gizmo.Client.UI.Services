@@ -28,13 +28,11 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            if (!ViewState.PopularProducts.Any())
+            if (navigationParameters.IsInitial)
             {
                 ViewState.PopularProducts = (await _userProductViewStateLookupService.GetStatesAsync(cancellationToken)).Take(30);
-                ViewState.RaiseChanged();
             }
         }
-
         #endregion
     }
 }
