@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System.Collections.Concurrent;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,10 @@ namespace Gizmo.Client.UI.View.Services
     public sealed class AppExeExecutionViewStateLookupService : ViewStateLookupServiceBase<int, AppExeExecutionViewState>
     {
         private readonly IGizmoClient _gizmoClient;
+        private readonly ConcurrentDictionary<int, IAppExecutionContextSyncInfo> _appExecutionContextSyncInfo = new();
+        private Timer? _syncUpdateTimer;
+        private readonly object _syncUpdateCallbackLock = new();
+        private readonly int _syncUpdaterTimerTime = 1000;
 
         public AppExeExecutionViewStateLookupService(
             IGizmoClient gizmoClient,
@@ -59,13 +64,20 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnInitializing(CancellationToken ct)
         {
+            _syncUpdateTimer?.Dispose();
+            _syncUpdateTimer = new Timer(SyncUpdateTimerCallback, null, _syncUpdaterTimerTime, _syncUpdaterTimerTime);
+
             _gizmoClient.ExecutionContextStateChage += OnExecutionContextStateChage;
+            
             return base.OnInitializing(ct);
         }
 
         protected override void OnDisposing(bool isDisposing)
         {
             base.OnDisposing(isDisposing);
+
+            _syncUpdateTimer?.Dispose();
+            _syncUpdateTimer = null;
 
             //remove any attached event handlers
             _gizmoClient.ExecutionContextStateChage -= OnExecutionContextStateChage;
@@ -107,6 +119,10 @@ namespace Gizmo.Client.UI.View.Services
                     viewState.IsIndeterminate = false;
                 }
 
+                //deployment progress will only be reaised once
+                //we can stop trackin executable file synchronization on any state change
+                _appExecutionContextSyncInfo.Remove(e.ExecutableId, out var _);
+
                 switch (e.NewState)
                 {
                     case ContextExecutionState.Released:
@@ -117,8 +133,10 @@ namespace Gizmo.Client.UI.View.Services
                     case ContextExecutionState.Deploying:
                         if (e.StateObject is IAppExecutionContextSyncInfo syncInfo)
                         {
-                            //PROGRESS_TIMER = new Timer(OnProgressTimerCallback, syncInfo, 0, 200);
+                            _appExecutionContextSyncInfo.AddOrUpdate(e.ExecutableId,syncInfo,(k,v)=>syncInfo);
                         }
+
+                        //once sync starts we should be able to determine progress
                         viewState.IsIndeterminate = false;
                         break;
                     default:
@@ -131,6 +149,55 @@ namespace Gizmo.Client.UI.View.Services
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Failed to process execution context state change, executable id {appExeId}", e.ExecutableId);
+            }
+        }
+
+        private void SyncUpdateTimerCallback(object? state)
+        {
+            //nothing to do here if there are no synchronizations to track
+            if (_appExecutionContextSyncInfo.IsEmpty)
+                return;
+
+            //since the timer might hit multiple times we need to have a lock
+            //and allow only single update routine to run
+            if (Monitor.TryEnter(_syncUpdateCallbackLock))
+            {
+                try
+                {
+                    foreach (var appExe in _appExecutionContextSyncInfo)
+                    {
+                        if (TryGetState(appExe.Key, out var viewState))
+                        {
+                            var syncer = appExe.Value;
+
+                            long total = syncer.Total;
+                            long written = syncer.TotalWritten;
+
+                            if (total > 0)
+                            {
+                                viewState.Progress = written * 100 / total;
+                                if (viewState.IsIndeterminate)
+                                    viewState.IsIndeterminate = false;
+                            }
+                            else
+                            {
+                                if (!viewState.IsIndeterminate)
+                                    viewState.IsIndeterminate = true;
+                                viewState.Progress = 0;
+                            }
+
+                            viewState.RaiseChanged();
+                        }
+                    }
+                } 
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Failed updating execution context view state synchronization progress.");
+                }
+                finally
+                {
+                    Monitor.Exit(_syncUpdateCallbackLock);
+                }
             }
         }
     }
