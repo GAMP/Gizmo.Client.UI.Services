@@ -26,6 +26,18 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
+        public void SetCountry(string value)
+        {
+            ViewState.Country = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetPrefix(string value)
+        {
+            ViewState.Prefix = value;
+            ViewState.RaiseChanged();
+        }
+
         public void SetMobilePhone(string value)
         {
             ViewState.MobilePhone = value;

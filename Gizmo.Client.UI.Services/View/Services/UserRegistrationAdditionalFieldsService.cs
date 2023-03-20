@@ -38,6 +38,12 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
+        public void SetPrefix(string value)
+        {
+            ViewState.Prefix = value;
+            ViewState.RaiseChanged();
+        }
+
         public void SetMobilePhone(string value)
         {
             ViewState.MobilePhone = value;
