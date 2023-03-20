@@ -82,12 +82,26 @@ namespace Gizmo.Client.UI.View.Services
                 if (userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone)
                 {
                     profile.Country = userRegistrationConfirmationMethodViewState.Country;
-                    profile.MobilePhone = userRegistrationConfirmationMethodViewState.MobilePhone;
+
+                    var tmp = userRegistrationConfirmationMethodViewState.Prefix + userRegistrationConfirmationMethodViewState.MobilePhone;
+                    if (tmp.StartsWith("+"))
+                    {
+                        tmp = tmp.Substring(1);
+                    }
+
+                    profile.MobilePhone = tmp;
                 }
                 else
                 {
                     profile.Country = ViewState.Country;
-                    profile.MobilePhone = ViewState.MobilePhone;
+
+                    var tmp = ViewState.Prefix + ViewState.MobilePhone;
+                    if (tmp.StartsWith("+"))
+                    {
+                        tmp = tmp.Substring(1);
+                    }
+
+                    profile.MobilePhone = tmp;
                 }
 
                 if (!confirmationRequired)
