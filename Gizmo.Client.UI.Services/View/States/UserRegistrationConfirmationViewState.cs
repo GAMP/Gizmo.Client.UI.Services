@@ -9,14 +9,14 @@ namespace Gizmo.Client.UI.View.States
     public sealed class UserRegistrationConfirmationViewState : ValidatingViewStateBase
     {
         #region FIELDS
-        private string _confirmationCode = string.Empty;
+        private string? _confirmationCode;
         #endregion
 
         #region PROPERTIES
 
         [ValidatingProperty()]
         [Required()]
-        public string ConfirmationCode
+        public string? ConfirmationCode
         {
             get { return _confirmationCode; }
             internal set { SetProperty(ref _confirmationCode, value); }

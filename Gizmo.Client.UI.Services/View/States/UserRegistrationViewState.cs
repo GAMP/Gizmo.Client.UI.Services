@@ -9,7 +9,7 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
-        public UserRegistrationMethod ConfirmationMethod { get; internal set; } = UserRegistrationMethod.MobilePhone; //TODO: A DEMO
+        public RegistrationVerificationMethod ConfirmationMethod { get; internal set; } = RegistrationVerificationMethod.MobilePhone; //TODO: A DEMO
 
         public UserModelRequiredInfo DefaultUserGroupRequiredInfo { get; internal set; } = new UserModelRequiredInfo()
         {
@@ -27,8 +27,6 @@ namespace Gizmo.Client.UI.View.States
             Sex = true,
             Password = true
         };
-
-        public string? Token { get; internal set; }
 
         #endregion
     }

@@ -61,6 +61,14 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
+        public void Clear()
+        {
+            ViewState.Email = null;
+            ViewState.Country = null;
+            ViewState.Prefix = null;
+            ViewState.MobilePhone = null;
+        }
+
         public async Task SubmitAsync()
         {
             ViewState.IsValid = EditContext.Validate();
@@ -73,7 +81,7 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                if (_userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.Email)
+                if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email)
                 {
                     var result = await _gizmoClient.UserCreateByEmailStartAsync(ViewState.Email);
 
@@ -82,9 +90,9 @@ namespace Gizmo.Client.UI.View.Services
                         //TODO: A HANDLE ERROR
                     }
 
-                    _userRegistrationViewState.Token = result.Token;
+                    ViewState.Token = result.Token;
                 }
-                else if (_userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone)
+                else if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
                 {
                     var result = await _gizmoClient.UserCreateByMobileStartAsync(ViewState.MobilePhone);
 
@@ -93,7 +101,7 @@ namespace Gizmo.Client.UI.View.Services
                         //TODO: A HANDLE ERROR
                     }
 
-                    _userRegistrationViewState.Token = result.Token;
+                    ViewState.Token = result.Token;
                 }
 
                 // Simulate task.
@@ -141,7 +149,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             await base.OnCustomValidationAsync(fieldIdentifier, validationMessageStore);
 
-            if (_userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.Email &&
+            if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email &&
                 fieldIdentifier.FieldName == nameof(ViewState.Email))
             {
                 if (string.IsNullOrEmpty(ViewState.Email))
@@ -158,7 +166,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            if (_userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone &&
+            if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone &&
                 fieldIdentifier.FieldName == nameof(ViewState.MobilePhone))
             {
                 if (string.IsNullOrEmpty(ViewState.MobilePhone))

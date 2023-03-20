@@ -16,18 +16,18 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
             IGizmoClient gizmoClient,
-            UserRegistrationViewState userRegistrationViewState) : base(viewState, logger, serviceProvider)
+            UserRegistrationConfirmationMethodViewState userRegistrationConfirmationMethodViewState) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _gizmoClient = gizmoClient;
-            _userRegistrationViewState = userRegistrationViewState;
+            _userRegistrationConfirmationMethodViewState = userRegistrationConfirmationMethodViewState;
         }
         #endregion
 
         #region FIELDS
         private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
-        private readonly UserRegistrationViewState _userRegistrationViewState;
+        private readonly UserRegistrationConfirmationMethodViewState _userRegistrationConfirmationMethodViewState;
         #endregion
 
         #region FUNCTIONS
@@ -36,6 +36,11 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.ConfirmationCode = value;
             ViewState.RaiseChanged();
+        }
+
+        public void Clear()
+        {
+            ViewState.ConfirmationCode = null;
         }
 
         public Task SubmitAsync()
@@ -59,13 +64,13 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldName == nameof(ViewState.ConfirmationCode))
             {
-                if (ViewState.ConfirmationCode.Length != 6) //TODO: A ConfirmationCode IS NOT ANYMORE FIXED 6 DIGITS.
+                if (string.IsNullOrEmpty(ViewState.ConfirmationCode) || ViewState.ConfirmationCode.Length != 6) //TODO: A ConfirmationCode IS NOT ANYMORE FIXED 6 DIGITS.
                 {
                     validationMessageStore.Add(() => ViewState.ConfirmationCode, "Confirmation code should have 6 digits!"); //TODO: A TRANSLATE
                 }
                 else
                 {
-                    if (!await _gizmoClient.TokenIsValidAsync(TokenType.CreateAccount, _userRegistrationViewState.Token, ViewState.ConfirmationCode))
+                    if (!await _gizmoClient.TokenIsValidAsync(TokenType.CreateAccount, _userRegistrationConfirmationMethodViewState.Token, ViewState.ConfirmationCode))
                     {
                         validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID"));
                     }

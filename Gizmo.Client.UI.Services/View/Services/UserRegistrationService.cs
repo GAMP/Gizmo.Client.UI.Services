@@ -15,5 +15,11 @@ namespace Gizmo.Client.UI.View.Services
         {
         }
         #endregion
+
+        public void SetConfirmationMethod(RegistrationVerificationMethod value)
+        {
+            ViewState.ConfirmationMethod = value;
+            ViewState.RaiseChanged();
+        }
     }
 }

@@ -38,6 +38,12 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
+        public void SetCountry(string value)
+        {
+            ViewState.Country = value;
+            ViewState.RaiseChanged();
+        }
+
         public void SetPrefix(string value)
         {
             ViewState.Prefix = value;
@@ -48,6 +54,15 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.MobilePhone = value;
             ViewState.RaiseChanged();
+        }
+
+        public void Clear()
+        {
+            ViewState.Address = null;
+            ViewState.PostCode = null;
+            ViewState.Country = null;
+            ViewState.Prefix = null;
+            ViewState.MobilePhone = null;
         }
 
         public async Task SubmitAsync()
@@ -63,7 +78,7 @@ namespace Gizmo.Client.UI.View.Services
             var userRegistrationConfirmationMethodViewState = ServiceProvider.GetRequiredService<UserRegistrationConfirmationMethodViewState>();
             var userRegistrationBasicFieldsViewState = ServiceProvider.GetRequiredService<UserRegistrationBasicFieldsViewState>();
 
-            bool confirmationRequired = userRegistrationViewState.ConfirmationMethod != UserRegistrationMethod.None;
+            bool confirmationRequired = userRegistrationViewState.ConfirmationMethod != RegistrationVerificationMethod.None;
 
             try
             {
@@ -79,7 +94,7 @@ namespace Gizmo.Client.UI.View.Services
                     PostCode = ViewState.PostCode
                 };
                 
-                if (userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone)
+                if (userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
                 {
                     profile.Country = userRegistrationConfirmationMethodViewState.Country;
 
@@ -118,7 +133,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    var token = userRegistrationViewState.Token;
+                    var token = userRegistrationConfirmationMethodViewState.Token;
                     var password = userRegistrationBasicFieldsViewState.Password;
                     var userAgreements = userRegistrationIndexViewState.UserAgreementStates.ToList();
 

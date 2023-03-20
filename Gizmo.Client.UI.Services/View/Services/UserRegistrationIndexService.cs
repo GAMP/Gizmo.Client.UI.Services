@@ -17,6 +17,7 @@ namespace Gizmo.Client.UI.View.Services
         public UserRegistrationIndexService(UserRegistrationIndexViewState viewState,
             ILogger<UserRegistrationIndexService> logger,
             IServiceProvider serviceProvider,
+            IGizmoClient gizmoClient,
             IClientDialogService dialogService) : base(viewState, logger, serviceProvider)
         {
             _dialogService = dialogService;
@@ -24,6 +25,7 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region FIELDS
+        private readonly IGizmoClient _gizmoClient;
         private readonly IClientDialogService _dialogService;
         #endregion
 
@@ -68,27 +70,42 @@ namespace Gizmo.Client.UI.View.Services
             return true;
         }
 
+        public void ClearAll()
+        {
+            var userRegistrationConfirmationService = ServiceProvider.GetRequiredService<UserRegistrationConfirmationService>();
+            var userRegistrationConfirmationMethodService = ServiceProvider.GetRequiredService<UserRegistrationConfirmationMethodService>();
+            var userRegistrationBasicFieldsService = ServiceProvider.GetRequiredService<UserRegistrationBasicFieldsService>();
+            var userRegistrationAdditionalFieldsService = ServiceProvider.GetRequiredService<UserRegistrationAdditionalFieldsService>();
+
+            ViewState.UserAgreementStates = Enumerable.Empty<UserAgreementModelState>();
+            userRegistrationConfirmationService.Clear();
+            userRegistrationConfirmationMethodService.Clear();
+            userRegistrationBasicFieldsService.Clear();
+            userRegistrationAdditionalFieldsService.Clear();
+        }
+
         #region OVERRIDES
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            //TODO: A CLEAR PREVIOUS REGISTRATION HERE?
-            //UserRegistrationViewState,
-            //UserRegistrationConfirmationViewState,
-            //UserRegistrationConfirmationMethodViewState,
-            //UserRegistrationBasicFieldsViewState,
-            //UserRegistrationAdditionalFieldsViewState
+            ClearAll();
 
             var agreementStatus = await ProcessUserAgreements(cancellationToken);
 
             if (agreementStatus)
             {
-                //TODO: A Get ConfirmationMethod from service.
-                //if (_userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.None)
+                var userRegistrationService = ServiceProvider.GetRequiredService<UserRegistrationService>();
+                var userRegistrationViewState = ServiceProvider.GetRequiredService<UserRegistrationViewState>();
+
+                var registrationVerificationMethod = await _gizmoClient.GetRegistrationVerificationMethodAsync();
+
+                userRegistrationService.SetConfirmationMethod(registrationVerificationMethod);
+
+                if (userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.None)
                 {
-                    //NavigationService.NavigateTo(ClientRoutes.RegistrationBasicFieldsRoute);
+                    NavigationService.NavigateTo(ClientRoutes.RegistrationBasicFieldsRoute);
                 }
-                //else
+                else
                 {
                     NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationMethodRoute);
                 }
