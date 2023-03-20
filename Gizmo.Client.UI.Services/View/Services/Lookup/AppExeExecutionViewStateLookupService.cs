@@ -68,7 +68,7 @@ namespace Gizmo.Client.UI.View.Services
             _syncUpdateTimer = new Timer(SyncUpdateTimerCallback, null, _syncUpdaterTimerTime, _syncUpdaterTimerTime);
 
             _gizmoClient.ExecutionContextStateChage += OnExecutionContextStateChage;
-            
+
             return base.OnInitializing(ct);
         }
 
@@ -133,7 +133,7 @@ namespace Gizmo.Client.UI.View.Services
                     case ContextExecutionState.Deploying:
                         if (e.StateObject is IAppExecutionContextSyncInfo syncInfo)
                         {
-                            _appExecutionContextSyncInfo.AddOrUpdate(e.ExecutableId,syncInfo,(k,v)=>syncInfo);
+                            _appExecutionContextSyncInfo.AddOrUpdate(e.ExecutableId, syncInfo, (k, v) => syncInfo);
                         }
 
                         //once sync starts we should be able to determine progress
@@ -144,7 +144,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
 
                 //raise changed
-                viewState.RaiseChanged();
+                DebounceViewStateChange(viewState);
             }
             catch (Exception ex)
             {
@@ -186,10 +186,10 @@ namespace Gizmo.Client.UI.View.Services
                                 viewState.Progress = 0;
                             }
 
-                            viewState.RaiseChanged();
+                            DebounceViewStateChange(viewState);
                         }
                     }
-                } 
+                }
                 catch (Exception ex)
                 {
                     Logger.LogError(ex, "Failed updating execution context view state synchronization progress.");
