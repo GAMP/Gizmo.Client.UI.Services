@@ -28,30 +28,6 @@ namespace Gizmo.Client.UI.View.States
             Password = true
         };
 
-        public string Username { get; internal set; } = null!;
-
-        public string Password { get; internal set; } = null!;
-
-        public string? FirstName { get; internal set; }
-
-        public string? LastName { get; internal set; }
-
-        public DateTime? BirthDate { get; internal set; }
-
-        public Sex Sex { get; internal set; }
-
-        public string? Email { get; internal set; }
-
-        public string? Country { get; internal set; }
-
-        public string? MobilePhone { get; internal set; }
-
-        public string? Address { get; internal set; }
-
-        public string? PostCode { get; internal set; }
-
-        public IEnumerable<UserAgreementModelState> UserAgreementStates { get; internal set; } = Enumerable.Empty<UserAgreementModelState>();
-
         public string? Token { get; internal set; }
 
         #endregion

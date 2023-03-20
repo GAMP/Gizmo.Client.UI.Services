@@ -55,7 +55,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnCustomValidationAsync(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
         {
-            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
+            await base.OnCustomValidationAsync(fieldIdentifier, validationMessageStore);
 
             if (fieldIdentifier.FieldName == nameof(ViewState.ConfirmationCode))
             {
@@ -65,9 +65,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    TokenType tokenType = TokenType.CreateAccount;
-
-                    if (!await _gizmoClient.TokenIsValidAsync(tokenType, _userRegistrationViewState.Token, ViewState.ConfirmationCode))
+                    if (!await _gizmoClient.TokenIsValidAsync(TokenType.CreateAccount, _userRegistrationViewState.Token, ViewState.ConfirmationCode))
                     {
                         validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID"));
                     }

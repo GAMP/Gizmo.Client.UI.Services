@@ -37,11 +37,11 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     if (int.TryParse(productId, out int id))
                     {
-                        var productViewState = await _productLookupService.GetStateAsync(id);
+                        var productViewState = await _productLookupService.GetStateAsync(id, cancellationToken);
                         ViewState.Product = productViewState;
 
                         //TODO: A DEMO
-                        var products = await _productLookupService.GetStatesAsync();
+                        var products = await _productLookupService.GetStatesAsync(cancellationToken);
                         ViewState.RelatedProducts = products.Take(2);
 
                         DebounceViewStateChange(productViewState);

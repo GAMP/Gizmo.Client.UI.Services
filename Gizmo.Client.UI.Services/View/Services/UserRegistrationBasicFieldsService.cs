@@ -37,9 +37,9 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
-        public void SetNewPassword(string value)
+        public void SetPassword(string value)
         {
-            ViewState.NewPassword = value;
+            ViewState.Password = value;
             ViewState.RaiseChanged();
         }
 
@@ -86,19 +86,10 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return;
 
-            //Fill UserRegistrationViewState
+            var userRegistrationIndexViewState = ServiceProvider.GetRequiredService<UserRegistrationIndexViewState>();
+
             var userRegistrationViewState = ServiceProvider.GetRequiredService<UserRegistrationViewState>();
-
-            if (userRegistrationViewState.ConfirmationMethod != UserRegistrationMethod.Email)
-            {
-                userRegistrationViewState.Email = ViewState.Email;
-            }
-
-            userRegistrationViewState.Username = ViewState.Username;
-            userRegistrationViewState.FirstName = ViewState.FirstName;
-            userRegistrationViewState.LastName = ViewState.LastName;
-            userRegistrationViewState.BirthDate = ViewState.BirthDate;
-            userRegistrationViewState.Sex = ViewState.Sex;
+            var userRegistrationConfirmationMethodViewState = ServiceProvider.GetRequiredService<UserRegistrationConfirmationMethodViewState>();
 
             bool confirmationRequired = userRegistrationViewState.ConfirmationMethod != UserRegistrationMethod.None;
             bool confirmationWithMobilePhone = userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone; //TODO: A If both methods are available then get user selection.
@@ -119,25 +110,39 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     var profile = new Web.Api.Models.UserProfileModelCreate()
                     {
-                        Username = userRegistrationViewState.Username,
-                        FirstName = userRegistrationViewState.FirstName,
-                        LastName = userRegistrationViewState.LastName,
-                        BirthDate = userRegistrationViewState.BirthDate,
-                        Sex = userRegistrationViewState.Sex,
-                        Email = userRegistrationViewState.Email,
-                        Country = userRegistrationViewState.Country,
-                        MobilePhone = userRegistrationViewState.MobilePhone,
-                        Address = userRegistrationViewState.Address,
-                        PostCode = userRegistrationViewState.PostCode,
+                        Username = ViewState.Username,
+                        FirstName = ViewState.FirstName,
+                        LastName = ViewState.LastName,
+                        BirthDate = ViewState.BirthDate,
+                        Sex = ViewState.Sex
                     };
 
-                    if (!confirmationRequired)
+                    if (userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.Email)
                     {
-                        await _gizmoClient.UserCreateCompleteAsync(profile, userRegistrationViewState.Password, userRegistrationViewState.UserAgreementStates.ToList());
+                        profile.Email = userRegistrationConfirmationMethodViewState.Email;
                     }
                     else
                     {
-                        await _gizmoClient.UserCreateByTokenCompleteAsync(userRegistrationViewState.Token, profile, userRegistrationViewState.Password, userRegistrationViewState.UserAgreementStates.ToList());
+                        profile.Email = ViewState.Email;
+                    }
+
+                    if (!confirmationRequired)
+                    {
+                        var result = await _gizmoClient.UserCreateCompleteAsync(profile, ViewState.Password, userRegistrationIndexViewState.UserAgreementStates.ToList());
+
+                        if (result.Result != AccountCreationCompleteResultCode.Success)
+                        {
+                            //TODO: A HANDLE ERROR
+                        }
+                    }
+                    else
+                    {
+                        var result = await _gizmoClient.UserCreateByTokenCompleteAsync(userRegistrationViewState.Token, profile, ViewState.Password, userRegistrationIndexViewState.UserAgreementStates.ToList());
+
+                        if (result.Result != AccountCreationByTokenCompleteResultCode.Success)
+                        {
+                            //TODO: A HANDLE ERROR
+                        }
                     }
 
                     NavigationService.NavigateTo(ClientRoutes.LoginRoute);
@@ -157,14 +162,9 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
-
         protected override async Task OnCustomValidationAsync(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
         {
-            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
+            await base.OnCustomValidationAsync(fieldIdentifier, validationMessageStore);
 
             if (fieldIdentifier.FieldName == nameof(ViewState.Username))
             {
@@ -177,9 +177,9 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            if (fieldIdentifier.FieldName == nameof(ViewState.NewPassword) || fieldIdentifier.FieldName == nameof(ViewState.RepeatPassword))
+            if (fieldIdentifier.FieldName == nameof(ViewState.Password) || fieldIdentifier.FieldName == nameof(ViewState.RepeatPassword))
             {
-                if (!string.IsNullOrEmpty(ViewState.NewPassword) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.NewPassword, ViewState.RepeatPassword) != 0)
+                if (!string.IsNullOrEmpty(ViewState.Password) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.Password, ViewState.RepeatPassword) != 0)
                 {
                     validationMessageStore.Add(() => ViewState.RepeatPassword, _localizationService.GetString("PASSWORDS_DO_NOT_MATCH"));
                 }

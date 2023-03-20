@@ -10,6 +10,8 @@ namespace Gizmo.Client.UI.View.Services
 {
     [Register]
     [Route(ClientRoutes.HomeRoute)]
+    [Route(ClientRoutes.ApplicationsRoute)]
+    [Route(ClientRoutes.ShopRoute)]
     public sealed class AdvertisementsService : ViewStateServiceBase<AdvertisementsViewState>
     {
         #region CONSTRUCTOR
@@ -63,15 +65,17 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region OVERRIDES
-        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
         {
-            await LoadAdvertisementsAsync(cancellationToken);
             _advertisementViewStateLookupService.Changed += OnLoadAdvertisementsAsync;
+
+            if (navigationParameters.IsInitial)
+                await LoadAdvertisementsAsync(cToken);
         }
-        protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cToken = default)
         {
             _advertisementViewStateLookupService.Changed -= OnLoadAdvertisementsAsync;
-            return base.OnNavigatedOut(navigationParameters, cancellationToken);
+            return base.OnNavigatedOut(navigationParameters, cToken);
         }
         #endregion
     }

@@ -1,7 +1,7 @@
-﻿using Gizmo.Client.UI.Services;
-using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -9,20 +9,24 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
+    [Route(ClientRoutes.PasswordRecoveryRoute)]
     public sealed class UserPasswordRecoveryService : ValidatingViewStateServiceBase<UserPasswordRecoveryViewState>
     {
         #region CONTRUCTOR
         public UserPasswordRecoveryService(UserPasswordRecoveryViewState viewState,
             ILogger<UserPasswordRecoveryService> logger,
             IServiceProvider serviceProvider,
-            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
+            ILocalizationService localizationService,
+            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
+            _gizmoClient = gizmoClient;
         }
         #endregion
 
         #region FIELDS
         private readonly ILocalizationService _localizationService;
+        private readonly IGizmoClient _gizmoClient;
         #endregion
 
         #region FUNCTIONS
@@ -39,9 +43,13 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
-        public void SetRecoveryMethod(UserPasswordRecoveryMethod userPasswordRecoveryMethod)
+        public void SetSelectedRecoveryMethod(UserPasswordRecoveryMethod value)
         {
-            ViewState.Method = userPasswordRecoveryMethod;
+            //Do not allow the user to change the recovery method, use the recovery method specified on configuration.
+            if (ViewState.AvailabledRecoveryMethod != UserPasswordRecoveryMethod.Both)
+                return;
+
+            ViewState.SelectedRecoveryMethod = value;
 
             ViewState.RaiseChanged();
         }
@@ -58,6 +66,29 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
+                if (ViewState.SelectedRecoveryMethod == UserPasswordRecoveryMethod.Email)
+                {
+                    var result = await _gizmoClient.UserPasswordRecoveryByEmailStartAsync(ViewState.Email);
+
+                    if (result.Result != PasswordRecoveryStartResultCode.Success)
+                    {
+                        //TODO: A HANDLE ERROR
+                    }
+
+                    ViewState.Token = result.Token;
+                }
+                else
+                {
+                    var result = await _gizmoClient.UserPasswordRecoveryByMobileStartAsync(ViewState.MobilePhone);
+
+                    if (result.Result != PasswordRecoveryStartResultCode.Success)
+                    {
+                        //TODO: A HANDLE ERROR
+                    }
+
+                    ViewState.Token = result.Token;
+                }
+
                 // Simulate task.
                 await Task.Delay(2000);
 
@@ -74,7 +105,7 @@ namespace Gizmo.Client.UI.View.Services
             }
             catch
             {
-
+                //TODO: A HANDLE ERROR
             }
             finally
             {
@@ -86,11 +117,20 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
+        protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        {
+            //TODO: A GET PASSWORD RECOVERY METHODS FROM CLIENT HERE? UserPasswordRecoveryMethodGetAsync requires user.
+
+            ViewState.AvailabledRecoveryMethod = UserPasswordRecoveryMethod.Both;
+
+            return Task.CompletedTask;
+        }
+
         protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
         {
             base.OnCustomValidation(fieldIdentifier, validationMessageStore);
 
-            if (ViewState.Method == UserPasswordRecoveryMethod.Email &&
+            if (ViewState.SelectedRecoveryMethod == UserPasswordRecoveryMethod.Email &&
                 fieldIdentifier.FieldName == nameof(ViewState.Email) &&
                 string.IsNullOrEmpty(ViewState.Email))
             {
@@ -98,7 +138,7 @@ namespace Gizmo.Client.UI.View.Services
             }
 
 
-            if (ViewState.Method == UserPasswordRecoveryMethod.MobilePhone &&
+            if (ViewState.SelectedRecoveryMethod == UserPasswordRecoveryMethod.MobilePhone &&
                 fieldIdentifier.FieldName == nameof(ViewState.MobilePhone) &&
                 string.IsNullOrEmpty(ViewState.MobilePhone))
             {

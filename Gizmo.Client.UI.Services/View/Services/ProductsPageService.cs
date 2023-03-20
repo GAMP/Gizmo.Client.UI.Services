@@ -74,11 +74,11 @@ namespace Gizmo.Client.UI.View.Services
             _userProductService.Changed += UpdateUserGroupedProductsOnChangeAsync;
             _userProductGroupService.Changed += UpdateUserProductGroupsOnChangeAsync;
 
-            if(!ViewState.UserProductGroups.Any())
-                await UpdateUserProductGroupsAsync();
-            
-            if(!ViewState.UserGroupedProducts.Any())
-                await UpdateUserGroupedProductsAsync(null);
+            if (navigationParameters.IsInitial)
+            {
+                await UpdateUserProductGroupsAsync(cToken);
+                await UpdateUserGroupedProductsAsync(null, cToken);
+            }
 
             await RefilterRequest(cToken);
         }

@@ -15,14 +15,17 @@ namespace Gizmo.Client.UI.View.Services
         public UserPasswordRecoverySetNewPasswordService(UserPasswordRecoverySetNewPasswordViewState viewState,
             ILogger<UserPasswordRecoveryService> logger,
             IServiceProvider serviceProvider,
-            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
+            ILocalizationService localizationService,
+            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
+            _gizmoClient = gizmoClient;
         }
         #endregion
 
         #region FIELDS
         private readonly ILocalizationService _localizationService;
+        private readonly IGizmoClient _gizmoClient;
         #endregion
 
         #region FUNCTIONS
@@ -39,15 +42,39 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
-        public Task SubmitAsync()
+        public async Task SubmitAsync()
         {
             ViewState.IsValid = EditContext.Validate();
 
             if (ViewState.IsValid != true)
-                return Task.CompletedTask;
+                return;
 
-            NavigationService.NavigateTo(ClientRoutes.LoginRoute);
-            return Task.CompletedTask;
+            var userPasswordRecoveryViewState = ServiceProvider.GetRequiredService<UserPasswordRecoveryViewState>();
+            var userPasswordRecoveryConfirmationViewState = ServiceProvider.GetRequiredService<UserPasswordRecoveryConfirmationViewState>();
+
+            try
+            {
+                var token = userPasswordRecoveryViewState.Token;
+                var confirmationCode = userPasswordRecoveryConfirmationViewState.ConfirmationCode;
+                var newPassword = ViewState.NewPassword;
+
+                var result = await _gizmoClient.UserPasswordRecoveryCompleteAsync(token, confirmationCode, newPassword);
+
+                if (result != PasswordRecoveryCompleteResultCode.Success)
+                {
+                    //TODO: A HANDLE ERROR
+                }
+
+                NavigationService.NavigateTo(ClientRoutes.LoginRoute);
+            }
+            catch
+            {
+                //TODO: A HANDLE ERROR
+            }
+            finally
+            {
+
+            }
         }
 
         #endregion
