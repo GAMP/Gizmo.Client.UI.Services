@@ -1,4 +1,3 @@
-﻿using Gizmo.Client.Interfaces;
 using Gizmo.Client.UI.View;
 using Gizmo.Web.Api.Models;
 
