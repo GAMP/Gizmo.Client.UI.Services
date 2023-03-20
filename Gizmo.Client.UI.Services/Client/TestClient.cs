@@ -1,4 +1,4 @@
-﻿using Gizmo.Client.Interfaces;
+using Gizmo.Client.UI.View;
 using Gizmo.Web.Api.Models;
 
 namespace Gizmo.Client
@@ -510,6 +510,11 @@ namespace Gizmo.Client
         public Task<bool> AppExeExecutionLimitPassAsync(int appExeId, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(false);
+        }
+
+        public Task<RegistrationVerificationMethod> GetRegistrationVerificationMethodAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(RegistrationVerificationMethod.None);
         }
     }
 }

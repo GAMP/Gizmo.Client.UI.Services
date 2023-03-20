@@ -18,7 +18,7 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public Task SetMethodAsync(UserRegistrationMethod method)
+        public Task SetMethodAsync(RegistrationVerificationMethod method)
         {
             ViewState.ConfirmationMethod = method;
             return Task.CompletedTask;

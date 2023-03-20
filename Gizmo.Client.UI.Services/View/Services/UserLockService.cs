@@ -91,7 +91,7 @@ namespace Gizmo.Client.UI.View.Services
             }
             else
             {
-                ViewState.Error = "Incorrect PIN";
+                ViewState.Error = "Incorrect PIN"; //TODO: A TRANSLATE
             }
 
             ViewState.RaiseChanged();

@@ -38,10 +38,31 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
+        public void SetCountry(string value)
+        {
+            ViewState.Country = value;
+            ViewState.RaiseChanged();
+        }
+
+        public void SetPrefix(string value)
+        {
+            ViewState.Prefix = value;
+            ViewState.RaiseChanged();
+        }
+
         public void SetMobilePhone(string value)
         {
             ViewState.MobilePhone = value;
             ViewState.RaiseChanged();
+        }
+
+        public void Clear()
+        {
+            ViewState.Address = null;
+            ViewState.PostCode = null;
+            ViewState.Country = null;
+            ViewState.Prefix = null;
+            ViewState.MobilePhone = null;
         }
 
         public async Task SubmitAsync()
@@ -57,7 +78,7 @@ namespace Gizmo.Client.UI.View.Services
             var userRegistrationConfirmationMethodViewState = ServiceProvider.GetRequiredService<UserRegistrationConfirmationMethodViewState>();
             var userRegistrationBasicFieldsViewState = ServiceProvider.GetRequiredService<UserRegistrationBasicFieldsViewState>();
 
-            bool confirmationRequired = userRegistrationViewState.ConfirmationMethod != UserRegistrationMethod.None;
+            bool confirmationRequired = userRegistrationViewState.ConfirmationMethod != RegistrationVerificationMethod.None;
 
             try
             {
@@ -73,15 +94,29 @@ namespace Gizmo.Client.UI.View.Services
                     PostCode = ViewState.PostCode
                 };
                 
-                if (userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone)
+                if (userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
                 {
                     profile.Country = userRegistrationConfirmationMethodViewState.Country;
-                    profile.MobilePhone = userRegistrationConfirmationMethodViewState.MobilePhone;
+
+                    var tmp = userRegistrationConfirmationMethodViewState.Prefix + userRegistrationConfirmationMethodViewState.MobilePhone;
+                    if (tmp.StartsWith("+"))
+                    {
+                        tmp = tmp.Substring(1);
+                    }
+
+                    profile.MobilePhone = tmp;
                 }
                 else
                 {
                     profile.Country = ViewState.Country;
-                    profile.MobilePhone = ViewState.MobilePhone;
+
+                    var tmp = ViewState.Prefix + ViewState.MobilePhone;
+                    if (tmp.StartsWith("+"))
+                    {
+                        tmp = tmp.Substring(1);
+                    }
+
+                    profile.MobilePhone = tmp;
                 }
 
                 if (!confirmationRequired)
@@ -98,7 +133,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    var token = userRegistrationViewState.Token;
+                    var token = userRegistrationConfirmationMethodViewState.Token;
                     var password = userRegistrationBasicFieldsViewState.Password;
                     var userAgreements = userRegistrationIndexViewState.UserAgreementStates.ToList();
 

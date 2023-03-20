@@ -15,8 +15,12 @@ namespace Gizmo.Client.UI.View.States
         [ValidatingProperty()]
         public string? Country { get; internal set; }
 
+        public string? Prefix { get; internal set; }
+
         [ValidatingProperty()]
         public string? MobilePhone { get; internal set; }
+
+        public string? Token { get; internal set; }
 
         public bool IsLoading { get; internal set; }
 

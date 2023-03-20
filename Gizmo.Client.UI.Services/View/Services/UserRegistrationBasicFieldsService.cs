@@ -79,6 +79,18 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
+        public void Clear()
+        {
+            ViewState.Username = null;
+            ViewState.Password = null;
+            ViewState.RepeatPassword = null;
+            ViewState.FirstName = null;
+            ViewState.LastName = null;
+            ViewState.BirthDate = null;
+            ViewState.Sex = Sex.Unspecified;
+            ViewState.Email = null;
+        }
+
         public async Task SubmitAsync()
         {
             ViewState.IsValid = EditContext.Validate();
@@ -91,8 +103,8 @@ namespace Gizmo.Client.UI.View.Services
             var userRegistrationViewState = ServiceProvider.GetRequiredService<UserRegistrationViewState>();
             var userRegistrationConfirmationMethodViewState = ServiceProvider.GetRequiredService<UserRegistrationConfirmationMethodViewState>();
 
-            bool confirmationRequired = userRegistrationViewState.ConfirmationMethod != UserRegistrationMethod.None;
-            bool confirmationWithMobilePhone = userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.MobilePhone; //TODO: A If both methods are available then get user selection.
+            bool confirmationRequired = userRegistrationViewState.ConfirmationMethod != RegistrationVerificationMethod.None;
+            bool confirmationWithMobilePhone = userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone; //TODO: A If both methods are available then get user selection.
 
             if (userRegistrationViewState.DefaultUserGroupRequiredInfo.Country ||
                 userRegistrationViewState.DefaultUserGroupRequiredInfo.Address ||
@@ -117,7 +129,7 @@ namespace Gizmo.Client.UI.View.Services
                         Sex = ViewState.Sex
                     };
 
-                    if (userRegistrationViewState.ConfirmationMethod == UserRegistrationMethod.Email)
+                    if (userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email)
                     {
                         profile.Email = userRegistrationConfirmationMethodViewState.Email;
                     }
@@ -137,7 +149,7 @@ namespace Gizmo.Client.UI.View.Services
                     }
                     else
                     {
-                        var result = await _gizmoClient.UserCreateByTokenCompleteAsync(userRegistrationViewState.Token, profile, ViewState.Password, userRegistrationIndexViewState.UserAgreementStates.ToList());
+                        var result = await _gizmoClient.UserCreateByTokenCompleteAsync(userRegistrationConfirmationMethodViewState.Token, profile, ViewState.Password, userRegistrationIndexViewState.UserAgreementStates.ToList());
 
                         if (result.Result != AccountCreationByTokenCompleteResultCode.Success)
                         {
