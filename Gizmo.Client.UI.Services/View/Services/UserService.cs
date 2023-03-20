@@ -1,6 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -11,11 +10,15 @@ namespace Gizmo.Client.UI.View.Services
     {
         #region CONSTRUCTOR
         public UserService(UserViewState viewState,
+            IGizmoClient gizmoClient,
             ILogger<UserService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
+            _gizmoClient = gizmoClient;
         }
         #endregion
+
+        private readonly IGizmoClient _gizmoClient;
 
         #region PROPERTIES
 
@@ -29,10 +32,16 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public Task LogοutAsync()
+        public async Task LogοutAsync()
         {
-            NavigationService.NavigateTo(ClientRoutes.LoginRoute);
-            return Task.CompletedTask;
+            try
+            {
+                await _gizmoClient.UserLogoutAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "User initiated logout failed.");
+            }
         }
 
         #endregion
