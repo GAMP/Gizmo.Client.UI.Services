@@ -181,13 +181,18 @@ namespace Gizmo.Client
 
         public async Task<LoginResult> UserLoginAsync(string loginName, string? password, CancellationToken cancellationToken)
         {
+            LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggingIn));
             await Task.Delay(new Random().Next(100,1000), cancellationToken);
+     
+            LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoginCompleted));
             return LoginResult.Sucess;
         }
 
         public async Task UserLogoutAsync(CancellationToken cancellationToken)
         {
-            await Task.Delay(3000, cancellationToken);
+            LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggingOut));
+            await Task.Delay(3000, cancellationToken);   
+            LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggedOut));
         }
 
         public Task<UserRecoveryMethodGetResultModel> UserPasswordRecoveryMethodGetAsync(string userNameEmailOrMobile, CancellationToken cancellationToken = default)
