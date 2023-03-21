@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -119,10 +120,15 @@ namespace Gizmo.Client.UI.View.Services
                     profile.MobilePhone = tmp;
                 }
 
+                var userAgreements = userRegistrationIndexViewState.UserAgreementStates.Select(a => new UserAgreementModelState()
+                {
+                    UserAgreementId = a.Id,
+                    AcceptState = a.AcceptState
+                }).ToList();
+
                 if (!confirmationRequired)
                 {
                     var password = userRegistrationBasicFieldsViewState.Password;
-                    var userAgreements = userRegistrationIndexViewState.UserAgreementStates.ToList();
 
                     var result = await _gizmoClient.UserCreateCompleteAsync(profile, password, userAgreements);
 
@@ -135,7 +141,6 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     var token = userRegistrationConfirmationMethodViewState.Token;
                     var password = userRegistrationBasicFieldsViewState.Password;
-                    var userAgreements = userRegistrationIndexViewState.UserAgreementStates.ToList();
 
                     var result = await _gizmoClient.UserCreateByTokenCompleteAsync(token, profile, password, userAgreements);
 

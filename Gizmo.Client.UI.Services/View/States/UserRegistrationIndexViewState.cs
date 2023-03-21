@@ -9,7 +9,7 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
-        public IEnumerable<UserAgreementModelState> UserAgreementStates { get; internal set; } = Enumerable.Empty<UserAgreementModelState>();
+        public IEnumerable<UserAgreementViewState> UserAgreementStates { get; internal set; } = Enumerable.Empty<UserAgreementViewState>();
 
         #endregion
     }
