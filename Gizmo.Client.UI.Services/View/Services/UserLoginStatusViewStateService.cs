@@ -57,7 +57,6 @@ namespace Gizmo.Client.UI.View.Services
                 default:
                     break;
             }
-
         }
     }
 }

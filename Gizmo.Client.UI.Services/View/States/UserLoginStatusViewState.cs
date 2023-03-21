@@ -3,6 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Gizmo.Client.UI.View.States
 {
+    /// <summary>
+    /// User login status view state.
+    /// </summary>
     [Register()]
     public sealed class UserLoginStatusViewState : ViewStateBase
     {
@@ -12,7 +15,7 @@ namespace Gizmo.Client.UI.View.States
         #endregion
 
         #region PROPERTIES
-        
+
         /// <summary>
         /// Gets if user is currently logged in.
         /// </summary>
@@ -29,7 +32,7 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _username; }
             internal set { SetProperty(ref _username, value); }
-        }   
+        }
 
         #endregion
     }
