@@ -1,6 +1,7 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -138,9 +139,15 @@ namespace Gizmo.Client.UI.View.Services
                         profile.Email = ViewState.Email;
                     }
 
+                    var userAgreements = userRegistrationIndexViewState.UserAgreementStates.Select(a => new UserAgreementModelState()
+                    {
+                        UserAgreementId = a.Id,
+                        AcceptState = a.AcceptState
+                    }).ToList();
+
                     if (!confirmationRequired)
                     {
-                        var result = await _gizmoClient.UserCreateCompleteAsync(profile, ViewState.Password, userRegistrationIndexViewState.UserAgreementStates.ToList());
+                        var result = await _gizmoClient.UserCreateCompleteAsync(profile, ViewState.Password, userAgreements);
 
                         if (result.Result != AccountCreationCompleteResultCode.Success)
                         {
@@ -149,7 +156,7 @@ namespace Gizmo.Client.UI.View.Services
                     }
                     else
                     {
-                        var result = await _gizmoClient.UserCreateByTokenCompleteAsync(userRegistrationConfirmationMethodViewState.Token, profile, ViewState.Password, userRegistrationIndexViewState.UserAgreementStates.ToList());
+                        var result = await _gizmoClient.UserCreateByTokenCompleteAsync(userRegistrationConfirmationMethodViewState.Token, profile, ViewState.Password, userAgreements);
 
                         if (result.Result != AccountCreationByTokenCompleteResultCode.Success)
                         {

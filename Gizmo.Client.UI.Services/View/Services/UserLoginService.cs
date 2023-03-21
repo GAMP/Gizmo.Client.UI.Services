@@ -146,38 +146,39 @@ namespace Gizmo.Client.UI.View.Services
             userBalanceViewState.RaiseChanged();
         }
 
-        private async Task ShowUserAgreementsAsync()
-        {
-            var userAgreementsService = ServiceProvider.GetRequiredService<UserAgreementsService>();
-            await userAgreementsService.LoadUserAgreementsAsync();
+        //TODO: A
+        //private async Task ShowUserAgreementsAsync()
+        //{
+        //    var userAgreementsService = ServiceProvider.GetRequiredService<UserAgreementsService>();
+        //    await userAgreementsService.LoadUserAgreementsAsync();
 
-            while (userAgreementsService.ViewState.CurrentUserAgreement != null)
-            {
-                var s = await _dialogService.ShowUserAgreementDialogAsync();
-                if (s.Result == DialogAddResult.Success)
-                {
-                    try
-                    {
-                        var result = await s.WaitForDialogResultAsync();
-                        userAgreementsService.AcceptCurrentUserAgreement();
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        //TODO: A CLEANER SOLUTION?
-                        if (userAgreementsService.ViewState.CurrentUserAgreement.IsRejectable)
-                        {
-                            userAgreementsService.RejectCurrentUserAgreement();
-                        }
-                        else
-                        {
-                            //TODO: IF REJECTED CLEANUP AND LOGOUT?
-                            userAgreementsService.RejectCurrentUserAgreement();
-                            return;
-                        }
-                    }
-                }
-            }
-        }
+        //    while (userAgreementsService.ViewState.CurrentUserAgreement != null)
+        //    {
+        //        var s = await _dialogService.ShowUserAgreementDialogAsync();
+        //        if (s.Result == DialogAddResult.Success)
+        //        {
+        //            try
+        //            {
+        //                var result = await s.WaitForDialogResultAsync();
+        //                userAgreementsService.AcceptCurrentUserAgreement();
+        //            }
+        //            catch (OperationCanceledException)
+        //            {
+        //                //TODO: A CLEANER SOLUTION?
+        //                if (userAgreementsService.ViewState.CurrentUserAgreement.IsRejectable)
+        //                {
+        //                    userAgreementsService.RejectCurrentUserAgreement();
+        //                }
+        //                else
+        //                {
+        //                    //TODO: IF REJECTED CLEANUP AND LOGOUT?
+        //                    userAgreementsService.RejectCurrentUserAgreement();
+        //                    return;
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
         public void Reset()
         {

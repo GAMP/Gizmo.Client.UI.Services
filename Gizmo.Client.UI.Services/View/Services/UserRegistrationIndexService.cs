@@ -32,41 +32,55 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task<bool> ProcessUserAgreements(CancellationToken cancellationToken = default)
         {
-            var userAgreementsService = ServiceProvider.GetRequiredService<UserAgreementsService>();
-            await userAgreementsService.LoadUserAgreementsAsync(null, cancellationToken); //TODO: AAA
+            var userAgreements = await _gizmoClient.UserAgreementsGetAsync(new UserAgreementsFilter(), cancellationToken);
 
-            while (userAgreementsService.ViewState.CurrentUserAgreement != null)
+            var userAgreementStates = userAgreements.Data.Select(a => new UserAgreementViewState()
             {
-                var s = await _dialogService.ShowUserAgreementDialogAsync(cancellationToken);
+                Id = a.Id,
+                Name = a.Name,
+                Agreement = a.Agreement,
+                IsRejectable = a.IsRejectable,
+                IgnoreState = a.IgnoreState,
+                AcceptState = UserAgreementAcceptState.None
+            }).ToList();
+
+            foreach (var userAgreement in userAgreementStates)
+            {
+                var s = await _dialogService.ShowUserAgreementDialogAsync(new UserAgreementDialogParameters()
+                {
+                    Name = userAgreement.Name,
+                    Agreement = userAgreement.Agreement,
+                    IsRejectable = userAgreement.IsRejectable
+                }, cancellationToken);
                 if (s.Result == DialogAddResult.Success)
                 {
                     try
                     {
                         var result = await s.WaitForDialogResultAsync(cancellationToken);
-                        userAgreementsService.AcceptCurrentUserAgreement();
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        //TODO: A CLEANER SOLUTION?
-                        if (userAgreementsService.ViewState.CurrentUserAgreement.IsRejectable)
+                        if (result.Accepted)
                         {
-                            userAgreementsService.RejectCurrentUserAgreement();
+                            userAgreement.AcceptState = UserAgreementAcceptState.Accepted;
                         }
                         else
                         {
-                            //TODO: IF REJECTED CLEANUP AND RETURN
-                            userAgreementsService.RejectCurrentUserAgreement();
+                            userAgreement.AcceptState = UserAgreementAcceptState.Rejected;
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        if (userAgreement.IsRejectable)
+                        {
+                            userAgreement.AcceptState = UserAgreementAcceptState.Rejected;
+                        }
+                        else
+                        {
                             return false;
                         }
                     }
                 }
             }
-;
-            ViewState.UserAgreementStates = userAgreementsService.ViewState.UserAgreements.Select(a => new UserAgreementModelState()
-            {
-                UserAgreementId = a.Id,
-                AcceptState = a.AcceptState
-            }).ToList();
+
+            ViewState.UserAgreementStates = userAgreementStates;
 
             return true;
         }
@@ -78,7 +92,7 @@ namespace Gizmo.Client.UI.View.Services
             var userRegistrationBasicFieldsService = ServiceProvider.GetRequiredService<UserRegistrationBasicFieldsService>();
             var userRegistrationAdditionalFieldsService = ServiceProvider.GetRequiredService<UserRegistrationAdditionalFieldsService>();
 
-            ViewState.UserAgreementStates = Enumerable.Empty<UserAgreementModelState>();
+            ViewState.UserAgreementStates = Enumerable.Empty<UserAgreementViewState>();
             userRegistrationConfirmationService.Clear();
             userRegistrationConfirmationMethodService.Clear();
             userRegistrationBasicFieldsService.Clear();

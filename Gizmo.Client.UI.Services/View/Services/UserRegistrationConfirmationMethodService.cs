@@ -32,7 +32,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
         private readonly UserRegistrationViewState _userRegistrationViewState;
-        private System.Timers.Timer _timer = new System.Timers.Timer(1000);
+        private readonly System.Timers.Timer _timer = new System.Timers.Timer(1000);
         #endregion
 
         #region FUNCTIONS
