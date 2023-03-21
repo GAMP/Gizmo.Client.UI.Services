@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.Services;
+﻿using System.ComponentModel;
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
@@ -43,8 +44,8 @@ namespace Gizmo.Client.UI.View.Services
 
         public void SetLoginName(string value)
         {
-            ViewState.LoginName = value;
-            ViewState.RaiseChanged();
+            ViewState.LoginName = value;        
+            ViewState.RaiseChanged();      
         }
 
         public void SetPassword(string value)
@@ -68,12 +69,23 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return;
 
+            string? loginName = ViewState.LoginName;
+            string? password = ViewState.Password;
+
+            if (string.IsNullOrEmpty(loginName) || string.IsNullOrEmpty(password))
+                return;
+
 
             ViewState.RaiseChanged();
 
             try
             {
-                var result = await _gizmoClient.UserLoginAsync(ViewState.LoginName, ViewState.Password);
+                var result = await _gizmoClient.UserLoginAsync(loginName, password);
+                if(result != LoginResult.Sucess)
+                {
+                    ViewState.LoginName = null;
+                    ViewState.Password = null;
+                }
                 Logger.LogTrace("Client login result {result}", result);
             }
             catch(Exception ex) 
@@ -176,5 +188,10 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
+
+        protected override Task OnViewStatePropertyChangedDebouncedAsync(object sender, IEnumerable<PropertyChangedEventArgs> propertyChangedArgs)
+        {
+            return Task.CompletedTask;
+        }
     }
 }

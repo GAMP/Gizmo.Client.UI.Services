@@ -8,7 +8,6 @@ namespace Gizmo.Client.UI.View.Services
     [Register()]
     public sealed class UserService : ViewStateServiceBase<UserViewState>, IDisposable
     {
-        #region CONSTRUCTOR
         public UserService(UserViewState viewState,
             IGizmoClient gizmoClient,
             ILogger<UserService> logger,
@@ -16,21 +15,8 @@ namespace Gizmo.Client.UI.View.Services
         {
             _gizmoClient = gizmoClient;
         }
-        #endregion
 
         private readonly IGizmoClient _gizmoClient;
-
-        #region PROPERTIES
-
-        public UserBalanceViewState UserBalanceViewState { get; set; } = new UserBalanceViewState()
-        {
-            Balance = 40.5m,
-            PointsBalance = 450
-        };
-
-        #endregion
-
-        #region FUNCTIONS
 
         public async Task LogοutAsync()
         {
@@ -43,7 +29,5 @@ namespace Gizmo.Client.UI.View.Services
                 Logger.LogError(ex, "User initiated logout failed.");
             }
         }
-
-        #endregion
     }
 }

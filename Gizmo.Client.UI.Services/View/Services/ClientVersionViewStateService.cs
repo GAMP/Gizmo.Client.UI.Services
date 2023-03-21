@@ -15,13 +15,12 @@ namespace Gizmo.Client.UI.View.Services
     [Register()]
     public sealed class ClientVersionViewStateService : ViewStateServiceBase<ClientVersionViewState>
     {
-        #region CONSTRUCTOR
-        public ClientVersionViewStateService(ClientVersionViewState state, ILogger<ClientVersionViewStateService> logger, IServiceProvider serviceProvider)
+        public ClientVersionViewStateService(ClientVersionViewState state,
+            ILogger<ClientVersionViewStateService> logger,
+            IServiceProvider serviceProvider)
             : base(state, logger, serviceProvider)
         { }
-        #endregion
 
-        #region OVERRIDES
         protected override Task OnInitializing(CancellationToken ct)
         {
             try
@@ -48,6 +47,5 @@ namespace Gizmo.Client.UI.View.Services
 
             return base.OnInitializing(ct);
         } 
-        #endregion
     }
 }
