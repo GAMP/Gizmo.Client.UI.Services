@@ -189,10 +189,5 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
-
-        protected override Task OnViewStatePropertyChangedDebouncedAsync(object sender, IEnumerable<PropertyChangedEventArgs> propertyChangedArgs)
-        {
-            return Task.CompletedTask;
-        }
     }
 }

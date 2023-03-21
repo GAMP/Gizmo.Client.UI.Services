@@ -3,7 +3,6 @@ using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.ComponentModel;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -124,17 +123,6 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
-
-        protected override void OnViewStatePropertyChangedDebounced(object sender, PropertyChangedEventArgs e)
-        {
-            base.OnViewStatePropertyChangedDebounced(sender, e);
-
-            if (e.PropertyName == nameof(ViewState.InputPassword))
-            {
-                if (ViewState.IsLocked && !string.IsNullOrEmpty(ViewState.Error))
-                    ViewState.Error = String.Empty;
-            }
-        }
 
         protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
         {

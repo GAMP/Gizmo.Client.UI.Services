@@ -65,7 +65,10 @@ namespace Gizmo.Client.UI.View.Services
 
                 try
                 {
+                    //get current user balance
                     var currentUserBalance = await _gizmoClient.UserBalanceGetAsync();
+
+                    //update values
                     ViewState.Balance = currentUserBalance.Balance;
                     ViewState.PointsBalance = currentUserBalance.Points;
                     ViewState.Outstanding = currentUserBalance.TotalOutstanding;

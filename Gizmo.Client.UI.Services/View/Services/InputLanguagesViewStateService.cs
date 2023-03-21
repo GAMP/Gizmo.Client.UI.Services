@@ -29,7 +29,7 @@ namespace Gizmo.Client.UI.View.Services
             var currentLanguage = _inputLanguageService.CurrentInputLanguage;
             var inputLanguagesViewStates = inputLanguages.Select(culture =>
             {
-                return GetViewState<LanguageViewState>((state) =>
+                return GetRequiredViewState<LanguageViewState>((state) =>
                 {
                     state.EnglishName = culture.EnglishName;
                     state.TwoLetterName = culture.TwoLetterISOLanguageName;

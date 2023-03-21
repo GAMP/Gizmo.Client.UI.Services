@@ -34,7 +34,7 @@ namespace Gizmo.Client.UI.View.Services
 
             var supportedCulturesViewStates = supportedCultures.Select(culture =>
             {
-                return GetViewState<LanguageViewState>((state) =>
+                return GetRequiredViewState<LanguageViewState>((state) =>
                 {
                     state.NativeName = culture.NativeName;
                     state.TwoLetterName = culture.TwoLetterISOLanguageName;
