@@ -43,19 +43,18 @@ namespace Gizmo.Client.UI.View.Services
                     try
                     {
                         var result = await s.WaitForDialogResultAsync(cancellationToken);
-                        userAgreementsService.AcceptCurrentUserAgreement();
+                        userAgreementsService.GetNextUserAgreement();
                     }
                     catch (OperationCanceledException)
                     {
                         //TODO: A CLEANER SOLUTION?
                         if (userAgreementsService.ViewState.CurrentUserAgreement.IsRejectable)
                         {
-                            userAgreementsService.RejectCurrentUserAgreement();
+                            userAgreementsService.SetCurrentUserAgreementState(UserAgreementAcceptState.Rejected);
+                            userAgreementsService.GetNextUserAgreement();
                         }
                         else
                         {
-                            //TODO: IF REJECTED CLEANUP AND RETURN
-                            userAgreementsService.RejectCurrentUserAgreement();
                             return false;
                         }
                     }

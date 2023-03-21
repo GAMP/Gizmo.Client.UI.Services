@@ -20,16 +20,6 @@ namespace Gizmo.Client.UI.View.Services
 
         private readonly IGizmoClient _gizmoClient;
 
-        #region PROPERTIES
-
-        public UserBalanceViewState UserBalanceViewState { get; set; } = new UserBalanceViewState()
-        {
-            Balance = 40.5m,
-            PointsBalance = 450
-        };
-
-        #endregion
-
         #region FUNCTIONS
 
         public async Task LogοutAsync()
