@@ -81,7 +81,7 @@ namespace Gizmo.Client.UI.View.Services
                 Logger.LogError(ex, "User initiated client login error.");
             }
 
-            //DebounceViewStateChange();
+            DebounceViewStateChange();
         }
 
         public Task OpenRegistrationAsync()
