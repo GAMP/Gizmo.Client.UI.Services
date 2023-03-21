@@ -20,6 +20,7 @@ namespace Gizmo.Client.UI.View.Services
             IGizmoClient gizmoClient,
             IClientDialogService dialogService) : base(viewState, logger, serviceProvider)
         {
+            _gizmoClient = gizmoClient;
             _dialogService = dialogService;
         }
         #endregion

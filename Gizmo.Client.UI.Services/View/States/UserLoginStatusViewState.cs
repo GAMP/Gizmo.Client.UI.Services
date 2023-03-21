@@ -7,8 +7,8 @@ namespace Gizmo.Client.UI.View.States
     public sealed class UserLoginStatusViewState : ViewStateBase
     {
         #region FIELDS
-        private bool _loggedIn = false; 
-        private string _username = string.Empty;
+        private bool _loggedIn = false;
+        private string? _username;
         #endregion
 
         #region PROPERTIES
@@ -25,7 +25,7 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets username.
         /// </summary>
-        public string Username
+        public string? Username
         {
             get { return _username; }
             internal set { SetProperty(ref _username, value); }

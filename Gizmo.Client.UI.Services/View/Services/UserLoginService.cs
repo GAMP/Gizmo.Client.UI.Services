@@ -68,22 +68,17 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return;
 
-            ViewState.IsLogginIn = true;
+
             ViewState.RaiseChanged();
 
             try
             {
                 var result = await _gizmoClient.UserLoginAsync(ViewState.LoginName, ViewState.Password);
-                if (result == LoginResult.Sucess)
-                    NavigationService.NavigateTo(ClientRoutes.HomeRoute);
+                Logger.LogTrace("Client login result {result}", result);
             }
-            catch
+            catch(Exception ex) 
             {
-
-            }
-            finally
-            {
-                ViewState.IsLogginIn = false;
+                Logger.LogError(ex, "User initiated client login error.");
             }
 
             DebounceViewStateChange();

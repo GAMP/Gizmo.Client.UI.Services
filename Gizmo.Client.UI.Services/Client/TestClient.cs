@@ -1,4 +1,4 @@
-using Gizmo.Client.UI.View;
+﻿using Gizmo.Client.UI.View;
 using Gizmo.Web.Api.Models;
 
 namespace Gizmo.Client
@@ -19,6 +19,7 @@ namespace Gizmo.Client
         private readonly List<NewsModel> _newsModel;
 
         public event EventHandler<ClientExecutionContextStateArgs>? ExecutionContextStateChage;
+        public event EventHandler<UserLoginStateChangeEventArgs>? LoginStateChange;
 
         public TestClient()
         {
