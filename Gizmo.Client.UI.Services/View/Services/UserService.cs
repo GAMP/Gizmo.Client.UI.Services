@@ -18,8 +18,6 @@ namespace Gizmo.Client.UI.View.Services
 
         private readonly IGizmoClient _gizmoClient;
 
-        #region FUNCTIONS
-
         public async Task LogοutAsync()
         {
             try
