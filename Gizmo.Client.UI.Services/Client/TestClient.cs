@@ -146,6 +146,7 @@ namespace Gizmo.Client
                 new UserPaymentMethodModel() { Id = -3 , Name= "Balance" , DisplayOrder =0},
             };
             #endregion
+
             #region ADVERTISMENT
             _newsModel = new()
             {
@@ -184,8 +185,8 @@ namespace Gizmo.Client
         public async Task<LoginResult> UserLoginAsync(string loginName, string? password, CancellationToken cancellationToken)
         {
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggingIn));
-            await Task.Delay(new Random().Next(100,1000), cancellationToken);
-     
+            await Task.Delay(new Random().Next(100, 1000), cancellationToken);
+
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoginCompleted));
             return LoginResult.Sucess;
         }
@@ -193,23 +194,8 @@ namespace Gizmo.Client
         public async Task UserLogoutAsync(CancellationToken cancellationToken)
         {
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggingOut));
-            await Task.Delay(3000, cancellationToken);   
+            await Task.Delay(3000, cancellationToken);
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggedOut));
-        }
-
-        public Task<UserRecoveryMethodGetResultModel> UserPasswordRecoveryMethodGetAsync(string userNameEmailOrMobile, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(new UserRecoveryMethodGetResultModel());
-        }
-
-        public Task<PasswordRecoveryStartResultModelByEmail> UserPasswordRecoveryByEmailStartAsync(string email, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(new PasswordRecoveryStartResultModelByEmail());
-        }
-
-        public Task<PasswordRecoveryCompleteResultCode> UserPasswordRecoveryCompleteAsync(string token, string confirmationCode, string newPassword, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(new PasswordRecoveryCompleteResultCode());
         }
 
         public Task<PagedList<UserAgreementModel>> UserAgreementsGetAsync(UserAgreementsFilter filter, CancellationToken cancellationToken = default)
@@ -262,9 +248,12 @@ namespace Gizmo.Client
             return Task.FromResult(false);
         }
 
-        public Task<bool> TokenIsValidAsync(TokenType tokenType, string token, string confirmationCode, CancellationToken cancellationToken = default)
+        public async Task<bool> TokenIsValidAsync(TokenType tokenType, string token, string confirmationCode, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(true);
+            // Simulate task.
+            await Task.Delay(5000);
+
+            return true;
         }
 
         public Task<UserModelRequiredInfo?> UserGroupDefaultRequiredInfoGetAsync(CancellationToken cancellationToken = default)
@@ -412,11 +401,6 @@ namespace Gizmo.Client
             return Task.FromResult(new AccountCreationResultModelByMobilePhone());
         }
 
-        public Task<PasswordRecoveryStartResultModelByMobile> UserPasswordRecoveryByMobileStartAsync(string username, Gizmo.ConfirmationCodeDeliveryMethod confirmationCodeDeliveryMethod = Gizmo.ConfirmationCodeDeliveryMethod.Undetermined, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(new PasswordRecoveryStartResultModelByMobile());
-        }
-
         public Task<PagedList<UserApplicationEnterpriseModel>> UserApplicationEnterprisesGetAsync(UserApplicationEnterprisesFilter filters, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(new PagedList<UserApplicationEnterpriseModel>(_applicationEnterprises));
@@ -490,7 +474,7 @@ namespace Gizmo.Client
 
         public Task<IAppExecutionContextResult> AppExeExecutionContextGetAsync(int appExeId, CancellationToken cancellationToken)
         {
-            
+
             throw new NotImplementedException();
         }
 
@@ -532,6 +516,47 @@ namespace Gizmo.Client
         public Task<UserRecoveryMethod> GetPasswordRecoveryMethodAsync(CancellationToken cancellationToken = default)
         {
             return Task.FromResult(UserRecoveryMethod.Mobile);
+        }
+
+        public Task<UserRecoveryMethodGetResultModel> UserPasswordRecoveryMethodGetAsync(string userNameEmailOrMobile, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(new UserRecoveryMethodGetResultModel());
+        }
+
+        public async Task<PasswordRecoveryStartResultModelByEmail> UserPasswordRecoveryByEmailStartAsync(string email, CancellationToken cancellationToken = default)
+        {
+            // Simulate task.
+            await Task.Delay(5000);
+
+            return new PasswordRecoveryStartResultModelByEmail()
+            {
+                Token = "123",
+                Email = email,
+                CodeLength = 5
+            };
+        }
+
+        public async Task<PasswordRecoveryStartResultModelByMobile> UserPasswordRecoveryByMobileStartAsync(string mobilePhone, Gizmo.ConfirmationCodeDeliveryMethod confirmationCodeDeliveryMethod = Gizmo.ConfirmationCodeDeliveryMethod.Undetermined, CancellationToken cancellationToken = default)
+        {
+            // Simulate task.
+            await Task.Delay(5000);
+
+            return new PasswordRecoveryStartResultModelByMobile()
+            {
+                Token = "123",
+                MobilePhone = mobilePhone,
+                CodeLength = 5
+            };
+        }
+
+        public async Task<PasswordRecoveryCompleteResultCode> UserPasswordRecoveryCompleteAsync(string token, string confirmationCode, string newPassword, CancellationToken cancellationToken = default)
+        {
+            // Simulate task.
+            await Task.Delay(5000);
+
+            throw new Exception("Test");
+
+            return new PasswordRecoveryCompleteResultCode();
         }
     }
 }

@@ -37,19 +37,42 @@ namespace Gizmo.Client.UI.View.Services
             using (ViewStateChangeDebounced())
             {
                 ViewState.ConfirmationCode = value;
-                await ValidatePropertyAsync((x)=>x.ConfirmationCode);
+                await ValidatePropertyAsync((x) => x.ConfirmationCode);
             }
         }
 
-        public Task SubmitAsync()
+        public async Task SubmitAsync()
         {
             ViewState.IsValid = EditContext.Validate();
 
             if (ViewState.IsValid != true)
-                return Task.CompletedTask;
+                return;
 
-            NavigationService.NavigateTo(ClientRoutes.PasswordRecoverySetNewPasswordRoute);
-            return Task.CompletedTask;
+            ViewState.IsLoading = true;
+            ViewState.RaiseChanged();
+
+            try
+            {
+                if (!await _gizmoClient.TokenIsValidAsync(TokenType.ResetPassword, _userPasswordRecoveryViewState.Token, ViewState.ConfirmationCode))
+                {
+                    ViewState.HasError = true;
+                    ViewState.ErrorMessage = _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID");
+                    //TODO: AAA CLEAR ERROR WITH TIMER OR SOMETHING?
+                    return;
+                }
+
+                NavigationService.NavigateTo(ClientRoutes.PasswordRecoverySetNewPasswordRoute);
+            }
+            catch (Exception ex)
+            {
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = ex.ToString();
+            }
+            finally
+            {
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
+            }
         }
 
         #endregion
@@ -62,17 +85,18 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldName == nameof(ViewState.ConfirmationCode))
             {
-                if (ViewState.ConfirmationCode.Length != 6)
+                if (ViewState.ConfirmationCode.Length != _userPasswordRecoveryViewState.CodeLength)
                 {
-                    validationMessageStore.Add(() => ViewState.ConfirmationCode, "Confirmation code should have 6 digits!"); //TODO: A TRANSLATE
+
+                    validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("GIZ_CONFIRMATION_CODE_LENGTH_ERROR", _userPasswordRecoveryViewState.CodeLength));
                 }
-                else
-                {
-                    if (!await _gizmoClient.TokenIsValidAsync(TokenType.ResetPassword, _userPasswordRecoveryViewState.Token, ViewState.ConfirmationCode))
-                    {
-                        validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID"));
-                    }
-                }
+                //else
+                //{
+                //    if (!await _gizmoClient.TokenIsValidAsync(TokenType.ResetPassword, _userPasswordRecoveryViewState.Token, ViewState.ConfirmationCode))
+                //    {
+                //        validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID"));
+                //    }
+                //}
             }
         }
 

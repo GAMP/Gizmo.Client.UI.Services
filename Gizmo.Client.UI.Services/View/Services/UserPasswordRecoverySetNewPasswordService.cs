@@ -49,6 +49,9 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return;
 
+            ViewState.IsLoading = true;
+            ViewState.RaiseChanged();
+
             var userPasswordRecoveryViewState = ServiceProvider.GetRequiredService<UserPasswordRecoveryViewState>();
             var userPasswordRecoveryConfirmationViewState = ServiceProvider.GetRequiredService<UserPasswordRecoveryConfirmationViewState>();
 
@@ -62,18 +65,23 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (result != PasswordRecoveryCompleteResultCode.Success)
                 {
-                    //TODO: A HANDLE ERROR
+                    ViewState.HasError = true;
+                    ViewState.ErrorMessage = result.ToString(); //TODO: AAA ERROR
+
+                    return;
                 }
 
                 NavigationService.NavigateTo(ClientRoutes.LoginRoute);
             }
-            catch
+            catch (Exception ex)
             {
-                //TODO: A HANDLE ERROR
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = ex.ToString();
             }
             finally
             {
-
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
             }
         }
 

@@ -73,12 +73,44 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     var result = await _gizmoClient.UserPasswordRecoveryByEmailStartAsync(ViewState.Email);
 
-                    if (result.Result != PasswordRecoveryStartResultCode.Success)
+                    switch (result.Result)
                     {
-                        //TODO: A HANDLE ERROR
-                    }
+                        case PasswordRecoveryStartResultCode.Success:
 
-                    ViewState.Token = result.Token;
+                            string email = "";
+
+                            if (!string.IsNullOrEmpty(result.Email))
+                            {
+                                int atIndex = result.Email.IndexOf('@');
+                                if (atIndex != -1 && atIndex > 1)
+                                    email = result.Email.Substring(atIndex - 2).PadLeft(result.Email.Length, '*');
+                                else
+                                    email = result.Email;
+                            }
+
+                            ViewState.Token = result.Token;
+                            ViewState.Destination = email;
+                            ViewState.CodeLength = result.CodeLength;
+
+                            //TODO: AAA ViewState.CanResend = false;
+
+                            NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryConfirmationRoute);
+
+                            break;
+
+                        case PasswordRecoveryStartResultCode.NoRouteForDelivery:
+                            ViewState.HasError = true;
+                            ViewState.ErrorMessage = _localizationService.GetString("PROVIDER_NO_ROUTE_FOR_DELIVERY");
+
+                            break;
+
+                        default:
+
+                            ViewState.HasError = true;
+                            ViewState.ErrorMessage = _localizationService.GetString("PASSWORD_RESET_FAILED_MESSAGE");
+
+                            break;
+                    }
                 }
                 else
                 {
@@ -86,33 +118,29 @@ namespace Gizmo.Client.UI.View.Services
 
                     if (result.Result != PasswordRecoveryStartResultCode.Success)
                     {
-                        //TODO: A HANDLE ERROR
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = result.Result.ToString(); //TODO: AAA ERROR
+
+                        return;
                     }
 
                     ViewState.Token = result.Token;
+                    ViewState.Destination = result.MobilePhone;
+                    ViewState.CodeLength = result.CodeLength;
+                    //TODO: AAA ViewState.CanResend = false;
+
+                    NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryConfirmationRoute);
                 }
-
-                // Simulate task.
-                await Task.Delay(2000);
-
-                ViewState.IsLoading = false;
-
-                //ViewState.CanResend = false;
-
-                NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryConfirmationRoute);
-
-                //TODO: A
-                //ViewState.CanResend = false;
-                await Task.Delay(5000);
-                ViewState.RaiseChanged();
             }
-            catch
+            catch (Exception ex)
             {
-                //TODO: A HANDLE ERROR
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = ex.ToString();
             }
             finally
             {
-
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
             }
         }
 

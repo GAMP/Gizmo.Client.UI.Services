@@ -8,11 +8,6 @@ namespace Gizmo.Client.UI.View.States
     [Register]
     public sealed class UserPasswordRecoverySetNewPasswordViewState : ValidatingViewStateBase
     {
-        #region FIELDS
-        private string _newPassword = string.Empty;
-        private string _repeatPassword = string.Empty;
-        #endregion
-
         #region PROPERTIES
 
         /// <summary>
@@ -20,22 +15,20 @@ namespace Gizmo.Client.UI.View.States
         /// </summary>
         [ValidatingProperty()]
         [Required()]
-        public string NewPassword
-        {
-            get { return _newPassword; }
-            internal set { SetProperty(ref _newPassword, value); }
-        }
+        public string NewPassword { get; internal set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets repeat password.
         /// </summary>
         [ValidatingProperty()]
         [Required()]
-        public string RepeatPassword
-        {
-            get { return _repeatPassword; }
-            internal set { SetProperty(ref _repeatPassword, value); }
-        }
+        public string RepeatPassword { get; internal set; } = string.Empty;
+
+        public bool IsLoading { get; internal set; }
+
+        public bool HasError { get; internal set; }
+
+        public string ErrorMessage { get; internal set; } = string.Empty;
 
         #endregion
     }
