@@ -45,7 +45,7 @@ namespace Gizmo.Client.UI.View.Services
                         var executables = await _appExeLookupService.GetStatesAsync(cancellationToken);
                         ViewState.Executables = executables.Where(a => a.ApplicationId == id).ToList();
 
-                        DebounceViewStateChange(applicationViewState);
+                        DebounceViewStateChanged(applicationViewState);
                     }
                 }
             }

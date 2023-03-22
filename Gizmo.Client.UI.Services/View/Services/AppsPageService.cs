@@ -126,7 +126,7 @@ namespace Gizmo.Client.UI.View.Services
 
             await RefilterRequest(default);
 
-            DebounceViewStateChange();
+            DebounceViewStateChanged();
         }
 
         public async Task SetSelectedApplicationCategory(int? value)
@@ -135,7 +135,7 @@ namespace Gizmo.Client.UI.View.Services
 
             await RefilterRequest(default);
 
-            DebounceViewStateChange();
+            DebounceViewStateChanged();
         }
 
         public async Task SetSelectedSelectedExecutableModes(IEnumerable<ApplicationModes> value)
@@ -144,7 +144,7 @@ namespace Gizmo.Client.UI.View.Services
 
             await RefilterRequest(default);
 
-            DebounceViewStateChange();
+            DebounceViewStateChanged();
         }
 
         public async Task ClearSearchPattern()
@@ -153,7 +153,7 @@ namespace Gizmo.Client.UI.View.Services
 
             await RefilterRequest(default);
 
-            DebounceViewStateChange();
+            DebounceViewStateChanged();
         }
 
         public async Task ClearAllFilters()
@@ -166,7 +166,7 @@ namespace Gizmo.Client.UI.View.Services
 
             await RefilterRequest(default);
 
-            DebounceViewStateChange();
+            DebounceViewStateChanged();
         }
     }
 }

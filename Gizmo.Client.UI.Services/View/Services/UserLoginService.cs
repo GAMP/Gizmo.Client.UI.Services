@@ -1,63 +1,64 @@
-﻿using System.ComponentModel;
-using Gizmo.Client.UI.Services;
-using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Gizmo.Client.UI.View.Services
 {
+    [Route(ClientRoutes.LoginRoute)]
     [Register()]
     public sealed class UserLoginService : ValidatingViewStateServiceBase<UserLoginViewState>, IDisposable
     {
-        #region CONSTRUCTOR
         public UserLoginService(UserLoginViewState viewState,
             ILogger<UserLoginService> logger,
             IServiceProvider serviceProvider,
-            IGizmoClient gizmoClient,
-            IClientDialogService dialogService) : base(viewState, logger, serviceProvider)
+            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
-            _dialogService = dialogService;
         }
-        #endregion
 
-        #region FIELDS
         private readonly IGizmoClient _gizmoClient;
-        private readonly IClientDialogService _dialogService;
-        #endregion
-
-        #region FUNCTIONS
 
         public void SetLoginMethod(UserLoginType userLoginType)
         {
-            ViewState.LoginType = userLoginType;
-            ViewState.RaiseChanged();
+            using (ViewStateChangeDebounced())
+            {
+                ViewState.LoginType = userLoginType;
+            }
+        }
+
+        public void SetLoginName(string value)
+        {
+            using (ViewStateChangeDebounced())
+            {            
+                ViewState.LoginName = value;
+                ValidateProperty((x) => x.LoginName);
+            }
+        }
+
+        public void SetPassword(string value)
+        {
+            using (ViewStateChangeDebounced())
+            {
+                ViewState.Password = value;
+                ValidateProperty((x) => x.Password);
+            }
+        }
+
+        public void SetPasswordVisible(bool value)
+        {
+            using (ViewStateChangeDebounced())
+            {
+                ViewState.IsPasswordVisible = value;
+            }
         }
 
         public Task<bool> UsernameCharacterIsValid(char value)
         {
             return Task.FromResult(value != '!');
-        }
-
-        public void SetLoginName(string value)
-        {
-            ViewState.LoginName = value;        
-            ViewState.RaiseChanged();      
-        }
-
-        public void SetPassword(string value)
-        {
-            ViewState.Password = value;
-            ViewState.RaiseChanged();
-        }
-
-        public void SetPasswordVisible(bool value)
-        {
-            ViewState.IsPasswordVisible = value;
-            ViewState.RaiseChanged();
         }
 
         public async Task LoginAsync()
@@ -75,25 +76,15 @@ namespace Gizmo.Client.UI.View.Services
             if (string.IsNullOrEmpty(loginName) || string.IsNullOrEmpty(password))
                 return;
 
-
-            ViewState.RaiseChanged();
-
             try
             {
                 var result = await _gizmoClient.UserLoginAsync(loginName, password);
-                if(result != LoginResult.Sucess)
-                {
-                    ViewState.LoginName = null;
-                    ViewState.Password = null;
-                }
                 Logger.LogTrace("Client login result {result}", result);
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 Logger.LogError(ex, "User initiated client login error.");
             }
-
-            DebounceViewStateChange();
         }
 
         public Task OpenRegistrationAsync()
@@ -108,86 +99,85 @@ namespace Gizmo.Client.UI.View.Services
             return Task.CompletedTask;
         }
 
-        private async Task LoadUserProfileAsync(CancellationToken cancellationToken = default)
-        {
-            var userProfile = await _gizmoClient.UserProfileGetAsync(cancellationToken);
-
-            var userViewState = ServiceProvider.GetRequiredService<UserViewState>();
-
-            userViewState.Id = userProfile.Id;
-            userViewState.Username = userProfile.Username;
-            userViewState.FirstName = userProfile.FirstName;
-            userViewState.LastName = userProfile.LastName;
-            userViewState.BirthDate = userProfile.BirthDate;
-            userViewState.Sex = userProfile.Sex;
-            userViewState.Country = userProfile.Country;
-            userViewState.Address = userProfile.Address;
-            userViewState.Email = userProfile.Email;
-            userViewState.Phone = userProfile.Phone;
-            userViewState.MobilePhone = userProfile.MobilePhone;
-            //TODO: A USER PICTURE
-            //userViewState.RegistrationDate = userProfile.RegistrationDate;
-            userViewState.Picture = "_content/Gizmo.Client.UI/img/Cyber_Punk.png";
-
-            userViewState.RaiseChanged();
-        }
-
-        private async Task LoadUserBalanceAsync(CancellationToken cancellationToken = default)
-        {
-            var userBalance = await _gizmoClient.UserBalanceGetAsync(cancellationToken);
-            //TODO: A UPDATE FROM USERBALANCE
-            var userBalanceViewState = ServiceProvider.GetRequiredService<UserBalanceViewState>();
-
-            userBalanceViewState.Balance = 10.76m;
-            userBalanceViewState.CurrentTimeProduct = "#Six Hours (6) for 10$ Pack";
-            userBalanceViewState.Time = new TimeSpan(6, 36, 59);
-            userBalanceViewState.PointsBalance = userBalance.Points;
-
-            userBalanceViewState.RaiseChanged();
-        }
-
-        //TODO: A
-        //private async Task ShowUserAgreementsAsync()
-        //{
-        //    var userAgreementsService = ServiceProvider.GetRequiredService<UserAgreementsService>();
-        //    await userAgreementsService.LoadUserAgreementsAsync();
-
-        //    while (userAgreementsService.ViewState.CurrentUserAgreement != null)
-        //    {
-        //        var s = await _dialogService.ShowUserAgreementDialogAsync();
-        //        if (s.Result == DialogAddResult.Success)
-        //        {
-        //            try
-        //            {
-        //                var result = await s.WaitForDialogResultAsync();
-        //                userAgreementsService.AcceptCurrentUserAgreement();
-        //            }
-        //            catch (OperationCanceledException)
-        //            {
-        //                //TODO: A CLEANER SOLUTION?
-        //                if (userAgreementsService.ViewState.CurrentUserAgreement.IsRejectable)
-        //                {
-        //                    userAgreementsService.RejectCurrentUserAgreement();
-        //                }
-        //                else
-        //                {
-        //                    //TODO: IF REJECTED CLEANUP AND LOGOUT?
-        //                    userAgreementsService.RejectCurrentUserAgreement();
-        //                    return;
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-
         public void Reset()
         {
-            ViewState.SetDefaults();
-            ResetValidationErrors();
-
-            ViewState.RaiseChanged();
+            using (ViewStateChangeDebounced())
+            {
+                ViewState.SetDefaults();
+                ResetValidationErrors();
+            }
         }
 
-        #endregion
+        protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        {
+            return base.OnNavigatedIn(navigationParameters, cancellationToken);
+        }
+
+        protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        {
+            //whenever we move away from login page we should make full view state reset
+            Reset();
+            return base.OnNavigatedOut(navigationParameters, cancellationToken);
+        }
+
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            _gizmoClient.LoginStateChange += OnUserLoginStateChange;
+            _gizmoClient.UserIdleChange += OnSystemUserIdleChange;
+            return base.OnInitializing(ct);
+        }
+
+        protected override void OnDisposing(bool dis)
+        {
+            _gizmoClient.LoginStateChange -= OnUserLoginStateChange;
+            _gizmoClient.UserIdleChange -= OnSystemUserIdleChange;
+            base.OnDisposing(dis);
+        }
+
+        private void OnSystemUserIdleChange(object? sender, UserIdleEventArgs e)
+        {
+            //once user becomes idle we need to clear any input made into login form
+            if(e.IsIdle)
+            {
+                Reset();
+            }
+        }
+
+        private void OnUserLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
+        {
+            using (ViewStateChangeDebounced())
+            {
+                switch (e.State)
+                {
+                    case LoginState.LoginFailed:
+                        switch (e.FailReason)
+                        {
+                            //only clear password input in case of invalid password
+                            case LoginResult.InvalidPassword:                                
+                                ViewState.Password = null;
+                                break;
+                        }
+
+                        ViewState.HasLoginError = true;
+                        ViewState.LoginError = e.FailReason.ToString();
+                        break;
+                    //in all other cases make a full view state reset
+                    default:
+                        Reset();
+                        break;
+                }
+
+                switch (e.State)
+                {
+                    //LoggingIn state is the only statye
+                    case LoginState.LoggingIn:
+                        ViewState.IsLogginIn = true;
+                        break;
+                    default:
+                        ViewState.IsLogginIn = false;
+                        break;
+                }
+            }
+        }
     }
 }

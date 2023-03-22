@@ -44,7 +44,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.PointsBalance = e.Balance.Points;
             ViewState.Outstanding = e.Balance.TotalOutstanding;
             ViewState.Time = TimeSpan.FromMinutes(e.Balance.AvailableCreditedTime ?? 0);
-            DebounceViewStateChange();
+            DebounceViewStateChanged();
         }
 
         private async void OnLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
@@ -84,7 +84,7 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.SetDefaults();
             }
 
-            DebounceViewStateChange();
+            DebounceViewStateChanged();
         }
     }
 }
