@@ -58,7 +58,7 @@ namespace Gizmo.Client.UI.View.Services
                     }
                 }
 
-                AddViewState(product.Id, viewState);
+                AddOrUpdateViewState(product.Id, viewState);
             }
 
             return true;

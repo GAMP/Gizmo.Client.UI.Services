@@ -34,7 +34,7 @@ namespace Gizmo.Client.UI.View.Services
                 viewState.AppExeId = item.Id;
                 viewState.AppId = item.ApplicationId;
 
-                AddViewState(item.Id, viewState);
+                AddOrUpdateViewState(item.Id, viewState);
             }
 
             return true;

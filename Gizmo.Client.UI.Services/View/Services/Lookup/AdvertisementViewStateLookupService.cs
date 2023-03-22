@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.Reactive.Linq;
+using System.Web;
 
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
@@ -20,6 +21,54 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider) : base(logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
+        }
+
+        protected override Task OnInitializing(CancellationToken ct)
+        {            
+            _gizmoClient.NewsChange += _gizmoClient_NewsChange;
+            return base.OnInitializing(ct);
+        }
+
+        private async void _gizmoClient_NewsChange(object? sender, NewsEventArgs e)
+        {
+            switch (e.ModificationType)
+            {
+                case ModificationType.Modified:
+                case ModificationType.Added:
+                    var newState = await CreateViewStateAsync(e.EntityId);
+                    AddOrUpdateViewState(e.EntityId, newState);
+                    break;
+                case ModificationType.Removed:
+                    //remove from cache
+                    TryRemoveState(e.EntityId);
+                    break;
+                default:
+                    break;
+            }
+
+            LookupServiceChangeType changeType = LookupServiceChangeType.Initialized;
+
+            switch (e.ModificationType)
+            {
+                case ModificationType.Modified:
+                    changeType = LookupServiceChangeType.Modified;
+                    break;
+                case ModificationType.Added:
+                    changeType = LookupServiceChangeType.Added;
+                    break;
+                case ModificationType.Removed:
+                    changeType = LookupServiceChangeType.Removed;
+                    break;
+
+            }
+
+            RaiseChanged(changeType);
+        }
+
+        protected override void OnDisposing(bool isDisposing)
+        {
+            _gizmoClient.NewsChange += _gizmoClient_NewsChange;
+            base.OnDisposing(isDisposing);
         }
 
         protected override async Task<bool> DataInitializeAsync(CancellationToken cToken)
@@ -48,7 +97,7 @@ namespace Gizmo.Client.UI.View.Services
                     viewState.EndDate = item.EndDate;
                 }
 
-                AddViewState(item.Id, viewState);
+                AddOrUpdateViewState(item.Id, viewState);
             }
 
             return true;
