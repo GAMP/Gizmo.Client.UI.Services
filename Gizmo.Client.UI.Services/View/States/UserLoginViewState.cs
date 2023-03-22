@@ -16,7 +16,7 @@ namespace Gizmo.Client.UI.View.States
         private string? _password;
         private bool _isPasswordVisible;
         private bool _hasLoginError;
-        private string _loginError = string.Empty;
+        private string? _loginError;
         #endregion
 
         #region PROPERTIES
@@ -51,27 +51,26 @@ namespace Gizmo.Client.UI.View.States
         /// Gets or sets user password.
         /// </summary>
         [ValidatingProperty()]
+        [Required()]
         public string? Password 
         {
             get { return _password; }
             internal set { SetProperty(ref _password, value); }
         }
 
-        [DefaultValue(false)]
         public bool IsPasswordVisible
         {
             get { return _isPasswordVisible; }
             internal set { SetProperty(ref _isPasswordVisible, value); }
         }
 
-        [DefaultValue(false)]
         public bool HasLoginError
         {
             get { return _hasLoginError; }
             internal set { SetProperty(ref _hasLoginError, value); }
         }
-    
-        public string LoginError
+
+        public string? LoginError
         {
             get { return _loginError; }
             internal set { SetProperty(ref _loginError, value); }
@@ -89,6 +88,7 @@ namespace Gizmo.Client.UI.View.States
                 IsLogginIn = false;
                 HasLoginError = false;
                 IsPasswordVisible = false;
+                LoginError = null;
             }
 
             base.SetDefaults();
