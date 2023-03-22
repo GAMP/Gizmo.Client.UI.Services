@@ -10,7 +10,6 @@ namespace Gizmo.Client.UI.View.States
         private bool _canSignIn;
         private bool _canSignInWithQR;
         private bool _canSignUp;
-        private bool _canRecoverPassword;
         #endregion
 
         #region PROPERTIES
@@ -31,12 +30,6 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _canSignUp; }
             internal set { _canSignUp = value; }
-        }
-
-        public bool CanRecoverPassword
-        {
-            get { return _canRecoverPassword; }
-            internal set { _canRecoverPassword = value; }
         }
 
         #endregion

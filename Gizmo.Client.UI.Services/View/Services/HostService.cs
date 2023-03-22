@@ -29,8 +29,7 @@ namespace Gizmo.Client.UI.View.Services
             //Test
             CanSignIn = true,
             CanSignInWithQR = true,
-            CanSignUp = true,
-            CanRecoverPassword = true
+            CanSignUp = true
             //End Test
         };
 

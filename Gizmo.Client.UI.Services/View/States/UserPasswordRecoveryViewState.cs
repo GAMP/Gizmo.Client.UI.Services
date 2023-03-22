@@ -9,7 +9,6 @@ namespace Gizmo.Client.UI.View.States
     public sealed class UserPasswordRecoveryViewState : ValidatingViewStateBase
     {
         #region FIELDS
-        private UserPasswordRecoveryMethod _method;
         private string _mobilePhone = string.Empty;
         private string _email = string.Empty;
         private bool _isLoading;
@@ -17,15 +16,7 @@ namespace Gizmo.Client.UI.View.States
 
         #region PROPERTIES
 
-        public UserPasswordRecoveryMethod AvailabledRecoveryMethod { get; internal set; }
-
-        public UserPasswordRecoveryMethod SelectedRecoveryMethod { get; internal set; }
-
-        public UserPasswordRecoveryMethod Method
-        {
-            get { return _method; }
-            internal set { SetProperty(ref _method, value); }
-        }
+        public UserRecoveryMethod SelectedRecoveryMethod { get; internal set; }
 
         [ValidatingProperty()]
         public string MobilePhone
