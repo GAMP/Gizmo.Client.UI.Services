@@ -33,7 +33,7 @@ namespace Gizmo.Client.UI.View.Services
         public void SetLoginName(string value)
         {
             using (ViewStateChangeDebounced())
-            {            
+            {
                 ViewState.LoginName = value;
                 ValidateProperty((x) => x.LoginName);
             }
@@ -137,7 +137,7 @@ namespace Gizmo.Client.UI.View.Services
         private void OnSystemUserIdleChange(object? sender, UserIdleEventArgs e)
         {
             //once user becomes idle we need to clear any input made into login form
-            if(e.IsIdle)
+            if (e.IsIdle)
             {
                 Reset();
             }
@@ -153,17 +153,24 @@ namespace Gizmo.Client.UI.View.Services
                         switch (e.FailReason)
                         {
                             //only clear password input in case of invalid password
-                            case LoginResult.InvalidPassword:                                
+                            case LoginResult.InvalidPassword:
+                                ViewState.Password = null;
+                                break;
+                            //clera both username and pasword in any other error case
+                            default:
+                                ViewState.LoginName = null;
                                 ViewState.Password = null;
                                 break;
                         }
 
+                        //process login error reason
                         ViewState.HasLoginError = true;
                         ViewState.LoginError = e.FailReason.ToString();
                         break;
-                    //in all other cases make a full view state reset
-                    default:
+                    case LoginState.LoggedIn:
                         Reset();
+                        break;
+                    default:
                         break;
                 }
 

@@ -32,10 +32,13 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public void SetConfirmationCode(string value)
+        public async Task SetConfirmationCode(string value)
         {
-            ViewState.ConfirmationCode = value;
-            ViewState.RaiseChanged();
+            using (ViewStateChangeDebounced())
+            {
+                ViewState.ConfirmationCode = value;
+                await ValidatePropertyAsync((x)=>x.ConfirmationCode);
+            }
         }
 
         public Task SubmitAsync()
