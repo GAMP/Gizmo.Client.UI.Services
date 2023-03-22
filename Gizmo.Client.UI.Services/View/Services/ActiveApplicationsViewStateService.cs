@@ -52,7 +52,7 @@ namespace Gizmo.Client.UI.View.Services
                 var executables = await _appExeViewStateLookupService.GetStatesAsync();
                 ViewState.Executables = executables.Where(x => activeExecutablesIds.Contains(x.ExecutableId)).ToList();
 
-                DebounceViewStateChange();
+                DebounceViewStateChanged();
             }
             catch (Exception ex)
             {

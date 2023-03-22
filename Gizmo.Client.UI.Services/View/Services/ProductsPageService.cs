@@ -97,7 +97,7 @@ namespace Gizmo.Client.UI.View.Services
 
             await RefilterRequest(default);
 
-            DebounceViewStateChange();
+            DebounceViewStateChanged();
         }
     }
 }

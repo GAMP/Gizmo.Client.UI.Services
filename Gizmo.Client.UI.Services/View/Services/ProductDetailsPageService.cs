@@ -44,7 +44,7 @@ namespace Gizmo.Client.UI.View.Services
                         var products = await _productLookupService.GetStatesAsync(cancellationToken);
                         ViewState.RelatedProducts = products.Take(2);
 
-                        DebounceViewStateChange(productViewState);
+                        DebounceViewStateChanged(productViewState);
                     }
                 }
             }

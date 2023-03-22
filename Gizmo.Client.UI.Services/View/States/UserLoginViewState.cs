@@ -1,6 +1,7 @@
 ﻿using Gizmo.UI;
 using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Gizmo.Client.UI.View.States
@@ -50,25 +51,26 @@ namespace Gizmo.Client.UI.View.States
         /// Gets or sets user password.
         /// </summary>
         [ValidatingProperty()]
-        [Required()]
         public string? Password 
         {
             get { return _password; }
             internal set { SetProperty(ref _password, value); }
         }
 
+        [DefaultValue(false)]
         public bool IsPasswordVisible
         {
             get { return _isPasswordVisible; }
             internal set { SetProperty(ref _isPasswordVisible, value); }
         }
 
+        [DefaultValue(false)]
         public bool HasLoginError
         {
             get { return _hasLoginError; }
             internal set { SetProperty(ref _hasLoginError, value); }
         }
-
+    
         public string LoginError
         {
             get { return _loginError; }

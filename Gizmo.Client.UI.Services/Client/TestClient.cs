@@ -21,6 +21,7 @@ namespace Gizmo.Client
         public event EventHandler<ClientExecutionContextStateArgs>? ExecutionContextStateChage;
         public event EventHandler<UserLoginStateChangeEventArgs>? LoginStateChange;
         public event EventHandler<UserBalanceEventArgs>? UserBalanceChange;
+        public event EventHandler<UserIdleEventArgs> UserIdleChange;
 
         public TestClient()
         {
