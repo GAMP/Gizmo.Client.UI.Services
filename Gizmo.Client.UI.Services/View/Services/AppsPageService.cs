@@ -1,9 +1,7 @@
-﻿using System.Linq;
-using System.Web;
+﻿using System.Web;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
-using Gizmo.UI.View.States;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -16,12 +14,14 @@ namespace Gizmo.Client.UI.View.Services
     {
         #region CONSTRUCTOR
         public AppsPageService(AppsPageViewState viewState,
+            IGizmoClient gizmoClient,
             ILocalizationService localizationService,
             ILogger<AppsPageService> logger,
             IServiceProvider serviceProvider,
             AppCategoryViewStateLookupService categoryViewStateLookupService,
             AppViewStateLookupService appViewStateLookupService) : base(viewState, logger, serviceProvider)
         {
+            _gizmoClient = gizmoClient;
             _localizationService = localizationService;
             _categoryViewStateLookupService = categoryViewStateLookupService;
             _appViewStateLookupService = appViewStateLookupService;
@@ -32,6 +32,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         private readonly AppViewStateLookupService _appViewStateLookupService;
         private readonly AppCategoryViewStateLookupService _categoryViewStateLookupService;
+        private readonly IGizmoClient _gizmoClient;
         #endregion
 
         #region OVERRIDES
@@ -96,7 +97,11 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.TotalFilters = 0;
 
+            //get all app view states
             var allApplications = await _appViewStateLookupService.GetStatesAsync(cancellationToken);
+
+            //filter out any applications that passes current app profile
+            allApplications = allApplications.Where(app => _gizmoClient.AppCurrentProfilePass(app.ApplicationId));
 
             if (!string.IsNullOrEmpty(ViewState.SearchPattern))
             {

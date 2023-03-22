@@ -101,6 +101,5 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
-
     }
 }

@@ -21,7 +21,7 @@ namespace Gizmo.Client
         public event EventHandler<ClientExecutionContextStateArgs>? ExecutionContextStateChage;
         public event EventHandler<UserLoginStateChangeEventArgs>? LoginStateChange;
         public event EventHandler<UserBalanceEventArgs>? UserBalanceChange;
-        public event EventHandler<UserIdleEventArgs> UserIdleChange;
+        public event EventHandler<UserIdleEventArgs>? UserIdleChange;
 
         public TestClient()
         {
@@ -516,6 +516,11 @@ namespace Gizmo.Client
         public Task<UserRecoveryMethod> GetPasswordRecoveryMethodAsync(CancellationToken cancellationToken = default)
         {
             return Task.FromResult(UserRecoveryMethod.Mobile);
+        }
+
+        public bool AppCurrentProfilePass(int appId)
+        {
+            return true;
         }
 
         public Task<UserRecoveryMethodGetResultModel> UserPasswordRecoveryMethodGetAsync(string userNameEmailOrMobile, CancellationToken cancellationToken = default)
