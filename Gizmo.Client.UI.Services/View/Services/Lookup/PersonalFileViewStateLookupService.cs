@@ -30,7 +30,7 @@ namespace Gizmo.Client.UI.View.Services
                 viewState.PersonalFileId = item.Id;
                 viewState.Caption = item.Caption;
 
-                AddViewState(item.Id, viewState);
+                AddOrUpdateViewState(item.Id, viewState);
             }
 
             return true;

@@ -1,5 +1,4 @@
-﻿using Gizmo.Client.UI.View;
-using Gizmo.Web.Api.Models;
+﻿using Gizmo.Web.Api.Models;
 
 namespace Gizmo.Client
 {
@@ -22,6 +21,12 @@ namespace Gizmo.Client
         public event EventHandler<UserLoginStateChangeEventArgs>? LoginStateChange;
         public event EventHandler<UserBalanceEventArgs>? UserBalanceChange;
         public event EventHandler<UserIdleEventArgs>? UserIdleChange;
+        public event EventHandler<AppEnterpriseEventArgs>? AppEnterpriseChange;
+        public event EventHandler<AppCategoryEventArgs>? AppCategoryChange;
+        public event EventHandler<AppEventArgs>? AppChange;
+        public event EventHandler<AppExeEventArgs>? AppExeChange;
+        public event EventHandler<FeedEventArgs>? FeedChange;
+        public event EventHandler<NewsEventArgs>? NewsChange;
 
         public TestClient()
         {

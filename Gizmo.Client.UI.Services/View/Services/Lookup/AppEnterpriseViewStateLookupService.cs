@@ -29,7 +29,7 @@ namespace Gizmo.Client.UI.View.Services
                 viewState.AppEnterpriseId = item.Id;
                 viewState.Name = item.Name;
 
-                AddViewState(item.Id, viewState);
+                AddOrUpdateViewState(item.Id, viewState);
             }
 
             return true;

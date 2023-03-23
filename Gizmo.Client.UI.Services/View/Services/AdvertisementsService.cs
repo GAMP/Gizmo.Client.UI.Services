@@ -35,6 +35,23 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            _advertisementViewStateLookupService.Changed += _advertisementViewStateLookupService_Changed;
+            return base.OnInitializing(ct);
+        }
+
+        private async void _advertisementViewStateLookupService_Changed(object? sender, LookupServiceChangeArgs e)
+        {
+            await LoadAdvertisementsAsync();
+        }
+
+        protected override void OnDisposing(bool isDisposing)
+        {
+            _advertisementViewStateLookupService.Changed -= _advertisementViewStateLookupService_Changed;
+            base.OnDisposing(isDisposing);
+        }
+
         public async Task ShowMediaSync(AdvertisementViewState mediaType)
         {
             var dialog = await _dialogService.ShowAdvertisementDialogAsync(mediaType);

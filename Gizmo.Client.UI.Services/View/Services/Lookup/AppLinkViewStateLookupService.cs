@@ -31,7 +31,7 @@ namespace Gizmo.Client.UI.View.Services
                 viewState.Url = item.Url;
                 viewState.DisplayOrder = item.DisplayOrder;
 
-                AddViewState(item.Id, viewState);
+                AddOrUpdateViewState(item.Id, viewState);
             }
 
             return true;

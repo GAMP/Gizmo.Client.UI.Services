@@ -37,7 +37,7 @@ namespace Gizmo.Client.UI.View.Services
                 viewState.PublisherId = item.PublisherId;
                 viewState.ImageId = item.ImageId;
 
-                AddViewState(item.Id, viewState);
+                AddOrUpdateViewState(item.Id, viewState);
             }
 
             return true;
