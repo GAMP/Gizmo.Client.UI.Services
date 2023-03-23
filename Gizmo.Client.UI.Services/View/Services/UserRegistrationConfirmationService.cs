@@ -32,26 +32,54 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public void SetConfirmationCode(string value)
+        public async Task SetConfirmationCode(string value)
         {
-            ViewState.ConfirmationCode = value;
-            ViewState.RaiseChanged();
+            using (ViewStateChangeDebounced())
+            {
+                ViewState.ConfirmationCode = value;
+                await ValidatePropertyAsync((x) => x.ConfirmationCode);
+            }
         }
 
         public void Clear()
         {
-            ViewState.ConfirmationCode = null;
+            ViewState.ConfirmationCode = string.Empty;
         }
 
-        public Task SubmitAsync()
+        public async Task SubmitAsync()
         {
             ViewState.IsValid = EditContext.Validate();
 
             if (ViewState.IsValid != true)
-                return Task.CompletedTask;
+                return;
 
-            NavigationService.NavigateTo(ClientRoutes.RegistrationBasicFieldsRoute);
-            return Task.CompletedTask;
+            ViewState.IsLoading = true;
+            ViewState.RaiseChanged();
+
+            try
+            {
+                if (!await _gizmoClient.TokenIsValidAsync(TokenType.CreateAccount, _userRegistrationConfirmationMethodViewState.Token, ViewState.ConfirmationCode))
+                {
+                    ViewState.HasError = true;
+                    ViewState.ErrorMessage = _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID");
+                    //TODO: AAA CLEAR ERROR WITH TIMER OR SOMETHING?
+                    return;
+                }
+
+                NavigationService.NavigateTo(ClientRoutes.RegistrationBasicFieldsRoute);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Check create account token validity error.");
+
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = ex.ToString();
+            }
+            finally
+            {
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
+            }
         }
 
         #endregion
@@ -64,17 +92,17 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldName == nameof(ViewState.ConfirmationCode))
             {
-                if (string.IsNullOrEmpty(ViewState.ConfirmationCode) || ViewState.ConfirmationCode.Length != 6) //TODO: A ConfirmationCode IS NOT ANYMORE FIXED 6 DIGITS.
+                if (ViewState.ConfirmationCode.Length != _userRegistrationConfirmationMethodViewState.CodeLength)
                 {
-                    validationMessageStore.Add(() => ViewState.ConfirmationCode, "Confirmation code should have 6 digits!"); //TODO: A TRANSLATE
+                    validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("GIZ_CONFIRMATION_CODE_LENGTH_ERROR", _userRegistrationConfirmationMethodViewState.CodeLength));
                 }
-                else
-                {
-                    if (!await _gizmoClient.TokenIsValidAsync(TokenType.CreateAccount, _userRegistrationConfirmationMethodViewState.Token, ViewState.ConfirmationCode))
-                    {
-                        validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID"));
-                    }
-                }
+                //else
+                //{
+                //    if (!await _gizmoClient.TokenIsValidAsync(TokenType.CreateAccount, _userRegistrationConfirmationMethodViewState.Token, ViewState.ConfirmationCode))
+                //    {
+                //        validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID"));
+                //    }
+                //}
             }
         }
 
