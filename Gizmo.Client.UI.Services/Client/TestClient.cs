@@ -27,6 +27,8 @@ namespace Gizmo.Client
         public event EventHandler<AppExeEventArgs>? AppExeChange;
         public event EventHandler<FeedEventArgs>? FeedChange;
         public event EventHandler<NewsEventArgs>? NewsChange;
+        public event EventHandler<PersonalFileChangedEventArgs> PersonalFileChange;
+        public event EventHandler<AppLinkChangedEventArgs> AppLinkChange;
 
         public TestClient()
         {
