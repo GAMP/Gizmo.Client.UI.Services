@@ -65,6 +65,8 @@ namespace Gizmo.Client.UI.View.Services
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, "Check password recovery token validity error.");
+
                 ViewState.HasError = true;
                 ViewState.ErrorMessage = ex.ToString();
             }
@@ -87,7 +89,6 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (ViewState.ConfirmationCode.Length != _userPasswordRecoveryViewState.CodeLength)
                 {
-
                     validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("GIZ_CONFIRMATION_CODE_LENGTH_ERROR", _userPasswordRecoveryViewState.CodeLength));
                 }
                 //else

@@ -75,6 +75,8 @@ namespace Gizmo.Client.UI.View.Services
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, "Password recovery complete error.");
+
                 ViewState.HasError = true;
                 ViewState.ErrorMessage = ex.ToString();
             }

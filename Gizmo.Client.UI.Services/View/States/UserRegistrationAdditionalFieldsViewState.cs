@@ -32,6 +32,12 @@ namespace Gizmo.Client.UI.View.States
         [ValidatingProperty()]
         public string? PostCode { get; internal set; }
 
+        public bool IsLoading { get; internal set; }
+
+        public bool HasError { get; internal set; }
+
+        public string ErrorMessage { get; internal set; } = string.Empty;
+
         #endregion
     }
 }
