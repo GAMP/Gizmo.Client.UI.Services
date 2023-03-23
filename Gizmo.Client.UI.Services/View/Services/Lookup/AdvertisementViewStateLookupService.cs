@@ -1,6 +1,6 @@
 ﻿using System.Reactive.Linq;
 using System.Web;
-
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.View.Services;
@@ -23,31 +23,16 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
         _gizmoClient = gizmoClient;
     }
 
-    #region EVENT HANDLER
-    private async void OnNewsChangeAsync(object? sender, NewsEventArgs args)
-    {
-        var modificationType = args.ModificationType switch
-        {
-            ModificationType.Added => LookupServiceChangeType.Added,
-            ModificationType.Modified => LookupServiceChangeType.Modified,
-            ModificationType.Removed => LookupServiceChangeType.Removed,
-            _ => LookupServiceChangeType.Initialized
-        };
-
-        await HandleChangesAsync(args.EntityId, modificationType);
-        RaiseChanged(modificationType);
-    }
-    #endregion
 
     #region OVERRIDED FUNCTIONS
     protected override Task OnInitializing(CancellationToken ct)
     {
-        _gizmoClient.NewsChange += OnNewsChangeAsync;
+        _gizmoClient.NewsChange += async (e,v) => await HandleChangesAsync(v.EntityId,v.ModificationType.FromModificationType());
         return base.OnInitializing(ct);
     }
     protected override void OnDisposing(bool isDisposing)
     {
-        _gizmoClient.NewsChange -= OnNewsChangeAsync;
+        _gizmoClient.NewsChange -= async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
         base.OnDisposing(isDisposing);
     }
 
