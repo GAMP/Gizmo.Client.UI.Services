@@ -26,8 +26,16 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
     #region EVENT HANDLER
     private async void OnNewsChangeAsync(object? sender, NewsEventArgs args)
     {
-        await HandleChangesAsync(args.EntityId, args.ModificationType);
-        RaiseChanged(args.ModificationType);
+        var modificationType = args.ModificationType switch
+        {
+            ModificationType.Added => LookupServiceChangeType.Added,
+            ModificationType.Modified => LookupServiceChangeType.Modified,
+            ModificationType.Removed => LookupServiceChangeType.Removed,
+            _ => LookupServiceChangeType.Initialized
+        };
+
+        await HandleChangesAsync(args.EntityId, modificationType);
+        RaiseChanged(modificationType);
     }
     #endregion
 
