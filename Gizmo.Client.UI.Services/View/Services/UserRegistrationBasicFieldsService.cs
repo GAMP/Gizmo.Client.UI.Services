@@ -119,6 +119,9 @@ namespace Gizmo.Client.UI.View.Services
             {
                 //If no additional fields are required then proceed with sign up.
 
+                ViewState.IsLoading = true;
+                ViewState.RaiseChanged();
+
                 try
                 {
                     var profile = new Web.Api.Models.UserProfileModelCreate()
@@ -166,13 +169,17 @@ namespace Gizmo.Client.UI.View.Services
 
                     NavigationService.NavigateTo(ClientRoutes.LoginRoute);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    //TODO: A HANDLE ERROR
+                    Logger.LogError(ex, "User create complete error.");
+
+                    ViewState.HasError = true;
+                    ViewState.ErrorMessage = ex.ToString();
                 }
                 finally
                 {
-
+                    ViewState.IsLoading = false;
+                    ViewState.RaiseChanged();
                 }
             }
         }

@@ -17,14 +17,16 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
             IGizmoClient gizmoClient,
-            UserRegistrationViewState userRegistrationViewState) : base(viewState, logger, serviceProvider)
+            UserRegistrationViewState userRegistrationViewState,
+             UserVerificationService userVerificationService,
+            UserVerificationFallbackService userVerificationFallbackService) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
 
             _gizmoClient = gizmoClient;
             _userRegistrationViewState = userRegistrationViewState;
-
-            _timer.Elapsed += timer_Elapsed;
+            _userVerificationService = userVerificationService;
+            _userVerificationFallbackService = userVerificationFallbackService;
         }
         #endregion
 
@@ -32,7 +34,8 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
         private readonly UserRegistrationViewState _userRegistrationViewState;
-        private readonly System.Timers.Timer _timer = new System.Timers.Timer(1000);
+        private readonly UserVerificationService _userVerificationService;
+        private readonly UserVerificationFallbackService _userVerificationFallbackService;
         #endregion
 
         #region FUNCTIONS
@@ -69,12 +72,16 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.MobilePhone = null;
         }
 
-        public async Task SubmitAsync()
+        public async Task SubmitAsync(bool fallback = false)
         {
             ViewState.IsValid = EditContext.Validate();
 
             if (ViewState.IsValid != true)
                 return;
+
+            _userVerificationService.Lock();
+
+            bool wasSuccessful = false;
 
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
@@ -85,60 +92,118 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     var result = await _gizmoClient.UserCreateByEmailStartAsync(ViewState.Email);
 
-                    if (result.Result != VerificationStartResultCode.Success)
+                    if (result.Result == Gizmo.VerificationStartResultCode.Success)
                     {
-                        //TODO: A HANDLE ERROR
-                    }
+                        string email = "";
 
-                    ViewState.Token = result.Token;
+                        if (!string.IsNullOrEmpty(result.Email))
+                        {
+                            int atIndex = result.Email.IndexOf('@');
+                            if (atIndex != -1 && atIndex > 1)
+                                email = result.Email.Substring(atIndex - 2).PadLeft(result.Email.Length, '*');
+                            else
+                                email = result.Email;
+                        }
+
+                        //TODO: AAA ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_EMAIL_MESSAGE", email);
+
+                        ViewState.Token = result.Token;
+                        ViewState.Destination = email;
+                        ViewState.CodeLength = result.CodeLength;
+
+                        NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationRoute);
+                    }
+                    else if (result.Result == Gizmo.VerificationStartResultCode.NoRouteForDelivery)
+                    {
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = _localizationService.GetString("PROVIDER_NO_ROUTE_FOR_DELIVERY");
+                    }
+                    else
+                    {
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = result.Result.ToString();
+                    }
                 }
                 else if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
                 {
-                    var result = await _gizmoClient.UserCreateByMobileStartAsync(ViewState.MobilePhone);
+                    var result = await _gizmoClient.UserCreateByMobileStartAsync(ViewState.MobilePhone, !fallback ? Gizmo.ConfirmationCodeDeliveryMethod.Undetermined : Gizmo.ConfirmationCodeDeliveryMethod.SMS);
 
-                    if (result.Result != VerificationStartResultCode.Success)
+                    switch (result.Result)
                     {
-                        //TODO: A HANDLE ERROR
+                        case Gizmo.VerificationStartResultCode.Success:
+
+                            string mobile = result.MobilePhone;
+
+                            if (mobile.Length > 4)
+                                mobile = result.MobilePhone.Substring(result.MobilePhone.Length - 4).PadLeft(10, '*');
+
+                            bool isFlashCall = result.DeliveryMethod == Gizmo.ConfirmationCodeDeliveryMethod.FlashCall;
+
+                            if (isFlashCall)
+                            {
+                                //TODO: AAA ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_FLASH_CALL_MESSAGE", mobile, result.CodeLength);
+
+                                _userVerificationFallbackService.SetSMSFallbackAvailability(true);
+                                _userVerificationFallbackService.Lock();
+                                _userVerificationFallbackService.StartUnlockTimer();
+                            }
+                            else
+                            {
+                                //TODO: AAA ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_SMS_MESSAGE", mobile);
+
+                                _userVerificationFallbackService.SetSMSFallbackAvailability(false);
+                            }
+
+                            ViewState.Token = result.Token;
+                            ViewState.Destination = mobile;
+                            ViewState.CodeLength = result.CodeLength;
+                            ViewState.DeliveryMethod = result.DeliveryMethod;
+
+                            NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationRoute);
+
+                            break;
+
+                        case Gizmo.VerificationStartResultCode.NonUniqueInput:
+
+                            ViewState.HasError = true;
+                            ViewState.ErrorMessage = _localizationService.GetString("VE_MOBILE_PHONE_USED");
+
+                            break;
+
+                        case Gizmo.VerificationStartResultCode.NoRouteForDelivery:
+
+                            ViewState.HasError = true;
+                            ViewState.ErrorMessage = _localizationService.GetString("PROVIDER_NO_ROUTE_FOR_DELIVERY");
+
+                            break;
+
+                        default:
+
+                            ViewState.HasError = true;
+                            ViewState.ErrorMessage = result.Result.ToString();
+
+                            break;
                     }
-
-                    ViewState.Token = result.Token;
                 }
-
-                // Simulate task.
-                await Task.Delay(2000);
-
-                ViewState.IsLoading = false;
-
-                ViewState.CanResend = false;
-                ViewState.ResendTimeLeft = TimeSpan.FromMinutes(5);
-                _timer.Start();
-
-                NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationRoute);
-
-                ViewState.RaiseChanged();
             }
-            catch
+            catch (Exception ex)
             {
-                //TODO: A HANDLE ERROR
+                Logger.LogError(ex, "User create start error.");
+
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = ex.ToString();
             }
             finally
             {
+                ViewState.IsLoading = false;
 
+                if (wasSuccessful)
+                    _userVerificationService.StartUnlockTimer();
+                else
+                    _userVerificationService.Unlock();
+
+                ViewState.RaiseChanged();
             }
-        }
-
-        private void timer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
-        {
-            ViewState.ResendTimeLeft = ViewState.ResendTimeLeft.Subtract(TimeSpan.FromSeconds(1));
-
-            if (ViewState.ResendTimeLeft.TotalSeconds == 0)
-            {
-                ViewState.CanResend = true;
-
-                _timer.Stop();
-            }
-
-            ViewState.RaiseChanged();
         }
 
         #endregion

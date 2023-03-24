@@ -23,6 +23,8 @@ namespace Gizmo.Client.UI.View.States
 
         public int CodeLength { get; internal set; }
 
+        public ConfirmationCodeDeliveryMethod DeliveryMethod { get; internal set; }
+
         public bool IsLoading { get; internal set; }
 
         public bool HasError { get; internal set; }

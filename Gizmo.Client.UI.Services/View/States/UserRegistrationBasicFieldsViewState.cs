@@ -8,12 +8,6 @@ namespace Gizmo.Client.UI.View.States
     [Register]
     public sealed class UserRegistrationBasicFieldsViewState : ValidatingViewStateBase
     {
-        #region FIELDS
-        private string? _username;
-        private string? _password;
-        private string? _repeatPassword;
-        #endregion
-
         #region PROPERTIES
 
         /// <summary>
@@ -21,39 +15,27 @@ namespace Gizmo.Client.UI.View.States
         /// </summary>
         [ValidatingProperty()]
         [Required()]
-        public string? Username
-        {
-            get { return _username; }
-            internal set { SetProperty(ref _username, value); }
-        }
+        public string Username { get; internal set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets new password.
         /// </summary>
         [ValidatingProperty()]
         [Required()]
-        public string? Password
-        {
-            get { return _password; }
-            internal set { SetProperty(ref _password, value); }
-        }
+        public string Password { get; internal set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets repeat password.
         /// </summary>
         [ValidatingProperty()]
         [Required()]
-        public string? RepeatPassword
-        {
-            get { return _repeatPassword; }
-            internal set { SetProperty(ref _repeatPassword, value); }
-        }
+        public string RepeatPassword { get; internal set; } = string.Empty;
 
         [ValidatingProperty()]
-        public string? FirstName { get; internal set; }
+        public string FirstName { get; internal set; } = string.Empty;
 
         [ValidatingProperty()]
-        public string? LastName { get; internal set; }
+        public string LastName { get; internal set; } = string.Empty;
 
         [ValidatingProperty()]
         public DateTime? BirthDate { get; internal set; }
@@ -63,6 +45,12 @@ namespace Gizmo.Client.UI.View.States
 
         [ValidatingProperty()]
         public string? Email { get; internal set; }
+
+        public bool IsLoading { get; internal set; }
+
+        public bool HasError { get; internal set; }
+
+        public string ErrorMessage { get; internal set; } = string.Empty;
 
         #endregion
     }

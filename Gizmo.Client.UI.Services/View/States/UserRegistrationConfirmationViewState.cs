@@ -8,19 +8,17 @@ namespace Gizmo.Client.UI.View.States
     [Register()]
     public sealed class UserRegistrationConfirmationViewState : ValidatingViewStateBase
     {
-        #region FIELDS
-        private string? _confirmationCode;
-        #endregion
-
         #region PROPERTIES
 
         [ValidatingProperty()]
         [Required()]
-        public string? ConfirmationCode
-        {
-            get { return _confirmationCode; }
-            internal set { SetProperty(ref _confirmationCode, value); }
-        }
+        public string ConfirmationCode { get; internal set; } = string.Empty;
+
+        public bool IsLoading { get; internal set; }
+
+        public bool HasError { get; internal set; }
+
+        public string ErrorMessage { get; internal set; } = string.Empty;
 
         #endregion
     }

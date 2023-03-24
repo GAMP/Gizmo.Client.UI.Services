@@ -18,11 +18,15 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
             IGizmoClient gizmoClient,
-            UserPasswordRecoveryMethodServiceViewState userPasswordRecoveryMethodServiceViewState) : base(viewState, logger, serviceProvider)
+            UserPasswordRecoveryMethodServiceViewState userPasswordRecoveryMethodServiceViewState,
+             UserVerificationService userVerificationService,
+            UserVerificationFallbackService userVerificationFallbackService) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _gizmoClient = gizmoClient;
             _userPasswordRecoveryMethodServiceViewState = userPasswordRecoveryMethodServiceViewState;
+            _userVerificationService = userVerificationService;
+            _userVerificationFallbackService = userVerificationFallbackService;
         }
         #endregion
 
@@ -30,6 +34,8 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
         private readonly UserPasswordRecoveryMethodServiceViewState _userPasswordRecoveryMethodServiceViewState;
+        private readonly UserVerificationService _userVerificationService;
+        private readonly UserVerificationFallbackService _userVerificationFallbackService;
         #endregion
 
         #region FUNCTIONS
@@ -57,12 +63,16 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
-        public async Task SubmitAsync()
+        public async Task SubmitAsync(bool fallback = false)
         {
             ViewState.IsValid = EditContext.Validate();
 
             if (ViewState.IsValid != true)
                 return;
+
+            _userVerificationService.Lock();
+
+            bool wasSuccessful = false;
 
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
@@ -88,11 +98,13 @@ namespace Gizmo.Client.UI.View.Services
                                     email = result.Email;
                             }
 
+                            //TODO: AAA ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_EMAIL_MESSAGE", email);
+
                             ViewState.Token = result.Token;
                             ViewState.Destination = email;
                             ViewState.CodeLength = result.CodeLength;
 
-                            //TODO: AAA ViewState.CanResend = false;
+                            wasSuccessful = true;
 
                             NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryConfirmationRoute);
 
@@ -114,32 +126,92 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    var result = await _gizmoClient.UserPasswordRecoveryByMobileStartAsync(ViewState.MobilePhone);
+                    var result = await _gizmoClient.UserPasswordRecoveryByMobileStartAsync(ViewState.MobilePhone, !fallback ? Gizmo.ConfirmationCodeDeliveryMethod.Undetermined : Gizmo.ConfirmationCodeDeliveryMethod.SMS);
 
-                    if (result.Result != PasswordRecoveryStartResultCode.Success)
+                    switch (result.Result)
                     {
-                        ViewState.HasError = true;
-                        ViewState.ErrorMessage = result.Result.ToString(); //TODO: AAA ERROR
+                        case PasswordRecoveryStartResultCode.Success:
 
-                        return;
+                            string mobile = result.MobilePhone;
+
+                            if (mobile.Length > 4)
+                                mobile = result.MobilePhone.Substring(result.MobilePhone.Length - 4).PadLeft(10, '*');
+
+                            bool isFlashCall = result.DeliveryMethod == ConfirmationCodeDeliveryMethod.FlashCall;
+                            if (isFlashCall)
+                            {
+                                //TODO: AAA ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_FLASH_CALL_MESSAGE", mobile, result.CodeLength);
+
+                                _userVerificationFallbackService.SetSMSFallbackAvailability(true);
+                                _userVerificationFallbackService.Lock();
+                                _userVerificationFallbackService.StartUnlockTimer();
+                            }
+                            else
+                            {
+                                //TODO: AAA ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_SMS_MESSAGE", mobile);
+
+                                _userVerificationFallbackService.SetSMSFallbackAvailability(false);
+                            }
+
+                            ViewState.Token = result.Token;
+                            ViewState.Destination = mobile;
+                            ViewState.CodeLength = result.CodeLength;
+                            ViewState.DeliveryMethod = result.DeliveryMethod;
+
+                            wasSuccessful = true;
+
+                            NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryConfirmationRoute);
+
+                            break;
+
+                        case PasswordRecoveryStartResultCode.NoRouteForDelivery:
+
+                            ViewState.HasError = true;
+                            ViewState.ErrorMessage = _localizationService.GetString("PROVIDER_NO_ROUTE_FOR_DELIVERY");
+
+                            break;
+
+                        case PasswordRecoveryStartResultCode.Failed:
+                        case PasswordRecoveryStartResultCode.DeliveryFailed:
+
+                            ViewState.HasError = true;
+                            ViewState.ErrorMessage = _localizationService.GetString("PASSWORD_RESET_FAILED_MESSAGE");
+
+                            break;
+
+                        case PasswordRecoveryStartResultCode.InvalidInput:
+
+                            ViewState.HasError = true;
+                            ViewState.ErrorMessage = _localizationService.GetString("PASSWORD_RESET_FAILED_MESSAGE");
+                            ViewState.ErrorMessage += " " + _localizationService.GetString("PASSWORD_RESET_NO_VALID_MOBILE");
+
+                            break;
+
+                        default:
+
+                            ViewState.HasError = true;
+                            ViewState.ErrorMessage = _localizationService.GetString("PASSWORD_RESET_FAILED_MESSAGE");
+
+                            break;
                     }
-
-                    ViewState.Token = result.Token;
-                    ViewState.Destination = result.MobilePhone;
-                    ViewState.CodeLength = result.CodeLength;
-                    //TODO: AAA ViewState.CanResend = false;
-
-                    NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryConfirmationRoute);
                 }
             }
             catch (Exception ex)
             {
+                Logger.LogError(ex, "Password recovery start error.");
+
                 ViewState.HasError = true;
                 ViewState.ErrorMessage = ex.ToString();
             }
             finally
             {
                 ViewState.IsLoading = false;
+
+                if (wasSuccessful)
+                    _userVerificationService.StartUnlockTimer();
+                else
+                    _userVerificationService.Unlock();
+
                 ViewState.RaiseChanged();
             }
         }
@@ -168,7 +240,6 @@ namespace Gizmo.Client.UI.View.Services
             {
                 validationMessageStore.Add(() => ViewState.Email, _localizationService.GetString("EMAIL_IS_REQUIRED"));
             }
-
 
             if (ViewState.SelectedRecoveryMethod == UserRecoveryMethod.Mobile &&
                 fieldIdentifier.FieldName == nameof(ViewState.MobilePhone) &&
