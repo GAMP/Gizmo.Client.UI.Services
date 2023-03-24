@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -67,6 +68,7 @@ namespace Gizmo.Client.UI.View.Services
             _syncUpdateTimer?.Dispose();
             _syncUpdateTimer = new Timer(SyncUpdateTimerCallback, null, _syncUpdaterTimerTime, _syncUpdaterTimerTime);
 
+            _gizmoClient.AppExeChange += async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
             _gizmoClient.ExecutionContextStateChage += OnExecutionContextStateChage;
 
             return base.OnInitializing(ct);
@@ -80,6 +82,7 @@ namespace Gizmo.Client.UI.View.Services
             _syncUpdateTimer = null;
 
             //remove any attached event handlers
+            _gizmoClient.AppExeChange -= async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
             _gizmoClient.ExecutionContextStateChage -= OnExecutionContextStateChage;
         }
 
