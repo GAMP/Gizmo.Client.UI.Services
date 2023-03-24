@@ -1,12 +1,15 @@
 ﻿using System.Collections.Concurrent;
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Models;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Gizmo.Client.UI.View.Services
 {
-    [Register()]
+    [Register]
     public sealed class AppExeExecutionViewStateLookupService : ViewStateLookupServiceBase<int, AppExeExecutionViewState>
     {
         private readonly IGizmoClient _gizmoClient;
@@ -23,55 +26,17 @@ namespace Gizmo.Client.UI.View.Services
             _gizmoClient = gizmoClient;
         }
 
-        protected override async Task<bool> DataInitializeAsync(CancellationToken cToken)
-        {
-            var executables = await _gizmoClient.UserExecutablesGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
-
-            foreach (var item in executables.Data)
-            {
-                var viewState = CreateDefaultViewState(item.Id);
-
-                viewState.AppExeId = item.Id;
-                viewState.AppId = item.ApplicationId;
-
-                AddOrUpdateViewState(item.Id, viewState);
-            }
-
-            return true;
-        }
-
-        protected override async ValueTask<AppExeExecutionViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
-        {
-            var item = await _gizmoClient.UserExecutableGetAsync(lookUpkey, cToken);
-
-            var viewState = CreateDefaultViewState(lookUpkey);
-
-            if (item is null)
-                return viewState;
-
-            viewState.AppExeId = item.Id;
-            viewState.AppId = item.ApplicationId;
-
-            return viewState;
-        }
-
-        protected override AppExeExecutionViewState CreateDefaultViewState(int lookUpkey)
-        {
-            var defaultState = ServiceProvider.GetRequiredService<AppExeExecutionViewState>();
-            defaultState.AppExeId = lookUpkey;
-            return defaultState;
-        }
-
+        #region OVERRIDE FUNCTIONS
         protected override Task OnInitializing(CancellationToken ct)
         {
             _syncUpdateTimer?.Dispose();
             _syncUpdateTimer = new Timer(SyncUpdateTimerCallback, null, _syncUpdaterTimerTime, _syncUpdaterTimerTime);
 
+            _gizmoClient.AppExeChange += async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
             _gizmoClient.ExecutionContextStateChage += OnExecutionContextStateChage;
 
             return base.OnInitializing(ct);
         }
-
         protected override void OnDisposing(bool isDisposing)
         {
             base.OnDisposing(isDisposing);
@@ -79,10 +44,46 @@ namespace Gizmo.Client.UI.View.Services
             _syncUpdateTimer?.Dispose();
             _syncUpdateTimer = null;
 
-            //remove any attached event handlers
+            _gizmoClient.AppExeChange += async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
             _gizmoClient.ExecutionContextStateChage -= OnExecutionContextStateChage;
-        }
+        }        
+        protected override async Task<IDictionary<int, AppExeExecutionViewState>> DataInitializeAsync(CancellationToken cToken)
+        {
+            var clientResult = await _gizmoClient.UserExecutablesGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
 
+            return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
+        }
+        protected override async ValueTask<AppExeExecutionViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
+        {
+            var clientResult = await _gizmoClient.UserExecutableGetAsync(lookUpkey, cToken);
+
+            return clientResult is null ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+        }
+        protected override async ValueTask<AppExeExecutionViewState> UpdateViewStateAsync(AppExeExecutionViewState viewState, CancellationToken cToken = default)
+        {
+            var clientResult = await _gizmoClient.UserExecutableGetAsync(viewState.AppExeId, cToken);
+            
+            return clientResult is null ? viewState : Map(clientResult, viewState);
+        }
+        protected override AppExeExecutionViewState CreateDefaultViewState(int lookUpkey)
+        {
+            var defaultState = ServiceProvider.GetRequiredService<AppExeExecutionViewState>();
+
+            defaultState.AppExeId = lookUpkey;
+            
+            return defaultState;
+        }
+        #endregion
+
+        #region PRIVATE FUNCTIONS
+        private AppExeExecutionViewState Map(UserExecutableModel model, AppExeExecutionViewState? viewState = null)
+        {
+            var result = viewState ?? CreateDefaultViewState(model.Id);
+            
+            result.AppId = model.ApplicationId;
+            
+            return result;
+        }
         private async void OnExecutionContextStateChage(object? sender, ClientExecutionContextStateArgs e)
         {
             //filter out states that not of an interest to us
@@ -151,7 +152,6 @@ namespace Gizmo.Client.UI.View.Services
                 Logger.LogError(ex, "Failed to process execution context state change, executable id {appExeId}", e.ExecutableId);
             }
         }
-
         private void SyncUpdateTimerCallback(object? state)
         {
             //nothing to do here if there are no synchronizations to track
@@ -200,5 +200,6 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
         }
+        #endregion
     }
 }

@@ -1,5 +1,7 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Models;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -18,39 +20,34 @@ namespace Gizmo.Client.UI.View.Services
             _gizmoClient = gizmoClient;
         }
 
-        protected override async Task<bool> DataInitializeAsync(CancellationToken cToken)
+        #region OVERRIDED FUNCTIONS
+        protected override Task OnInitializing(CancellationToken ct)
         {
-            var executables = await _gizmoClient.UserApplicationLinksGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
+            _gizmoClient.AppLinkChange += async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
+            return base.OnInitializing(ct);
+        }
+        protected override void OnDisposing(bool isDisposing)
+        {
+            _gizmoClient.AppLinkChange -= async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
+            base.OnDisposing(isDisposing);
+        }
+        protected override async Task<IDictionary<int, AppLinkViewState>> DataInitializeAsync(CancellationToken cToken)
+        {
+            var clientResult = await _gizmoClient.UserApplicationLinksGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
 
-            foreach (var item in executables.Data)
-            {
-                var viewState = CreateDefaultViewState(item.Id);
-
-                viewState.AppLinkId = item.Id;
-                viewState.ApplicationId = item.ApplicationId;
-                viewState.Url = item.Url;
-                viewState.DisplayOrder = item.DisplayOrder;
-
-                AddOrUpdateViewState(item.Id, viewState);
-            }
-
-            return true;
+            return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
         }
         protected override async ValueTask<AppLinkViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
         {
-            var item = await _gizmoClient.UserApplicationLinkGetAsync(lookUpkey, cToken);
+            var clientResult = await _gizmoClient.UserApplicationLinkGetAsync(lookUpkey, cToken);
 
-            var viewState = CreateDefaultViewState(lookUpkey);
-
-            if (item is null)
-                return viewState;
-
-            viewState.AppLinkId = item.Id;
-            viewState.ApplicationId = item.ApplicationId;
-            viewState.Url = item.Url;
-            viewState.DisplayOrder = item.DisplayOrder;
-
-            return viewState;
+            return clientResult is null ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+        }
+        protected override async ValueTask<AppLinkViewState> UpdateViewStateAsync(AppLinkViewState viewState, CancellationToken cToken = default)
+        {
+            var clientResult = await _gizmoClient.UserApplicationLinkGetAsync(viewState.AppLinkId, cToken);
+          
+            return clientResult is null ? CreateDefaultViewState(viewState.AppLinkId) : Map(clientResult, viewState);
         }
         protected override AppLinkViewState CreateDefaultViewState(int lookUpkey)
         {
@@ -60,5 +57,19 @@ namespace Gizmo.Client.UI.View.Services
 
             return defaultState;
         }
+        #endregion
+
+        #region PRIVATE FUNCTIONS
+        private AppLinkViewState Map(UserApplicationLinkModel model, AppLinkViewState? viewState = null)
+        {
+            var result = viewState ?? CreateDefaultViewState(model.Id);
+            
+            result.ApplicationId = model.ApplicationId;
+            result.Url = model.Url;
+            result.DisplayOrder = model.DisplayOrder;
+            
+            return result;
+        }
+        #endregion
     }
 }

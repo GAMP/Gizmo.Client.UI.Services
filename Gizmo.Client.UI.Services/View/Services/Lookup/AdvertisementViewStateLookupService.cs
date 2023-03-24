@@ -1,5 +1,6 @@
 ﻿using System.Reactive.Linq;
 using System.Web;
+
 using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
@@ -23,11 +24,10 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
         _gizmoClient = gizmoClient;
     }
 
-
     #region OVERRIDED FUNCTIONS
     protected override Task OnInitializing(CancellationToken ct)
     {
-        _gizmoClient.NewsChange += async (e,v) => await HandleChangesAsync(v.EntityId,v.ModificationType.FromModificationType());
+        _gizmoClient.NewsChange += async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
         return base.OnInitializing(ct);
     }
     protected override void OnDisposing(bool isDisposing)
@@ -35,23 +35,23 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
         _gizmoClient.NewsChange -= async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
         base.OnDisposing(isDisposing);
     }
-
-    protected override async Task<bool> DataInitializeAsync(CancellationToken cToken)
+    protected override async Task<IDictionary<int, AdvertisementViewState>> DataInitializeAsync(CancellationToken cToken)
     {
         var clientResult = await _gizmoClient.NewsGetAsync(new NewsFilter() { Pagination = new() { Limit = -1 } }, cToken);
 
-        foreach (var item in clientResult.Data)
-            AddOrUpdateViewState(item.Id, Map(item.Id, item));
-
-        return true;
+        return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
     }
     protected override async ValueTask<AdvertisementViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
     {
         var clientResult = await _gizmoClient.NewsGetAsync(lookUpkey, cToken);
 
-        return clientResult is null
-            ? CreateDefaultViewState(lookUpkey)
-            : Map(lookUpkey, clientResult);
+        return clientResult is null ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+    }
+    protected override async ValueTask<AdvertisementViewState> UpdateViewStateAsync(AdvertisementViewState viewState, CancellationToken cToken = default)
+    {
+        var clientResult = await _gizmoClient.NewsGetAsync(viewState.Id, cToken);
+
+        return clientResult is null ? CreateDefaultViewState(viewState.Id) : Map(clientResult, viewState);
     }
     protected override AdvertisementViewState CreateDefaultViewState(int lookUpkey)
     {
@@ -66,29 +66,30 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
     #endregion
 
     #region PRIVATE FUNCTIONS
-    private AdvertisementViewState Map(int lookUpkey, NewsModel model)
+    private AdvertisementViewState Map(NewsModel model, AdvertisementViewState? viewState = null)
     {
-        var viewState = CreateDefaultViewState(lookUpkey);
+        var result = viewState ?? CreateDefaultViewState(model.Id);
 
-        viewState.IsCustomTemplate = model.IsCustomTemplate;
-        viewState.Body = model.Data;
+        result.IsCustomTemplate = model.IsCustomTemplate;
 
-        if (!viewState.IsCustomTemplate)
+        result.Body = model.Data;
+
+        if (!result.IsCustomTemplate)
         {
             var (midiaUrlType, mediaUri) = ParseMediaUrl(model.MediaUrl);
-            viewState.MediaUrlType = midiaUrlType;
-            viewState.MediaUrl = mediaUri?.AbsoluteUri;
+            result.MediaUrlType = midiaUrlType;
+            result.MediaUrl = mediaUri?.AbsoluteUri;
 
-            viewState.ThumbnailUrl = ParseThumbnailUrl(model.ThumbnailUrl, midiaUrlType, mediaUri);
+            result.ThumbnailUrl = ParseThumbnailUrl(model.ThumbnailUrl, midiaUrlType, mediaUri);
 
-            (viewState.Url, viewState.Command) = ParseUrl(model.Url);
+            (result.Url, result.Command) = ParseUrl(model.Url);
 
-            viewState.Title = model.Title;
-            viewState.StartDate = model.StartDate;
-            viewState.EndDate = model.EndDate;
+            result.Title = model.Title;
+            result.StartDate = model.StartDate;
+            result.EndDate = model.EndDate;
         }
 
-        return viewState;
+        return result;
     }
     private static (AdvertisementMediaUrlType MediaUrlType, Uri? MediaUri) ParseMediaUrl(string? mediaUrl)
     {

@@ -40,7 +40,8 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
         {
-            await RefilterAsync(cToken);
+            if(navigationParameters.IsInitial)
+                await RefilterAsync(cToken);
         }
     }
 }

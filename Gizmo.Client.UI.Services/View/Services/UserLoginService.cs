@@ -24,36 +24,28 @@ namespace Gizmo.Client.UI.View.Services
 
         public void SetLoginMethod(UserLoginType userLoginType)
         {
-            using (ViewStateChangeDebounced())
-            {
-                ViewState.LoginType = userLoginType;
-            }
+            ViewState.LoginType = userLoginType;
+            DebounceViewStateChanged();
         }
 
         public void SetLoginName(string value)
         {
-            using (ViewStateChangeDebounced())
-            {
-                ViewState.LoginName = value;
-                ValidateProperty((x) => x.LoginName);
-            }
+            ViewState.LoginName = value;
+            ValidateProperty((x) => x.LoginName);
+            DebounceViewStateChanged();
         }
 
         public void SetPassword(string value)
         {
-            using (ViewStateChangeDebounced())
-            {
-                ViewState.Password = value;
-                ValidateProperty((x) => x.Password);
-            }
+            ViewState.Password = value;
+            ValidateProperty((x) => x.Password);
+            DebounceViewStateChanged();
         }
 
         public void SetPasswordVisible(bool value)
         {
-            using (ViewStateChangeDebounced())
-            {
-                ViewState.IsPasswordVisible = value;
-            }
+            ViewState.IsPasswordVisible = value;
+            DebounceViewStateChanged();
         }
 
         public Task<bool> UsernameCharacterIsValid(char value)
@@ -101,11 +93,9 @@ namespace Gizmo.Client.UI.View.Services
 
         public void Reset()
         {
-            using (ViewStateChangeDebounced())
-            {
-                ViewState.SetDefaults();
-                ResetValidationErrors();
-            }
+            ViewState.SetDefaults();
+            ResetValidationErrors();
+            DebounceViewStateChanged();
         }
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
@@ -145,46 +135,45 @@ namespace Gizmo.Client.UI.View.Services
 
         private void OnUserLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
         {
-            using (ViewStateChangeDebounced())
+            switch (e.State)
             {
-                switch (e.State)
-                {
-                    case LoginState.LoginFailed:
-                        switch (e.FailReason)
-                        {
-                            //only clear password input in case of invalid password
-                            case LoginResult.InvalidPassword:
-                                ViewState.Password = null;
-                                break;
-                            //clera both username and pasword in any other error case
-                            default:
-                                ViewState.LoginName = null;
-                                ViewState.Password = null;
-                                break;
-                        }
+                case LoginState.LoginFailed:
+                    switch (e.FailReason)
+                    {
+                        //only clear password input in case of invalid password
+                        case LoginResult.InvalidPassword:
+                            ViewState.Password = null;
+                            break;
+                        //clera both username and pasword in any other error case
+                        default:
+                            ViewState.LoginName = null;
+                            ViewState.Password = null;
+                            break;
+                    }
 
-                        //process login error reason
-                        ViewState.HasLoginError = true;
-                        ViewState.LoginError = e.FailReason.ToString();
-                        break;
-                    case LoginState.LoggedIn:
-                        Reset();
-                        break;
-                    default:
-                        break;
-                }
-
-                switch (e.State)
-                {
-                    //LoggingIn state is the only statye
-                    case LoginState.LoggingIn:
-                        ViewState.IsLogginIn = true;
-                        break;
-                    default:
-                        ViewState.IsLogginIn = false;
-                        break;
-                }
+                    //process login error reason
+                    ViewState.HasLoginError = true;
+                    ViewState.LoginError = e.FailReason.ToString();
+                    break;
+                case LoginState.LoggedIn:
+                    Reset();
+                    break;
+                default:
+                    break;
             }
+
+            switch (e.State)
+            {
+                //LoggingIn state is the only statye
+                case LoginState.LoggingIn:
+                    ViewState.IsLogginIn = true;
+                    break;
+                default:
+                    ViewState.IsLogginIn = false;
+                    break;
+            }
+
+            DebounceViewStateChanged();
         }
     }
 }

@@ -30,10 +30,8 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (navigationParameters.IsInitial)
             {
-                using (ViewStateChangeDebounced())
-                {
-                    ViewState.PopularProducts = (await _userProductViewStateLookupService.GetStatesAsync(cancellationToken)).Take(30);
-                }
+                ViewState.PopularProducts = (await _userProductViewStateLookupService.GetStatesAsync(cancellationToken)).Take(30);
+                DebounceViewStateChanged();
             }
         }
         #endregion
