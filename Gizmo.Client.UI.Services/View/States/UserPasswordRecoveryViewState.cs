@@ -13,11 +13,11 @@ namespace Gizmo.Client.UI.View.States
         public UserRecoveryMethod SelectedRecoveryMethod { get; internal set; }
 
         [ValidatingProperty()]
-        [Phone()]
+        [PhoneNullEmptyValidation()]
         public string MobilePhone { get; internal set; } = string.Empty;
 
         [ValidatingProperty()]
-        [EmailAddress()]
+        [EmailNullEmptyValidation()]
         public string Email { get; internal set; } = string.Empty;
 
         public string Destination { get; internal set; } = string.Empty;

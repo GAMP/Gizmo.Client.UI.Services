@@ -19,7 +19,7 @@ namespace Gizmo.Client.UI.View.States
         /// Gets or sets mobile phone.
         /// </summary>
         [ValidatingProperty()]
-        [Phone()]
+        [PhoneNullEmptyValidation()]
         public string? MobilePhone { get; internal set; }
 
         /// <summary>

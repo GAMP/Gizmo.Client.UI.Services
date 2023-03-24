@@ -11,7 +11,7 @@ namespace Gizmo.Client.UI.View.States
         #region PROPERTIES
 
         [ValidatingProperty()]
-        [EmailAddress()]
+        [EmailNullEmptyValidation()]
         public string? Email { get; internal set; }
 
         [ValidatingProperty()]
@@ -20,7 +20,7 @@ namespace Gizmo.Client.UI.View.States
         public string? Prefix { get; internal set; }
 
         [ValidatingProperty()]
-        [Phone()]
+        [PhoneNullEmptyValidation()]
         public string? MobilePhone { get; internal set; }
 
         public string Destination { get; internal set; } = string.Empty;
