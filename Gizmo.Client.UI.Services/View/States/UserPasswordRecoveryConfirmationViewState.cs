@@ -17,6 +17,8 @@ namespace Gizmo.Client.UI.View.States
         [Required()]
         public string ConfirmationCode { get; internal set; } = string.Empty;
 
+        public string ConfirmationCodeMessage { get; internal set; } = string.Empty;
+
         public bool IsLoading { get; internal set; }
 
         public bool HasError { get; internal set; }

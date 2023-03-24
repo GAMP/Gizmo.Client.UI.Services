@@ -1,4 +1,5 @@
-﻿using Gizmo.UI;
+﻿using System.ComponentModel.DataAnnotations;
+using Gizmo.UI;
 using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,9 +13,11 @@ namespace Gizmo.Client.UI.View.States
         public UserRecoveryMethod SelectedRecoveryMethod { get; internal set; }
 
         [ValidatingProperty()]
+        [Phone()]
         public string MobilePhone { get; internal set; } = string.Empty;
 
         [ValidatingProperty()]
+        [EmailAddress()]
         public string Email { get; internal set; } = string.Empty;
 
         public string Destination { get; internal set; } = string.Empty;

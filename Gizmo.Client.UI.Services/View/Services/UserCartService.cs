@@ -142,7 +142,6 @@ namespace Gizmo.Client.UI.View.Services
             }
             catch
             {
-                //TODO: A HANDLE ERROR
             }
             finally
             {

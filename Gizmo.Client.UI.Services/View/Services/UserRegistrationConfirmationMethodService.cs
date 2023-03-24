@@ -1,5 +1,4 @@
-﻿using Gizmo.Client.UI.Services;
-using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Forms;
@@ -66,25 +65,32 @@ namespace Gizmo.Client.UI.View.Services
 
         public void Clear()
         {
-            ViewState.Email = null;
-            ViewState.Country = null;
-            ViewState.Prefix = null;
-            ViewState.MobilePhone = null;
+            ViewState.Email = string.Empty;
+            ViewState.Country = string.Empty;
+            ViewState.Prefix = string.Empty;
+            ViewState.MobilePhone = string.Empty;
         }
 
         public async Task SubmitAsync(bool fallback = false)
         {
-            ViewState.IsValid = EditContext.Validate();
-
-            if (ViewState.IsValid != true)
-                return;
-
             _userVerificationService.Lock();
-
-            bool wasSuccessful = false;
 
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
+
+            ViewState.IsValid = EditContext.Validate(); //TODO: AAA VALIDATE ASYNC?
+
+            if (ViewState.IsValid != true)
+            {
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
+
+                _userVerificationService.Unlock();
+
+                return;
+            }
+
+            bool wasSuccessful = false;
 
             try
             {
@@ -104,8 +110,6 @@ namespace Gizmo.Client.UI.View.Services
                             else
                                 email = result.Email;
                         }
-
-                        //TODO: AAA ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_EMAIL_MESSAGE", email);
 
                         ViewState.Token = result.Token;
                         ViewState.Destination = email;
@@ -141,16 +145,12 @@ namespace Gizmo.Client.UI.View.Services
 
                             if (isFlashCall)
                             {
-                                //TODO: AAA ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_FLASH_CALL_MESSAGE", mobile, result.CodeLength);
-
                                 _userVerificationFallbackService.SetSMSFallbackAvailability(true);
                                 _userVerificationFallbackService.Lock();
                                 _userVerificationFallbackService.StartUnlockTimer();
                             }
                             else
                             {
-                                //TODO: AAA ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_SMS_MESSAGE", mobile);
-
                                 _userVerificationFallbackService.SetSMSFallbackAvailability(false);
                             }
 
@@ -223,10 +223,16 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    //TODO: A VALIDATE EMAIL FORMAT
-                    if (await _gizmoClient.UserEmailExistAsync(ViewState.Email))
+                    try
                     {
-                        validationMessageStore.Add(() => ViewState.Email, _localizationService.GetString("EMAIL_IS_IN_USE"));
+                        if (await _gizmoClient.UserEmailExistAsync(ViewState.Email))
+                        {
+                            validationMessageStore.Add(() => ViewState.Email, _localizationService.GetString("VE_EMAIL_ADDRESS_USED"));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        validationMessageStore.Add(() => ViewState.Email, "Cannot validate email!"); //TODO: AAA TRANSLATE
                     }
                 }
             }
@@ -240,10 +246,16 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    //TODO: A VALIDATE PHONE FORMAT?
-                    if (await _gizmoClient.UserMobileExistAsync(ViewState.MobilePhone))
+                    try
                     {
-                        validationMessageStore.Add(() => ViewState.MobilePhone, _localizationService.GetString("PHONE_IS_IN_USE"));
+                        if (await _gizmoClient.UserMobileExistAsync(ViewState.MobilePhone))
+                        {
+                            validationMessageStore.Add(() => ViewState.MobilePhone, _localizationService.GetString("VE_MOBILE_PHONE_USED"));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        validationMessageStore.Add(() => ViewState.MobilePhone, "Cannot validate phone!"); //TODO: AAA TRANSLATE
                     }
                 }
             }

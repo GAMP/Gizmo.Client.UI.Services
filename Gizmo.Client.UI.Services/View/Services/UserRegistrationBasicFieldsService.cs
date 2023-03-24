@@ -82,22 +82,30 @@ namespace Gizmo.Client.UI.View.Services
 
         public void Clear()
         {
-            ViewState.Username = null;
-            ViewState.Password = null;
-            ViewState.RepeatPassword = null;
-            ViewState.FirstName = null;
-            ViewState.LastName = null;
+            ViewState.Username = string.Empty;
+            ViewState.Password = string.Empty;
+            ViewState.RepeatPassword = string.Empty;
+            ViewState.FirstName = string.Empty;
+            ViewState.LastName = string.Empty;
             ViewState.BirthDate = null;
             ViewState.Sex = Sex.Unspecified;
-            ViewState.Email = null;
+            ViewState.Email = string.Empty;
         }
 
         public async Task SubmitAsync()
         {
-            ViewState.IsValid = EditContext.Validate();
+            ViewState.IsLoading = true;
+            ViewState.RaiseChanged();
+
+            ViewState.IsValid = EditContext.Validate(); //TODO: AAA VALIDATE ASYNC?
 
             if (ViewState.IsValid != true)
+            {
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
+
                 return;
+            }
 
             var userRegistrationIndexViewState = ServiceProvider.GetRequiredService<UserRegistrationIndexViewState>();
 
@@ -112,15 +120,15 @@ namespace Gizmo.Client.UI.View.Services
                 userRegistrationViewState.DefaultUserGroupRequiredInfo.PostCode ||
                 (userRegistrationViewState.DefaultUserGroupRequiredInfo.Mobile && !confirmationWithMobilePhone))
             {
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
+
                 //If any of the additional fields is required open the next page.
                 NavigationService.NavigateTo(ClientRoutes.RegistrationAdditionalFieldsRoute);
             }
             else
             {
                 //If no additional fields are required then proceed with sign up.
-
-                ViewState.IsLoading = true;
-                ViewState.RaiseChanged();
 
                 try
                 {
@@ -154,7 +162,10 @@ namespace Gizmo.Client.UI.View.Services
 
                         if (result.Result != AccountCreationCompleteResultCode.Success)
                         {
-                            //TODO: A HANDLE ERROR
+                            ViewState.HasError = true;
+                            ViewState.ErrorMessage = _localizationService.GetString("REGISTER_FAILED_MESSAGE");
+
+                            return;
                         }
                     }
                     else
@@ -163,7 +174,10 @@ namespace Gizmo.Client.UI.View.Services
 
                         if (result.Result != AccountCreationByTokenCompleteResultCode.Success)
                         {
-                            //TODO: A HANDLE ERROR
+                            ViewState.HasError = true;
+                            ViewState.ErrorMessage = _localizationService.GetString("REGISTER_FAILED_MESSAGE");
+
+                            return;
                         }
                     }
 
@@ -196,9 +210,16 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (!string.IsNullOrEmpty(ViewState.Username))
                 {
-                    if (await _gizmoClient.UserExistAsync(ViewState.Username))
+                    try
                     {
-                        validationMessageStore.Add(() => ViewState.Username, _localizationService.GetString("USERNAME_IS_IN_USE"));
+                        if (await _gizmoClient.UserExistAsync(ViewState.Username))
+                        {
+                            validationMessageStore.Add(() => ViewState.Username, _localizationService.GetString("VE_USERNAME_USED"));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        validationMessageStore.Add(() => ViewState.Username, "Cannot validate username!"); //TODO: AAA TRANSLATE
                     }
                 }
             }
@@ -210,8 +231,6 @@ namespace Gizmo.Client.UI.View.Services
                     validationMessageStore.Add(() => ViewState.RepeatPassword, _localizationService.GetString("PASSWORDS_DO_NOT_MATCH"));
                 }
             }
-
-            //TODO: A VALIDATE EMAIL FORMAT
         }
 
         #endregion

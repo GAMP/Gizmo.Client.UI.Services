@@ -1,4 +1,5 @@
-﻿using Gizmo.UI;
+﻿using System.ComponentModel.DataAnnotations;
+using Gizmo.UI;
 using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,6 +11,7 @@ namespace Gizmo.Client.UI.View.States
         #region PROPERTIES
 
         [ValidatingProperty()]
+        [EmailAddress()]
         public string? Email { get; internal set; }
 
         [ValidatingProperty()]
@@ -18,6 +20,7 @@ namespace Gizmo.Client.UI.View.States
         public string? Prefix { get; internal set; }
 
         [ValidatingProperty()]
+        [Phone()]
         public string? MobilePhone { get; internal set; }
 
         public string Destination { get; internal set; } = string.Empty;

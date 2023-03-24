@@ -1,4 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 using Microsoft.AspNetCore.Components;
@@ -15,13 +16,16 @@ namespace Gizmo.Client.UI.View.Services
         public UserRegistrationAdditionalFieldsService(UserRegistrationAdditionalFieldsViewState viewState,
             ILogger<UserRegistrationAdditionalFieldsService> logger,
             IServiceProvider serviceProvider,
+            ILocalizationService localizationService,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
+            _localizationService = localizationService;
             _gizmoClient = gizmoClient;
         }
         #endregion
 
         #region FIELDS
+        private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
         #endregion
 
@@ -59,11 +63,11 @@ namespace Gizmo.Client.UI.View.Services
 
         public void Clear()
         {
-            ViewState.Address = null;
-            ViewState.PostCode = null;
-            ViewState.Country = null;
-            ViewState.Prefix = null;
-            ViewState.MobilePhone = null;
+            ViewState.Address = string.Empty;
+            ViewState.PostCode = string.Empty;
+            ViewState.Country = string.Empty;
+            ViewState.Prefix = string.Empty;
+            ViewState.MobilePhone = string.Empty;
         }
 
         public async Task SubmitAsync()
@@ -137,7 +141,10 @@ namespace Gizmo.Client.UI.View.Services
 
                     if (result.Result != AccountCreationCompleteResultCode.Success)
                     {
-                        //TODO: A HANDLE ERROR
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = _localizationService.GetString("REGISTER_FAILED_MESSAGE");
+
+                        return;
                     }
                 }
                 else
@@ -149,10 +156,14 @@ namespace Gizmo.Client.UI.View.Services
 
                     if (result.Result != AccountCreationByTokenCompleteResultCode.Success)
                     {
-                        //TODO: A HANDLE ERROR
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = _localizationService.GetString("REGISTER_FAILED_MESSAGE");
+
+                        return;
                     }
                 }
 
+                //TODO: AAA SUCCESS MESSAGE?
                 NavigationService.NavigateTo(ClientRoutes.LoginRoute);
             }
             catch (Exception ex)

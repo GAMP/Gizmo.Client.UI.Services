@@ -243,14 +243,24 @@ namespace Gizmo.Client
             return Task.FromResult(new UpdateResult());
         }
 
-        public Task<bool> UserEmailExistAsync(string email, CancellationToken cancellationToken = default)
+        public async Task<bool> UserEmailExistAsync(string email, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(false);
+            // Simulate task.
+            await Task.Delay(3000);
+
+            throw new Exception("Test");
+
+            return email == "1" ? true : false;
         }
 
-        public Task<bool> UserMobileExistAsync(string mobilePhone, CancellationToken cancellationToken = default)
+        public async Task<bool> UserMobileExistAsync(string mobilePhone, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(false);
+            // Simulate task.
+            await Task.Delay(3000);
+
+            throw new Exception("Test");
+
+            return mobilePhone == "1" ? true : false;
         }
 
         public Task<UserModelRequiredInfo?> UserGroupDefaultRequiredInfoGetAsync(CancellationToken cancellationToken = default)
@@ -258,14 +268,24 @@ namespace Gizmo.Client
             return Task.FromResult((UserModelRequiredInfo?)new UserModelRequiredInfo());
         }
 
-        public Task<AccountCreationCompleteResultModel> UserCreateCompleteAsync(UserProfileModelCreate user, string password, List<UserAgreementModelState> agreementStates, CancellationToken cancellationToken = default)
+        public async Task<AccountCreationCompleteResultModel> UserCreateCompleteAsync(UserProfileModelCreate user, string password, List<UserAgreementModelState> agreementStates, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(new AccountCreationCompleteResultModel());
+            // Simulate task.
+            await Task.Delay(3000);
+
+            throw new Exception("Test");
+
+            return new AccountCreationCompleteResultModel();
         }
 
-        public Task<AccountCreationCompleteResultModelByToken> UserCreateByTokenCompleteAsync(string token, UserProfileModelCreate user, string password, List<UserAgreementModelState> agreementStates, CancellationToken cancellationToken = default)
+        public async Task<AccountCreationCompleteResultModelByToken> UserCreateByTokenCompleteAsync(string token, UserProfileModelCreate user, string password, List<UserAgreementModelState> agreementStates, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(new AccountCreationCompleteResultModelByToken());
+            // Simulate task.
+            await Task.Delay(3000);
+
+            throw new Exception("Test");
+
+            return new AccountCreationCompleteResultModelByToken();
         }
 
         public Task<UserBalanceModel> UserBalanceGetAsync(CancellationToken cancellationToken = default)
@@ -309,9 +329,14 @@ namespace Gizmo.Client
             return Task.FromResult(new UpdateResult());
         }
 
-        public Task<bool> UserExistAsync(string userNameEmailOrMobile, CancellationToken cancellationToken = default)
+        public async Task<bool> UserExistAsync(string userNameEmailOrMobile, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(false);
+            // Simulate task.
+            await Task.Delay(3000);
+
+            throw new Exception("Test");
+
+            return userNameEmailOrMobile == "1" ? true : false;
         }
 
         public Task<UserProductGroupModel?> UserProductGroupGetAsync(int id, CancellationToken cToken = default) =>
@@ -500,7 +525,9 @@ namespace Gizmo.Client
             // Simulate task.
             await Task.Delay(3000);
 
-            return false;
+            //throw new Exception("Test");
+
+            return confirmationCode == "1" ? false : true;
         }
 
         public Task<RegistrationVerificationMethod> GetRegistrationVerificationMethodAsync(CancellationToken cancellationToken = default)
@@ -510,7 +537,7 @@ namespace Gizmo.Client
 
         public Task<UserRecoveryMethod> GetPasswordRecoveryMethodAsync(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(UserRecoveryMethod.Mobile);
+            return Task.FromResult(UserRecoveryMethod.Email);
         }
 
         public bool AppCurrentProfilePass(int appId)
@@ -528,12 +555,16 @@ namespace Gizmo.Client
             // Simulate task.
             await Task.Delay(3000);
 
-            return new PasswordRecoveryStartResultModelByEmail()
+            throw new Exception("Test");
+
+            var result = new PasswordRecoveryStartResultModelByEmail()
             {
                 Token = "123",
                 Email = email,
                 CodeLength = 5
             };
+
+            return result;
         }
 
         public async Task<PasswordRecoveryStartResultModelByMobile> UserPasswordRecoveryByMobileStartAsync(string mobilePhone, Gizmo.ConfirmationCodeDeliveryMethod confirmationCodeDeliveryMethod = Gizmo.ConfirmationCodeDeliveryMethod.Undetermined, CancellationToken cancellationToken = default)
@@ -541,13 +572,17 @@ namespace Gizmo.Client
             // Simulate task.
             await Task.Delay(3000);
 
-            return new PasswordRecoveryStartResultModelByMobile()
+            //throw new Exception("Test");
+
+            var result = new PasswordRecoveryStartResultModelByMobile()
             {
                 Token = "123",
                 MobilePhone = mobilePhone,
                 CodeLength = 5,
                 DeliveryMethod = ConfirmationCodeDeliveryMethod.FlashCall
             };
+
+            return result;
         }
 
         public async Task<PasswordRecoveryCompleteResultCode> UserPasswordRecoveryCompleteAsync(string token, string confirmationCode, string newPassword, CancellationToken cancellationToken = default)
@@ -565,12 +600,16 @@ namespace Gizmo.Client
             // Simulate task.
             await Task.Delay(3000);
 
-            return new AccountCreationResultModelByEmail()
+            throw new Exception("Test");
+
+            var result = new AccountCreationResultModelByEmail()
             {
                 Token = "123",
                 Email = email,
                 CodeLength = 5
             };
+
+            return result;
         }
 
         public async Task<AccountCreationResultModelByMobilePhone> UserCreateByMobileStartAsync(string mobilePhone, ConfirmationCodeDeliveryMethod confirmationCodeDeliveryMethod = ConfirmationCodeDeliveryMethod.Undetermined, CancellationToken cancellationToken = default)
@@ -578,13 +617,17 @@ namespace Gizmo.Client
             // Simulate task.
             await Task.Delay(3000);
 
-            return new AccountCreationResultModelByMobilePhone()
+            //throw new Exception("Test");
+
+            var result = new AccountCreationResultModelByMobilePhone()
             {
                 Token = "123",
                 MobilePhone = mobilePhone,
                 CodeLength = 5,
-                DeliveryMethod = ConfirmationCodeDeliveryMethod.FlashCall
+                DeliveryMethod = confirmationCodeDeliveryMethod == ConfirmationCodeDeliveryMethod.Undetermined ? ConfirmationCodeDeliveryMethod.FlashCall : ConfirmationCodeDeliveryMethod.SMS
             };
+
+            return result;
         }
     }
 }

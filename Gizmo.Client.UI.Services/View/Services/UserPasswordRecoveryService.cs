@@ -65,17 +65,24 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task SubmitAsync(bool fallback = false)
         {
-            ViewState.IsValid = EditContext.Validate();
-
-            if (ViewState.IsValid != true)
-                return;
-
             _userVerificationService.Lock();
-
-            bool wasSuccessful = false;
 
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
+
+            ViewState.IsValid = EditContext.Validate();
+
+            if (ViewState.IsValid != true)
+            {
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
+
+                _userVerificationService.Unlock();
+
+                return;
+            }
+
+            bool wasSuccessful = false;
 
             try
             {
@@ -97,8 +104,6 @@ namespace Gizmo.Client.UI.View.Services
                                 else
                                     email = result.Email;
                             }
-
-                            //TODO: AAA ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_EMAIL_MESSAGE", email);
 
                             ViewState.Token = result.Token;
                             ViewState.Destination = email;
@@ -140,16 +145,12 @@ namespace Gizmo.Client.UI.View.Services
                             bool isFlashCall = result.DeliveryMethod == ConfirmationCodeDeliveryMethod.FlashCall;
                             if (isFlashCall)
                             {
-                                //TODO: AAA ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_FLASH_CALL_MESSAGE", mobile, result.CodeLength);
-
                                 _userVerificationFallbackService.SetSMSFallbackAvailability(true);
                                 _userVerificationFallbackService.Lock();
                                 _userVerificationFallbackService.StartUnlockTimer();
                             }
                             else
                             {
-                                //TODO: AAA ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_SMS_MESSAGE", mobile);
-
                                 _userVerificationFallbackService.SetSMSFallbackAvailability(false);
                             }
 

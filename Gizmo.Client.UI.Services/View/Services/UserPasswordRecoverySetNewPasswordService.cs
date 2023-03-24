@@ -66,11 +66,12 @@ namespace Gizmo.Client.UI.View.Services
                 if (result != PasswordRecoveryCompleteResultCode.Success)
                 {
                     ViewState.HasError = true;
-                    ViewState.ErrorMessage = result.ToString(); //TODO: AAA ERROR
+                    ViewState.ErrorMessage = _localizationService.GetString("PASSWORD_RESET_FAILED_MESSAGE");
 
                     return;
                 }
 
+                //TODO: AAA SUCCESS MESSAGE?
                 NavigationService.NavigateTo(ClientRoutes.LoginRoute);
             }
             catch (Exception ex)

@@ -1,6 +1,7 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
+    [Route(ClientRoutes.RegistrationConfirmationRoute)]
     public sealed class UserRegistrationConfirmationService : ValidatingViewStateServiceBase<UserRegistrationConfirmationViewState>
     {
         #region CONSTRUCTOR
@@ -16,10 +18,14 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
             IGizmoClient gizmoClient,
+            UserRegistrationViewState userRegistrationViewState,
+            UserRegistrationConfirmationMethodService userRegistrationConfirmationMethodService,
             UserRegistrationConfirmationMethodViewState userRegistrationConfirmationMethodViewState) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _gizmoClient = gizmoClient;
+            _userRegistrationViewState = userRegistrationViewState;
+            _userRegistrationConfirmationMethodService = userRegistrationConfirmationMethodService;
             _userRegistrationConfirmationMethodViewState = userRegistrationConfirmationMethodViewState;
         }
         #endregion
@@ -27,6 +33,8 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
+        private readonly UserRegistrationViewState _userRegistrationViewState;
+        private readonly UserRegistrationConfirmationMethodService _userRegistrationConfirmationMethodService;
         private readonly UserRegistrationConfirmationMethodViewState _userRegistrationConfirmationMethodViewState;
         #endregion
 
@@ -46,15 +54,27 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.ConfirmationCode = string.Empty;
         }
 
-        public async Task SubmitAsync()
+        public Task SMSFallbackAsync()
         {
+            NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationMethodRoute);
+
+            return _userRegistrationConfirmationMethodService.SubmitAsync(true);
+        }
+
+        public async Task ConfirmAsync()
+        {
+            ViewState.IsLoading = true;
+            ViewState.RaiseChanged();
+
             ViewState.IsValid = EditContext.Validate();
 
             if (ViewState.IsValid != true)
-                return;
+            {
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
 
-            ViewState.IsLoading = true;
-            ViewState.RaiseChanged();
+                return;
+            }
 
             try
             {
@@ -86,9 +106,30 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        protected override async Task OnCustomValidationAsync(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            await base.OnCustomValidationAsync(fieldIdentifier, validationMessageStore);
+            if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email)
+            {
+                ViewState.ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_EMAIL_MESSAGE", _userRegistrationConfirmationMethodViewState.Destination);
+            }
+            else if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
+            {
+                if (_userRegistrationConfirmationMethodViewState.DeliveryMethod == ConfirmationCodeDeliveryMethod.FlashCall)
+                {
+                    ViewState.ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_FLASH_CALL_MESSAGE", _userRegistrationConfirmationMethodViewState.Destination, _userRegistrationConfirmationMethodViewState.CodeLength);
+                }
+                else
+                {
+                    ViewState.ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_SMS_MESSAGE", _userRegistrationConfirmationMethodViewState.Destination);
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        {
+            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
 
             if (fieldIdentifier.FieldName == nameof(ViewState.ConfirmationCode))
             {
@@ -96,13 +137,6 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("GIZ_CONFIRMATION_CODE_LENGTH_ERROR", _userRegistrationConfirmationMethodViewState.CodeLength));
                 }
-                //else
-                //{
-                //    if (!await _gizmoClient.TokenIsValidAsync(TokenType.CreateAccount, _userRegistrationConfirmationMethodViewState.Token, ViewState.ConfirmationCode))
-                //    {
-                //        validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID"));
-                //    }
-                //}
             }
         }
 

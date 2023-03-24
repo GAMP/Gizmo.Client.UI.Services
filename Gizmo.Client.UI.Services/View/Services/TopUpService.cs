@@ -142,9 +142,9 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        protected override async Task OnCustomValidationAsync(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
         {
-            await base.OnCustomValidationAsync(fieldIdentifier, validationMessageStore);
+            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
 
             if (fieldIdentifier.FieldName == nameof(ViewState.Amount))
             {

@@ -1,4 +1,5 @@
-﻿using Gizmo.UI;
+﻿using System.ComponentModel.DataAnnotations;
+using Gizmo.UI;
 using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,6 +19,7 @@ namespace Gizmo.Client.UI.View.States
         /// Gets or sets mobile phone.
         /// </summary>
         [ValidatingProperty()]
+        [Phone()]
         public string? MobilePhone { get; internal set; }
 
         /// <summary>

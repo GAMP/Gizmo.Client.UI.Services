@@ -1,6 +1,7 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
+    [Route(ClientRoutes.PasswordRecoveryConfirmationRoute)]
     public sealed class UserPasswordRecoveryConfirmationService : ValidatingViewStateServiceBase<UserPasswordRecoveryConfirmationViewState>
     {
         #region CONTRUCTOR
@@ -16,10 +18,12 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
             IGizmoClient gizmoClient,
+            UserPasswordRecoveryService userPasswordRecoveryService,
             UserPasswordRecoveryViewState userPasswordRecoveryViewState) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _gizmoClient = gizmoClient;
+            _userPasswordRecoveryService = userPasswordRecoveryService;
             _userPasswordRecoveryViewState = userPasswordRecoveryViewState;
         }
         #endregion
@@ -27,6 +31,7 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
+        private readonly UserPasswordRecoveryService _userPasswordRecoveryService;
         private readonly UserPasswordRecoveryViewState _userPasswordRecoveryViewState;
         #endregion
 
@@ -41,15 +46,27 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        public async Task SubmitAsync()
+        public Task SMSFallbackAsync()
         {
+            NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryRoute);
+
+            return _userPasswordRecoveryService.SubmitAsync(true);
+        }
+
+        public async Task ConfirmAsync()
+        {
+            ViewState.IsLoading = true;
+            ViewState.RaiseChanged();
+
             ViewState.IsValid = EditContext.Validate();
 
             if (ViewState.IsValid != true)
-                return;
+            {
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
 
-            ViewState.IsLoading = true;
-            ViewState.RaiseChanged();
+                return;
+            }
 
             try
             {
@@ -81,9 +98,30 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        protected override async Task OnCustomValidationAsync(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            await base.OnCustomValidationAsync(fieldIdentifier, validationMessageStore);
+            if (_userPasswordRecoveryViewState.SelectedRecoveryMethod == UserRecoveryMethod.Email)
+            {
+                ViewState.ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_EMAIL_MESSAGE", _userPasswordRecoveryViewState.Destination);
+            }
+            else if (_userPasswordRecoveryViewState.SelectedRecoveryMethod == UserRecoveryMethod.Mobile)
+            {
+                if (_userPasswordRecoveryViewState.DeliveryMethod == ConfirmationCodeDeliveryMethod.FlashCall)
+                {
+                    ViewState.ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_FLASH_CALL_MESSAGE", _userPasswordRecoveryViewState.Destination, _userPasswordRecoveryViewState.CodeLength);
+                }
+                else
+                {
+                    ViewState.ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_SMS_MESSAGE", _userPasswordRecoveryViewState.Destination);
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        {
+            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
 
             if (fieldIdentifier.FieldName == nameof(ViewState.ConfirmationCode))
             {
@@ -91,13 +129,6 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("GIZ_CONFIRMATION_CODE_LENGTH_ERROR", _userPasswordRecoveryViewState.CodeLength));
                 }
-                //else
-                //{
-                //    if (!await _gizmoClient.TokenIsValidAsync(TokenType.ResetPassword, _userPasswordRecoveryViewState.Token, ViewState.ConfirmationCode))
-                //    {
-                //        validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID"));
-                //    }
-                //}
             }
         }
 
