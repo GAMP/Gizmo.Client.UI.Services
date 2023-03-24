@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 
@@ -20,6 +21,17 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #region OVERRIDED FUNCTIONS
+
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            _gizmoClient.AppExeChange += async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
+            return base.OnInitializing(ct);
+        }
+        protected override void OnDisposing(bool isDisposing)
+        {
+            _gizmoClient.AppExeChange -= async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
+            base.OnDisposing(isDisposing);
+        }
         protected override async Task<IDictionary<int, AppExeViewState>> DataInitializeAsync(CancellationToken cToken)
         {
             var clientResult = await _gizmoClient.UserExecutablesGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
@@ -64,6 +76,7 @@ namespace Gizmo.Client.UI.View.Services
                 PersonalFileId = a.PersonalFileId
             });
             result.ImageId = model.ImageId;
+            result.Options = model.Options;
 
             return result;
         }

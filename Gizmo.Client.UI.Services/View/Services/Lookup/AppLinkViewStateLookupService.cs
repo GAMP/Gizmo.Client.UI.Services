@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 
@@ -20,6 +21,16 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #region OVERRIDED FUNCTIONS
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            _gizmoClient.AppLinkChange += async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
+            return base.OnInitializing(ct);
+        }
+        protected override void OnDisposing(bool isDisposing)
+        {
+            _gizmoClient.AppLinkChange -= async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
+            base.OnDisposing(isDisposing);
+        }
         protected override async Task<IDictionary<int, AppLinkViewState>> DataInitializeAsync(CancellationToken cToken)
         {
             var clientResult = await _gizmoClient.UserApplicationLinksGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);

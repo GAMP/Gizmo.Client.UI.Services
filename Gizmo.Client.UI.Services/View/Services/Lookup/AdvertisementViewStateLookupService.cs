@@ -24,7 +24,6 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
         _gizmoClient = gizmoClient;
     }
 
-
     #region OVERRIDED FUNCTIONS
     protected override Task OnInitializing(CancellationToken ct)
     {
@@ -36,7 +35,6 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
         _gizmoClient.NewsChange -= async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
         base.OnDisposing(isDisposing);
     }
-
     protected override async Task<IDictionary<int, AdvertisementViewState>> DataInitializeAsync(CancellationToken cToken)
     {
         var clientResult = await _gizmoClient.NewsGetAsync(new NewsFilter() { Pagination = new() { Limit = -1 } }, cToken);
