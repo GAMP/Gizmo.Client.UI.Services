@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Models;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -18,35 +19,24 @@ namespace Gizmo.Client.UI.View.Services
             _gizmoClient = gizmoClient;
         }
 
-        protected override async Task<bool> DataInitializeAsync(CancellationToken cToken)
+        #region OVERRIDE FUNCTIONS
+        protected override async Task<IDictionary<int, AppEnterpriseViewState>> DataInitializeAsync(CancellationToken cToken)
         {
-            var enterprises = await _gizmoClient.UserApplicationEnterprisesGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
+            var clientResult = await _gizmoClient.UserApplicationEnterprisesGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
 
-            foreach (var item in enterprises.Data)
-            {
-                var viewState = CreateDefaultViewState(item.Id);
-
-                viewState.AppEnterpriseId = item.Id;
-                viewState.Name = item.Name;
-
-                AddOrUpdateViewState(item.Id, viewState);
-            }
-
-            return true;
+            return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
         }
         protected override async ValueTask<AppEnterpriseViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
         {
-            var item = await _gizmoClient.UserApplicationEnterpriseGetAsync(lookUpkey, cToken);
-
-            var viewState = CreateDefaultViewState(lookUpkey);
-
-            if (item is null)
-                return viewState;
-
-            viewState.AppEnterpriseId = item.Id;
-            viewState.Name = item.Name;
-
-            return viewState;
+            var clientResult = await _gizmoClient.UserApplicationEnterpriseGetAsync(lookUpkey, cToken);
+             
+            return clientResult is null ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+        }
+        protected override async ValueTask<AppEnterpriseViewState> UpdateViewStateAsync(AppEnterpriseViewState viewState, CancellationToken cToken = default)
+        {
+            var clientResult = await _gizmoClient.UserApplicationEnterpriseGetAsync(viewState.AppEnterpriseId, cToken);
+            
+            return clientResult is null ? viewState : Map(clientResult, viewState);
         }
         protected override AppEnterpriseViewState CreateDefaultViewState(int lookUpkey)
         {
@@ -58,5 +48,17 @@ namespace Gizmo.Client.UI.View.Services
 
             return defaultState;
         }
+        #endregion
+
+        #region PRIVATE FUNCTIONS
+        private AppEnterpriseViewState Map(UserApplicationEnterpriseModel model, AppEnterpriseViewState? viewState = null)
+        {
+            var result = viewState ?? CreateDefaultViewState(model.Id);
+            
+            result.Name = model.Name;
+            
+            return result;
+        }
+        #endregion
     }
 }

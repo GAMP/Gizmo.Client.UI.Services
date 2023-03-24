@@ -77,7 +77,7 @@ namespace Gizmo.Client.UI.View.Services
 
             foreach (var item in ViewState.Products)
             {
-                var product = await _userProductViewStateLookupService.GetStateAsync(item.ProductId, cancellationToken);
+                var product = await _userProductViewStateLookupService.GetStateAsync(item.ProductId, false, cancellationToken);
 
                 item.TotalPrice = product.UnitPrice * item.Quantity;
                 item.TotalPointsPrice = product.UnitPointsPrice * item.Quantity;

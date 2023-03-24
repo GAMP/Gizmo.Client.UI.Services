@@ -37,7 +37,7 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     if (int.TryParse(productId, out int id))
                     {
-                        var productViewState = await _productLookupService.GetStateAsync(id, cancellationToken);
+                        var productViewState = await _productLookupService.GetStateAsync(id, false, cancellationToken);
                         ViewState.Product = productViewState;
 
                         //TODO: A DEMO
