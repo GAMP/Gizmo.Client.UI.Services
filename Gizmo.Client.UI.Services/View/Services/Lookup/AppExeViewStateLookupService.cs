@@ -1,5 +1,4 @@
-﻿using Gizmo.Client.UI.Services;
-using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -17,17 +16,6 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider) : base(logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
-        }
-
-        protected override Task OnInitializing(CancellationToken ct)
-        {
-            _gizmoClient.AppExeChange += async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
-            return base.OnInitializing(ct);
-        }
-        protected override void OnDisposing(bool isDisposing)
-        {
-            _gizmoClient.AppExeChange -= async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
-            base.OnDisposing(isDisposing);
         }
 
         protected override async Task<bool> DataInitializeAsync(CancellationToken cToken)
