@@ -21,7 +21,6 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #region OVERRIDED FUNCTIONS
-
         protected override Task OnInitializing(CancellationToken ct)
         {
             _gizmoClient.AppExeChange += async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());

@@ -38,8 +38,8 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override void OnDisposing(bool isDisposing)
         {
-            base.OnDisposing(isDisposing);
             _gizmoClient.ExecutionContextStateChage -= OneExecutionContextStateChage;
+            base.OnDisposing(isDisposing);           
         } 
 
         private async void OneExecutionContextStateChage(object? sender, ClientExecutionContextStateArgs e)
