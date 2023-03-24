@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Models;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -19,69 +20,24 @@ namespace Gizmo.Client.UI.View.Services
             _gizmoClient = gizmoClient;
         }
 
-        protected override async Task<bool> DataInitializeAsync(CancellationToken cToken)
+        #region OVERRIDED FUNCTIONS
+        protected override async Task<IDictionary<int, UserProductViewState>> DataInitializeAsync(CancellationToken cToken)
         {
-            var products = await _gizmoClient.UserProductsGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
+            var clientResult = await _gizmoClient.UserProductsGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
 
-            foreach (var product in products.Data)
-            {
-                var viewState = CreateDefaultViewState(product.Id);
-
-                viewState.Id = product.Id;
-                viewState.Name = product.Name;
-
-                viewState.ProductGroupId = product.ProductGroupId;
-                viewState.Description = product.Description;
-                viewState.ProductType = product.ProductType;
-                viewState.UnitPrice = product.Price;
-                viewState.UnitPointsPrice = product.PointsPrice;
-                viewState.DefaultImageId = product.DefaultImageId; 
-
-                if (product.ProductType == ProductType.ProductBundle)
-                {
-                    viewState.BundledProducts = product.Bundle?.BundledProducts.Select(bundle =>
-                    {
-                        var bundledProductViewState = ServiceProvider.GetRequiredService<UserProductBundledViewState>();
-                        bundledProductViewState.Id = bundle.ProductId;
-                        bundledProductViewState.Quantity = bundle.Quantity;
-                        return bundledProductViewState;
-                    }).ToList() ?? Enumerable.Empty<UserProductBundledViewState>();
-                }
-
-                if (product.ProductType == ProductType.ProductTime)
-                {
-                    if (product.TimeProduct != null)
-                    {
-                        var timeProductViewState = ServiceProvider.GetRequiredService<UserProductTimeViewState>();
-                        timeProductViewState.Minutes = product.TimeProduct.Minutes;
-                        viewState.TimeProduct = timeProductViewState;
-                    }
-                }
-
-                AddOrUpdateViewState(product.Id, viewState);
-            }
-
-            return true;
+            return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
         }
         protected override async ValueTask<UserProductViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
         {
-            var product = await _gizmoClient.UserProductGetAsync(lookUpkey, cToken);
+            var clientResult = await _gizmoClient.UserProductGetAsync(lookUpkey, cToken);
 
-            var viewState = CreateDefaultViewState(lookUpkey);
+            return clientResult is null ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+        }
+        protected override async ValueTask<UserProductViewState> UpdateViewStateAsync(UserProductViewState viewState, CancellationToken cToken = default)
+        {
+            var clientResult = await _gizmoClient.UserProductGetAsync(viewState.Id, cToken);
 
-            if (product is null)
-                return viewState;
-
-            viewState.Id = product.Id;
-            viewState.Name = product.Name;
-
-            viewState.ProductGroupId = product.ProductGroupId;
-            viewState.Description = product.Description;
-            viewState.ProductType = product.ProductType;
-            viewState.UnitPrice = product.Price;
-            viewState.UnitPointsPrice = product.PointsPrice;
-
-            return viewState;
+            return clientResult is null ? viewState : Map(clientResult, viewState);
         }
         protected override UserProductViewState CreateDefaultViewState(int lookUpkey)
         {
@@ -93,5 +49,42 @@ namespace Gizmo.Client.UI.View.Services
 
             return defaultState;
         }
+        #endregion
+
+        #region PRIVATE FUNCTIONS
+        private UserProductViewState Map(UserProductModel model, UserProductViewState? viewState = null)
+        {
+            var result = viewState ?? CreateDefaultViewState(model.Id);
+            
+            result.Name = model.Name;
+            result.ProductGroupId = model.ProductGroupId;
+            result.Description = model.Description;
+            result.ProductType = model.ProductType;
+            result.UnitPrice = model.Price;
+            result.UnitPointsPrice = model.PointsPrice;
+
+            if (model.ProductType == ProductType.ProductBundle)
+            {
+                result.BundledProducts = model.Bundle?.BundledProducts.Select(bundle =>
+                {
+                    var bundledProductResult = ServiceProvider.GetRequiredService<UserProductBundledViewState>();
+                    bundledProductResult.Id = bundle.ProductId;
+                    bundledProductResult.Quantity = bundle.Quantity;
+                    return bundledProductResult;
+                }).ToList() ?? Enumerable.Empty<UserProductBundledViewState>();
+            }
+            else if (model.ProductType == ProductType.ProductTime)
+            {
+                if (model.TimeProduct != null)
+                {
+                    var timeProductResult = ServiceProvider.GetRequiredService<UserProductTimeViewState>();
+                    timeProductResult.Minutes = model.TimeProduct.Minutes;
+                    result.TimeProduct = timeProductResult;
+                }
+            }
+
+            return result;
+        }
+        #endregion
     }
 }

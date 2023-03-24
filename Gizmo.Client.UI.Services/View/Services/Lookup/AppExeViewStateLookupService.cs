@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Models;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -18,52 +19,24 @@ namespace Gizmo.Client.UI.View.Services
             _gizmoClient = gizmoClient;
         }
 
-        protected override async Task<bool> DataInitializeAsync(CancellationToken cToken)
+        #region OVERRIDED FUNCTIONS
+        protected override async Task<IDictionary<int, AppExeViewState>> DataInitializeAsync(CancellationToken cToken)
         {
-            var executables = await _gizmoClient.UserExecutablesGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
+            var clientResult = await _gizmoClient.UserExecutablesGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
 
-            foreach (var item in executables.Data)
-            {
-                var viewState = CreateDefaultViewState(item.Id);
-
-                viewState.ExecutableId = item.Id;
-                viewState.ApplicationId = item.ApplicationId;
-                viewState.Caption = item.Caption;
-                viewState.Description = item.Description;
-                viewState.DisplayOrder = item.DisplayOrder;
-                viewState.Options = item.Options;
-                viewState.PersonalFiles = item.PersonalFiles.Select(a => new AppExePersonalFileViewState()
-                {
-                    PersonalFileId = a.PersonalFileId
-                });
-                viewState.ImageId = item.ImageId;
-
-                AddOrUpdateViewState(item.Id, viewState);
-            }
-
-            return true;
+            return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
         }
         protected override async ValueTask<AppExeViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
         {
-            var item = await _gizmoClient.UserExecutableGetAsync(lookUpkey, cToken);
+            var clientResult = await _gizmoClient.UserExecutableGetAsync(lookUpkey, cToken);
 
-            var viewState = CreateDefaultViewState(lookUpkey);
-
-            if (item is null)
-                return viewState;
-
-            viewState.ExecutableId = item.Id;
-            viewState.ApplicationId = item.ApplicationId;
-            viewState.Caption = item.Caption;
-            viewState.Description = item.Description;
-            viewState.DisplayOrder = item.DisplayOrder;
-            viewState.PersonalFiles = item.PersonalFiles.Select(a => new AppExePersonalFileViewState()
-            {
-                PersonalFileId = a.PersonalFileId
-            });
-            viewState.ImageId = item.ImageId;
-
-            return viewState;
+            return clientResult is null  ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+        }
+        protected override async ValueTask<AppExeViewState> UpdateViewStateAsync(AppExeViewState viewState, CancellationToken cToken = default)
+        {
+            var clientResult = await _gizmoClient.UserExecutableGetAsync(viewState.ExecutableId, cToken);
+            
+            return clientResult is null  ? CreateDefaultViewState(viewState.ExecutableId) : Map(clientResult, viewState);
         }
         protected override AppExeViewState CreateDefaultViewState(int lookUpkey)
         {
@@ -75,5 +48,25 @@ namespace Gizmo.Client.UI.View.Services
 
             return defaultState;
         }
+        #endregion
+
+        #region PRIVATE FUNCTIONS
+        private AppExeViewState Map(UserExecutableModel model, AppExeViewState? viewState = null)
+        {
+            var result = viewState ?? CreateDefaultViewState(model.Id);
+
+            result.ApplicationId = model.ApplicationId;
+            result.Caption = model.Caption;
+            result.Description = model.Description;
+            result.DisplayOrder = model.DisplayOrder;
+            result.PersonalFiles = model.PersonalFiles.Select(a => new AppExePersonalFileViewState()
+            {
+                PersonalFileId = a.PersonalFileId
+            });
+            result.ImageId = model.ImageId;
+
+            return result;
+        }
+        #endregion
     }
 }
