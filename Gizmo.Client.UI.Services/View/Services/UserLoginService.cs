@@ -1,4 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
@@ -176,9 +177,9 @@ namespace Gizmo.Client.UI.View.Services
             DebounceViewStateChanged();
         }
 
-        protected override Task OnValidateAsync(FieldIdentifier fieldIdentifier, CancellationToken cancellationToken = default)
+        protected override Task OnValidateAsync(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger, CancellationToken cancellationToken = default)
         {
-            return base.OnValidateAsync(fieldIdentifier, cancellationToken);
+            return base.OnValidateAsync(fieldIdentifier, validationTrigger, cancellationToken);
         }
     }
 }
