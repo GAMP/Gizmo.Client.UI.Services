@@ -31,14 +31,14 @@ namespace Gizmo.Client.UI.View.Services
         public void SetLoginName(string value)
         {
             ViewState.LoginName = value;
-            ValidateProperty((x) => x.LoginName);
+            ValidateProperty(() => ViewState.LoginName);
             DebounceViewStateChanged();
         }
 
         public void SetPassword(string value)
         {
             ViewState.Password = value;
-            ValidateProperty((x) => x.Password);
+            ValidateProperty(() => ViewState.Password);
             DebounceViewStateChanged();
         }
 
@@ -56,7 +56,7 @@ namespace Gizmo.Client.UI.View.Services
         public async Task LoginAsync()
         {
             //always validate state on submission
-            ViewState.IsValid = EditContext.Validate();
+            EditContext.Validate();
 
             //model validation is pending, we cant proceed
             if (ViewState.IsValid != true)
@@ -94,7 +94,7 @@ namespace Gizmo.Client.UI.View.Services
         public void Reset()
         {
             ViewState.SetDefaults();
-            ResetValidationErrors();
+            ResetValidationState();
             DebounceViewStateChanged();
         }
 
@@ -174,6 +174,11 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             DebounceViewStateChanged();
+        }
+
+        protected override Task OnValidateAsync(FieldIdentifier fieldIdentifier, CancellationToken cancellationToken = default)
+        {
+            return base.OnValidateAsync(fieldIdentifier, cancellationToken);
         }
     }
 }

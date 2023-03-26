@@ -39,9 +39,9 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task SetConfirmationCode(string value)
         {
-                ViewState.ConfirmationCode = value;
-                await ValidatePropertyAsync((x) => x.ConfirmationCode);
-           DebounceViewStateChanged();
+            ViewState.ConfirmationCode = value;
+            await ValidatePropertyAsync((x) => x.ConfirmationCode);
+            DebounceViewStateChanged();
         }
 
         public Task SMSFallbackAsync()
