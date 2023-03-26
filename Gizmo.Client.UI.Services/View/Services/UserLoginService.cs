@@ -57,7 +57,7 @@ namespace Gizmo.Client.UI.View.Services
         public async Task LoginAsync()
         {
             //always validate state on submission
-            EditContext.Validate();
+            Validate();
 
             //model validation is pending, we cant proceed
             if (ViewState.IsValid != true)

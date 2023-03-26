@@ -39,7 +39,7 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets or sets username,email or mobile phone used for login.
         /// </summary>
-        [ValidatingProperty(IsAsync = true)]
+        [ValidatingProperty()]
         [Required()]
         public string? LoginName 
         {
