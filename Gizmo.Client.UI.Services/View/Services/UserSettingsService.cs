@@ -30,61 +30,71 @@ namespace Gizmo.Client.UI.View.Services
 		public void SetUsername(string value)
         {
             ViewState.Username = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Username);
+            DebounceViewStateChanged();
         }
 
         public void SetFirstName(string value)
         {
             ViewState.FirstName = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.FirstName);
+            DebounceViewStateChanged();
         }
 
         public void SetLastName(string value)
         {
             ViewState.LastName = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.LastName);
+            DebounceViewStateChanged();
         }
 
         public void SetBirthDate(DateTime? value)
         {
             ViewState.BirthDate = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.BirthDate);
+            DebounceViewStateChanged();
         }
 
         public void SetSex(Sex value)
         {
             ViewState.Sex = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Sex);
+            DebounceViewStateChanged();
         }
 
         public void SetCountry(string value)
         {
             ViewState.Country = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Country);
+            DebounceViewStateChanged();
         }
 
         public void SetAddress(string value)
         {
             ViewState.Address = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Address);
+            DebounceViewStateChanged();
         }
 
         public void SetEmail(string value)
         {
             ViewState.Email = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Email);
+            DebounceViewStateChanged();
         }
 
         public void SetMobilePhone(string value)
         {
             ViewState.MobilePhone = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.MobilePhone);
+            DebounceViewStateChanged();
         }
 
         public void SetPhone(string value)
         {
             ViewState.Phone = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Phone);
+            DebounceViewStateChanged();
         }
 
         public Task LoadAsync(CancellationToken cToken = default)
@@ -108,7 +118,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task SubmitAsync()
         {
-            ViewState.IsValid = EditContext.Validate();
+            Validate();
 
             if (ViewState.IsValid != true)
                 return Task.CompletedTask;

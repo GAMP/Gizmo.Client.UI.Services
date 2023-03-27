@@ -1,4 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Forms;
@@ -33,18 +34,20 @@ namespace Gizmo.Client.UI.View.Services
         public void SetNewPassword(string value)
         {
             ViewState.NewPassword = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.NewPassword);
+            DebounceViewStateChanged();
         }
 
         public void SetRepeatPassword(string value)
         {
             ViewState.RepeatPassword = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.RepeatPassword);
+            DebounceViewStateChanged();
         }
 
         public async Task SubmitAsync()
         {
-            ViewState.IsValid = EditContext.Validate();
+            Validate();
 
             if (ViewState.IsValid != true)
                 return;
@@ -92,15 +95,13 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
-            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
-
-            if (fieldIdentifier.FieldName == nameof(ViewState.NewPassword) || fieldIdentifier.FieldName == nameof(ViewState.RepeatPassword))
+            if (fieldIdentifier.FieldEquals(() => ViewState.NewPassword) || fieldIdentifier.FieldEquals(() => ViewState.RepeatPassword))
             {
                 if (!string.IsNullOrEmpty(ViewState.NewPassword) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.NewPassword, ViewState.RepeatPassword) != 0)
                 {
-                    validationMessageStore.Add(() => ViewState.RepeatPassword, _localizationService.GetString("PASSWORDS_DO_NOT_MATCH"));
+                    AddError(() => ViewState.RepeatPassword, _localizationService.GetString("PASSWORDS_DO_NOT_MATCH"));
                 }
             }
         }

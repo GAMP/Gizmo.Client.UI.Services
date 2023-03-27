@@ -1,4 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,30 +30,33 @@ namespace Gizmo.Client.UI.View.Services
         public void SetCountry(string value)
         {
             ViewState.Country = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Country);
+            DebounceViewStateChanged();
         }
 
         public void SetPrefix(string value)
         {
             ViewState.Prefix = value;
-            ViewState.RaiseChanged();
+            DebounceViewStateChanged();
         }
 
         public void SetMobilePhone(string value)
         {
             ViewState.MobilePhone = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.MobilePhone);
+            DebounceViewStateChanged();
         }
 
         public void SetConfirmationCode(string value)
         {
             ViewState.ConfirmationCode = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.ConfirmationCode);
+            DebounceViewStateChanged();
         }
 
         public async Task SendConfirmationCodeAsync()
         {
-            ViewState.IsValid = EditContext.Validate();
+            Validate();
 
             if (ViewState.IsValid != true)
                 return;
@@ -128,13 +132,11 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
-            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
-
-            if (ViewState.PageIndex == 1 && fieldIdentifier.FieldName == nameof(ViewState.ConfirmationCode) && string.IsNullOrEmpty(ViewState.ConfirmationCode))
+            if (ViewState.PageIndex == 1 && fieldIdentifier.FieldEquals(() => ViewState.ConfirmationCode) && string.IsNullOrEmpty(ViewState.ConfirmationCode))
             {
-                validationMessageStore.Add(() => ViewState.ConfirmationCode, "The confirmatin code field is required.");
+                AddError(() => ViewState.ConfirmationCode, "The confirmatin code field is required.");
             }
         }
 

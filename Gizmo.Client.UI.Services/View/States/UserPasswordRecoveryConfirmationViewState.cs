@@ -13,7 +13,7 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets or sets confirmation code.
         /// </summary>
-        [ValidatingProperty()]
+        [ValidatingProperty(IsAsync = true)]
         [Required()]
         public string ConfirmationCode { get; internal set; } = string.Empty;
 

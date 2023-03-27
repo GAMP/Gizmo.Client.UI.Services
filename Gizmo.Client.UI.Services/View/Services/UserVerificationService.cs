@@ -23,14 +23,16 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region FIELDS
+        private readonly SemaphoreSlim verificationLock = new SemaphoreSlim(1, 1);
         private readonly System.Timers.Timer _timer = new System.Timers.Timer(1000);
         #endregion
 
         #region FUNCTIONS
 
-        internal void Lock()
+        internal async Task LockAsync()
         {
             ViewState.IsVerificationLocked = true;
+            await verificationLock.WaitAsync(0);
             ViewState.RaiseChanged();
         }
 
@@ -38,6 +40,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             _timer.Stop();
             ViewState.IsVerificationLocked = false;
+            verificationLock.Release();
             ViewState.RaiseChanged();
         }
 

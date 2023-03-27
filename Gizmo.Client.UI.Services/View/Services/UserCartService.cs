@@ -94,12 +94,14 @@ namespace Gizmo.Client.UI.View.Services
         public void SetNotes(string value)
         {
             ViewState.Notes = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Notes);
+            DebounceViewStateChanged();
         }
         public void SetOrderPaymentMethod(int? paymentMethodId)
         {
             ViewState.PaymentMethodId = paymentMethodId;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.PaymentMethodId);
+            DebounceViewStateChanged();
         }
         public Task ChangeProductPayType(int productId, OrderLinePayType payType)
         {
@@ -115,7 +117,7 @@ namespace Gizmo.Client.UI.View.Services
         }
         public async Task SubmitAsync()
         {
-            ViewState.IsValid = EditContext.Validate();
+            Validate();
 
             if (ViewState.IsValid != true)
                 return;

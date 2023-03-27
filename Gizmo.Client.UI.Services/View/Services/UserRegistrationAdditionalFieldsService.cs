@@ -34,31 +34,35 @@ namespace Gizmo.Client.UI.View.Services
         public void SetAddress(string value)
         {
             ViewState.Address = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Address);
+            DebounceViewStateChanged();
         }
 
         public void SetPostCode(string value)
         {
             ViewState.PostCode = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.PostCode);
+            DebounceViewStateChanged();
         }
 
         public void SetCountry(string value)
         {
             ViewState.Country = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Country);
+            DebounceViewStateChanged();
         }
 
         public void SetPrefix(string value)
         {
             ViewState.Prefix = value;
-            ViewState.RaiseChanged();
+            DebounceViewStateChanged();
         }
 
         public void SetMobilePhone(string value)
         {
             ViewState.MobilePhone = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.MobilePhone);
+            DebounceViewStateChanged();
         }
 
         public void Clear()
@@ -68,11 +72,12 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Country = string.Empty;
             ViewState.Prefix = string.Empty;
             ViewState.MobilePhone = string.Empty;
+            DebounceViewStateChanged();
         }
 
         public async Task SubmitAsync()
         {
-            ViewState.IsValid = EditContext.Validate();
+            Validate();
 
             if (ViewState.IsValid != true)
                 return;

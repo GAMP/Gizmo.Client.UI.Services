@@ -1,9 +1,8 @@
 ﻿using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
+using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
-using Gizmo.UI.View.States;
-using Gizmo.Web.Api.Models;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -46,7 +45,8 @@ namespace Gizmo.Client.UI.View.Services
                 return;
 
             ViewState.Amount = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Amount);
+            DebounceViewStateChanged();
         }
 
         public async Task ShowDialogAsync()
@@ -83,13 +83,13 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.Presets.Contains(amount))
             {
                 ViewState.Amount = amount;
-                ViewState.RaiseChanged();
+                DebounceViewStateChanged();
             }
         }
 
         public async Task SubmitAsync()
         {
-            ViewState.IsValid = EditContext.Validate();
+            Validate();
 
             if (ViewState.IsValid != true)
                 return;
@@ -142,15 +142,13 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
-            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
-
-            if (fieldIdentifier.FieldName == nameof(ViewState.Amount))
+            if (fieldIdentifier.FieldEquals(() => ViewState.Amount))
             {
                 if (ViewState.Amount < ViewState.MinimumAmount)
                 {
-                    validationMessageStore.Add(() => ViewState.Amount, _localizationService.GetString("TOP_UP_MINIMUM_AMOUNT_IS", ViewState.MinimumAmount));
+                    AddError(() => ViewState.Amount, _localizationService.GetString("TOP_UP_MINIMUM_AMOUNT_IS", ViewState.MinimumAmount));
                 }
             }
         }

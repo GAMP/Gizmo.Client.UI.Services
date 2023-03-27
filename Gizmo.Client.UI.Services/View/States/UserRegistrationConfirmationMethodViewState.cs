@@ -10,7 +10,7 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
-        [ValidatingProperty()]
+        [ValidatingProperty(IsAsync = true)]
         [EmailNullEmptyValidation()]
         public string? Email { get; internal set; }
 
@@ -19,7 +19,7 @@ namespace Gizmo.Client.UI.View.States
 
         public string? Prefix { get; internal set; }
 
-        [ValidatingProperty()]
+        [ValidatingProperty(IsAsync = true)]
         [PhoneNullEmptyValidation()]
         public string? MobilePhone { get; internal set; }
 

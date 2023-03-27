@@ -19,7 +19,7 @@ namespace Gizmo.Client.UI.View.Services
         public void SetConfirmationMethod(RegistrationVerificationMethod value)
         {
             ViewState.ConfirmationMethod = value;
-            ViewState.RaiseChanged();
+            DebounceViewStateChanged();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +23,7 @@ namespace Gizmo.Client.UI.View.Services
         public void SetInputPassword(string value)
         {
             ViewState.InputPassword = value;
-            ViewState.RaiseChanged();
+            DebounceViewStateChanged();
         }
 
         public Task LockAsync()
@@ -51,7 +52,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task SetPasswordAsync()
         {
-            ViewState.IsValid = EditContext.Validate();
+            Validate();
 
             if (ViewState.IsValid != true)
                 return Task.CompletedTask;
@@ -76,7 +77,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task UnlockAsync()
         {
-            ViewState.IsValid = EditContext.Validate();
+            Validate();
 
             if (ViewState.IsValid != true)
                 return Task.CompletedTask;
@@ -124,15 +125,13 @@ namespace Gizmo.Client.UI.View.Services
 
         #endregion
 
-        protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
-            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
-
-            if (fieldIdentifier.FieldName == nameof(ViewState.InputPassword))
+            if (fieldIdentifier.FieldEquals(() => ViewState.InputPassword))
             {
                 if (ViewState.InputPassword.Length != 4)
                 {
-                    validationMessageStore.Add(() => ViewState.InputPassword, "Password should have 4 digits!");
+                    AddError(() => ViewState.InputPassword, "Password should have 4 digits!");
                 }
             }
         }

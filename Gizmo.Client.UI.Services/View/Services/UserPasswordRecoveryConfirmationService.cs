@@ -1,4 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
@@ -37,10 +38,10 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public async Task SetConfirmationCode(string value)
+        public void SetConfirmationCode(string value)
         {
             ViewState.ConfirmationCode = value;
-            await ValidatePropertyAsync((x) => x.ConfirmationCode);
+            ValidateProperty(() => ViewState.ConfirmationCode);
             DebounceViewStateChanged();
         }
 
@@ -51,12 +52,12 @@ namespace Gizmo.Client.UI.View.Services
             return _userPasswordRecoveryService.SubmitAsync(true);
         }
 
-        public async Task ConfirmAsync()
+        public void Confirm()
         {
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 
-            ViewState.IsValid = EditContext.Validate();
+            Validate();
 
             if (ViewState.IsValid != true)
             {
@@ -66,30 +67,10 @@ namespace Gizmo.Client.UI.View.Services
                 return;
             }
 
-            try
-            {
-                if (!await _gizmoClient.TokenIsValidAsync(TokenType.ResetPassword, _userPasswordRecoveryViewState.Token, ViewState.ConfirmationCode))
-                {
-                    ViewState.HasError = true;
-                    ViewState.ErrorMessage = _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID");
-                    //TODO: AAA CLEAR ERROR WITH TIMER OR SOMETHING?
-                    return;
-                }
+            NavigationService.NavigateTo(ClientRoutes.PasswordRecoverySetNewPasswordRoute);
 
-                NavigationService.NavigateTo(ClientRoutes.PasswordRecoverySetNewPasswordRoute);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Check password recovery token validity error.");
-
-                ViewState.HasError = true;
-                ViewState.ErrorMessage = ex.ToString();
-            }
-            finally
-            {
-                ViewState.IsLoading = false;
-                ViewState.RaiseChanged();
-            }
+            ViewState.IsLoading = false;
+            ViewState.RaiseChanged();
         }
 
         #endregion
@@ -117,17 +98,39 @@ namespace Gizmo.Client.UI.View.Services
             return Task.CompletedTask;
         }
 
-        protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
-            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
-
-            if (fieldIdentifier.FieldName == nameof(ViewState.ConfirmationCode))
+            if (fieldIdentifier.FieldEquals(() => ViewState.ConfirmationCode))
             {
                 if (ViewState.ConfirmationCode.Length != _userPasswordRecoveryViewState.CodeLength)
                 {
-                    validationMessageStore.Add(() => ViewState.ConfirmationCode, _localizationService.GetString("GIZ_CONFIRMATION_CODE_LENGTH_ERROR", _userPasswordRecoveryViewState.CodeLength));
+                    AddError(() => ViewState.ConfirmationCode, _localizationService.GetString("GIZ_CONFIRMATION_CODE_LENGTH_ERROR", _userPasswordRecoveryViewState.CodeLength));
                 }
             }
+        }
+
+        protected override async Task<IEnumerable<string>> OnValidateAsync(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger, CancellationToken cancellationToken = default)
+        {
+            if (fieldIdentifier.FieldEquals(() => ViewState.ConfirmationCode))
+            {
+                if (!string.IsNullOrEmpty(ViewState.ConfirmationCode))
+                {
+                    try
+                    {
+                        if (!await _gizmoClient.TokenIsValidAsync(TokenType.ResetPassword, _userPasswordRecoveryViewState.Token, ViewState.ConfirmationCode))
+                        {
+                            return new string[] { _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID") };
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "Check password recovery token validity error.");
+                        return new string[] { "Check password recovery token validity error." }; //TODO: AAA TRANSLATE
+                    }
+                }
+            }
+
+            return await base.OnValidateAsync(fieldIdentifier, validationTrigger, cancellationToken);
         }
 
         #endregion

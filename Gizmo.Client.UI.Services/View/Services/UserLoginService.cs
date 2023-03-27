@@ -177,9 +177,5 @@ namespace Gizmo.Client.UI.View.Services
             DebounceViewStateChanged();
         }
 
-        protected override Task OnValidateAsync(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger, CancellationToken cancellationToken = default)
-        {
-            return base.OnValidateAsync(fieldIdentifier, validationTrigger, cancellationToken);
-        }
     }
 }

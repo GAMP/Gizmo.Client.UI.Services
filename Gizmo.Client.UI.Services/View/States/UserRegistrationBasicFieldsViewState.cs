@@ -13,7 +13,7 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets or sets username.
         /// </summary>
-        [ValidatingProperty()]
+        [ValidatingProperty(IsAsync = true)]
         [Required()]
         public string Username { get; internal set; } = string.Empty;
 

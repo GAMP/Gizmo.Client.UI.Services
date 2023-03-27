@@ -1,4 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Forms;
@@ -42,25 +43,28 @@ namespace Gizmo.Client.UI.View.Services
         public void SetEmail(string value)
         {
             ViewState.Email = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Email);
+            DebounceViewStateChanged();
         }
 
         public void SetCountry(string value)
         {
             ViewState.Country = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Country);
+            DebounceViewStateChanged();
         }
 
         public void SetPrefix(string value)
         {
             ViewState.Prefix = value;
-            ViewState.RaiseChanged();
+            DebounceViewStateChanged();
         }
 
         public void SetMobilePhone(string value)
         {
             ViewState.MobilePhone = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.MobilePhone);
+            DebounceViewStateChanged();
         }
 
         public void Clear()
@@ -69,16 +73,24 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Country = string.Empty;
             ViewState.Prefix = string.Empty;
             ViewState.MobilePhone = string.Empty;
+            DebounceViewStateChanged();
         }
 
         public async Task SubmitAsync(bool fallback = false)
         {
-            _userVerificationService.Lock();
+            try
+            {
+                await _userVerificationService.LockAsync();
+            }
+            catch
+            {
+                return;
+            }
 
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 
-            ViewState.IsValid = EditContext.Validate(); //TODO: AAA VALIDATE ASYNC?
+            Validate();
 
             if (ViewState.IsValid != true)
             {
@@ -210,56 +222,79 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        protected override async Task OnCustomValidationAsync(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
-        {
-            await base.OnCustomValidationAsync(fieldIdentifier, validationMessageStore);
+        //protected override void OnValidationStateChanged()
+        //{
+        //    IsAsyncValidating(() => ViewState.MobilePhone);
 
+        //    base.OnValidationStateChanged();
+        //}
+
+        protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
+        {
             if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email &&
-                fieldIdentifier.FieldName == nameof(ViewState.Email))
+                fieldIdentifier.FieldEquals(() => ViewState.Email))
             {
                 if (string.IsNullOrEmpty(ViewState.Email))
                 {
-                    validationMessageStore.Add(() => ViewState.Email, _localizationService.GetString("EMAIL_IS_REQUIRED"));
+                    AddError(() => ViewState.Email, _localizationService.GetString("EMAIL_IS_REQUIRED"));
                 }
-                else
+            }
+
+            if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone &&
+                fieldIdentifier.FieldEquals(() => ViewState.MobilePhone))
+            {
+                if (string.IsNullOrEmpty(ViewState.MobilePhone))
+                {
+                    AddError(() => ViewState.MobilePhone, _localizationService.GetString("PHONE_IS_REQUIRED"));
+                }
+            }
+        }
+
+        protected override async Task<IEnumerable<string>> OnValidateAsync(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger, CancellationToken cancellationToken = default)
+        {
+            if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email &&
+                fieldIdentifier.FieldEquals(() => ViewState.Email))
+            {
+                if (!string.IsNullOrEmpty(ViewState.Email))
                 {
                     try
                     {
                         if (await _gizmoClient.UserEmailExistAsync(ViewState.Email))
                         {
-                            validationMessageStore.Add(() => ViewState.Email, _localizationService.GetString("VE_EMAIL_ADDRESS_USED"));
+                            return new string[] { _localizationService.GetString("VE_EMAIL_ADDRESS_USED") };
                         }
                     }
                     catch (Exception ex)
                     {
-                        validationMessageStore.Add(() => ViewState.Email, "Cannot validate email!"); //TODO: AAA TRANSLATE
+                        Logger.LogError(ex, "Cannot validate email.");
+                        return new string[] { "Cannot validate email." }; //TODO: AAA TRANSLATE
                     }
                 }
             }
 
             if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone &&
-                fieldIdentifier.FieldName == nameof(ViewState.MobilePhone))
+                fieldIdentifier.FieldEquals(() => ViewState.MobilePhone))
             {
-                if (string.IsNullOrEmpty(ViewState.MobilePhone))
-                {
-                    validationMessageStore.Add(() => ViewState.MobilePhone, _localizationService.GetString("PHONE_IS_REQUIRED"));
-                }
-                else
+                if (!string.IsNullOrEmpty(ViewState.MobilePhone))
                 {
                     try
                     {
                         if (await _gizmoClient.UserMobileExistAsync(ViewState.MobilePhone))
                         {
-                            validationMessageStore.Add(() => ViewState.MobilePhone, _localizationService.GetString("VE_MOBILE_PHONE_USED"));
+                            return new string[] { _localizationService.GetString("VE_MOBILE_PHONE_USED") };
                         }
                     }
                     catch (Exception ex)
                     {
-                        validationMessageStore.Add(() => ViewState.MobilePhone, "Cannot validate phone!"); //TODO: AAA TRANSLATE
+                        Logger.LogError(ex, "Cannot validate phone.");
+                        return new string[] { "Cannot validate phone." }; //TODO: AAA TRANSLATE
                     }
                 }
             }
+
+            return await base.OnValidateAsync(fieldIdentifier, validationTrigger, cancellationToken);
         }
+
 
         #endregion
     }

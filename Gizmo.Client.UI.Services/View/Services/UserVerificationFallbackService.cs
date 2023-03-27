@@ -30,6 +30,7 @@ namespace Gizmo.Client.UI.View.Services
         internal void SetSMSFallbackAvailability(bool value)
         {
             ViewState.IsSMSFallbackAvailable = value;
+            ViewState.RaiseChanged();
         }
 
         internal void Lock()

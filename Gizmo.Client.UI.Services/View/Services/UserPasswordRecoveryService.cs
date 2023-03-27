@@ -1,4 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
@@ -43,13 +44,15 @@ namespace Gizmo.Client.UI.View.Services
         public void SetEmail(string value)
         {
             ViewState.Email = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Email);
+            DebounceViewStateChanged();
         }
 
         public void SetMobilePhone(string value)
         {
             ViewState.MobilePhone = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.MobilePhone);
+            DebounceViewStateChanged();
         }
 
         public void SetSelectedRecoveryMethod(UserRecoveryMethod value)
@@ -60,17 +63,24 @@ namespace Gizmo.Client.UI.View.Services
 
             ViewState.SelectedRecoveryMethod = value;
 
-            ViewState.RaiseChanged();
+            DebounceViewStateChanged();
         }
 
         public async Task SubmitAsync(bool fallback = false)
         {
-            _userVerificationService.Lock();
+            try
+            {
+                await _userVerificationService.LockAsync();
+            }
+            catch
+            {
+                return;
+            }
 
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 
-            ViewState.IsValid = EditContext.Validate();
+            Validate();
 
             if (ViewState.IsValid != true)
             {
@@ -231,22 +241,20 @@ namespace Gizmo.Client.UI.View.Services
             return Task.CompletedTask;
         }
 
-        protected override void OnCustomValidation(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
-            base.OnCustomValidation(fieldIdentifier, validationMessageStore);
-
             if (ViewState.SelectedRecoveryMethod == UserRecoveryMethod.Email &&
-                fieldIdentifier.FieldName == nameof(ViewState.Email) &&
+                fieldIdentifier.FieldEquals(() => ViewState.Email) &&
                 string.IsNullOrEmpty(ViewState.Email))
             {
-                validationMessageStore.Add(() => ViewState.Email, _localizationService.GetString("EMAIL_IS_REQUIRED"));
+                AddError(() => ViewState.Email, _localizationService.GetString("EMAIL_IS_REQUIRED"));
             }
 
             if (ViewState.SelectedRecoveryMethod == UserRecoveryMethod.Mobile &&
-                fieldIdentifier.FieldName == nameof(ViewState.MobilePhone) &&
+                fieldIdentifier.FieldEquals(() => ViewState.MobilePhone) &&
                 string.IsNullOrEmpty(ViewState.MobilePhone))
             {
-                validationMessageStore.Add(() => ViewState.MobilePhone, _localizationService.GetString("PHONE_IS_REQUIRED"));
+                AddError(() => ViewState.MobilePhone, _localizationService.GetString("PHONE_IS_REQUIRED"));
             }
         }
 

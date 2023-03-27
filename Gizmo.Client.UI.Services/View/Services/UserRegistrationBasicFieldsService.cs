@@ -1,4 +1,6 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System.ComponentModel.DataAnnotations;
+using Gizmo.Client.UI.View.States;
+using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
@@ -35,49 +37,57 @@ namespace Gizmo.Client.UI.View.Services
         public void SetUsername(string value)
         {
             ViewState.Username = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Username);
+            DebounceViewStateChanged();
         }
 
         public void SetPassword(string value)
         {
             ViewState.Password = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Password);
+            DebounceViewStateChanged();
         }
 
         public void SetRepeatPassword(string value)
         {
             ViewState.RepeatPassword = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.RepeatPassword);
+            DebounceViewStateChanged();
         }
 
         public void SetFirstName(string value)
         {
             ViewState.FirstName = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.FirstName);
+            DebounceViewStateChanged();
         }
 
         public void SetLastName(string value)
         {
             ViewState.LastName = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.LastName);
+            DebounceViewStateChanged();
         }
 
         public void SetBirthDate(DateTime? value)
         {
             ViewState.BirthDate = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.BirthDate);
+            DebounceViewStateChanged();
         }
 
         public void SetSex(Sex value)
         {
             ViewState.Sex = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Sex);
+            DebounceViewStateChanged();
         }
 
         public void SetEmail(string value)
         {
             ViewState.Email = value;
-            ViewState.RaiseChanged();
+            ValidateProperty(() => ViewState.Email);
+            DebounceViewStateChanged();
         }
 
         public void Clear()
@@ -90,6 +100,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.BirthDate = null;
             ViewState.Sex = Sex.Unspecified;
             ViewState.Email = string.Empty;
+            DebounceViewStateChanged();
         }
 
         public async Task SubmitAsync()
@@ -97,7 +108,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 
-            ViewState.IsValid = EditContext.Validate(); //TODO: AAA VALIDATE ASYNC?
+            Validate();
 
             if (ViewState.IsValid != true)
             {
@@ -202,11 +213,20 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        protected override async Task OnCustomValidationAsync(FieldIdentifier fieldIdentifier, ValidationMessageStore validationMessageStore)
+        protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
-            await base.OnCustomValidationAsync(fieldIdentifier, validationMessageStore);
+            if (fieldIdentifier.FieldEquals(() => ViewState.Password) || fieldIdentifier.FieldEquals(() => ViewState.RepeatPassword))
+            {
+                if (!string.IsNullOrEmpty(ViewState.Password) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.Password, ViewState.RepeatPassword) != 0)
+                {
+                    AddError(() => ViewState.RepeatPassword, _localizationService.GetString("PASSWORDS_DO_NOT_MATCH"));
+                }
+            }
+        }
 
-            if (fieldIdentifier.FieldName == nameof(ViewState.Username))
+        protected override async Task<IEnumerable<string>> OnValidateAsync(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger, CancellationToken cancellationToken = default)
+        {
+            if (fieldIdentifier.FieldEquals(() => ViewState.Username))
             {
                 if (!string.IsNullOrEmpty(ViewState.Username))
                 {
@@ -214,23 +234,18 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         if (await _gizmoClient.UserExistAsync(ViewState.Username))
                         {
-                            validationMessageStore.Add(() => ViewState.Username, _localizationService.GetString("VE_USERNAME_USED"));
+                            return new string[] { _localizationService.GetString("VE_USERNAME_USED") };
                         }
                     }
                     catch (Exception ex)
                     {
-                        validationMessageStore.Add(() => ViewState.Username, "Cannot validate username!"); //TODO: AAA TRANSLATE
+                        Logger.LogError(ex, "Cannot validate username.");
+                        return new string[] { "Cannot validate username." }; //TODO: AAA TRANSLATE
                     }
                 }
             }
 
-            if (fieldIdentifier.FieldName == nameof(ViewState.Password) || fieldIdentifier.FieldName == nameof(ViewState.RepeatPassword))
-            {
-                if (!string.IsNullOrEmpty(ViewState.Password) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.Password, ViewState.RepeatPassword) != 0)
-                {
-                    validationMessageStore.Add(() => ViewState.RepeatPassword, _localizationService.GetString("PASSWORDS_DO_NOT_MATCH"));
-                }
-            }
+            return await base.OnValidateAsync(fieldIdentifier, validationTrigger, cancellationToken);
         }
 
         #endregion
