@@ -23,7 +23,7 @@ namespace Gizmo.Client.UI.View.States
             }
             internal set
             {
-                SetProperty(ref _connectionState, value);
+                _connectionState = value;
             }
         } 
 

@@ -16,7 +16,7 @@ namespace Gizmo.Client.UI.View.States
         public RegistrationVerificationMethod ConfirmationMethod
         {
             get { return _confirmationMethod; }
-            internal set { SetProperty(ref _confirmationMethod, value); }
+            internal set { _confirmationMethod = value; }
         }
 
         #endregion

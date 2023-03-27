@@ -23,7 +23,7 @@ namespace Gizmo.Client.UI.View.States
         public string NativeName
         {
             get { return _nativeName; }
-            internal set { SetProperty(ref _nativeName, value); }
+            internal set { _nativeName = value; }
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace Gizmo.Client.UI.View.States
         public string TwoLetterName
         {
             get { return _twoLetterName; }
-            internal set { SetProperty(ref _twoLetterName, value); }
+            internal set { _twoLetterName = value; }
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Gizmo.Client.UI.View.States
         public string EnglishName
         {
             get { return _englishName; }
-            internal set { SetProperty(ref _englishName, value); }
+            internal set { _englishName = value; }
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Gizmo.Client.UI.View.States
             get { return _lcid; }
             internal set
             {
-                SetProperty(ref _lcid, value);
+                _lcid = value;
             }
         }
 

@@ -18,7 +18,7 @@ namespace Gizmo.Client.UI.View.States
         public string? Avatar
         {
             get { return _avatar; }
-            internal set { SetProperty(ref _avatar, value); }
+            internal set { _avatar = value; }
         } 
 
         #endregion

@@ -17,19 +17,19 @@ namespace Gizmo.Client.UI.View.States
         public bool IsPending
         {
             get { return _isPending; }
-            internal set { SetProperty(ref _isPending, value); }
+            internal set { _isPending = value; }
         }
 
         public DateTime StartTime
         {
             get { return _startTime; }
-            internal set { SetProperty(ref _startTime, value); }
+            internal set { _startTime = value; }
         }
 
         public bool IsActive
         {
             get { return _isActive; }
-            internal set { SetProperty(ref _isActive, value); }
+            internal set { _isActive = value; }
         } 
         
         #endregion

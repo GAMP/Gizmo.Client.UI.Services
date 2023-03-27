@@ -1,5 +1,4 @@
 ﻿using Gizmo.UI.View.States;
-using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gizmo.Client.UI.View.States
@@ -24,31 +23,31 @@ namespace Gizmo.Client.UI.View.States
         public int Id
         {
             get { return _id; }
-            internal set { SetProperty(ref _id, value); }
+            internal set { _id = value; }
         }
 
         public ProductType ProductType
         {
             get { return _productType; }
-            internal set { SetProperty(ref _productType, value); }
+            internal set { _productType = value; }
         }
 
         public string ProductName
         {
             get { return _productName; }
-            internal set { SetProperty(ref _productName, value); }
+            internal set { _productName = value; }
         }
 
         public OrderStatus OrderStatus
         {
             get { return _orderStatus; }
-            internal set { SetProperty(ref _orderStatus, value); }
+            internal set { _orderStatus = value; }
         }
 
         public int Quantity
         {
             get { return _quantity; }
-            internal set { SetProperty(ref _quantity, value); }
+            internal set { _quantity = value; }
         }
 
         public decimal Total
@@ -72,7 +71,7 @@ namespace Gizmo.Client.UI.View.States
         public IEnumerable<UserProductViewState> BundledProducts
         {
             get { return _bundledProducts; }
-            internal set { SetProperty(ref _bundledProducts, value); }
+            internal set { _bundledProducts = value; }
         }
 
         #endregion

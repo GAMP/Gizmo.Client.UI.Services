@@ -23,13 +23,13 @@ namespace Gizmo.Client.UI.View.States
         public string Title
         {
             get { return _title; }
-            internal set { SetProperty(ref _title, value); }
+            internal set { _title = value; }
         }
 
         public TimeSpan Time
         {
             get { return _time; }
-            internal set { SetProperty(ref _time, value); }
+            internal set { _time = value; }
         }
 
         #endregion

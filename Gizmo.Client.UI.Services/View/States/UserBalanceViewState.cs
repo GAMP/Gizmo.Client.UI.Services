@@ -21,33 +21,33 @@ namespace Gizmo.Client.UI.View.States
         public decimal Balance
         {
             get { return _balance; }
-            internal set { SetProperty(ref _balance, value); }
+            internal set { _balance = value; }
         }
-        
+
         [DefaultValue(0)]
         public int PointsBalance
         {
             get { return _pointsBalance; }
-            internal set { SetProperty(ref _pointsBalance, value); }
+            internal set { _pointsBalance = value; }
         }
 
         [DefaultValue(0)]
         public decimal Outstanding
         {
             get { return _outstanding; }
-            internal set { SetProperty(ref _outstanding, value); }
+            internal set { _outstanding = value; }
         }
 
         public string CurrentTimeProduct
         {
             get { return _currentTimeProduct; }
-            internal set { SetProperty(ref _currentTimeProduct, value); }
+            internal set { _currentTimeProduct = value; }
         }
 
         public TimeSpan Time
         {
             get { return _time; }
-            internal set { SetProperty(ref _time, value); }
+            internal set { _time = value; }
         }
 
         #endregion

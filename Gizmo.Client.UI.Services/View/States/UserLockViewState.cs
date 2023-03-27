@@ -19,31 +19,31 @@ namespace Gizmo.Client.UI.View.States
         public string InputPassword
         {
             get { return _inputPassword; }
-            internal set { SetProperty(ref _inputPassword, value); }
+            internal set { _inputPassword = value; }
         }
 
         public string LockPassword
         {
             get { return _lockPassword; }
-            internal set { SetProperty(ref _lockPassword, value); }
+            internal set { _lockPassword = value; }
         }
 
         public bool IsLocking
         {
             get { return _isLocking; }
-            internal set { SetProperty(ref _isLocking, value); }
+            internal set { _isLocking = value; }
         }
 
         public bool IsLocked
         {
             get { return _isLocked; }
-            internal set { SetProperty(ref _isLocked, value); }
+            internal set { _isLocked = value; }
         }
 
         public string Error
         {
             get { return _error; }
-            internal set { SetProperty(ref _error, value); }
+            internal set { _error = value; }
         }
 
         #endregion

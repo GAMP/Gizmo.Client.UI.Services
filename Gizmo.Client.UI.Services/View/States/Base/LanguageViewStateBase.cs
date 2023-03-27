@@ -20,7 +20,7 @@ namespace Gizmo.Client.UI.View.States
         public IEnumerable<LanguageViewState> Languages
         {
             get { return _languages; }
-            internal set { SetProperty(ref _languages, value); }
+            internal set { _languages = value; }
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace Gizmo.Client.UI.View.States
         public LanguageViewState? SelectedLanguage
         {
             get { return _selectedLanguage; }
-            internal set { SetProperty(ref _selectedLanguage, value); }
+            internal set { _selectedLanguage = value; }
         }
 
         #endregion
