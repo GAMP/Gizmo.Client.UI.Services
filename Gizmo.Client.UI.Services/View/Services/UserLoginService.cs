@@ -1,9 +1,7 @@
 ﻿using Gizmo.Client.UI.View.States;
-using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -11,9 +9,10 @@ namespace Gizmo.Client.UI.View.Services
 {
     [Route(ClientRoutes.LoginRoute)]
     [Register()]
-    public sealed class UserLoginService : ValidatingViewStateServiceBase<UserLoginViewState>, IDisposable
+    public sealed class UserLoginService : ValidatingViewStateServiceBase<UserLoginViewState>
     {
-        public UserLoginService(UserLoginViewState viewState,
+        public UserLoginService(
+            UserLoginViewState viewState,
             ILogger<UserLoginService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
@@ -33,14 +32,12 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.LoginName = value;
             ValidateProperty(() => ViewState.LoginName);
-            DebounceViewStateChanged();
         }
 
         public void SetPassword(string value)
         {
             ViewState.Password = value;
             ValidateProperty(() => ViewState.Password);
-            DebounceViewStateChanged();
         }
 
         public void SetPasswordVisible(bool value)
@@ -86,7 +83,7 @@ namespace Gizmo.Client.UI.View.Services
             return Task.CompletedTask;
         }
 
-        public Task LogοutAsync()
+        public Task LogoutAsync()
         {
             NavigationService.NavigateTo(ClientRoutes.HomeRoute);
             return Task.CompletedTask;
@@ -96,12 +93,6 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.SetDefaults();
             ResetValidationState();
-            DebounceViewStateChanged();
-        }
-
-        protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
-        {
-            return base.OnNavigatedIn(navigationParameters, cancellationToken);
         }
 
         protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
