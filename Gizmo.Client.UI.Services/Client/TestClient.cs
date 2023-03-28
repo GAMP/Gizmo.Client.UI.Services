@@ -260,7 +260,7 @@ namespace Gizmo.Client
             // Simulate task.
             await Task.Delay(3000);
 
-            throw new Exception("Test");
+            //throw new Exception("Test");
 
             return mobilePhone == "1" ? true : false;
         }
@@ -336,7 +336,7 @@ namespace Gizmo.Client
             // Simulate task.
             await Task.Delay(3000);
 
-            throw new Exception("Test");
+            //throw new Exception("Test");
 
             return userNameEmailOrMobile == "1" ? true : false;
         }
@@ -557,7 +557,7 @@ namespace Gizmo.Client
             // Simulate task.
             await Task.Delay(3000);
 
-            throw new Exception("Test");
+            //throw new Exception("Test");
 
             var result = new PasswordRecoveryStartResultModelByEmail()
             {

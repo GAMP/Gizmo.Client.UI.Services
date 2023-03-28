@@ -22,6 +22,7 @@ namespace Gizmo.Client.UI.View.States
         /// </summary>
         [ValidatingProperty()]
         [Required()]
+        [StringLength(24)]
         public string Password { get; internal set; } = string.Empty;
 
         /// <summary>
@@ -29,6 +30,7 @@ namespace Gizmo.Client.UI.View.States
         /// </summary>
         [ValidatingProperty()]
         [Required()]
+        [StringLength(24)]
         public string RepeatPassword { get; internal set; } = string.Empty;
 
         [ValidatingProperty()]
