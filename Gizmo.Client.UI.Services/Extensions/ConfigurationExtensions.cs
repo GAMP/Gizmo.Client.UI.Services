@@ -21,7 +21,8 @@ namespace Gizmo.Client.UI.Services
             }
             else
             {
-                configuration.Add(_clientInMemoryConfiurationSource);
+                configuration.Add(_uiCompositionConfiurationSource);
+                configuration.Add(_uiOptionsConfigurationSource);
             }
 
             return configuration;
