@@ -295,6 +295,24 @@ namespace Gizmo.Client.UI.View.Services
             return await base.OnValidateAsync(fieldIdentifier, validationTrigger, cancellationToken);
         }
 
+        protected override AsyncValidatedDetermineResult OnDeterminIsAsyncPropertiesValidated()
+        {
+            switch(_userRegistrationViewState.ConfirmationMethod)
+            {
+                case RegistrationVerificationMethod.MobilePhone:
+                    if (IsAsyncValidated(() => ViewState.MobilePhone))
+                        return AsyncValidatedDetermineResult.DefaultTrue;
+                    break;
+                case RegistrationVerificationMethod.Email:
+                    if (IsAsyncValidated(() => ViewState.Email))
+                        return AsyncValidatedDetermineResult.DefaultTrue;
+                    break;
+                default:
+                    break;
+            }
+
+            return base.OnDeterminIsAsyncPropertiesValidated();
+        }
 
         #endregion
     }
