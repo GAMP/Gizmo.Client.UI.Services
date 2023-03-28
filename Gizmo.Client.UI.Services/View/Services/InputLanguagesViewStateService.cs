@@ -29,40 +29,24 @@ namespace Gizmo.Client.UI.View.Services
             var currentLanguage = _inputLanguageService.CurrentInputLanguage;
             var inputLanguagesViewStates = inputLanguages.Select(culture =>
             {
-                return GetRequiredViewState<LanguageViewState>((state) =>
-                {
-                    state.EnglishName = culture.EnglishName;
-                    state.TwoLetterName = culture.TwoLetterISOLanguageName;
-                    state.LCID = culture.LCID;
-                    state.NativeName = culture.NativeName;
-                });
+                return GetRequiredViewState<LanguageViewState>((state) => state.Culture = culture);
             }).ToList();
 
             ViewState.Languages = inputLanguagesViewStates;
-            ViewState.SelectedLanguage = ViewState.Languages
-                .Where(viewState=>viewState.TwoLetterName == currentLanguage.TwoLetterISOLanguageName)
-                .FirstOrDefault();
+            ViewState.SelectedLanguage = GetLanguageViewState(inputLanguagesViewStates, currentLanguage.TwoLetterISOLanguageName);
 
             return base.OnInitializing(ct);
         }
 
         public async Task SetCurrentRegionAsync(string twoLetterRegionName)
         {
-            var region = ViewState.Languages
-                .Where(a => a.TwoLetterName == twoLetterRegionName)
-                .FirstOrDefault();
-
-            if (region != null)
-            {
-                CultureInfo cultureInfo = CultureInfo.GetCultureInfo(twoLetterRegionName);
-                await _inputLanguageService.SetCurrentLanguageAsync(cultureInfo).ConfigureAwait(true);
-                ViewState.SelectedLanguage = region;
+                ViewState.SelectedLanguage = GetLanguageViewState(ViewState.Languages, twoLetterRegionName);
+                await _inputLanguageService.SetCurrentLanguageAsync(ViewState.SelectedLanguage.Culture).ConfigureAwait(true);
                 ViewState.RaiseChanged();
-            }
-            else
-            {
-                Logger.LogError("Invalid region id {regionId} specified.", twoLetterRegionName);
-            }
         }
+
+        public LanguageViewState GetLanguageViewState(IEnumerable<LanguageViewState> languages, string? twoLetterISOLanguageName) =>
+            languages.FirstOrDefault(x => x.Culture.TwoLetterISOLanguageName == twoLetterISOLanguageName)
+            ?? GetRequiredViewState<LanguageViewState>((state) => state.Culture = CultureInfo.CurrentCulture);
     }
 }

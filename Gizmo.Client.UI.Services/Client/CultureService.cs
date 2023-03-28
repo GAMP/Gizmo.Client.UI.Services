@@ -13,7 +13,8 @@ namespace Gizmo.Client.UI.Services
     {
         public Task SetCurrentUICultureAsync(CultureInfo culture)
         {
-            CultureInfo.CurrentUICulture = culture;
+            CultureInfo.DefaultThreadCurrentCulture = culture;
+            CultureInfo.DefaultThreadCurrentUICulture = culture;
             return Task.CompletedTask;  
         }
     }
