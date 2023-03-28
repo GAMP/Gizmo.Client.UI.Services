@@ -73,6 +73,17 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
+        public void Clear()
+        {
+            ViewState.ConfirmationCode = string.Empty;
+            ViewState.ConfirmationCodeMessage = string.Empty;
+
+            ViewState.IsLoading = false;
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
+            DebounceViewStateChanged();
+        }
+
         #endregion
 
         #region OVERRIDES

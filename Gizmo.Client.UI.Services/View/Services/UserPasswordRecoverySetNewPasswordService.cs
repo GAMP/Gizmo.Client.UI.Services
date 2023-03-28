@@ -91,6 +91,17 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
+        public void Clear()
+        {
+            ViewState.NewPassword = string.Empty;
+            ViewState.RepeatPassword = string.Empty;
+
+            ViewState.IsLoading = false;
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
+            DebounceViewStateChanged();
+        }
+
         #endregion
 
         #region OVERRIDES
