@@ -295,7 +295,7 @@ namespace Gizmo.Client.UI.View.Services
             return await base.OnValidateAsync(fieldIdentifier, validationTrigger, cancellationToken);
         }
 
-        protected override AsyncValidatedDetermineResult OnDeterminIsAsyncPropertiesValidated()
+        protected override AsyncValidatedDetermineResult OnDetermineIsAsyncPropertiesValidated()
         {
             switch(_userRegistrationViewState.ConfirmationMethod)
             {
@@ -311,7 +311,7 @@ namespace Gizmo.Client.UI.View.Services
                     break;
             }
 
-            return base.OnDeterminIsAsyncPropertiesValidated();
+            return base.OnDetermineIsAsyncPropertiesValidated();
         }
 
         #endregion
