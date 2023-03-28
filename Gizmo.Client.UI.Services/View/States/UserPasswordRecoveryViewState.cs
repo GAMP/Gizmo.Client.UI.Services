@@ -22,7 +22,7 @@ namespace Gizmo.Client.UI.View.States
 
         public string Destination { get; internal set; } = string.Empty;
 
-        public string Token { get; internal set; } = string.Empty;
+        public string? Token { get; internal set; }
 
         public int CodeLength { get; internal set; }
 

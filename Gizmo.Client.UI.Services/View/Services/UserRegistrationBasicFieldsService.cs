@@ -95,11 +95,15 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Username = string.Empty;
             ViewState.Password = string.Empty;
             ViewState.RepeatPassword = string.Empty;
-            ViewState.FirstName = string.Empty;
-            ViewState.LastName = string.Empty;
+            ViewState.FirstName = null;
+            ViewState.LastName = null;
             ViewState.BirthDate = null;
             ViewState.Sex = Sex.Unspecified;
-            ViewState.Email = string.Empty;
+            ViewState.Email = null;
+
+            ViewState.IsLoading = false;
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
             DebounceViewStateChanged();
         }
 

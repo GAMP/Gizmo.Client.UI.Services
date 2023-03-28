@@ -51,6 +51,11 @@ namespace Gizmo.Client.UI.View.Services
         public void Clear()
         {
             ViewState.ConfirmationCode = string.Empty;
+            ViewState.ConfirmationCodeMessage = string.Empty;
+
+            ViewState.IsLoading = false;
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
         }
 
         public Task SMSFallbackAsync()

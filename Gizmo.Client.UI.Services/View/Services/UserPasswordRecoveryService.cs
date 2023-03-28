@@ -141,6 +141,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
+                    //TODO: AAA 9digit phones?
                     var result = await _gizmoClient.UserPasswordRecoveryByMobileStartAsync(ViewState.MobilePhone, !fallback ? Gizmo.ConfirmationCodeDeliveryMethod.Undetermined : Gizmo.ConfirmationCodeDeliveryMethod.SMS);
 
                     switch (result.Result)
@@ -227,12 +228,36 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
+        public void ClearAll()
+        {
+            var userPasswordRecoveryConfirmationService = ServiceProvider.GetRequiredService<UserPasswordRecoveryConfirmationService>();
+            var userPasswordRecoverySetNewPasswordService = ServiceProvider.GetRequiredService<UserPasswordRecoverySetNewPasswordService>();
+
+            userPasswordRecoveryConfirmationService.Clear();
+            userPasswordRecoverySetNewPasswordService.Clear();
+
+            ViewState.SelectedRecoveryMethod = UserRecoveryMethod.None;
+            ViewState.MobilePhone = string.Empty;
+            ViewState.Email = string.Empty;
+            ViewState.Destination = string.Empty;
+            ViewState.Token = string.Empty;
+            ViewState.CodeLength = 0;
+            ViewState.DeliveryMethod = ConfirmationCodeDeliveryMethod.Undetermined;
+            
+            ViewState.IsLoading = false;
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
+            DebounceViewStateChanged();
+        }
+
         #endregion
 
         #region OVERRIDES
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
+            ClearAll();
+
             if (_userPasswordRecoveryMethodServiceViewState.AvailabledRecoveryMethod.HasFlag(UserRecoveryMethod.Mobile) && _userPasswordRecoveryMethodServiceViewState.AvailabledRecoveryMethod.HasFlag(UserRecoveryMethod.Email))
                 ViewState.SelectedRecoveryMethod = UserRecoveryMethod.Mobile;
             else

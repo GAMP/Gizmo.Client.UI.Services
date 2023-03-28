@@ -67,11 +67,15 @@ namespace Gizmo.Client.UI.View.Services
 
         public void Clear()
         {
-            ViewState.Address = string.Empty;
-            ViewState.PostCode = string.Empty;
-            ViewState.Country = string.Empty;
-            ViewState.Prefix = string.Empty;
-            ViewState.MobilePhone = string.Empty;
+            ViewState.Address = null;
+            ViewState.PostCode = null;
+            ViewState.Country = null;
+            ViewState.Prefix = null;
+            ViewState.MobilePhone = null;
+
+            ViewState.IsLoading = false;
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
             DebounceViewStateChanged();
         }
 

@@ -73,6 +73,10 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Country = string.Empty;
             ViewState.Prefix = string.Empty;
             ViewState.MobilePhone = string.Empty;
+
+            ViewState.IsLoading = false;
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
             DebounceViewStateChanged();
         }
 
@@ -279,7 +283,13 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     try
                     {
-                        if (await _gizmoClient.UserMobileExistAsync(ViewState.MobilePhone))
+                        var tmp = ViewState.Prefix + ViewState.MobilePhone;
+                        if (tmp.StartsWith("+"))
+                        {
+                            tmp = tmp.Substring(1);
+                        }
+
+                        if (await _gizmoClient.UserMobileExistAsync(tmp))
                         {
                             return new string[] { _localizationService.GetString("VE_MOBILE_PHONE_USED") };
                         }

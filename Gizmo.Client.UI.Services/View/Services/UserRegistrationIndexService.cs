@@ -92,11 +92,13 @@ namespace Gizmo.Client.UI.View.Services
             var userRegistrationBasicFieldsService = ServiceProvider.GetRequiredService<UserRegistrationBasicFieldsService>();
             var userRegistrationAdditionalFieldsService = ServiceProvider.GetRequiredService<UserRegistrationAdditionalFieldsService>();
 
-            ViewState.UserAgreementStates = Enumerable.Empty<UserAgreementViewState>();
             userRegistrationConfirmationService.Clear();
             userRegistrationConfirmationMethodService.Clear();
             userRegistrationBasicFieldsService.Clear();
             userRegistrationAdditionalFieldsService.Clear();
+
+            ViewState.UserAgreementStates = Enumerable.Empty<UserAgreementViewState>();
+            DebounceViewStateChanged();
         }
 
         #region OVERRIDES
