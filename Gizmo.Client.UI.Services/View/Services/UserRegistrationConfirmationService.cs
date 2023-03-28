@@ -56,6 +56,9 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.IsLoading = false;
             ViewState.HasError = false;
             ViewState.ErrorMessage = string.Empty;
+
+            ResetValidationState();
+            DebounceViewStateChanged();
         }
 
         public Task SMSFallbackAsync()
