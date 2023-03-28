@@ -1,9 +1,17 @@
 ﻿namespace Gizmo.Client.UI
 {
     /// <summary>
-    /// Client configuration file source.
+    /// UI composition configuration source.
     /// </summary>
-    public class ClientInMemoryConfiurationSource : Microsoft.Extensions.Configuration.Json.InMemoryJsonStreamConfigurationSource
+    public sealed class UICompositionInMemoryConfiurationSource : Microsoft.Extensions.Configuration.Json.InMemoryJsonStreamConfigurationSource
     {
+    }
+
+    /// <summary>
+    /// UI options configuration source.
+    /// </summary>
+    public sealed class UIOptionsInMemoryConfigurationSource : Microsoft.Extensions.Configuration.Json.InMemoryJsonStreamConfigurationSource
+    {
+
     }
 }

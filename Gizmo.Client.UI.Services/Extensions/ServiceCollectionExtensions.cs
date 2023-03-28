@@ -15,7 +15,8 @@ namespace Gizmo.Client.UI.Services
         private static readonly bool _isWebBrowser = RuntimeInformation.IsOSPlatform(OSPlatform.Create("browser"));
         private static readonly Assembly _executingAssembly = Assembly.GetExecutingAssembly();
         private static readonly Assembly _uiAssembly = typeof(Gizmo.UI.Services.UICompositionServiceBase).Assembly;
-        private static readonly ClientInMemoryConfiurationSource _clientInMemoryConfiurationSource = new();
+        private static readonly UICompositionInMemoryConfiurationSource _uiCompositionConfiurationSource = new();
+        private static readonly UIOptionsInMemoryConfigurationSource _uiOptionsConfigurationSource = new();
         #endregion
 
         #region FUNCTIONS
@@ -65,7 +66,8 @@ namespace Gizmo.Client.UI.Services
             else
             {
                 //add in memory configuration store as singelton
-                services.AddSingleton((sp) => _clientInMemoryConfiurationSource);
+                services.AddSingleton((sp) => _uiCompositionConfiurationSource);
+                services.AddSingleton((sp) => _uiOptionsConfigurationSource);
                 services.AddSingleton<DesktopUICompositionService>();
                 services.AddSingleton<IUICompositionService>((sp) => sp.GetRequiredService<DesktopUICompositionService>());
             }
