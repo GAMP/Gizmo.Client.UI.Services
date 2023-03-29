@@ -19,7 +19,8 @@ namespace Gizmo.Client.UI.Services
 
         public Task SetCurrentCultureAsync(CultureInfo culture)
         {
-            CultureInfo.DefaultThreadCurrentUICulture = culture;
+            CultureInfo.CurrentCulture = culture;
+            CultureInfo.CurrentUICulture = culture;
             return Task.CompletedTask;
         }
         public CultureInfo GetCurrentCulture(string? twoLetterISOLanguageName) =>

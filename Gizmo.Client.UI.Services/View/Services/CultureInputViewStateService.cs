@@ -28,7 +28,7 @@ public sealed class CultureInputViewStateService : ViewStateServiceBase<CultureI
     {
         ViewState.AveliableCultures = _cultureService.AveliableCultures;
 
-        ViewState.CurrentCulture = _cultureService.GetCurrentCulture("en");
+        ViewState.CurrentCulture = _cultureService.GetCurrentCulture("ru");
 
         await _cultureService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 

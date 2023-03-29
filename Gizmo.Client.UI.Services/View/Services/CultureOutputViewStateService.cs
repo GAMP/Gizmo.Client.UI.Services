@@ -15,18 +15,18 @@ namespace Gizmo.Client.UI.View.Services
         public CultureOutputViewStateService(
             CultureOutputViewState viewState,
             CultureOutputService cultureService,
-            IOptions<ClientUIOptions> clientOptions,
+            IOptions<ClientUIOptions> cultureOptions,
             ILogger<CultureOutputViewStateService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _cultureService = cultureService;
-            _clientCultureOptions = clientOptions.Value.CultureOptions;
+            _cultureOptions = cultureOptions.Value.CultureOutputOptions;
         }
         #endregion
 
         #region FIELDS
         private readonly CultureOutputService _cultureService;
-        private readonly ClientUICultureOptions _clientCultureOptions;
+        private readonly CultureOutputOptions _cultureOptions;
         #endregion
 
         protected override async Task OnInitializing(CancellationToken ct)
@@ -35,7 +35,7 @@ namespace Gizmo.Client.UI.View.Services
 
             OverrideCulturesConfiguration();
 
-            ViewState.CurrentCulture = _cultureService.GetCurrentCulture("ru");
+            ViewState.CurrentCulture = _cultureService.GetCurrentCulture("en");
 
             await _cultureService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
@@ -53,11 +53,11 @@ namespace Gizmo.Client.UI.View.Services
 
         private void OverrideCulturesConfiguration()
         {
-            if (!string.IsNullOrWhiteSpace(_clientCultureOptions.CurrencySymbol))
+            if (!string.IsNullOrWhiteSpace(_cultureOptions.CurrencySymbol))
             {
                 foreach (var culture in ViewState.AveliableCultures)
                 {
-                    culture.NumberFormat.CurrencySymbol = _clientCultureOptions.CurrencySymbol;
+                    culture.NumberFormat.CurrencySymbol = _cultureOptions.CurrencySymbol;
                 }
             }
         }
