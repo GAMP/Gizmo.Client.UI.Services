@@ -1,6 +1,7 @@
-﻿using Gizmo.Client.UI.Services;
-using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI;
 using Gizmo.UI.View.Services;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -12,7 +13,7 @@ public sealed class CultureInputViewStateService : ViewStateServiceBase<CultureI
     #region CONSTRUCTOR
     public CultureInputViewStateService(
         CultureInputViewState viewState,
-        CultureInputService cultureService,
+        ICultureInputService cultureService,
         ILogger<CultureInputViewStateService> logger,
         IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
     {
@@ -21,7 +22,7 @@ public sealed class CultureInputViewStateService : ViewStateServiceBase<CultureI
     #endregion
 
     #region FIELDS
-    private readonly CultureInputService _cultureService;
+    private readonly ICultureInputService _cultureService;
     #endregion
 
     protected override async Task OnInitializing(CancellationToken ct)
