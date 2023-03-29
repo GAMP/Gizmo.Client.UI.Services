@@ -136,7 +136,8 @@ namespace Gizmo.Client.UI.Services
                 NativeName = country.Name.NativeName.Values.FirstOrDefault()?.Common ?? string.Empty,
                 FlagSvg = country.Flags.Svg,
                 FlagPng = country.Flags.Png,
-                CallingCode = string.Format("{0}{1}", country.Idd.Root, country.Idd.Suffixes.FirstOrDefault()),
+                CallingCodeRoot = country.Idd.Root,
+                CallingCodeSuffixes = country.Idd.Suffixes,
                 TwoLetterCountryCode = country.CCA2,
             }).ToList();
         }
@@ -186,9 +187,14 @@ namespace Gizmo.Client.UI.Services
         public string FlagPng { get; init; } = string.Empty;
 
         /// <summary>
-        /// Gets full calling code.
+        /// Gets full calling code root.
         /// </summary>
-        public string CallingCode { get; init; } = string.Empty;
+        public string CallingCodeRoot { get; init; } = string.Empty;
+
+        /// <summary>
+        /// Gets calling code suffixes.
+        /// </summary>
+        public IEnumerable<string> CallingCodeSuffixes { get;init; } = Enumerable.Empty<string>();
 
         /// <summary>
         /// Two letter country number (cca2) <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2"/>.
