@@ -17,6 +17,7 @@ namespace Gizmo.Client.UI.Services
         private static readonly Assembly _uiAssembly = typeof(Gizmo.UI.Services.UICompositionServiceBase).Assembly;
         private static readonly UICompositionInMemoryConfiurationSource _uiCompositionConfiurationSource = new();
         private static readonly UIOptionsInMemoryConfigurationSource _uiOptionsConfigurationSource = new();
+        private static readonly TimeSpan API_HTTP_CLIENT_DEFAULT_TIMEOUT = TimeSpan.FromSeconds(15);
         #endregion
 
         #region FUNCTIONS
@@ -50,6 +51,21 @@ namespace Gizmo.Client.UI.Services
             {
                 opt.ResourcesPath = "Properties";
             });
+
+            //add and configure required http clients
+            services.AddHttpClient(CountryInformationService.HTTP_CLIENT_NAME_REST_COUNTRIES, (client)=> 
+            {
+                client.BaseAddress = new Uri("https://restcountries.com/v3.1/");
+                client.Timeout = API_HTTP_CLIENT_DEFAULT_TIMEOUT;
+            });
+            services.AddHttpClient(CountryInformationService.HTTP_CLIENT_NAME_GEO_PLUGIN, (client) => 
+            {
+                client.BaseAddress = new Uri("http://www.geoplugin.net");
+                client.Timeout = API_HTTP_CLIENT_DEFAULT_TIMEOUT;
+            });
+
+            //add country info service, singelton for now
+            services.AddSingleton<CountryInformationService>();
 
             //add default string localizer
             services.AddSingleton<IStringLocalizer, StringLocalizer<Resources.Resources>>();
