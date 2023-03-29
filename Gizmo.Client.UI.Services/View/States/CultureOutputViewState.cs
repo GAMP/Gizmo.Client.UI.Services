@@ -3,7 +3,7 @@
 namespace Gizmo.Client.UI.View.States
 {
     [Register]
-    public sealed class CultureClientViewState : CultureViewStateBase
+    public sealed class CultureOutputViewState : CultureViewStateBase
     {
     }
 }

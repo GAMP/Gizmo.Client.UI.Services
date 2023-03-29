@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -11,7 +12,7 @@ public sealed class CultureInputViewStateService : ViewStateServiceBase<CultureI
     #region CONSTRUCTOR
     public CultureInputViewStateService(
         CultureInputViewState viewState,
-        ICultureInputService cultureService,
+        CultureInputService cultureService,
         ILogger<CultureInputViewStateService> logger,
         IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
     {
@@ -20,25 +21,25 @@ public sealed class CultureInputViewStateService : ViewStateServiceBase<CultureI
     #endregion
 
     #region FIELDS
-    private readonly ICultureInputService _cultureService;
+    private readonly CultureInputService _cultureService;
     #endregion
 
     protected override async Task OnInitializing(CancellationToken ct)
     {
-        ViewState.AveliableCultures = _cultureService.AvailableInputCultures;
+        ViewState.AveliableCultures = _cultureService.AveliableCultures;
 
-        ViewState.CurrentCulture = _cultureService.GetCurrentInputCulture(ViewState.AveliableCultures, "en");
+        ViewState.CurrentCulture = _cultureService.GetCurrentCulture("en");
 
-        await _cultureService.SetCurrentInputCultureAsync(ViewState.CurrentCulture);
+        await _cultureService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
         await base.OnInitializing(ct);
     }
 
     public async Task SetCurrentInputCultureAsync(string twoLetterISOLanguageName)
     {
-        ViewState.CurrentCulture = _cultureService.GetCurrentInputCulture(ViewState.AveliableCultures, twoLetterISOLanguageName);
+        ViewState.CurrentCulture = _cultureService.GetCurrentCulture(twoLetterISOLanguageName);
 
-        await _cultureService.SetCurrentInputCultureAsync(ViewState.CurrentCulture);
+        await _cultureService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
         ViewState.RaiseChanged();
     }

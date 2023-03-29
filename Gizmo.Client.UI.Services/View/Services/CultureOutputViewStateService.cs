@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.View.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,14 +9,14 @@ using Microsoft.Extensions.Options;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register]
-    public sealed class CultureClientViewStateService : ViewStateServiceBase<CultureClientViewState>
+    public sealed class CultureOutputViewStateService : ViewStateServiceBase<CultureOutputViewState>
     {
         #region CONSTRUCTOR
-        public CultureClientViewStateService(
-            CultureClientViewState viewState,
-            ICultureService cultureService,
+        public CultureOutputViewStateService(
+            CultureOutputViewState viewState,
+            CultureOutputService cultureService,
             IOptions<ClientUIOptions> clientOptions,
-            ILogger<CultureClientViewStateService> logger,
+            ILogger<CultureOutputViewStateService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _cultureService = cultureService;
@@ -24,28 +25,28 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region FIELDS
-        private readonly ICultureService _cultureService;
+        private readonly CultureOutputService _cultureService;
         private readonly ClientUICultureOptions _clientCultureOptions;
         #endregion
 
         protected override async Task OnInitializing(CancellationToken ct)
         {
-            ViewState.AveliableCultures = _cultureService.AveliableClientCultures;
+            ViewState.AveliableCultures = _cultureService.AveliableCultures;
 
             OverrideCulturesConfiguration();
 
-            ViewState.CurrentCulture = _cultureService.GetCurrentUICulture(ViewState.AveliableCultures, "en");
+            ViewState.CurrentCulture = _cultureService.GetCurrentCulture("ru");
 
-            await _cultureService.SetCurrentUICultureAsync(ViewState.CurrentCulture);
+            await _cultureService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
             await base.OnInitializing(ct);
         }
 
         public async void SetCurrentCultureAsync(string twoLetterISOLanguageName)
         {
-            ViewState.CurrentCulture = _cultureService.GetCurrentUICulture(ViewState.AveliableCultures, twoLetterISOLanguageName);
+            ViewState.CurrentCulture = _cultureService.GetCurrentCulture(twoLetterISOLanguageName);
 
-            await _cultureService.SetCurrentUICultureAsync(ViewState.CurrentCulture);
+            await _cultureService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
             ViewState.RaiseChanged();
         }

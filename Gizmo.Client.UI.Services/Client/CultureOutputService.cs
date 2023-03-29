@@ -5,26 +5,26 @@ using Gizmo.UI.Services;
 namespace Gizmo.Client.UI.Services
 {
     /// <summary>
-    /// Default culture service implementaion.
+    /// Default output culture service implementation.
     /// </summary>
     /// <remarks>
     /// This implementation should be used in hosts that dont need any extra culture handling for setting culture globally such as single thread blazor web assembly web hosts.
     /// </remarks>
-    public sealed class CultureService : ICultureService
+    public sealed class CultureOutputService : ICultureService
     {
         private readonly ILocalizationService _localizationService;
-        public CultureService(ILocalizationService localizationService) => _localizationService = localizationService;
+        public CultureOutputService(ILocalizationService localizationService) => _localizationService = localizationService;
 
-        public IEnumerable<CultureInfo> AveliableClientCultures => _localizationService.SupportedCultures;
+        public IEnumerable<CultureInfo> AveliableCultures => _localizationService.SupportedCultures;
 
-        public Task SetCurrentUICultureAsync(CultureInfo culture)
+        public Task SetCurrentCultureAsync(CultureInfo culture)
         {
             CultureInfo.DefaultThreadCurrentCulture = culture;
             CultureInfo.DefaultThreadCurrentUICulture = culture;
             return Task.CompletedTask;
         }
-        public CultureInfo GetCurrentUICulture(IEnumerable<CultureInfo> cultures, string twoLetterISOLanguageName) =>
-            cultures.FirstOrDefault(x => x.TwoLetterISOLanguageName == twoLetterISOLanguageName)
+        public CultureInfo GetCurrentCulture(string twoLetterISOLanguageName) =>
+            AveliableCultures.FirstOrDefault(x => x.TwoLetterISOLanguageName == twoLetterISOLanguageName)
             ?? CultureInfo.CurrentUICulture;
     }
 }
