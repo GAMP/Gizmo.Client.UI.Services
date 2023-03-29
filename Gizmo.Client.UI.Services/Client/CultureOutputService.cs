@@ -10,7 +10,7 @@ namespace Gizmo.Client.UI.Services
     /// <remarks>
     /// This implementation should be used in hosts that dont need any extra culture handling for setting culture globally such as single thread blazor web assembly web hosts.
     /// </remarks>
-    public sealed class CultureOutputService : ICultureService
+    public sealed class CultureOutputService : ICultureOutputService
     {
         private readonly ILocalizationService _localizationService;
         public CultureOutputService(ILocalizationService localizationService) => _localizationService = localizationService;

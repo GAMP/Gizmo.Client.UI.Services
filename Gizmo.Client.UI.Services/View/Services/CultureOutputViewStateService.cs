@@ -1,7 +1,7 @@
-﻿using Gizmo.Client.UI.Services;
-using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.View.Services;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,7 +14,7 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public CultureOutputViewStateService(
             CultureOutputViewState viewState,
-            CultureOutputService cultureService,
+            ICultureOutputService cultureService,
             IOptions<ClientUIOptions> cultureOptions,
             ILogger<CultureOutputViewStateService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
@@ -25,7 +25,7 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region FIELDS
-        private readonly CultureOutputService _cultureService;
+        private readonly ICultureOutputService _cultureService;
         private readonly CultureOutputOptions _cultureOptions;
         #endregion
 

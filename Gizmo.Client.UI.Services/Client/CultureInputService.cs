@@ -10,7 +10,7 @@ namespace Gizmo.Client.UI.Services
     /// <remarks>
     /// This implementation should be used in hosts that dont support changing input language such as web browser.
     /// </remarks>
-    public sealed class CultureInputService : ICultureService
+    public sealed class CultureInputService : ICultureInputService
     {
         private readonly ILocalizationService _localizationService;
         public CultureInputService(ILocalizationService localizationService) => _localizationService = localizationService;
