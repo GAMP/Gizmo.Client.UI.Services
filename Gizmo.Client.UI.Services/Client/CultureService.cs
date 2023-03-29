@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using Gizmo.UI;
+using Gizmo.UI.Services;
 
 namespace Gizmo.Client.UI.Services
 {
@@ -11,11 +12,19 @@ namespace Gizmo.Client.UI.Services
     /// </remarks>
     public sealed class CultureService : ICultureService
     {
+        private readonly ILocalizationService _localizationService;
+        public CultureService(ILocalizationService localizationService) => _localizationService = localizationService;
+
+        public IEnumerable<CultureInfo> AveliableClientCultures => _localizationService.SupportedCultures;
+
         public Task SetCurrentUICultureAsync(CultureInfo culture)
         {
             CultureInfo.DefaultThreadCurrentCulture = culture;
             CultureInfo.DefaultThreadCurrentUICulture = culture;
-            return Task.CompletedTask;  
+            return Task.CompletedTask;
         }
+        public CultureInfo GetCurrentUICulture(IEnumerable<CultureInfo> cultures, string twoLetterISOLanguageName) =>
+            cultures.FirstOrDefault(x => x.TwoLetterISOLanguageName == twoLetterISOLanguageName)
+            ?? CultureInfo.CurrentUICulture;
     }
 }

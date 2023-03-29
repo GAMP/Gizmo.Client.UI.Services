@@ -2,8 +2,8 @@
 
 namespace Gizmo.Client.UI.View.States
 {
-    [Register()]
-    public sealed class ClientLanguagesViewState : LanguagesViewStateBase
+    [Register]
+    public sealed class CultureClientViewState : CultureViewStateBase
     {
     }
 }
