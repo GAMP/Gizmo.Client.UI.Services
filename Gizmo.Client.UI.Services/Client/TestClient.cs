@@ -534,12 +534,12 @@ namespace Gizmo.Client
 
         public Task<RegistrationVerificationMethod> GetRegistrationVerificationMethodAsync(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(RegistrationVerificationMethod.MobilePhone);
+            return Task.FromResult(RegistrationVerificationMethod.None);
         }
 
         public Task<UserRecoveryMethod> GetPasswordRecoveryMethodAsync(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(UserRecoveryMethod.Email);
+            return Task.FromResult(UserRecoveryMethod.Mobile);
         }
 
         public bool AppCurrentProfilePass(int appId)
@@ -557,7 +557,7 @@ namespace Gizmo.Client
             // Simulate task.
             await Task.Delay(3000);
 
-            //throw new Exception("Test");
+            throw new Exception("Test");
 
             var result = new PasswordRecoveryStartResultModelByEmail()
             {
@@ -574,7 +574,7 @@ namespace Gizmo.Client
             // Simulate task.
             await Task.Delay(3000);
 
-            //throw new Exception("Test");
+            throw new Exception("Test");
 
             var result = new PasswordRecoveryStartResultModelByMobile()
             {
