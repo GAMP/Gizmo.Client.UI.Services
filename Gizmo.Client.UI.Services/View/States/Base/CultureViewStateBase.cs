@@ -13,7 +13,7 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets aveliable cultures.
         /// </summary>
-        public IEnumerable<CultureInfo> AveliableCultures { get; internal set; } = Enumerable.Empty<CultureInfo>();
+        public IEnumerable<CultureInfo> AvailableCultures { get; internal set; } = Enumerable.Empty<CultureInfo>();
 
         /// <summary>
         /// Gets current culture.

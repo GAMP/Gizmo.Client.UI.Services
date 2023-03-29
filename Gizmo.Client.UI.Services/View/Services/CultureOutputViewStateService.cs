@@ -31,11 +31,11 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnInitializing(CancellationToken ct)
         {
-            ViewState.AveliableCultures = _cultureService.AveliableCultures;
+            ViewState.AvailableCultures = _cultureService.AvailableCultures.ToList();
 
             OverrideCulturesConfiguration();
 
-            ViewState.CurrentCulture = _cultureService.GetCurrentCulture("en");
+            ViewState.CurrentCulture = _cultureService.GetCulture(ViewState.AvailableCultures,"en");
 
             await _cultureService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
@@ -44,7 +44,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public async void SetCurrentCultureAsync(string twoLetterISOLanguageName)
         {
-            ViewState.CurrentCulture = _cultureService.GetCurrentCulture(twoLetterISOLanguageName);
+            ViewState.CurrentCulture = _cultureService.GetCulture(ViewState.AvailableCultures, twoLetterISOLanguageName);
 
             await _cultureService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
@@ -55,7 +55,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (!string.IsNullOrWhiteSpace(_cultureOptions.CurrencySymbol))
             {
-                foreach (var culture in ViewState.AveliableCultures)
+                foreach (var culture in ViewState.AvailableCultures)
                 {
                     culture.NumberFormat.CurrencySymbol = _cultureOptions.CurrencySymbol;
                 }

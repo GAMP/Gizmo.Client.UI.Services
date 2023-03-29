@@ -15,7 +15,10 @@ namespace Gizmo.Client.UI.Services
         private readonly ILocalizationService _localizationService;
         public CultureOutputService(ILocalizationService localizationService) => _localizationService = localizationService;
 
-        public IEnumerable<CultureInfo> AveliableCultures => _localizationService.SupportedCultures;
+        public IEnumerable<CultureInfo> AvailableCultures => 
+            _localizationService.SupportedCultures
+                .DistinctBy(x => x.TwoLetterISOLanguageName)
+                .Select(x => new CultureInfo(x.Name));
 
         public Task SetCurrentCultureAsync(CultureInfo culture)
         {
@@ -23,8 +26,8 @@ namespace Gizmo.Client.UI.Services
             CultureInfo.DefaultThreadCurrentUICulture = culture;
             return Task.CompletedTask;
         }
-        public CultureInfo GetCurrentCulture(string twoLetterISOLanguageName) =>
-            AveliableCultures.FirstOrDefault(x => x.TwoLetterISOLanguageName == twoLetterISOLanguageName)
+        public CultureInfo GetCulture(IEnumerable<CultureInfo> cultures, string twoLetterISOLanguageName) =>
+            cultures.FirstOrDefault(x => x.TwoLetterISOLanguageName == twoLetterISOLanguageName)
             ?? CultureInfo.CurrentUICulture;
     }
 }

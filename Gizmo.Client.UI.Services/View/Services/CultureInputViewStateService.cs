@@ -27,9 +27,9 @@ public sealed class CultureInputViewStateService : ViewStateServiceBase<CultureI
 
     protected override async Task OnInitializing(CancellationToken ct)
     {
-        ViewState.AveliableCultures = _cultureService.AveliableCultures;
+        ViewState.AvailableCultures = _cultureService.AvailableCultures.ToList();
 
-        ViewState.CurrentCulture = _cultureService.GetCurrentCulture("ru");
+        ViewState.CurrentCulture = _cultureService.GetCulture(ViewState.AvailableCultures, "ru");
 
         await _cultureService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
@@ -38,7 +38,7 @@ public sealed class CultureInputViewStateService : ViewStateServiceBase<CultureI
 
     public async Task SetCurrentInputCultureAsync(string twoLetterISOLanguageName)
     {
-        ViewState.CurrentCulture = _cultureService.GetCurrentCulture(twoLetterISOLanguageName);
+        ViewState.CurrentCulture = _cultureService.GetCulture(ViewState.AvailableCultures, twoLetterISOLanguageName);
 
         await _cultureService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
