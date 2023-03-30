@@ -1,8 +1,8 @@
-﻿using Gizmo.UI.Services;
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
+using Gizmo.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
-using System.Reflection;
-using System.Runtime.InteropServices;
 
 namespace Gizmo.Client.UI.Services
 {
@@ -53,12 +53,12 @@ namespace Gizmo.Client.UI.Services
             });
 
             //add and configure required http clients
-            services.AddHttpClient(CountryInformationService.HTTP_CLIENT_NAME_REST_COUNTRIES, (client)=> 
+            services.AddHttpClient(CountryInformationService.HTTP_CLIENT_NAME_REST_COUNTRIES, (client) =>
             {
                 client.BaseAddress = new Uri("https://restcountries.com/v3.1/");
                 client.Timeout = API_HTTP_CLIENT_DEFAULT_TIMEOUT;
             });
-            services.AddHttpClient(CountryInformationService.HTTP_CLIENT_NAME_GEO_PLUGIN, (client) => 
+            services.AddHttpClient(CountryInformationService.HTTP_CLIENT_NAME_GEO_PLUGIN, (client) =>
             {
                 client.BaseAddress = new Uri("http://www.geoplugin.net");
                 client.Timeout = API_HTTP_CLIENT_DEFAULT_TIMEOUT;
@@ -71,17 +71,18 @@ namespace Gizmo.Client.UI.Services
             services.AddSingleton<IStringLocalizer, StringLocalizer<Resources.Resources>>();
 
             //add localization service
-            services.AddSingleton<ILocalizationService, UILocalizationService>();
 
             //use appropriate component discovery service based on current platform
             if (_isWebBrowser)
             {
+                services.AddSingleton<ILocalizationService, WebLocalizationService>();
                 services.AddSingleton<WebAssemblyUICompositionService>();
                 services.AddSingleton<IUICompositionService>((sp) => sp.GetRequiredService<WebAssemblyUICompositionService>());
             }
             else
             {
                 //add in memory configuration store as singelton
+                services.AddSingleton<ILocalizationService, WpfLocalizationService>();
                 services.AddSingleton((sp) => _uiCompositionConfiurationSource);
                 services.AddSingleton((sp) => _uiOptionsConfigurationSource);
                 services.AddSingleton<DesktopUICompositionService>();
