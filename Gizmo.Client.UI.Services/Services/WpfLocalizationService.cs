@@ -9,6 +9,9 @@ using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.Services
 {
+    /// <summary>
+    /// WPF client localization service.
+    /// </summary>
     public sealed class WpfLocalizationService : LocalizationServiceBase
     {
         public WpfLocalizationService(
@@ -16,10 +19,6 @@ namespace Gizmo.Client.UI.Services
             IStringLocalizer localizer,
             IOptions<ClientCurrencyOptions> options) : base(logger, localizer, options) { }
 
-        /// <summary>
-        /// Sets current UI culture.
-        /// </summary>
-        /// <param name="culture">Culture.</param>
         public override async Task SetCurrentCultureAsync(CultureInfo culture)
         {
             await DispatcherHelper.InvokeAsync(new Action(() =>
@@ -29,8 +28,8 @@ namespace Gizmo.Client.UI.Services
             }));
         }
 
-        public override CultureInfo GetCulture(string twoLetterISOLanguageName) =>
+        public override CultureInfo GetCulture(string? twoLetterISOLanguageName) =>
             SupportedCultures.FirstOrDefault(x => x.TwoLetterISOLanguageName == twoLetterISOLanguageName)
-            ?? CultureInfo.CurrentCulture;
+            ?? new CultureInfo("en-US");
     }
 }

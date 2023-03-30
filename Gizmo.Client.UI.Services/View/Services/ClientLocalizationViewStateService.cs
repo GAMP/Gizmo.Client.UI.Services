@@ -25,6 +25,8 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         #endregion
 
+        #region OVERRIDES
+        
         protected override async Task OnInitializing(CancellationToken ct)
         {
             ViewState.AvailableCultures = _localizationService.SupportedCultures;
@@ -34,7 +36,11 @@ namespace Gizmo.Client.UI.View.Services
 
             await base.OnInitializing(ct);
         }
+        
+        #endregion
 
+        #region PUBLIC FUNCTIONS
+        
         public async void SetCurrentCultureAsync(string twoLetterISOLanguageName)
         {
             ViewState.CurrentCulture = _localizationService.GetCulture(twoLetterISOLanguageName);
@@ -43,5 +49,7 @@ namespace Gizmo.Client.UI.View.Services
 
             ViewState.RaiseChanged();
         }
+        
+        #endregion
     }
 }

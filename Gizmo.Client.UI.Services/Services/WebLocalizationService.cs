@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 namespace Gizmo.Client.UI.Services
 {
     /// <summary>
-    /// Client localization service.
+    /// Web client localization service.
     /// </summary>
     public class WebLocalizationService : LocalizationServiceBase
     {
@@ -25,7 +25,8 @@ namespace Gizmo.Client.UI.Services
             IOptions<ClientCurrencyOptions> options) : base(logger, localizer, options) { }
         #endregion
 
-        public override IEnumerable<CultureInfo> GetSupportedCultures()
+        // TODO: FOR EXAMPLE ONLY, REMOVE THIS
+        protected override ValueTask<IEnumerable<CultureInfo>> GetSupportedCulturesAsync()
         {
             var supportedCultures = new List<CultureInfo>()
             {
@@ -36,7 +37,7 @@ namespace Gizmo.Client.UI.Services
 
             SetCurrencyOptions(supportedCultures);
 
-            return supportedCultures;
+            return new(supportedCultures);
         }
 
         public override Task SetCurrentCultureAsync(CultureInfo culture)
@@ -45,10 +46,11 @@ namespace Gizmo.Client.UI.Services
             CultureInfo.DefaultThreadCurrentUICulture = culture;
             return Task.CompletedTask;
         }
+
         public override CultureInfo GetCulture(string twoLetterISOLanguageName)
         {
             return SupportedCultures.FirstOrDefault(x => x.TwoLetterISOLanguageName == twoLetterISOLanguageName)
-           ?? CultureInfo.CurrentUICulture;
+           ?? new CultureInfo("en-US");
         }
     }
 }
