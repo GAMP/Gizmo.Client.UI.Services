@@ -7,7 +7,7 @@ namespace Gizmo.Client.UI.Services
     public sealed class WebInputLenguageService : IInputLanguageService
     {
 
-        public IEnumerable<CultureInfo> AvailableLanguages => Enumerable.Empty<CultureInfo>();
+        public IEnumerable<CultureInfo> AvailableInputLanguages => Enumerable.Empty<CultureInfo>();
 
 
         public Task SetCurrentInputLanguageAsync(CultureInfo culture)

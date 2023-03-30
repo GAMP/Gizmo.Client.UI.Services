@@ -27,7 +27,7 @@ public sealed class InputLanguageViewStateService : ViewStateServiceBase<InputLa
 
     protected override async Task OnInitializing(CancellationToken ct)
     {
-        ViewState.AvailableInputLanguages = _inputLanguageService.AvailableLanguages;
+        ViewState.AvailableInputLanguages = _inputLanguageService.AvailableInputLanguages;
 
         ViewState.CurrentInputLanguage = _inputLanguageService.GetLanguage("en");
 

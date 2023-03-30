@@ -27,9 +27,5 @@ namespace Gizmo.Client.UI.Services
                 CultureInfo.CurrentUICulture = culture;
             }));
         }
-
-        public override CultureInfo GetCulture(string? twoLetterISOLanguageName) =>
-            SupportedCultures.FirstOrDefault(x => x.TwoLetterISOLanguageName == twoLetterISOLanguageName)
-            ?? new CultureInfo("en-US");
     }
 }

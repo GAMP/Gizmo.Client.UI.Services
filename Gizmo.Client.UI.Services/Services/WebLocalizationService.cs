@@ -26,7 +26,7 @@ namespace Gizmo.Client.UI.Services
         #endregion
 
         // TODO: FOR EXAMPLE ONLY, REMOVE THIS
-        protected override ValueTask<IEnumerable<CultureInfo>> GetSupportedCulturesAsync()
+        public override ValueTask<IEnumerable<CultureInfo>> GetSupportedCulturesAsync()
         {
             var supportedCultures = new List<CultureInfo>()
             {
@@ -45,12 +45,6 @@ namespace Gizmo.Client.UI.Services
             CultureInfo.DefaultThreadCurrentCulture = culture;
             CultureInfo.DefaultThreadCurrentUICulture = culture;
             return Task.CompletedTask;
-        }
-
-        public override CultureInfo GetCulture(string twoLetterISOLanguageName)
-        {
-            return SupportedCultures.FirstOrDefault(x => x.TwoLetterISOLanguageName == twoLetterISOLanguageName)
-           ?? new CultureInfo("en-US");
         }
     }
 }

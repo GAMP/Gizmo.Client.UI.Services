@@ -1,4 +1,6 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System.Globalization;
+
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 
@@ -29,8 +31,8 @@ namespace Gizmo.Client.UI.View.Services
         
         protected override async Task OnInitializing(CancellationToken ct)
         {
-            ViewState.AvailableCultures = _localizationService.SupportedCultures;
-            ViewState.CurrentCulture = _localizationService.GetCulture("en");
+            ViewState.AvailableCultures = await _localizationService.GetSupportedCulturesAsync();
+            ViewState.CurrentCulture = GetCulture(ViewState.AvailableCultures, "en");
 
             await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
@@ -43,11 +45,21 @@ namespace Gizmo.Client.UI.View.Services
         
         public async void SetCurrentCultureAsync(string twoLetterISOLanguageName)
         {
-            ViewState.CurrentCulture = _localizationService.GetCulture(twoLetterISOLanguageName);
+            ViewState.CurrentCulture = GetCulture(ViewState.AvailableCultures, twoLetterISOLanguageName);
 
             await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
             ViewState.RaiseChanged();
+        }
+
+        #endregion
+
+        #region PRIVATE FUNCTIONS
+        
+        private CultureInfo GetCulture(IEnumerable<CultureInfo> cultures, string twoLetterISOLanguageName)
+        {
+            return cultures.FirstOrDefault(x => x.TwoLetterISOLanguageName == twoLetterISOLanguageName)
+           ?? new CultureInfo("en-US");
         }
         
         #endregion
