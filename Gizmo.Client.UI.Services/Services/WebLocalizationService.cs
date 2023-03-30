@@ -26,7 +26,7 @@ namespace Gizmo.Client.UI.Services
         #endregion
 
         // TODO: FOR EXAMPLE ONLY, REMOVE THIS
-        public override ValueTask<IEnumerable<CultureInfo>> GetSupportedCulturesAsync()
+        public override ValueTask<IEnumerable<CultureInfo>> GetSupportedCulturesAsync(CancellationToken cancellationToken = default)
         {
             var supportedCultures = new List<CultureInfo>()
             {

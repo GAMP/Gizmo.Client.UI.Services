@@ -20,32 +20,36 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
+            _logger = logger;
         }
         #endregion
 
         #region FIELDS
         private readonly ILocalizationService _localizationService;
+        private readonly ILogger<ClientLocalizationViewStateService> _logger;
+
         #endregion
 
         #region OVERRIDES
-        
-        protected override async Task OnInitializing(CancellationToken ct)
+
+        protected override async Task OnInitializing(CancellationToken cToken)
         {
-            ViewState.AvailableCultures = await _localizationService.GetSupportedCulturesAsync();
-            ViewState.CurrentCulture = GetCulture(ViewState.AvailableCultures, "en");
+            ViewState.AvailableCultures = await _localizationService.GetSupportedCulturesAsync(cToken);
+
+            ViewState.CurrentCulture = GetViewStatesCulture("en");
 
             await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
-            await base.OnInitializing(ct);
+            await base.OnInitializing(cToken);
         }
-        
+
         #endregion
 
         #region PUBLIC FUNCTIONS
-        
+
         public async void SetCurrentCultureAsync(string twoLetterISOLanguageName)
         {
-            ViewState.CurrentCulture = GetCulture(ViewState.AvailableCultures, twoLetterISOLanguageName);
+            ViewState.CurrentCulture = GetViewStatesCulture(twoLetterISOLanguageName);
 
             await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
@@ -55,13 +59,24 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region PRIVATE FUNCTIONS
-        
-        private CultureInfo GetCulture(IEnumerable<CultureInfo> cultures, string twoLetterISOLanguageName)
+
+        private CultureInfo GetViewStatesCulture(string twoLetterISOLanguageName)
         {
-            return cultures.FirstOrDefault(x => x.TwoLetterISOLanguageName == twoLetterISOLanguageName)
-           ?? new CultureInfo("en-US");
+            var culture = ViewState.AvailableCultures.FirstOrDefault(x => x.TwoLetterISOLanguageName == twoLetterISOLanguageName);
+
+            if (culture == null)
+            {
+                _logger.LogWarning("Culture '{0}' was not found. Using default culture 'en'.", twoLetterISOLanguageName);
+
+                culture = ViewState.AvailableCultures.FirstOrDefault(x => x.TwoLetterISOLanguageName == "en");
+
+                if (culture == null)
+                    throw new CultureNotFoundException($"Culture {twoLetterISOLanguageName} not found.");
+            }
+
+            return culture;
         }
-        
+
         #endregion
     }
 }
