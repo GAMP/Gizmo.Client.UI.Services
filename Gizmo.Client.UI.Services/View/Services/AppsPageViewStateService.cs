@@ -103,6 +103,11 @@ namespace Gizmo.Client.UI.View.Services
             //filter out any applications that passes current app profile
             allApplications = allApplications.Where(app => _gizmoClient.AppCurrentProfilePass(app.ApplicationId));
 
+            if (ViewState.SelectedSortingOption != ApplicationSortingOption.Popularity)
+            {
+                ViewState.TotalFilters += 1;
+            }
+
             if (!string.IsNullOrEmpty(ViewState.SearchPattern))
             {
                 allApplications = allApplications.Where(app => app.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase));
@@ -165,7 +170,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.SearchPattern = string.Empty;
 
-            ViewState.SelectedSortingOption = 0;
+            ViewState.SelectedSortingOption = ApplicationSortingOption.Popularity;
             ViewState.SelectedCategoryId = null;
             ViewState.SelectedExecutableModes = Enumerable.Empty<ApplicationModes>();
 

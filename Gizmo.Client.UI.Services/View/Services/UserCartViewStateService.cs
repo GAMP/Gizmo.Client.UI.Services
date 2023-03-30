@@ -69,6 +69,35 @@ namespace Gizmo.Client.UI.View.Services
             productItem.RaiseChanged();
         }
 
+        public async Task DeleteUserCartProductAsync(int productId)
+        {
+            var productItem = await _userCartProductItemLookupService.GetStateAsync(productId);
+
+            productItem.Quantity = 0;
+
+            await UpdateUserCartProductsAsync();
+
+            productItem.RaiseChanged();
+        }
+
+        public async Task ClearUserCartProductsAsync()
+        {
+            var productItems = await _userCartProductItemLookupService.GetStatesAsync();
+            ViewState.Products = productItems.Where(x => x.Quantity > 0).ToList();
+
+            foreach (var item in ViewState.Products)
+            {
+                item.Quantity = 0;
+            }
+
+            await UpdateUserCartProductsAsync();
+
+            foreach (var item in ViewState.Products)
+            {
+                item.RaiseChanged();
+            }
+        }
+
         private async Task UpdateUserCartProductsAsync(CancellationToken cancellationToken = default)
         {
             var productItems = await _userCartProductItemLookupService.GetStatesAsync(cancellationToken);
@@ -82,6 +111,7 @@ namespace Gizmo.Client.UI.View.Services
                 item.TotalPrice = product.UnitPrice * item.Quantity;
                 item.TotalPointsPrice = product.UnitPointsPrice * item.Quantity;
                 item.TotalPointsAward = product.UnitPointsAward * item.Quantity;
+                //TODO: A RaiseChanged ?
             }
 
             ViewState.Total = ViewState.Products.Where(a => a.PayType == OrderLinePayType.Cash || a.PayType == OrderLinePayType.Mixed).Select(a => a.TotalPrice).Sum();
