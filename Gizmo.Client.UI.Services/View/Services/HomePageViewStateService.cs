@@ -29,11 +29,7 @@ namespace Gizmo.Client.UI.View.Services
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
             ViewState.PopularProducts = (await _userProductViewStateLookupService.GetStatesAsync(cancellationToken)).Take(30);
-            await Task.WhenAll(new List<Task>()
-            {
-                Task.Run(() => DebounceViewStateChanged(),cancellationToken),
-                Task.Run(() => DebounceViewStateChanged(new HomePageViewState()), cancellationToken)
-            });
+            RaiseViewStateChanged();
         }
         #endregion
     }

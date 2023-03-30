@@ -8,13 +8,13 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register]
-    public sealed class CultureOutputViewStateService : ViewStateServiceBase<CultureOutputViewState>
+    public sealed class ClientLocalizationViewStateService : ViewStateServiceBase<ClientLocalizationViewState>
     {
         #region CONSTRUCTOR
-        public CultureOutputViewStateService(
-            CultureOutputViewState viewState,
+        public ClientLocalizationViewStateService(
+            ClientLocalizationViewState viewState,
             ILocalizationService localizationService,
-            ILogger<CultureOutputViewStateService> logger,
+            ILogger<ClientLocalizationViewStateService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;

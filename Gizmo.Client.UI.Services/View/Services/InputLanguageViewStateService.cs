@@ -1,5 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
-using Gizmo.UI.Services;
+using Gizmo.UI;
 using Gizmo.UI.View.Services;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +27,7 @@ public sealed class InputLanguageViewStateService : ViewStateServiceBase<InputLa
 
     protected override async Task OnInitializing(CancellationToken ct)
     {
-        ViewState.AvailableInputLaguages = _inputLanguageService.AvailableLaguages;
+        ViewState.AvailableInputLanguages = _inputLanguageService.AvailableLanguages;
 
         ViewState.CurrentInputLanguage = _inputLanguageService.GetLanguage("en");
 

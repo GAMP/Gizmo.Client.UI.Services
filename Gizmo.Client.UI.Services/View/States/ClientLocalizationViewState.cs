@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Gizmo.Client.UI.View.States
 {
     [Register]
-    public sealed class CultureOutputViewState : ViewStateBase
+    public sealed class ClientLocalizationViewState : ViewStateBase
     {
         #region PROPERTIES
 
