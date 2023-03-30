@@ -22,8 +22,22 @@ namespace Gizmo.Client.UI.Services
         public WebLocalizationService(
             ILogger<WebLocalizationService> logger,
             IStringLocalizer localizer,
-            IOptions<ClientUIOptions> options) : base(logger, localizer, options) { }
+            IOptions<ClientCurrencyOptions> options) : base(logger, localizer, options) { }
         #endregion
+
+        public override IEnumerable<CultureInfo> GetSupportedCultures()
+        {
+            var supportedCultures = new List<CultureInfo>()
+            {
+                new CultureInfo("en-US"),
+                new CultureInfo("el-GR"),
+                new CultureInfo("ru-RU")
+            };
+
+            SetCurrencyOptions(supportedCultures);
+
+            return supportedCultures;
+        }
 
         public override Task SetCurrentCultureAsync(CultureInfo culture)
         {

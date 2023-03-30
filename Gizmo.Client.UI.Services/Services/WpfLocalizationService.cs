@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 
+using Gizmo.UI;
 using Gizmo.UI.Services;
 
 using Microsoft.Extensions.Localization;
@@ -13,8 +14,7 @@ namespace Gizmo.Client.UI.Services
         public WpfLocalizationService(
             ILogger<WpfLocalizationService> logger,
             IStringLocalizer localizer,
-            IOptions<ClientUIOptions> options) : base(logger, localizer, options) { }
-
+            IOptions<ClientCurrencyOptions> options) : base(logger, localizer, options) { }
 
         /// <summary>
         /// Sets current UI culture.
@@ -22,8 +22,9 @@ namespace Gizmo.Client.UI.Services
         /// <param name="culture">Culture.</param>
         public override async Task SetCurrentCultureAsync(CultureInfo culture)
         {
-            await Application.Current?.Dispatcher.InvokeAsync(new Action(() =>
+            await DispatcherHelper.InvokeAsync(new Action(() =>
             {
+                CultureInfo.CurrentCulture = culture;
                 CultureInfo.CurrentUICulture = culture;
             }));
         }
