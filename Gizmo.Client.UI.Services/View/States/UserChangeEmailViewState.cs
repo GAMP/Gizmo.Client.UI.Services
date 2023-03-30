@@ -31,7 +31,7 @@ namespace Gizmo.Client.UI.View.States
         public string Email
         {
             get { return _email; }
-            internal set { SetProperty(ref _email, value); }
+            internal set { _email = value; }
         }
 
         public bool IsLoading
@@ -44,25 +44,25 @@ namespace Gizmo.Client.UI.View.States
         public string ConfirmationCode
         {
             get { return _confirmationCode; }
-            internal set { SetProperty(ref _confirmationCode, value); }
+            internal set { _confirmationCode = value; }
         }
 
         public bool IsComplete
         {
             get { return _isComplete; }
-            internal set { SetProperty(ref _isComplete, value); }
+            internal set { _isComplete = value; }
         }
 
         public bool CanResend
         {
             get { return _canResend; }
-            internal set { SetProperty(ref _canResend, value); }
+            internal set { _canResend = value; }
         }
 
         public TimeSpan ResendTimeLeft
         {
             get { return _resendTimeLeft; }
-            internal set { SetProperty(ref _resendTimeLeft, value); }
+            internal set { _resendTimeLeft = value; }
         }
 
         #endregion

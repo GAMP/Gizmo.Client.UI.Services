@@ -22,7 +22,7 @@ namespace Gizmo.Client.UI.View.States
             }
             internal set
             {
-                SetProperty(ref _version, value);
+                _version = value;
             }
         } 
         #endregion

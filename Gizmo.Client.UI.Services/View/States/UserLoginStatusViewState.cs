@@ -22,7 +22,7 @@ namespace Gizmo.Client.UI.View.States
         public bool IsLoggedIn
         {
             get { return _loggedIn; }
-            internal set { SetProperty(ref _loggedIn, value); }
+            internal set { _loggedIn = value; }
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Gizmo.Client.UI.View.States
         public string? Username
         {
             get { return _username; }
-            internal set { SetProperty(ref _username, value); }
+            internal set { _username = value; }
         }
 
         #endregion

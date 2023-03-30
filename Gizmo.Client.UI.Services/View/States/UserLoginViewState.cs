@@ -1,7 +1,6 @@
 ﻿using Gizmo.UI;
 using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Gizmo.Client.UI.View.States
@@ -24,16 +23,16 @@ namespace Gizmo.Client.UI.View.States
         public bool IsLogginIn
         {
             get { return _isLogginIn; }
-            internal set { SetProperty(ref _isLogginIn, value); }
+            internal set { _isLogginIn = value; }
         }
 
         /// <summary>
         /// Gets or sets login type.
         /// </summary>
-        public UserLoginType LoginType 
+        public UserLoginType LoginType
         {
             get { return _userLoginType; }
-            internal set { SetProperty(ref _userLoginType, value); }
+            internal set { _userLoginType = value; }
         }
 
         /// <summary>
@@ -41,10 +40,10 @@ namespace Gizmo.Client.UI.View.States
         /// </summary>
         [ValidatingProperty()]
         [Required()]
-        public string? LoginName 
+        public string? LoginName
         {
             get { return _loginName; }
-            internal set { SetProperty(ref _loginName, value); }
+            internal set { _loginName = value; }
         }
 
         /// <summary>
@@ -52,45 +51,41 @@ namespace Gizmo.Client.UI.View.States
         /// </summary>
         [ValidatingProperty()]
         [Required()]
-        public string? Password 
+        public string? Password
         {
             get { return _password; }
-            internal set { SetProperty(ref _password, value); }
+            internal set { _password = value; }
         }
 
         public bool IsPasswordVisible
         {
             get { return _isPasswordVisible; }
-            internal set { SetProperty(ref _isPasswordVisible, value); }
+            internal set { _isPasswordVisible = value; }
         }
 
         public bool HasLoginError
         {
             get { return _hasLoginError; }
-            internal set { SetProperty(ref _hasLoginError, value); }
+            internal set { _hasLoginError = value; }
         }
 
         public string? LoginError
         {
             get { return _loginError; }
-            internal set { SetProperty(ref _loginError, value); }
+            internal set { _loginError = value; }
         }
 
         #endregion
 
         public override void SetDefaults()
         {
-            using(PropertyChangedLock())
-            {
-                LoginName = null;
-                Password = null;
-                LoginType = UserLoginType.UsernameOrEmail;
-                IsLogginIn = false;
-                HasLoginError = false;
-                IsPasswordVisible = false;
-                LoginError = null;
-            }
-
+            LoginName = null;
+            Password = null;
+            LoginType = UserLoginType.UsernameOrEmail;
+            IsLogginIn = false;
+            HasLoginError = false;
+            IsPasswordVisible = false;
+            LoginError = null;
             base.SetDefaults();
         }
     }

@@ -15,8 +15,8 @@ public sealed class CommandProviderService : ViewServiceBase
     {
         _services = new(StringComparer.OrdinalIgnoreCase)
         {
-            {"products/cart", () => serviceProvider.GetRequiredService<UserCartService>() },
-            {"products/details", () => serviceProvider.GetRequiredService<ProductDetailsPageService>() }
+            {"products/cart", () => serviceProvider.GetRequiredService<UserCartViewStateService>() },
+            {"products/details", () => serviceProvider.GetRequiredService<ProductDetailsPageViewStateService>() }
         };
     }
 

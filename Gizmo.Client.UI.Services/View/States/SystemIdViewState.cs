@@ -16,13 +16,13 @@ namespace Gizmo.Client.UI.View.States
         public int Number
         {
             get { return _number; }
-            internal set { SetProperty(ref _number, value); }
+            internal set { _number = value; }
         }
 
         public string Name
         {
             get { return _name; }
-            internal set { SetProperty(ref _name, value); }
+            internal set { _name = value; }
         }
 
         #endregion

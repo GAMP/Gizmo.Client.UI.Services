@@ -18,25 +18,25 @@ namespace Gizmo.Client.UI.View.States
         public int NotificationId
         {
             get { return _notificationId; }
-            internal set { SetProperty(ref _notificationId, value); }
+            internal set { _notificationId = value; }
         }
 
         public string Title
         {
             get { return _title; }
-            internal set { SetProperty(ref _title, value); }
+            internal set { _title = value; }
         }
 
         public string Text
         {
             get { return _text; }
-            internal set { SetProperty(ref _text, value); }
+            internal set { _text = value; }
         }
 
         public UserNotificationState State
         {
             get { return _state; }
-            internal set { SetProperty(ref _state, value); }
+            internal set { _state = value; }
         } 
         
         #endregion

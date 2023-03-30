@@ -13,7 +13,7 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets or sets username.
         /// </summary>
-        [ValidatingProperty()]
+        [ValidatingProperty(IsAsync = true)]
         [Required()]
         public string Username { get; internal set; } = string.Empty;
 
@@ -22,6 +22,7 @@ namespace Gizmo.Client.UI.View.States
         /// </summary>
         [ValidatingProperty()]
         [Required()]
+        [StringLength(24)]
         public string Password { get; internal set; } = string.Empty;
 
         /// <summary>
@@ -29,13 +30,14 @@ namespace Gizmo.Client.UI.View.States
         /// </summary>
         [ValidatingProperty()]
         [Required()]
+        [StringLength(24)]
         public string RepeatPassword { get; internal set; } = string.Empty;
 
         [ValidatingProperty()]
-        public string FirstName { get; internal set; } = string.Empty;
+        public string? FirstName { get; internal set; }
 
         [ValidatingProperty()]
-        public string LastName { get; internal set; } = string.Empty;
+        public string? LastName { get; internal set; }
 
         [ValidatingProperty()]
         public DateTime? BirthDate { get; internal set; }

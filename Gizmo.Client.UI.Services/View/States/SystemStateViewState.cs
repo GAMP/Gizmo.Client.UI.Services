@@ -17,19 +17,19 @@ namespace Gizmo.Client.UI.View.States
         public bool IsLocked
         {
             get { return _isLocked; }
-            internal set { SetProperty(ref _isLocked, value); }
+            internal set { _isLocked = value; }
         }
 
         public bool IsOutOfOrder
         {
             get { return _isOutOfOrder; }
-            internal set { SetProperty(ref _isOutOfOrder, value); }
+            internal set { _isOutOfOrder = value; }
         }
 
         public bool IsUserLocked
         {
             get { return _isUserLocked; }
-            internal set { SetProperty(ref _isUserLocked, value); }
+            internal set { _isUserLocked = value; }
         } 
         
         #endregion

@@ -13,23 +13,25 @@ namespace Gizmo.Client.UI.Services
     {
         #region CONSTRUCTOR
         public DesktopUICompositionService(IOptionsMonitor<UICompositionOptions> optionsMonitor,
-            ClientInMemoryConfiurationSource clientInMemoryConfiurationSource,
+            UICompositionInMemoryConfiurationSource uiCompositionConfiurationSource,
+            UIOptionsInMemoryConfigurationSource uiOptionsConfigurationSource,
             IServiceProvider serviceProvider,
             ILogger<DesktopUICompositionService> logger) : base(optionsMonitor, logger, serviceProvider)
         {
-            _configurationSource = clientInMemoryConfiurationSource;            
+            _uiCompositionConfiurationSource = uiCompositionConfiurationSource;
+            _uiOptionsConfigurationSource = uiOptionsConfigurationSource;
         }
         #endregion        
 
         #region FIELDS
 
         private string _basePath = Environment.CurrentDirectory;
-        private readonly ClientInMemoryConfiurationSource _configurationSource;
-
+        private readonly UICompositionInMemoryConfiurationSource _uiCompositionConfiurationSource;
+        private readonly UIOptionsInMemoryConfigurationSource _uiOptionsConfigurationSource;
         #endregion
 
         #region PROPERTIES
-        
+
         /// <summary>
         /// Gets base path.
         /// </summary>
@@ -54,7 +56,25 @@ namespace Gizmo.Client.UI.Services
 
             using(var fileStream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                _configurationSource.Load(fileStream);
+                _uiCompositionConfiurationSource.Load(fileStream);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task SetOptionsConfigurationSourceAsync(string fullPath)
+        {
+            if (string.IsNullOrWhiteSpace(fullPath))
+                throw new ArgumentNullException(nameof(fullPath));
+
+            if (!Path.IsPathRooted(fullPath))
+                throw new ArgumentOutOfRangeException(nameof(fullPath));
+
+            _basePath = Path.GetDirectoryName(fullPath) ?? Environment.CurrentDirectory;
+
+            using (var fileStream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                _uiOptionsConfigurationSource.Load(fileStream);
             }
 
             return Task.CompletedTask;
