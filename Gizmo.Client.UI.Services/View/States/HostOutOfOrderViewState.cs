@@ -4,19 +4,19 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Gizmo.Client.UI.View.States
 {
     [Register()]
-    public sealed class UserIdleViewState : ViewStateBase
+    public sealed class HostOutOfOrderViewState : ViewStateBase
     {
         #region FIELDS
-        private bool _isIdle;
+        private bool _isOutOfOrder = false;
         #endregion
 
         #region PROPERTIES
 
-        public bool IsIdle
+        public bool IsOutOfOrder
         {
-            get { return _isIdle; }
-            internal set { _isIdle = value; }
-        }
+            get { return _isOutOfOrder; }
+            internal set { _isOutOfOrder = value; }
+        } 
         
         #endregion
     }

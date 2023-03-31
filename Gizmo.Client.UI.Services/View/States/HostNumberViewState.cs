@@ -8,9 +8,12 @@ namespace Gizmo.Client.UI.View.States
     /// </summary>
     [Register()]
     public sealed class HostNumberViewState : ViewStateBase
-    {   
+    {
+        #region FIELDS
         private int _hostNumber = 0;
+        #endregion
 
+        #region PROPERTIES
         public int HostNumber
         {
             get { return _hostNumber; }
@@ -19,6 +22,6 @@ namespace Gizmo.Client.UI.View.States
                 _hostNumber = value;
             }
         }
-
+        #endregion
     }
 }
