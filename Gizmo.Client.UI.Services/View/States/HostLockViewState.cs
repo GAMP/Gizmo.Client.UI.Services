@@ -7,7 +7,7 @@ namespace Gizmo.Client.UI.View.States
     public sealed class HostLockViewState : ViewStateBase
     {
         #region FIELDS
-        private bool _isLocked = true;
+        private bool _isLocked = false;
         #endregion
 
         #region PROPERTIES
