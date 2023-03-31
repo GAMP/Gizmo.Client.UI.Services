@@ -6,9 +6,12 @@ namespace Gizmo.Client.UI.View.States
     [Register()]
     public sealed class ClientConnectionViewState : ViewStateBase
     {
+        #region FIELDS
         private bool _isConnected = false;
         private bool _isConnecting = false;
+        #endregion
 
+        #region PROPERTIES
         public bool IsConnected
         {
             get { return _isConnected; }
@@ -19,6 +22,7 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _isConnecting; }
             internal set { _isConnecting = value; }
-        }
+        } 
+        #endregion
     }
 }
