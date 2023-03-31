@@ -21,12 +21,24 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnInitializing(CancellationToken ct)
         {            
+            ViewState.IsOutOfOrder = _gizmoClient.IsOutOfOrder;
+            DebounceViewStateChanged();
+
+            _gizmoClient.OutOfOrderStateChange += OnOutOfOrderStateChange;
+
             return base.OnInitializing(ct);
         }
 
         protected override void OnDisposing(bool isDisposing)
         {
+            _gizmoClient.OutOfOrderStateChange -= OnOutOfOrderStateChange;
             base.OnDisposing(isDisposing);
+        }
+
+        private void OnOutOfOrderStateChange(object? sender, OutOfOrderStateEventArgs e)
+        {
+            ViewState.IsOutOfOrder = e.IsOutOfOrder;
+            DebounceViewStateChanged();
         }
     }
 }
