@@ -8,14 +8,8 @@ namespace Gizmo.Client.UI.View.States
     /// </summary>
     [Register()]
     public sealed class HostNumberViewState : ViewStateBase
-    {
-        #region FIELDS
-        private int _hostNumber = 100;
-        private bool _isReserved = true;
-        private bool _isLocked = false;
-        #endregion
-
-        #region PROPERTIES
+    {   
+        private int _hostNumber = 0;
 
         public int HostNumber
         {
@@ -26,20 +20,5 @@ namespace Gizmo.Client.UI.View.States
             }
         }
 
-        public bool IsReserved
-        {
-            get { return _isReserved; }
-            internal set { _isReserved = value; }
-        }
-
-        public bool IsLocked
-        {
-            get { return _isLocked; }
-            internal set { _isLocked = value; }
-        }
-
-
-
-        #endregion
     }
 }

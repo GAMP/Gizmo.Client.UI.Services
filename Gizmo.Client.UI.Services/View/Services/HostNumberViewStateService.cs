@@ -33,28 +33,6 @@ namespace Gizmo.Client.UI.View.Services
             //End Test
         };
 
-        public HostReservationViewState ReservationViewState { get; set; } = new HostReservationViewState()
-        {
-            //Test
-            IsPending = true
-            //End Test
-        };
-
-        #endregion
-
-        #region FUNCTIONS
-
-        public Task SetHostLockStateAsync(bool value)
-        {
-            //Test
-            ViewState.IsLocked = value;
-            //End Test
-
-            ViewState.RaiseChanged();
-
-            return Task.CompletedTask;
-        }
-
         #endregion
     }
 }
