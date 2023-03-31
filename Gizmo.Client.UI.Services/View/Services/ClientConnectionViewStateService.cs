@@ -9,10 +9,10 @@ namespace Gizmo.Client.UI.View.Services
     /// Responsible of maintaining client connection view state.
     /// </summary>
     [Register()]
-    public sealed class ConnectionViewStateService : ViewStateServiceBase<ConnectionViewState>
+    public sealed class ClientConnectionViewStateService : ViewStateServiceBase<ClientConnectionViewState>
     {
-        public ConnectionViewStateService(ConnectionViewState viewState,
-            ILogger<ConnectionViewStateService> logger,
+        public ClientConnectionViewStateService(ClientConnectionViewState viewState,
+            ILogger<ClientConnectionViewStateService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
@@ -23,7 +23,11 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnInitializing(CancellationToken ct)
         {
+            ViewState.IsConnected = _gizmoClient.IsConnected;
+            ViewState.IsConnecting = _gizmoClient.IsConnecting;
+
             _gizmoClient.ConnectionStateChange += OnClientConnectionStateChange;
+            DebounceViewStateChanged();
             return base.OnInitializing(ct);
         }
 
