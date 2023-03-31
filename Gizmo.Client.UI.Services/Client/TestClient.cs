@@ -23,6 +23,10 @@ namespace Gizmo.Client
 
         public int Number => 100;
 
+        public bool IsOutOfOrder => false;
+
+        public bool IsInputLocked => false;
+
         public event EventHandler<ClientExecutionContextStateArgs>? ExecutionContextStateChage;
         public event EventHandler<UserLoginStateChangeEventArgs>? LoginStateChange;
         public event EventHandler<UserBalanceEventArgs>? UserBalanceChange;
@@ -36,6 +40,8 @@ namespace Gizmo.Client
         public event EventHandler<PersonalFileChangeEventArgs> PersonalFileChange;
         public event EventHandler<AppLinkChangeEventArgs> AppLinkChange;
         public event EventHandler<ConnectionStateEventArgs>? ConnectionStateChange;
+        public event EventHandler<LockStateEventArgs> LockStateChange;
+        public event EventHandler<OutOfOrderStateEventArgs> OutOfOrderStateChange;
 
         public TestClient()
         {
