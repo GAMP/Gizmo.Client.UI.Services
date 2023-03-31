@@ -10,9 +10,9 @@ namespace Gizmo.Client.UI.View.Services
     {
         #region CONSTRUCTOR
         public HostNumberViewStateService(HostNumberViewState viewState,
+            IGizmoClient gizmoClient,
             ILogger<HostNumberViewStateService> logger,
-            IServiceProvider serviceProvider,
-            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
         }
@@ -22,17 +22,12 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IGizmoClient _gizmoClient;
         #endregion
 
-        #region PROPERTIES
-
-        public HostConfigurationViewState HostConfigurationViewState { get; set; } = new HostConfigurationViewState()
+        protected override Task OnInitializing(CancellationToken ct)
         {
-            //Test
-            CanSignIn = true,
-            CanSignInWithQR = true,
-            CanSignUp = true
-            //End Test
-        };
+            ViewState.HostNumber = _gizmoClient.Number;
+            DebounceViewStateChanged();
+            return base.OnInitializing(ct);
+        }
 
-        #endregion
     }
 }

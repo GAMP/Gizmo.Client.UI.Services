@@ -21,6 +21,8 @@ namespace Gizmo.Client
 
         public bool IsConnecting => false;
 
+        public int Number => 100;
+
         public event EventHandler<ClientExecutionContextStateArgs>? ExecutionContextStateChage;
         public event EventHandler<UserLoginStateChangeEventArgs>? LoginStateChange;
         public event EventHandler<UserBalanceEventArgs>? UserBalanceChange;
