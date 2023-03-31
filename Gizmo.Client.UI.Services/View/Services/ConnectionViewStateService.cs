@@ -5,6 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Gizmo.Client.UI.View.Services
 {
+    /// <summary>
+    /// Responsible of maintaining client connection view state.
+    /// </summary>
     [Register()]
     public sealed class ConnectionViewStateService : ViewStateServiceBase<ConnectionViewState>
     {

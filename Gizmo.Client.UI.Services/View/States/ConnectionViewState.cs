@@ -1,7 +1,9 @@
 ﻿using Gizmo.UI.View.States;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Gizmo.Client.UI.View.States
 {
+    [Register()]
     public sealed class ConnectionViewState : ViewStateBase
     {
         private bool _isConnected = false;
