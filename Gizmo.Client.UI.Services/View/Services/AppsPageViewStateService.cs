@@ -14,6 +14,7 @@ namespace Gizmo.Client.UI.View.Services
     {
         #region CONSTRUCTOR
         public AppsPageViewStateService(AppsPageViewState viewState,
+            DebounceActionAsyncService debounceActionService,
             IGizmoClient gizmoClient,
             ILocalizationService localizationService,
             ILogger<AppsPageViewStateService> logger,
@@ -22,6 +23,8 @@ namespace Gizmo.Client.UI.View.Services
             AppViewStateLookupService appViewStateLookupService,
             AppExeViewStateLookupService appExeViewStateLookupService) : base(viewState, logger, serviceProvider)
         {
+            _debounceActionService = debounceActionService;
+            _debounceActionService.DebounceBufferTime = 500;
             _gizmoClient = gizmoClient;
             _localizationService = localizationService;
             _categoryViewStateLookupService = categoryViewStateLookupService;
@@ -35,6 +38,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly AppViewStateLookupService _appViewStateLookupService;
         private readonly AppExeViewStateLookupService _appExeViewStateLookupService;
         private readonly AppCategoryViewStateLookupService _categoryViewStateLookupService;
+        private readonly DebounceActionAsyncService _debounceActionService;
         private readonly IGizmoClient _gizmoClient;
         #endregion
 
@@ -91,7 +95,8 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.AppCategories = await _categoryViewStateLookupService.GetStatesAsync(cToken);
             }
 
-            await RefilterRequest(cToken);
+            if(navigationParameters.IsInitial)
+                await RefilterRequest(cToken);
         }
 
         #endregion
@@ -139,6 +144,8 @@ namespace Gizmo.Client.UI.View.Services
                 allApplications = allApplications.Where(app => applicationWithModes.Contains(app.ApplicationId));
 
                 ViewState.TotalFilters += 1;
+
+                ViewState.RaiseChanged();
             }
 
             switch (ViewState.SelectedSortingOption)
@@ -167,43 +174,43 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
-        public async Task SetSelectedSortingOption(ApplicationSortingOption value)
+        public Task SetSelectedSortingOption(ApplicationSortingOption value)
         {
             ViewState.SelectedSortingOption = value;
-
-            await RefilterRequest(default);
-
-            DebounceViewStateChanged();
+            
+            _debounceActionService.Debounce(RefilterRequest);
+            
+            return Task.CompletedTask;
         }
 
-        public async Task SetSelectedApplicationCategory(int? value)
+        public Task SetSelectedApplicationCategory(int? value)
         {
             ViewState.SelectedCategoryId = value;
 
-            await RefilterRequest(default);
+            _debounceActionService.Debounce(RefilterRequest);
 
-            DebounceViewStateChanged();
+            return Task.CompletedTask;
         }
 
-        public async Task SetSelectedSelectedExecutableModes(IEnumerable<ApplicationModes> value)
+        public Task SetSelectedSelectedExecutableModes(IEnumerable<ApplicationModes> value)
         {
             ViewState.SelectedExecutableModes = value;
 
-            await RefilterRequest(default);
+            _debounceActionService.Debounce(RefilterRequest);
 
-            DebounceViewStateChanged();
+            return Task.CompletedTask;
         }
 
-        public async Task ClearSearchPattern()
+        public Task ClearSearchPattern()
         {
             ViewState.SearchPattern = string.Empty;
 
-            await RefilterRequest(default);
+            _debounceActionService.Debounce(RefilterRequest);
 
-            DebounceViewStateChanged();
+            return Task.CompletedTask;
         }
 
-        public async Task ClearAllFilters()
+        public Task ClearAllFilters()
         {
             ViewState.SearchPattern = string.Empty;
 
@@ -211,9 +218,9 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.SelectedCategoryId = null;
             ViewState.SelectedExecutableModes = Enumerable.Empty<ApplicationModes>();
 
-            await RefilterRequest(default);
+            _debounceActionService.Debounce(RefilterRequest);
 
-            DebounceViewStateChanged();
+            return Task.CompletedTask;
         }
     }
 }
