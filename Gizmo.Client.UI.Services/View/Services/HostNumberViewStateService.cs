@@ -6,11 +6,11 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    public sealed class HostViewStateService : ViewStateServiceBase<HostViewState>
+    public sealed class HostNumberViewStateService : ViewStateServiceBase<HostNumberViewState>
     {
         #region CONSTRUCTOR
-        public HostViewStateService(HostViewState viewState,
-            ILogger<HostViewStateService> logger,
+        public HostNumberViewStateService(HostNumberViewState viewState,
+            ILogger<HostNumberViewStateService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {

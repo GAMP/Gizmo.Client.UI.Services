@@ -17,6 +17,10 @@ namespace Gizmo.Client
         private readonly List<UserPaymentMethodModel> _userPaymentMethods;
         private readonly List<NewsModel> _newsModel;
 
+        public bool IsConnected => true;
+
+        public bool IsConnecting => false;
+
         public event EventHandler<ClientExecutionContextStateArgs>? ExecutionContextStateChage;
         public event EventHandler<UserLoginStateChangeEventArgs>? LoginStateChange;
         public event EventHandler<UserBalanceEventArgs>? UserBalanceChange;
@@ -29,6 +33,7 @@ namespace Gizmo.Client
         public event EventHandler<NewsChangeEventArgs>? NewsChange;
         public event EventHandler<PersonalFileChangeEventArgs> PersonalFileChange;
         public event EventHandler<AppLinkChangeEventArgs> AppLinkChange;
+        public event EventHandler<ConnectionStateEventArgs>? ConnectionStateChange;
 
         public TestClient()
         {

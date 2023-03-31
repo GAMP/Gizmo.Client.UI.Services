@@ -4,13 +4,12 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Gizmo.Client.UI.View.States
 {
     [Register()]
-    public sealed class HostViewState : ViewStateBase
+    public sealed class HostNumberViewState : ViewStateBase
     {
         #region FIELDS
-        private int _hostNumber = 5;
+        private int _hostNumber = 100;
         private bool _isReserved = true;
         private bool _isLocked = false;
-        private bool _isConnected = false;
         #endregion
 
         #region PROPERTIES
@@ -18,11 +17,16 @@ namespace Gizmo.Client.UI.View.States
         public int HostNumber
         {
             get { return _hostNumber; }
+            internal set
+            {
+                _hostNumber = value;
+            }
         }
 
         public bool IsReserved
         {
             get { return _isReserved; }
+            internal set { _isReserved = value; }
         }
 
         public bool IsLocked
@@ -31,10 +35,7 @@ namespace Gizmo.Client.UI.View.States
             internal set { _isLocked = value; }
         }
 
-        public bool IsConnected
-        {
-            get { return _isConnected; }
-        }
+
 
         #endregion
     }
