@@ -6,11 +6,11 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    public sealed class HostViewStateService : ViewStateServiceBase<HostViewState>
+    public sealed class HostNumberViewStateService : ViewStateServiceBase<HostNumberViewState>
     {
         #region CONSTRUCTOR
-        public HostViewStateService(HostViewState viewState,
-            ILogger<HostViewStateService> logger,
+        public HostNumberViewStateService(HostNumberViewState viewState,
+            ILogger<HostNumberViewStateService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
@@ -32,28 +32,6 @@ namespace Gizmo.Client.UI.View.Services
             CanSignUp = true
             //End Test
         };
-
-        public ReservationViewState ReservationViewState { get; set; } = new ReservationViewState()
-        {
-            //Test
-            IsPending = true
-            //End Test
-        };
-
-        #endregion
-
-        #region FUNCTIONS
-
-        public Task SetHostLockStateAsync(bool value)
-        {
-            //Test
-            ViewState.IsLocked = value;
-            //End Test
-
-            ViewState.RaiseChanged();
-
-            return Task.CompletedTask;
-        }
 
         #endregion
     }
