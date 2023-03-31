@@ -76,6 +76,7 @@ namespace Gizmo.Client.UI.View.Services
             });
             result.ImageId = model.ImageId;
             result.Options = model.Options;
+            result.Modes = model.Modes;
 
             return result;
         }

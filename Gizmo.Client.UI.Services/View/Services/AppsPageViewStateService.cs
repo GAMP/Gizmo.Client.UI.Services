@@ -134,7 +134,7 @@ namespace Gizmo.Client.UI.View.Services
                     mode |= (ExecutableOptionType)item;
                 }
 
-                var applicationWithModes = allExecutables.Where(a => ((int)a.Options & (int)mode) > 0).Select(a => a.ApplicationId).ToList();
+                var applicationWithModes = allExecutables.Where(a => ((int)a.Modes & (int)mode) > 0).Select(a => a.ApplicationId).ToList();
 
                 allApplications = allApplications.Where(app => applicationWithModes.Contains(app.ApplicationId));
 

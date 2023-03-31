@@ -24,6 +24,8 @@ namespace Gizmo.Client.UI.View.States
 
         public ExecutableOptionType Options { get; internal set; }
 
+        public ApplicationModes Modes { get; internal set; }
+
         #endregion
     }
 }
