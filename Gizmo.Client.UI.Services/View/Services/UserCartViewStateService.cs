@@ -83,16 +83,16 @@ namespace Gizmo.Client.UI.View.Services
         public async Task ClearUserCartProductsAsync()
         {
             var productItems = await _userCartProductItemLookupService.GetStatesAsync();
-            ViewState.Products = productItems.Where(x => x.Quantity > 0).ToList();
+            var products = productItems.Where(x => x.Quantity > 0).ToList();
 
-            foreach (var item in ViewState.Products)
+            foreach (var item in products)
             {
                 item.Quantity = 0;
             }
 
             await UpdateUserCartProductsAsync();
 
-            foreach (var item in ViewState.Products)
+            foreach (var item in products)
             {
                 item.RaiseChanged();
             }
