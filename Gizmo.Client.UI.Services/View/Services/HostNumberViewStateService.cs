@@ -28,6 +28,5 @@ namespace Gizmo.Client.UI.View.Services
             DebounceViewStateChanged();
             return base.OnInitializing(ct);
         }
-
     }
 }
