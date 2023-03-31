@@ -19,18 +19,21 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<AppsPageViewStateService> logger,
             IServiceProvider serviceProvider,
             AppCategoryViewStateLookupService categoryViewStateLookupService,
-            AppViewStateLookupService appViewStateLookupService) : base(viewState, logger, serviceProvider)
+            AppViewStateLookupService appViewStateLookupService,
+            AppExeViewStateLookupService appExeViewStateLookupService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _localizationService = localizationService;
             _categoryViewStateLookupService = categoryViewStateLookupService;
             _appViewStateLookupService = appViewStateLookupService;
+            _appExeViewStateLookupService = appExeViewStateLookupService;
         }
         #endregion
 
         #region FIELDS
         private readonly ILocalizationService _localizationService;
         private readonly AppViewStateLookupService _appViewStateLookupService;
+        private readonly AppExeViewStateLookupService _appExeViewStateLookupService;
         private readonly AppCategoryViewStateLookupService _categoryViewStateLookupService;
         private readonly IGizmoClient _gizmoClient;
         #endregion
@@ -43,12 +46,12 @@ namespace Gizmo.Client.UI.View.Services
 
             List<EnumFilterViewState<ApplicationSortingOption>> sortingOptions = new List<EnumFilterViewState<ApplicationSortingOption>>();
 
-            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Popularity, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_POPULARITY") });
-            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.AddDate, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_ADD_DATE") });
+            //sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Popularity, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_POPULARITY") });
             sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Title, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_TITLE") });
-            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Use, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_USE") });
-            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Rating, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_RATING") });
+            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.AddDate, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_ADD_DATE") });
             sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.ReleaseDate, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_RELEASE_DATE") });
+            //sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Use, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_USE") });
+            //sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Rating, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_RATING") });
 
             ViewState.SortingOptions = sortingOptions;
 
@@ -103,7 +106,7 @@ namespace Gizmo.Client.UI.View.Services
             //filter out any applications that passes current app profile
             allApplications = allApplications.Where(app => _gizmoClient.AppCurrentProfilePass(app.ApplicationId));
 
-            if (ViewState.SelectedSortingOption != ApplicationSortingOption.Popularity)
+            if (ViewState.SelectedSortingOption != ApplicationSortingOption.Title)
             {
                 ViewState.TotalFilters += 1;
             }
@@ -122,7 +125,41 @@ namespace Gizmo.Client.UI.View.Services
 
             if (ViewState.SelectedExecutableModes.Count() > 0)
             {
+                var allExecutables = await _appExeViewStateLookupService.GetStatesAsync(cancellationToken);
+
+                ExecutableOptionType mode = ExecutableOptionType.None;
+
+                foreach (var item in ViewState.SelectedExecutableModes)
+                {
+                    mode |= (ExecutableOptionType)item;
+                }
+
+                var applicationWithModes = allExecutables.Where(a => ((int)a.Options & (int)mode) > 0).Select(a => a.ApplicationId).ToList();
+
+                allApplications = allApplications.Where(app => applicationWithModes.Contains(app.ApplicationId));
+
                 ViewState.TotalFilters += 1;
+            }
+
+            switch (ViewState.SelectedSortingOption)
+            {
+                case ApplicationSortingOption.Title:
+
+                    allApplications = allApplications.OrderBy(a => a.Title);
+
+                    break;
+
+                case ApplicationSortingOption.AddDate:
+
+                    allApplications = allApplications.OrderByDescending(a => a.AddDate);
+
+                    break;
+
+                case ApplicationSortingOption.ReleaseDate:
+
+                    allApplications = allApplications.OrderByDescending(a => a.ReleaseDate);
+
+                    break;
             }
 
             ViewState.Applications = allApplications.ToList();
@@ -170,7 +207,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.SearchPattern = string.Empty;
 
-            ViewState.SelectedSortingOption = ApplicationSortingOption.Popularity;
+            ViewState.SelectedSortingOption = ApplicationSortingOption.Title;
             ViewState.SelectedCategoryId = null;
             ViewState.SelectedExecutableModes = Enumerable.Empty<ApplicationModes>();
 
