@@ -3,8 +3,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Gizmo.Client.UI.View.States
 {
+    /// <summary>
+    /// Host reservation view state.
+    /// </summary>
     [Register()]
-    public sealed class ReservationViewState : ViewStateBase
+    public sealed class HostReservationViewState : ViewStateBase
     {
         #region FIELDS
         private bool _isPending;

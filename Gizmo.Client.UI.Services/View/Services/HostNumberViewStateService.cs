@@ -33,7 +33,7 @@ namespace Gizmo.Client.UI.View.Services
             //End Test
         };
 
-        public ReservationViewState ReservationViewState { get; set; } = new ReservationViewState()
+        public HostReservationViewState ReservationViewState { get; set; } = new HostReservationViewState()
         {
             //Test
             IsPending = true

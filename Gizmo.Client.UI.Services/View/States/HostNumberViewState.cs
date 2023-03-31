@@ -3,6 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Gizmo.Client.UI.View.States
 {
+    /// <summary>
+    /// Host number view state.
+    /// </summary>
     [Register()]
     public sealed class HostNumberViewState : ViewStateBase
     {
