@@ -9,15 +9,15 @@ namespace Gizmo.Client.UI.View.Services
     /// Sign up configuration view state service.
     /// </summary>
     [Register()]
-    public sealed class SignUpConfigurationViewStateService : ViewStateServiceBase<SignUpConfigurationViewState>
+    public sealed class UserRegistrationConfigurationViewStateService : ViewStateServiceBase<UserRegistrationConfigurationViewState>
     {
-        public SignUpConfigurationViewStateService(SignUpConfigurationViewState viewState, ILogger<SignUpConfigurationViewStateService> logger, IServiceProvider serviceProvider)
+        public UserRegistrationConfigurationViewStateService(UserRegistrationConfigurationViewState viewState, ILogger<UserRegistrationConfigurationViewStateService> logger, IServiceProvider serviceProvider)
             : base(viewState, logger, serviceProvider)
         { }
 
         protected override Task OnInitializing(CancellationToken ct)
         {
-            ViewState.CanSignUp = true;
+            ViewState.IsEnabled = true;
             return base.OnInitializing(ct);
         }
     }

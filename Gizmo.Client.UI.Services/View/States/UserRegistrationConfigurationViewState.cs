@@ -7,18 +7,18 @@ namespace Gizmo.Client.UI.View.States
     /// Sign up configuration view state service.
     /// </summary>
     [Register()]
-    public sealed class SignUpConfigurationViewState : ViewStateBase
+    public sealed class UserRegistrationConfigurationViewState : ViewStateBase
     {
         #region FIELDS
-        private bool _canSignUp;
+        private bool _isEnabled;
         #endregion
 
         #region PROPERTIES   
 
-        public bool CanSignUp
+        public bool IsEnabled
         {
-            get { return _canSignUp; }
-            internal set { _canSignUp = value; }
+            get { return _isEnabled; }
+            internal set { _isEnabled = value; }
         }
 
         #endregion

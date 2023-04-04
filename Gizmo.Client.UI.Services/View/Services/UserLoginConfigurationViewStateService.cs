@@ -9,18 +9,18 @@ namespace Gizmo.Client.UI.View.Services
     /// Sign in configuration view state service.
     /// </summary>
     [Register()]
-    public sealed class SignInConfigurationViewStateService : ViewStateServiceBase<SignInConfigurationViewState>
+    public sealed class UserLoginConfigurationViewStateService : ViewStateServiceBase<UserLoginConfigurationViewState>
     {
-        public SignInConfigurationViewStateService(SignInConfigurationViewState viewState,
-            ILogger<SignInConfigurationViewStateService> logger,
+        public UserLoginConfigurationViewStateService(UserLoginConfigurationViewState viewState,
+            ILogger<UserLoginConfigurationViewStateService> logger,
             IServiceProvider serviceProvider)
         : base(viewState, logger, serviceProvider)
         { }
 
         protected override Task OnInitializing(CancellationToken ct)
         {
-            ViewState.CanSignIn = true;
-            ViewState.CanSignInWithQR = true;
+            ViewState.IsEnabled = true;
+            ViewState.IsQrLoginEnabled = true;
             return base.OnInitializing(ct);
         }
     }
