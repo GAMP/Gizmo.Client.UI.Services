@@ -3,16 +3,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Gizmo.Client.UI.View.States
 {
+    /// <summary>
+    /// Sign in configuration view state.
+    /// </summary>
     [Register()]
-    public sealed class HostConfigurationViewState : ViewStateBase
+    public sealed class SignInConfigurationViewState : ViewStateBase
     {
-        #region FIELDS
         private bool _canSignIn;
         private bool _canSignInWithQR;
-        private bool _canSignUp;
-        #endregion
-
-        #region PROPERTIES
 
         public bool CanSignIn
         {
@@ -25,13 +23,5 @@ namespace Gizmo.Client.UI.View.States
             get { return _canSignInWithQR; }
             internal set { _canSignInWithQR = value; }
         }
-
-        public bool CanSignUp
-        {
-            get { return _canSignUp; }
-            internal set { _canSignUp = value; }
-        }
-
-        #endregion
     }
 }
