@@ -48,6 +48,23 @@ namespace Gizmo.Client.UI.View.Services
             ValidateProperty(() => ViewState.Amount);
         }
 
+        public async Task LoadAsync()
+        {
+            try
+            {
+                var configuration = await _gizmoClient.OnlinePaymentsConfigurationGetAsync();
+
+                ViewState.Presets = configuration.Presets;
+                ViewState.AllowCustomValue = configuration.AllowCustomValue;
+                ViewState.MinimumAmount = configuration.MinimumAmount;
+                ViewState.RaiseChanged();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to obtain top up configuration.");
+            }
+        }
+
         public async Task ShowDialogAsync()
         {
             var configuration = await _gizmoClient.OnlinePaymentsConfigurationGetAsync();
