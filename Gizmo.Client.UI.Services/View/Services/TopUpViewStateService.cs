@@ -63,32 +63,8 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        public async Task LoadAsync()
-        {
-            try
-            {
-                var configuration = await _gizmoClient.OnlinePaymentsConfigurationGetAsync();
-
-                ViewState.Presets = configuration.Presets;
-                ViewState.AllowCustomValue = configuration.AllowCustomValue;
-                ViewState.MinimumAmount = configuration.MinimumAmount;
-                ViewState.RaiseChanged();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Failed to obtain top up configuration.");
-            }
-        }
-
         public async Task ShowDialogAsync()
         {
-            var configuration = await _gizmoClient.OnlinePaymentsConfigurationGetAsync();
-
-            ViewState.Presets = configuration.Presets;
-            ViewState.AllowCustomValue = configuration.AllowCustomValue;
-            ViewState.MinimumAmount = configuration.MinimumAmount;
-            ViewState.RaiseChanged();
-
             if (_dialogCancellationTokenSource != null)
             {
                 _dialogCancellationTokenSource.Dispose();
@@ -174,6 +150,25 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region OVERRIDES
+
+        protected override async Task OnInitializing(CancellationToken ct)
+        {
+            try
+            {
+                var configuration = await _gizmoClient.OnlinePaymentsConfigurationGetAsync();
+
+                ViewState.Presets = configuration.Presets;
+                ViewState.AllowCustomValue = configuration.AllowCustomValue;
+                ViewState.MinimumAmount = configuration.MinimumAmount;
+                ViewState.RaiseChanged();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to obtain top up configuration.");
+            }
+
+            await base.OnInitializing(ct);
+        }
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
