@@ -8,6 +8,7 @@ namespace Gizmo.Client.UI.View.States
     public sealed class AdvertisementsViewState : ViewStateBase
     {
         public IEnumerable<AdvertisementViewState> Advertisements { get; internal set; } = Enumerable.Empty<AdvertisementViewState>();
-        public int AdvertisementsCount { get; internal set; }
+        
+        public bool IsCollapsed { get; internal set; }
     }
 }

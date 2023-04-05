@@ -35,6 +35,12 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
+        public void SetCollapsed(bool value)
+        {
+            ViewState.IsCollapsed = value;
+            DebounceViewStateChanged();
+        }
+
         protected override Task OnInitializing(CancellationToken ct)
         {
             _advertisementViewStateLookupService.Changed += _advertisementViewStateLookupService_Changed;
@@ -73,7 +79,6 @@ namespace Gizmo.Client.UI.View.Services
         public async Task LoadAdvertisementsAsync(CancellationToken cToken = default)
         {
             ViewState.Advertisements = await _advertisementViewStateLookupService.GetStatesAsync(cToken);
-            ViewState.AdvertisementsCount = ViewState.Advertisements.Count();
             ViewState.RaiseChanged();
         }
         private async void OnLoadAdvertisementsAsync(object? _, EventArgs __) =>
