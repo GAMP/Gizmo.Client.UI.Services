@@ -3,6 +3,7 @@ using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Gizmo.UI.View.States;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -39,13 +40,27 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public void SetAmount(decimal value)
+        public void SetAmount(decimal? value)
         {
-            if (!ViewState.AllowCustomValue && !ViewState.Presets.Contains(value))
+            if (!value.HasValue)
+            {
+                ViewState.Amount = null;
+            }
+
+            if (!ViewState.AllowCustomValue && !ViewState.Presets.Contains(value.Value))
                 return;
 
             ViewState.Amount = value;
             ValidateProperty(() => ViewState.Amount);
+        }
+
+        public void SelectPreset(decimal amount)
+        {
+            if (ViewState.Presets.Contains(amount))
+            {
+                ViewState.Amount = amount;
+                ValidateProperty(() => ViewState.Amount);
+            }
         }
 
         public async Task LoadAsync()
@@ -94,17 +109,11 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        public void SelectPreset(decimal amount)
-        {
-            if (ViewState.Presets.Contains(amount))
-            {
-                ViewState.Amount = amount;
-                DebounceViewStateChanged();
-            }
-        }
-
         public async Task SubmitAsync()
         {
+            if (!ViewState.Amount.HasValue)
+                return;
+
             Validate();
 
             if (ViewState.IsValid != true)
@@ -133,11 +142,19 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
+        public void Clear()
+        {
+            ViewState.PageIndex = 0;
+            ViewState.Amount = null;
+            ViewState.RaiseChanged();
+        }
+
         public async Task PayFromPC()
         {
             _dialogCancellationTokenSource?.Cancel();
 
             ViewState.PageIndex = 0;
+            ViewState.Amount = null;
             ViewState.RaiseChanged();
 
 

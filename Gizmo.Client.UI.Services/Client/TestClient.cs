@@ -381,7 +381,8 @@ namespace Gizmo.Client
             return Task.FromResult(new PaymentOnlineConfigurationModel()
             {
                 Presets = new List<decimal>() { 5, 10, 15, 20, 25, 30, 35 },
-                AllowCustomValue = true
+                AllowCustomValue = true,
+                MinimumAmount = 4
             });
         }
 

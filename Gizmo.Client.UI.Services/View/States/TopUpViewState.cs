@@ -1,4 +1,5 @@
-﻿using Gizmo.UI;
+﻿using System.ComponentModel.DataAnnotations;
+using Gizmo.UI;
 using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,7 +14,7 @@ namespace Gizmo.Client.UI.View.States
         private IEnumerable<decimal> _presets = Enumerable.Empty<decimal>();
         private bool _allowCustomValue;
         private decimal _minimumAmount;
-        private decimal _amount;
+        private decimal? _amount;
         #endregion
 
         #region PROPERTIES
@@ -49,7 +50,8 @@ namespace Gizmo.Client.UI.View.States
         }
 
         [ValidatingProperty()]
-        public decimal Amount
+        [Required]
+        public decimal? Amount
         {
             get { return _amount; }
             internal set { _amount = value; }
