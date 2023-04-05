@@ -11,8 +11,13 @@ namespace Gizmo.Client.UI.View.States
         #region FIELDS
         private bool _isLogginIn;
         private UserLoginType _userLoginType;
+#if RELEASE
         private string? _loginName;
-        private string? _password;
+        private string? _password; 
+#else
+        private string? _loginName = "user";
+        private string? _password = "user";
+#endif
         private bool _isPasswordVisible;
         private bool _hasLoginError;
         private string? _loginError;
