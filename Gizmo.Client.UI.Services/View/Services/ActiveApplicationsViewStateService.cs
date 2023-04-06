@@ -40,7 +40,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             _gizmoClient.ExecutionContextStateChange -= OneExecutionContextStateChange;
             base.OnDisposing(isDisposing);           
-        } 
+        }  
 
         private async void OneExecutionContextStateChange(object? sender, ClientExecutionContextStateArgs e)
         {
