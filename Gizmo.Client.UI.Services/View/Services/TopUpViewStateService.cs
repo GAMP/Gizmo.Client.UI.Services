@@ -172,33 +172,16 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        protected override async Task OnInitializing(CancellationToken ct)
+        protected override Task OnInitializing(CancellationToken ct)
         {
-            try
-            {
-                var paymentMethods = await _paymentMethodViewStateLookupService.GetStatesAsync();
+            _gizmoClient.LoginStateChange += OnLoginStateChange;
+            return base.OnInitializing(ct);
+        }
 
-                ViewState.SelectedPaymentMethodId = paymentMethods.Where(a => a.IsOnline).Select(a => (int?)a.Id).FirstOrDefault();
-
-                if (ViewState.SelectedPaymentMethodId.HasValue)
-                {
-                    ViewState.IsEnabled = true; //TODO: AAA
-
-                    var configuration = await _gizmoClient.OnlinePaymentsConfigurationGetAsync();
-
-                    ViewState.Presets = configuration.Presets;
-                    ViewState.AllowCustomValue = configuration.AllowCustomValue;
-                    ViewState.MinimumAmount = configuration.MinimumAmount;
-                }
-
-                ViewState.RaiseChanged();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Failed to obtain top up configuration.");
-            }
-
-            await base.OnInitializing(ct);
+        protected override void OnDisposing(bool isDisposing)
+        {
+            _gizmoClient.LoginStateChange -= OnLoginStateChange;
+            base.OnDisposing(isDisposing);
         }
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
@@ -213,5 +196,34 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
+        private async void OnLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
+        {
+            if (e.State == LoginState.LoggedIn)
+            {
+                try
+                {
+                    var paymentMethods = await _paymentMethodViewStateLookupService.GetStatesAsync();
+
+                    ViewState.SelectedPaymentMethodId = paymentMethods.Where(a => a.IsOnline).Select(a => (int?)a.Id).FirstOrDefault();
+
+                    if (ViewState.SelectedPaymentMethodId.HasValue)
+                    {
+                        ViewState.IsEnabled = true; //TODO: AAA
+
+                        var configuration = await _gizmoClient.OnlinePaymentsConfigurationGetAsync();
+
+                        ViewState.Presets = configuration.Presets;
+                        ViewState.AllowCustomValue = configuration.AllowCustomValue;
+                        ViewState.MinimumAmount = configuration.MinimumAmount;
+                    }
+
+                    ViewState.RaiseChanged();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Failed to obtain top up configuration.");
+                }
+            }
+        }
     }
 }
