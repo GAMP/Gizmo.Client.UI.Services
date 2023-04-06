@@ -32,17 +32,17 @@ namespace Gizmo.Client.UI.View.Services
         
         protected override Task OnInitializing(CancellationToken ct)
         {
-            _gizmoClient.ExecutionContextStateChage += OneExecutionContextStateChage;
+            _gizmoClient.ExecutionContextStateChange += OneExecutionContextStateChange;
             return base.OnInitializing(ct);
         }
 
         protected override void OnDisposing(bool isDisposing)
         {
-            _gizmoClient.ExecutionContextStateChage -= OneExecutionContextStateChage;
+            _gizmoClient.ExecutionContextStateChange -= OneExecutionContextStateChange;
             base.OnDisposing(isDisposing);           
         } 
 
-        private async void OneExecutionContextStateChage(object? sender, ClientExecutionContextStateArgs e)
+        private async void OneExecutionContextStateChange(object? sender, ClientExecutionContextStateArgs e)
         {
             try
             {

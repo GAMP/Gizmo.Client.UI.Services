@@ -27,7 +27,7 @@ namespace Gizmo.Client
 
         public bool IsInputLocked => false;
 
-        public event EventHandler<ClientExecutionContextStateArgs>? ExecutionContextStateChage;
+        public event EventHandler<ClientExecutionContextStateArgs>? ExecutionContextStateChange;
         public event EventHandler<UserLoginStateChangeEventArgs>? LoginStateChange;
         public event EventHandler<UserBalanceEventArgs>? UserBalanceChange;
         public event EventHandler<UserIdleEventArgs>? UserIdleChange;

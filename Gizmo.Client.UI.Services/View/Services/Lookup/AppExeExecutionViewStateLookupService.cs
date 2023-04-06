@@ -33,7 +33,7 @@ namespace Gizmo.Client.UI.View.Services
             _syncUpdateTimer = new Timer(SyncUpdateTimerCallback, null, _syncUpdaterTimerTime, _syncUpdaterTimerTime);
 
             _gizmoClient.AppExeChange += async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
-            _gizmoClient.ExecutionContextStateChage += OnExecutionContextStateChage;
+            _gizmoClient.ExecutionContextStateChange += OnExecutionContextStateChange;
 
             return base.OnInitializing(ct);
         }
@@ -45,7 +45,7 @@ namespace Gizmo.Client.UI.View.Services
             _syncUpdateTimer = null;
 
             _gizmoClient.AppExeChange += async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
-            _gizmoClient.ExecutionContextStateChage -= OnExecutionContextStateChage;
+            _gizmoClient.ExecutionContextStateChange -= OnExecutionContextStateChange;
         }        
         protected override async Task<IDictionary<int, AppExeExecutionViewState>> DataInitializeAsync(CancellationToken cToken)
         {
@@ -84,7 +84,7 @@ namespace Gizmo.Client.UI.View.Services
             
             return result;
         }
-        private async void OnExecutionContextStateChage(object? sender, ClientExecutionContextStateArgs e)
+        private async void OnExecutionContextStateChange(object? sender, ClientExecutionContextStateArgs e)
         {
             //filter out states that not of an interest to us
             switch (e.NewState)
