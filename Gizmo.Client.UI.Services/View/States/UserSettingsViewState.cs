@@ -46,6 +46,8 @@ namespace Gizmo.Client.UI.View.States
         [ValidatingProperty()]
         public string? MobilePhone { get; internal set; }
 
+        public string? Picture { get; internal set; }
+
         #endregion
     }
 }

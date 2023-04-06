@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System.Reflection;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 
@@ -45,6 +46,7 @@ namespace Gizmo.Client.UI.View.Services
             defaultState.Id = lookUpkey;
 
             defaultState.Name = "Default name";
+            defaultState.IsOnline = false;
 
             return defaultState;
         }
@@ -56,7 +58,8 @@ namespace Gizmo.Client.UI.View.Services
             var result = viewState ?? CreateDefaultViewState(model.Id);
 
             result.Name = model.Name;
-            
+            result.IsOnline = model.IsOnline;
+
             return result;
         }
         #endregion

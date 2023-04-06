@@ -3,7 +3,7 @@ using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
-using Gizmo.UI.View.States;
+using Gizmo.Web.Api.Models;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -19,11 +19,13 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
             IGizmoClient gizmoClient,
-            IClientDialogService dialogService) : base(viewState, logger, serviceProvider)
+            IClientDialogService dialogService,
+            PaymentMethodViewStateLookupService paymentMethodViewStateLookupService) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _gizmoClient = gizmoClient;
             _dialogService = dialogService;
+            _paymentMethodViewStateLookupService = paymentMethodViewStateLookupService;
         }
         #endregion
 
@@ -31,6 +33,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
         private readonly IClientDialogService _dialogService;
+        private readonly PaymentMethodViewStateLookupService _paymentMethodViewStateLookupService;
         private CancellationTokenSource? _dialogCancellationTokenSource = null;
         #endregion
 
@@ -63,33 +66,30 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        public async Task ShowDialogAsync()
-        {
-            if (_dialogCancellationTokenSource != null)
-            {
-                _dialogCancellationTokenSource.Dispose();
-            }
+        //public async Task ShowDialogAsync()
+        //{
+        //    if (_dialogCancellationTokenSource != null)
+        //    {
+        //        _dialogCancellationTokenSource.Dispose();
+        //    }
 
-            _dialogCancellationTokenSource = new CancellationTokenSource();
+        //    _dialogCancellationTokenSource = new CancellationTokenSource();
 
-            var s = await _dialogService.ShowTopUpDialogAsync(_dialogCancellationTokenSource.Token);
-            if (s.Result == DialogAddResult.Success)
-            {
-                try
-                {
-                    var result = await s.WaitForDialogResultAsync();
-                }
-                catch (OperationCanceledException)
-                {
-                }
-            }
-        }
+        //    var s = await _dialogService.ShowTopUpDialogAsync(_dialogCancellationTokenSource.Token);
+        //    if (s.Result == DialogAddResult.Success)
+        //    {
+        //        try
+        //        {
+        //            var result = await s.WaitForDialogResultAsync();
+        //        }
+        //        catch (OperationCanceledException)
+        //        {
+        //        }
+        //    }
+        //}
 
         public async Task SubmitAsync()
         {
-            if (!ViewState.Amount.HasValue)
-                return;
-
             Validate();
 
             if (ViewState.IsValid != true)
@@ -100,21 +100,43 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                // Simulate task.
-                await Task.Delay(2000);
+                var result = await _gizmoClient.PaymentIntentCreateAsync(new PaymentIntentCreateParametersDepositModel()
+                {
+                    //TODO: AAA UserId = this.Client.CurrentUser.Id,
+                    Amount = ViewState.Amount.Value,
+                    PaymentMethodId = ViewState.SelectedPaymentMethodId.Value
+                });
+
+                ViewState.PaymentUrl = result.PaymentUrl;
+
+                byte[] binaryQrImage = null;
+
+                if (!string.IsNullOrEmpty(result.NativeQrImage))
+                    binaryQrImage = Convert.FromBase64String(result.NativeQrImage);
+                else if (!string.IsNullOrEmpty(result.QrImage))
+                    binaryQrImage = Convert.FromBase64String(result.QrImage.Substring(41)); //Remove signature.
+
+                if (binaryQrImage != null)
+                {
+                    ViewState.QrImage = System.Text.Encoding.ASCII.GetString(binaryQrImage);
+                }
 
                 ViewState.IsLoading = false;
 
                 ViewState.PageIndex = 1;
                 ViewState.RaiseChanged();
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.LogError(ex, "Payment intent create error.");
 
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = ex.ToString(); //TODO: AAA
             }
             finally
             {
-
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
             }
         }
 
@@ -122,6 +144,8 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.PageIndex = 0;
             ViewState.Amount = null;
+            ViewState.PaymentUrl = string.Empty;
+            ViewState.QrImage = string.Empty;
             ViewState.RaiseChanged();
         }
 
@@ -129,12 +153,9 @@ namespace Gizmo.Client.UI.View.Services
         {
             _dialogCancellationTokenSource?.Cancel();
 
-            ViewState.PageIndex = 0;
-            ViewState.Amount = null;
-            ViewState.RaiseChanged();
+            Clear();
 
-
-            var s = await _dialogService.ShowPaymentDialogAsync();
+            var s = await _dialogService.ShowPaymentDialogAsync(new PaymentDialogParameters() { Url = ViewState.PaymentUrl });
             if (s.Result == DialogAddResult.Success)
             {
                 try
@@ -155,11 +176,21 @@ namespace Gizmo.Client.UI.View.Services
         {
             try
             {
-                var configuration = await _gizmoClient.OnlinePaymentsConfigurationGetAsync();
+                var paymentMethods = await _paymentMethodViewStateLookupService.GetStatesAsync();
 
-                ViewState.Presets = configuration.Presets;
-                ViewState.AllowCustomValue = configuration.AllowCustomValue;
-                ViewState.MinimumAmount = configuration.MinimumAmount;
+                ViewState.SelectedPaymentMethodId = paymentMethods.Where(a => a.IsOnline).Select(a => (int?)a.Id).FirstOrDefault();
+
+                if (ViewState.SelectedPaymentMethodId.HasValue)
+                {
+                    ViewState.IsEnabled = true; //TODO: AAA
+
+                    var configuration = await _gizmoClient.OnlinePaymentsConfigurationGetAsync();
+
+                    ViewState.Presets = configuration.Presets;
+                    ViewState.AllowCustomValue = configuration.AllowCustomValue;
+                    ViewState.MinimumAmount = configuration.MinimumAmount;
+                }
+
                 ViewState.RaiseChanged();
             }
             catch (Exception ex)

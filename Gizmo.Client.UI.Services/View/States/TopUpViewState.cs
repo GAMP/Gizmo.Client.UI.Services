@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Security;
 using Gizmo.UI;
 using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,54 +9,36 @@ namespace Gizmo.Client.UI.View.States
     [Register()]
     public sealed class TopUpViewState : ValidatingViewStateBase
     {
-        #region FIELDS
-        private bool _isLoading;
-        private int _pageIndex;
-        private IEnumerable<decimal> _presets = Enumerable.Empty<decimal>();
-        private bool _allowCustomValue;
-        private decimal _minimumAmount;
-        private decimal? _amount;
-        #endregion
-
         #region PROPERTIES
 
-        public bool IsLoading
-        {
-            get { return _isLoading; }
-            internal set { _isLoading = value; }
-        }
+        public bool IsEnabled { get; internal set; }
 
-        public int PageIndex
-        {
-            get { return _pageIndex; }
-            internal set { _pageIndex = value; }
-        }
+        public int PageIndex { get; internal set; }
 
-        public IEnumerable<decimal> Presets
-        {
-            get { return _presets; }
-            internal set { _presets = value; }
-        }
+        public IEnumerable<decimal> Presets { get; internal set; } = Enumerable.Empty<decimal>();
 
-        public bool AllowCustomValue
-        {
-            get { return _allowCustomValue; }
-            internal set { _allowCustomValue = value; }
-        }
+        public bool AllowCustomValue { get; internal set; }
 
-        public decimal MinimumAmount
-        {
-            get { return _minimumAmount; }
-            internal set { _minimumAmount = value; }
-        }
+        public decimal MinimumAmount { get; internal set; }
 
         [ValidatingProperty()]
         [Required]
-        public decimal? Amount
-        {
-            get { return _amount; }
-            internal set { _amount = value; }
-        }
+        public decimal? Amount { get; internal set; }
+
+        [ValidatingProperty()]
+        [Required]
+        public int? SelectedPaymentMethodId { get; internal set; }
+
+        public string PaymentUrl { get; internal set; } = string.Empty;
+
+        public string QrImage { get; internal set; } = string.Empty;
+
+        public bool IsLoading { get; internal set; }
+
+        public bool HasError { get; internal set; }
+
+        public string ErrorMessage { get; internal set; } = string.Empty;
+
 
         #endregion
     }
