@@ -102,7 +102,7 @@ namespace Gizmo.Client
                     PersonalFileId = x,
                     UseOrder = x
                 }),
-                ImageId = i,
+                ImageId = random.Next(0, 2) == 1 ? i : null,
                 Options = ExecutableOptionType.QuickLaunch
             }).ToList();
 
