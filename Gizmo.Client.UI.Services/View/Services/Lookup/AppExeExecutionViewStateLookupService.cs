@@ -120,8 +120,8 @@ namespace Gizmo.Client.UI.View.Services
                     viewState.IsIndeterminate = false;
                 }
 
-                //deployment progress will only be reaised once
-                //we can stop trackin executable file synchronization on any state change
+                //deployment progress will only be raised once
+                //we can stop tracking executable file synchronization on any state change
                 _appExecutionContextSyncInfo.Remove(e.ExecutableId, out var _);
 
                 switch (e.NewState)
