@@ -62,6 +62,8 @@ namespace Gizmo.Client.UI.View.Services
             result.ProductType = model.ProductType;
             result.UnitPrice = model.Price;
             result.UnitPointsPrice = model.PointsPrice;
+            result.UnitPointsAward = model.PointsAward;
+            result.DefaultImageId = model.DefaultImageId;
 
             if (model.ProductType == ProductType.ProductBundle)
             {
