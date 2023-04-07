@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Gizmo.Client.UI.View.States
 {
     [Register()]
-    public sealed class TopUpViewState : ValidatingViewStateBase
+    public sealed class UserOnlineDepositViewState : ValidatingViewStateBase
     {
         #region PROPERTIES
 

@@ -40,6 +40,7 @@ namespace Gizmo.Client.UI.Services
             services.Configure<UICompositionOptions>(configuration.GetSection("UIComposition"));
             services.Configure<ClientUIOptions>(configuration.GetSection("Interface"));
             services.Configure<ClientCurrencyOptions>(configuration.GetSection("CurrencyOptions"));
+            services.Configure<UserOnlineDepositOptions>(configuration.GetSection("UserOnlineDepositOptions"));
 
             return services;
         } 

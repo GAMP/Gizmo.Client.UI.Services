@@ -7,25 +7,28 @@ using Gizmo.Web.Api.Models;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    public sealed class TopUpViewStateService : ValidatingViewStateServiceBase<TopUpViewState>
+    public sealed class UserOnlineDepositViewStateService : ValidatingViewStateServiceBase<UserOnlineDepositViewState>
     {
         #region CONSTRUCTOR
-        public TopUpViewStateService(TopUpViewState viewState,
-            ILogger<TopUpViewStateService> logger,
+        public UserOnlineDepositViewStateService(UserOnlineDepositViewState viewState,
+            ILogger<UserOnlineDepositViewStateService> logger,
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
             IGizmoClient gizmoClient,
             IClientDialogService dialogService,
-            PaymentMethodViewStateLookupService paymentMethodViewStateLookupService) : base(viewState, logger, serviceProvider)
+            PaymentMethodViewStateLookupService paymentMethodViewStateLookupService,
+            IOptions<UserOnlineDepositOptions> userOnlineDepositOptions) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _gizmoClient = gizmoClient;
             _dialogService = dialogService;
             _paymentMethodViewStateLookupService = paymentMethodViewStateLookupService;
+            _userOnlineDepositOptions = userOnlineDepositOptions;
         }
         #endregion
 
@@ -34,6 +37,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IGizmoClient _gizmoClient;
         private readonly IClientDialogService _dialogService;
         private readonly PaymentMethodViewStateLookupService _paymentMethodViewStateLookupService;
+        private readonly IOptions<UserOnlineDepositOptions> _userOnlineDepositOptions;
         private CancellationTokenSource? _dialogCancellationTokenSource = null;
         #endregion
 
@@ -65,28 +69,6 @@ namespace Gizmo.Client.UI.View.Services
                 ValidateProperty(() => ViewState.Amount);
             }
         }
-
-        //public async Task ShowDialogAsync()
-        //{
-        //    if (_dialogCancellationTokenSource != null)
-        //    {
-        //        _dialogCancellationTokenSource.Dispose();
-        //    }
-
-        //    _dialogCancellationTokenSource = new CancellationTokenSource();
-
-        //    var s = await _dialogService.ShowTopUpDialogAsync(_dialogCancellationTokenSource.Token);
-        //    if (s.Result == DialogAddResult.Success)
-        //    {
-        //        try
-        //        {
-        //            var result = await s.WaitForDialogResultAsync();
-        //        }
-        //        catch (OperationCanceledException)
-        //        {
-        //        }
-        //    }
-        //}
 
         public async Task SubmitAsync()
         {
@@ -190,38 +172,45 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (ViewState.Amount < ViewState.MinimumAmount)
                 {
-                    AddError(() => ViewState.Amount, _localizationService.GetString("TOP_UP_MINIMUM_AMOUNT_IS", ViewState.MinimumAmount));
+                    AddError(() => ViewState.Amount, _localizationService.GetString("USER_ONLINE_DEPOSIT_MINIMUM_AMOUNT_IS", ViewState.MinimumAmount));
+                } else if (ViewState.Amount > _userOnlineDepositOptions.Value.MaximumAmount)
+                {
+                    AddError(() => ViewState.Amount, _localizationService.GetString("USER_ONLINE_DEPOSIT_MAXIMUM_AMOUNT_IS", _userOnlineDepositOptions.Value.MaximumAmount));
                 }
             }
         }
 
         #endregion
+
         private async void OnLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
         {
             if (e.State == LoginState.LoggedIn)
             {
                 try
                 {
-                    var paymentMethods = await _paymentMethodViewStateLookupService.GetStatesAsync();
-
-                    ViewState.SelectedPaymentMethodId = paymentMethods.Where(a => a.IsOnline).Select(a => (int?)a.Id).FirstOrDefault();
-
-                    if (ViewState.SelectedPaymentMethodId.HasValue)
+                    if (_userOnlineDepositOptions.Value.ShowUserOnlineDeposit)
                     {
-                        ViewState.IsEnabled = true; //TODO: AAA
+                        var paymentMethods = await _paymentMethodViewStateLookupService.GetStatesAsync();
 
-                        var configuration = await _gizmoClient.OnlinePaymentsConfigurationGetAsync();
+                        ViewState.SelectedPaymentMethodId = paymentMethods.Where(a => a.IsOnline).Select(a => (int?)a.Id).FirstOrDefault();
 
-                        ViewState.Presets = configuration.Presets;
-                        ViewState.AllowCustomValue = configuration.AllowCustomValue;
-                        ViewState.MinimumAmount = configuration.MinimumAmount;
+                        if (ViewState.SelectedPaymentMethodId.HasValue)
+                        {
+                            ViewState.IsEnabled = true;
+
+                            var configuration = await _gizmoClient.OnlinePaymentsConfigurationGetAsync();
+
+                            ViewState.Presets = configuration.Presets;
+                            ViewState.AllowCustomValue = configuration.AllowCustomValue;
+                            ViewState.MinimumAmount = configuration.MinimumAmount;
+                        }
                     }
 
                     ViewState.RaiseChanged();
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "Failed to obtain top up configuration.");
+                    Logger.LogError(ex, "Failed to obtain user online deposit configuration.");
                 }
             }
         }
