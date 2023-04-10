@@ -1,5 +1,5 @@
-﻿using Gizmo.Web.Api.Models;
-using static System.Net.Mime.MediaTypeNames;
+﻿using Gizmo.Client.UI.View.States;
+using Gizmo.Web.Api.Models;
 
 namespace Gizmo.Client
 {
@@ -658,6 +658,16 @@ namespace Gizmo.Client
             };
 
             return result;
+        }
+
+        public Task<PagedList<PopularExecutableModel>> GetPopularExecutablesAsync(PopularExecutablesFilter filters, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(new PagedList<PopularExecutableModel>(Enumerable.Empty<PopularExecutableModel>()));
+        }
+
+        public Task<PagedList<PopularProductModel>> GetPopularProductsAsync(PopularProductsFilter filters, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(new PagedList<PopularProductModel>(Enumerable.Empty<PopularProductModel>()));
         }
     }
 }
