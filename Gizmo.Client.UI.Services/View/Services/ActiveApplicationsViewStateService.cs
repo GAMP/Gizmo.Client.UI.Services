@@ -29,20 +29,20 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IGizmoClient _gizmoClient;
         private readonly AppExeExecutionViewStateLookupService _appExeExecutionViewStateLookupService;
         private readonly AppExeViewStateLookupService _appExeViewStateLookupService;
-        
+
         protected override Task OnInitializing(CancellationToken ct)
         {
-            _gizmoClient.ExecutionContextStateChange += OneExecutionContextStateChange;
+            _gizmoClient.ExecutionContextStateChange += OnExecutionContextStateChange;
             return base.OnInitializing(ct);
         }
 
         protected override void OnDisposing(bool isDisposing)
         {
-            _gizmoClient.ExecutionContextStateChange -= OneExecutionContextStateChange;
-            base.OnDisposing(isDisposing);           
-        }  
+            _gizmoClient.ExecutionContextStateChange -= OnExecutionContextStateChange;
+            base.OnDisposing(isDisposing);
+        }
 
-        private async void OneExecutionContextStateChange(object? sender, ClientExecutionContextStateArgs e)
+        private async void OnExecutionContextStateChange(object? sender, ClientExecutionContextStateArgs e)
         {
             try
             {

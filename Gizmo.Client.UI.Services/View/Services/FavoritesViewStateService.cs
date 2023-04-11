@@ -15,32 +15,42 @@ namespace Gizmo.Client.UI.View.Services
         public FavoritesViewStateService(FavoritesViewState viewState,
             ILogger<FavoritesViewStateService> logger,
             IServiceProvider serviceProvider,
+            IGizmoClient gizmoClient,
             AppExeViewStateLookupService appExeViewStateLookupService) : base(viewState, logger, serviceProvider)
         {
+            _gizmoClient = gizmoClient;
             _appExeViewStateLookupService = appExeViewStateLookupService;
         }
         #endregion
 
         #region FIELDS
+        private readonly IGizmoClient _gizmoClient;
         private readonly AppExeViewStateLookupService _appExeViewStateLookupService;
         #endregion
 
         #region FUNCTIONS
 
-        public async Task RefilterAsync(CancellationToken cToken)
+        public async Task RefilterAsync(CancellationToken cancellationToken)
         {
-            var exes = await _appExeViewStateLookupService.GetStatesAsync(cToken);
+            var popularExecutables = await _gizmoClient.UserPopularExecutablesGetAsync(new Web.Api.Models.UserPopularExecutablesFilter()
+            {
+                Limit = 10
+            });
 
-            ViewState.Executables = exes.Where(a => a.Options.HasFlag(ExecutableOptionType.QuickLaunch)).ToList(); //TODO: AAA FROM STATS
+            var executableIds = popularExecutables.Select(a => a.Id).ToList();
 
-            ViewState.RaiseChanged();
+            var exes = await _appExeViewStateLookupService.GetStatesAsync(cancellationToken);
+
+            ViewState.Executables = exes.Where(a => executableIds.Contains(a.ExecutableId)).ToList();
+
+            RaiseViewStateChanged();
         }
 
         #endregion
 
-        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            await RefilterAsync(cToken);
+            await RefilterAsync(cancellationToken);
         }
     }
 }
