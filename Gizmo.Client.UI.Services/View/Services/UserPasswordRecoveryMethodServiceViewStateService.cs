@@ -30,7 +30,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnInitializing(CancellationToken ct)
         {
-            ViewState.AvailabledRecoveryMethod = await _gizmoClient.GetPasswordRecoveryMethodAsync(ct);
+            ViewState.AvailabledRecoveryMethod = await _gizmoClient.PasswordRecoveryMethodGetAsync(ct);
 
             await base.OnInitializing(ct);
         }

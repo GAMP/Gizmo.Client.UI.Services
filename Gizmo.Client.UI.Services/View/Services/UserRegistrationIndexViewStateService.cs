@@ -114,7 +114,7 @@ namespace Gizmo.Client.UI.View.Services
                 var userRegistrationService = ServiceProvider.GetRequiredService<UserRegistrationViewStateService>();
                 var userRegistrationViewState = ServiceProvider.GetRequiredService<UserRegistrationViewState>();
 
-                var registrationVerificationMethod = await _gizmoClient.GetRegistrationVerificationMethodAsync();
+                var registrationVerificationMethod = await _gizmoClient.RegistrationVerificationMethodGetAsync();
 
                 userRegistrationService.SetConfirmationMethod(registrationVerificationMethod);
 

@@ -560,12 +560,12 @@ namespace Gizmo.Client
             return confirmationCode == "1" ? false : true;
         }
 
-        public Task<RegistrationVerificationMethod> GetRegistrationVerificationMethodAsync(CancellationToken cancellationToken = default)
+        public Task<RegistrationVerificationMethod> RegistrationVerificationMethodGetAsync(CancellationToken cancellationToken = default)
         {
             return Task.FromResult(RegistrationVerificationMethod.MobilePhone);
         }
 
-        public Task<UserRecoveryMethod> GetPasswordRecoveryMethodAsync(CancellationToken cancellationToken = default)
+        public Task<UserRecoveryMethod> PasswordRecoveryMethodGetAsync(CancellationToken cancellationToken = default)
         {
             return Task.FromResult(UserRecoveryMethod.Mobile);
         }
@@ -660,12 +660,12 @@ namespace Gizmo.Client
             return result;
         }
 
-        public Task<PagedList<PopularExecutableModel>> GetPopularExecutablesAsync(PopularExecutablesFilter filters, CancellationToken cancellationToken = default)
+        public Task<PagedList<PopularExecutableModel>> PopularExecutablesGetAsync(PopularExecutablesFilter filters, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(new PagedList<PopularExecutableModel>(Enumerable.Empty<PopularExecutableModel>()));
         }
 
-        public Task<PagedList<PopularProductModel>> GetPopularProductsAsync(PopularProductsFilter filters, CancellationToken cancellationToken = default)
+        public Task<PagedList<PopularProductModel>> PopularProductsGetAsync(PopularProductsFilter filters, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(new PagedList<PopularProductModel>(Enumerable.Empty<PopularProductModel>()));
         }
