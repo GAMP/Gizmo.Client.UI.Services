@@ -660,14 +660,19 @@ namespace Gizmo.Client
             return result;
         }
 
-        public Task<PagedList<PopularExecutableModel>> PopularExecutablesGetAsync(PopularExecutablesFilter filters, CancellationToken cancellationToken = default)
+        public Task<IEnumerable<PopularApplicationModel>> UserPopularApplicationsGetAsync(UserPopularApplicationsFilter filters, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(new PagedList<PopularExecutableModel>(Enumerable.Empty<PopularExecutableModel>()));
+            return Task.FromResult(Enumerable.Empty<PopularApplicationModel>());
         }
 
-        public Task<PagedList<PopularProductModel>> PopularProductsGetAsync(PopularProductsFilter filters, CancellationToken cancellationToken = default)
+        public Task<IEnumerable<PopularExecutableModel>> UserPopularExecutablesGetAsync(UserPopularExecutablesFilter filters, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(new PagedList<PopularProductModel>(Enumerable.Empty<PopularProductModel>()));
+            return Task.FromResult(Enumerable.Empty<PopularExecutableModel>());
+        }
+
+        public Task<IEnumerable<PopularProductModel>> UserPopularProductsGetAsync(UserPopularProductsFilter filters, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(Enumerable.Empty<PopularProductModel>());
         }
     }
 }
