@@ -24,7 +24,7 @@ namespace Gizmo.Client.UI.View.States
 
         public IEnumerable<EnumFilterViewState<ApplicationSortingOption>> SortingOptions { get; internal set; } = Enumerable.Empty<EnumFilterViewState<ApplicationSortingOption>>();
 
-        public ApplicationSortingOption SelectedSortingOption { get; internal set; } = ApplicationSortingOption.Title;
+        public ApplicationSortingOption SelectedSortingOption { get; internal set; } = ApplicationSortingOption.Popularity;
 
         public IEnumerable<EnumFilterViewState<ApplicationModes>> ExecutableModes { get; internal set; } = Enumerable.Empty<EnumFilterViewState<ApplicationModes>>();
 

@@ -50,7 +50,7 @@ namespace Gizmo.Client.UI.View.Services
 
             List<EnumFilterViewState<ApplicationSortingOption>> sortingOptions = new List<EnumFilterViewState<ApplicationSortingOption>>();
 
-            //sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Popularity, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_POPULARITY") });
+            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Popularity, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_POPULARITY") });
             sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Title, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_TITLE") });
             sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.AddDate, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_ADD_DATE") });
             sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.ReleaseDate, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_RELEASE_DATE") });
@@ -95,7 +95,7 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.AppCategories = await _categoryViewStateLookupService.GetStatesAsync(cToken);
             }
 
-            if(navigationParameters.IsInitial)
+            if (navigationParameters.IsInitial)
                 await RefilterRequest(cToken);
         }
 
@@ -111,7 +111,7 @@ namespace Gizmo.Client.UI.View.Services
             //filter out any applications that passes current app profile
             allApplications = allApplications.Where(app => _gizmoClient.AppCurrentProfilePass(app.ApplicationId));
 
-            if (ViewState.SelectedSortingOption != ApplicationSortingOption.Title)
+            if (ViewState.SelectedSortingOption != ApplicationSortingOption.Popularity)
             {
                 ViewState.TotalFilters += 1;
             }
@@ -150,6 +150,28 @@ namespace Gizmo.Client.UI.View.Services
 
             switch (ViewState.SelectedSortingOption)
             {
+                case ApplicationSortingOption.Popularity:
+
+                    var popularApplications = await _gizmoClient.UserPopularApplicationsGetAsync(new Web.Api.Models.UserPopularApplicationsFilter()
+                    {
+                        Limit = 10
+                    });
+
+                    var tmp = new List<AppViewState>();
+
+                    var applicationIds = popularApplications.Select(a => a.Id).ToList();
+
+                    foreach (var id in applicationIds)
+                    {
+                        var current = allApplications.Where(a => a.ApplicationId == id).FirstOrDefault();
+                        if (current != null)
+                            tmp.Add(current);
+                    }
+
+                    allApplications = tmp;
+
+                    break;
+
                 case ApplicationSortingOption.Title:
 
                     allApplications = allApplications.OrderBy(a => a.Title);
@@ -177,9 +199,9 @@ namespace Gizmo.Client.UI.View.Services
         public Task SetSelectedSortingOption(ApplicationSortingOption value)
         {
             ViewState.SelectedSortingOption = value;
-            
+
             _debounceActionService.Debounce(RefilterRequest);
-            
+
             return Task.CompletedTask;
         }
 
@@ -214,7 +236,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.SearchPattern = string.Empty;
 
-            ViewState.SelectedSortingOption = ApplicationSortingOption.Title;
+            ViewState.SelectedSortingOption = ApplicationSortingOption.Popularity;
             ViewState.SelectedCategoryId = null;
             ViewState.SelectedExecutableModes = Enumerable.Empty<ApplicationModes>();
 

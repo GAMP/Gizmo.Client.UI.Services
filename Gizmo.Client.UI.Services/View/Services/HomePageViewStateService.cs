@@ -29,7 +29,7 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public async Task RefilterAsync(CancellationToken cToken)
+        public async Task RefilterAsync(CancellationToken cancellationToken)
         {
             var popularProducts = await _gizmoClient.UserPopularProductsGetAsync(new Web.Api.Models.UserPopularProductsFilter()
             {
@@ -38,7 +38,7 @@ namespace Gizmo.Client.UI.View.Services
 
             var productIds = popularProducts.Select(a => a.Id).ToList();
 
-            var products = await _userProductViewStateLookupService.GetStatesAsync(cToken);
+            var products = await _userProductViewStateLookupService.GetStatesAsync(cancellationToken);
 
             ViewState.PopularProducts = products.Where(a => productIds.Contains(a.Id)).ToList();
 
