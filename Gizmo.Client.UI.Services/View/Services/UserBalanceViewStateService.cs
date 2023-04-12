@@ -43,7 +43,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Balance = e.Balance.Balance;
             ViewState.PointsBalance = e.Balance.Points;
             ViewState.Outstanding = e.Balance.TotalOutstanding;
-            ViewState.Time = TimeSpan.FromMinutes(e.Balance.AvailableCreditedTime ?? 0);
+            ViewState.Time = TimeSpan.FromSeconds(e.Balance.AvailableCreditedTime ?? 0);
             DebounceViewStateChanged();
         }
 
@@ -72,7 +72,7 @@ namespace Gizmo.Client.UI.View.Services
                     ViewState.Balance = currentUserBalance.Balance;
                     ViewState.PointsBalance = currentUserBalance.Points;
                     ViewState.Outstanding = currentUserBalance.TotalOutstanding;
-                    ViewState.Time = TimeSpan.FromMinutes( currentUserBalance.AvailableCreditedTime ?? 0);
+                    ViewState.Time = TimeSpan.FromSeconds(currentUserBalance.AvailableCreditedTime ?? 0);
                 }
                 catch (Exception ex)
                 {
