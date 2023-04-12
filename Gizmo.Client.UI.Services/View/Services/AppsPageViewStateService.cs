@@ -159,7 +159,7 @@ namespace Gizmo.Client.UI.View.Services
                     var popularApplications = await _gizmoClient.UserPopularApplicationsGetAsync(new Web.Api.Models.UserPopularApplicationsFilter()
                     {
                         Limit = _popularItemsOptions.Value.PopularApplications
-                    });
+                    }, cancellationToken);
 
                     var applicationIds = popularApplications.OrderBy(a => a.TotalExecutionTime).Select(a => a.Id).ToList();
 
