@@ -41,6 +41,7 @@ namespace Gizmo.Client.UI.Services
             services.Configure<ClientUIOptions>(configuration.GetSection("Interface"));
             services.Configure<ClientCurrencyOptions>(configuration.GetSection("CurrencyOptions"));
             services.Configure<UserOnlineDepositOptions>(configuration.GetSection("UserOnlineDepositOptions"));
+            services.Configure<PopularItemsOptions>(configuration.GetSection("PopularItemsOptions"));
 
             return services;
         } 

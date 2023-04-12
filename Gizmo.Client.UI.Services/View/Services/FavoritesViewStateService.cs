@@ -3,6 +3,7 @@ using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -16,16 +17,19 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<FavoritesViewStateService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient,
-            AppExeViewStateLookupService appExeViewStateLookupService) : base(viewState, logger, serviceProvider)
+            AppExeViewStateLookupService appExeViewStateLookupService,
+            IOptions<PopularItemsOptions> popularItemsOptions) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _appExeViewStateLookupService = appExeViewStateLookupService;
+            _popularItemsOptions = popularItemsOptions;
         }
         #endregion
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
         private readonly AppExeViewStateLookupService _appExeViewStateLookupService;
+        private readonly IOptions<PopularItemsOptions> _popularItemsOptions;
         #endregion
 
         #region FUNCTIONS
@@ -34,7 +38,8 @@ namespace Gizmo.Client.UI.View.Services
         {
             var popularExecutables = await _gizmoClient.UserPopularExecutablesGetAsync(new Web.Api.Models.UserPopularExecutablesFilter()
             {
-                Limit = 10
+                Limit = _popularItemsOptions.Value.PopularExecutables,
+                CurrentUserOnly = true
             });
 
             var executableIds = popularExecutables.Select(a => a.Id).ToList();

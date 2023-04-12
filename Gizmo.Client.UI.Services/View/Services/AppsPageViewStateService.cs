@@ -5,6 +5,7 @@ using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -21,7 +22,8 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             AppCategoryViewStateLookupService categoryViewStateLookupService,
             AppViewStateLookupService appViewStateLookupService,
-            AppExeViewStateLookupService appExeViewStateLookupService) : base(viewState, logger, serviceProvider)
+            AppExeViewStateLookupService appExeViewStateLookupService,
+            IOptions<PopularItemsOptions> popularItemsOptions) : base(viewState, logger, serviceProvider)
         {
             _debounceActionService = debounceActionService;
             _debounceActionService.DebounceBufferTime = 500;
@@ -30,6 +32,7 @@ namespace Gizmo.Client.UI.View.Services
             _categoryViewStateLookupService = categoryViewStateLookupService;
             _appViewStateLookupService = appViewStateLookupService;
             _appExeViewStateLookupService = appExeViewStateLookupService;
+            _popularItemsOptions = popularItemsOptions;
         }
         #endregion
 
@@ -40,6 +43,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly AppCategoryViewStateLookupService _categoryViewStateLookupService;
         private readonly DebounceActionAsyncService _debounceActionService;
         private readonly IGizmoClient _gizmoClient;
+        private readonly IOptions<PopularItemsOptions> _popularItemsOptions;
         #endregion
 
         #region OVERRIDES
@@ -154,7 +158,7 @@ namespace Gizmo.Client.UI.View.Services
 
                     var popularApplications = await _gizmoClient.UserPopularApplicationsGetAsync(new Web.Api.Models.UserPopularApplicationsFilter()
                     {
-                        Limit = 10
+                        Limit = _popularItemsOptions.Value.PopularApplications
                     });
 
                     var tmp = new List<AppViewState>();

@@ -3,6 +3,7 @@ using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -15,16 +16,19 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<HomePageViewStateService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient,
-            UserProductViewStateLookupService userProductViewStateLookupService) : base(viewState, logger, serviceProvider)
+            UserProductViewStateLookupService userProductViewStateLookupService,
+            IOptions<PopularItemsOptions> popularItemsOptions) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _userProductViewStateLookupService = userProductViewStateLookupService;
+            _popularItemsOptions = popularItemsOptions;
         }
         #endregion
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
         private readonly UserProductViewStateLookupService _userProductViewStateLookupService;
+        private readonly IOptions<PopularItemsOptions> _popularItemsOptions;
         #endregion
 
         #region FUNCTIONS
@@ -33,7 +37,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             var popularProducts = await _gizmoClient.UserPopularProductsGetAsync(new Web.Api.Models.UserPopularProductsFilter()
             {
-                Limit = 10
+                Limit = _popularItemsOptions.Value.PopularProducts
             });
 
             var productIds = popularProducts.Select(a => a.Id).ToList();
