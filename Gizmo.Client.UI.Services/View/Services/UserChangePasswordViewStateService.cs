@@ -58,15 +58,15 @@ namespace Gizmo.Client.UI.View.Services
             await _gizmoClient.UserPasswordUpdateAsync(ViewState.OldPassword, ViewState.NewPassword);
 
 
-            //TODO: A UPDATE PASSWORD
-            ViewState.IsComplete = true;
+            //TODO: AAA UPDATE PASSWORD
+            ViewState.PageIndex = 1;
 
             ViewState.RaiseChanged();
         }
 
         public Task ResetAsync()
         {
-            ViewState.IsComplete = false;
+            ViewState.PageIndex = 0;
 
             ViewState.RaiseChanged();
 

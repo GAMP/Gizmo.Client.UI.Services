@@ -6,15 +6,12 @@ using System.ComponentModel.DataAnnotations;
 namespace Gizmo.Client.UI.View.States
 {
     [Register]
-    public sealed class UserSettingsViewState : ValidatingViewStateBase
+    public sealed class UserChangeProfileViewState : ValidatingViewStateBase
     {
         #region PROPERTIES
 
-        public RegistrationVerificationMethod ConfirmationMethod { get; internal set; } = RegistrationVerificationMethod.MobilePhone; //TODO: A DEMO
+        public int PageIndex { get; internal set; }
 
-        /// <summary>
-        /// Gets or sets username.
-        /// </summary>
         [ValidatingProperty()]
         [Required()]
         public string? Username { get; internal set; }
@@ -34,19 +31,15 @@ namespace Gizmo.Client.UI.View.States
         [ValidatingProperty()]
         public string? Country { get; internal set; }
 
-        [ValidatingProperty()]
-        public string? Address { get; internal set; }
-
-        [ValidatingProperty()]
-        public string? Email { get; internal set; }
-
-        [ValidatingProperty()]
-        public string? Phone { get; internal set; }
-
-        [ValidatingProperty()]
-        public string? MobilePhone { get; internal set; }
+        public string? Prefix { get; internal set; }
 
         public string? Picture { get; internal set; }
+
+        public bool IsLoading { get; internal set; }
+
+        public bool HasError { get; internal set; }
+
+        public string ErrorMessage { get; internal set; } = string.Empty;
 
         #endregion
     }

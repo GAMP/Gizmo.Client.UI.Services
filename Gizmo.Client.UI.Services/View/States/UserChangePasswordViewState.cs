@@ -8,64 +8,33 @@ namespace Gizmo.Client.UI.View.States
     [Register]
     public sealed class UserChangePasswordViewState : ValidatingViewStateBase
     {
-        #region FIELDS
-        private string _oldPassword = string.Empty;
-        private string _newPassword = string.Empty;
-        private string _repeatPassword = string.Empty;
-        private bool _isComplete;
-        private bool _isSuccessful;
-        private string _message = string.Empty;
-        #endregion
-
         #region PROPERTIES
+
+        public int PageIndex { get; internal set; }
 
         [ValidatingProperty()]
         [Required()]
-        public string OldPassword
-        {
-            get { return _oldPassword; }
-            internal set { _oldPassword = value; }
-        }
+        public string? OldPassword { get; internal set; }
 
         /// <summary>
         /// Gets or sets new password.
         /// </summary>
         [ValidatingProperty()]
         [Required()]
-        public string NewPassword
-        {
-            get { return _newPassword; }
-            internal set { _newPassword = value; }
-        }
+        public string? NewPassword { get; internal set; }
 
         /// <summary>
         /// Gets or sets repeat password.
         /// </summary>
         [ValidatingProperty()]
         [Required()]
-        public string RepeatPassword
-        {
-            get { return _repeatPassword; }
-            internal set { _repeatPassword = value; }
-        }
+        public string? RepeatPassword { get; internal set; }
 
-        public bool IsComplete
-        {
-            get { return _isComplete; }
-            internal set { _isComplete = value; }
-        }
+        public bool IsLoading { get; internal set; }
 
-        public bool IsSuccessful
-        {
-            get { return _isSuccessful; }
-            internal set { _isSuccessful = value; }
-        }
+        public bool HasError { get; internal set; }
 
-        public string Message
-        {
-            get { return _message; }
-            internal set { _message = value; }
-        }
+        public string ErrorMessage { get; internal set; } = string.Empty;
 
         #endregion
     }
