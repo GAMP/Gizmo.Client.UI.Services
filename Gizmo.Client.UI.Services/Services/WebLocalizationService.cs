@@ -1,7 +1,5 @@
 ﻿using System.Globalization;
 
-using Gizmo.UI.Services;
-
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -11,7 +9,7 @@ namespace Gizmo.Client.UI.Services
     /// <summary>
     /// Web client localization service.
     /// </summary>
-    public class WebLocalizationService : LocalizationServiceBase
+    public class WebLocalizationService : ClientLocalizationServiceBase
     {
         #region CONSTRUCTOR
         /// <summary>
@@ -35,7 +33,7 @@ namespace Gizmo.Client.UI.Services
                 new CultureInfo("ru-RU")
             };
 
-            SetCurrencyOptions(supportedCultures);
+            ConfigureLocalizationOptions(supportedCultures);
 
             return new(supportedCultures);
         }

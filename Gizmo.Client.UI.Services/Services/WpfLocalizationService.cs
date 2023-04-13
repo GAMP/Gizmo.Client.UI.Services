@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 
 using Gizmo.UI;
-using Gizmo.UI.Services;
 
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -12,7 +11,7 @@ namespace Gizmo.Client.UI.Services
     /// <summary>
     /// WPF client localization service.
     /// </summary>
-    public sealed class WpfLocalizationService : LocalizationServiceBase
+    public sealed class WpfLocalizationService : ClientLocalizationServiceBase
     {
         public WpfLocalizationService(
             ILogger<WpfLocalizationService> logger,
