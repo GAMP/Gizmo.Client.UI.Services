@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    [Route(ClientRoutes.UserSettingsRoute)]
     public sealed class UserChangeProfileViewStateService : ValidatingViewStateServiceBase<UserChangeProfileViewState>
     {
         #region CONSTRUCTOR
@@ -128,10 +127,5 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
-
-        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
-        {
-            await LoadAsync(cToken);
-        }
     }
 }
