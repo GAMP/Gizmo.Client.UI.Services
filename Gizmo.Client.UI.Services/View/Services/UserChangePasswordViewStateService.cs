@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
@@ -16,15 +17,18 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserChangePasswordViewStateService> logger,
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
+            IClientDialogService dialogService,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
+            _dialogService = dialogService;
             _gizmoClient = gizmoClient;
         }
         #endregion
 
         #region FIELDS
         private readonly ILocalizationService _localizationService;
+        private readonly IClientDialogService _dialogService;
         private readonly IGizmoClient _gizmoClient;
         #endregion
 
@@ -48,6 +52,23 @@ namespace Gizmo.Client.UI.View.Services
             ValidateProperty(() => ViewState.RepeatPassword);
         }
 
+        public async Task StartAsync(CancellationToken cToken = default)
+        {
+            await ResetAsync();
+
+            var s = await _dialogService.ShowChangePasswordDialogAsync();
+            if (s.Result == DialogAddResult.Success)
+            {
+                //try
+                //{
+                //    var result = await s.WaitForDialogResultAsync();
+                //}
+                //catch (OperationCanceledException)
+                //{
+                //}
+            }
+        }
+
         public async Task SubmitAsync()
         {
             Validate();
@@ -55,18 +76,35 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return;
 
-            await _gizmoClient.UserPasswordUpdateAsync(ViewState.OldPassword, ViewState.NewPassword);
-
-
-            //TODO: AAA UPDATE PASSWORD
-            ViewState.PageIndex = 1;
-
+            ViewState.IsLoading = true;
             ViewState.RaiseChanged();
+
+            try
+            {
+                await _gizmoClient.UserPasswordUpdateAsync(ViewState.OldPassword, ViewState.NewPassword);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "User password update error.");
+
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = ex.ToString();
+            }
+            finally
+            {
+                ViewState.IsComplete = true;
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
+            }
         }
 
         public Task ResetAsync()
         {
-            ViewState.PageIndex = 0;
+            ViewState.IsInitializing = false;
+            ViewState.IsInitialized = null;
+            ViewState.IsComplete = false;
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
 
             ViewState.RaiseChanged();
 

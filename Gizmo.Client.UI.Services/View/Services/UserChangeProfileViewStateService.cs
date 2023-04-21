@@ -1,7 +1,8 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
-using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -14,23 +15,20 @@ namespace Gizmo.Client.UI.View.Services
         public UserChangeProfileViewStateService(UserChangeProfileViewState viewState,
             ILogger<UserChangeProfileViewStateService> logger,
             IServiceProvider serviceProvider,
+            IClientDialogService dialogService,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
-		{
-			_gizmoClient = gizmoClient;
+        {
+            _dialogService = dialogService;
+            _gizmoClient = gizmoClient;
 		}
-		#endregion
+        #endregion
 
-		#region FIELDS
-		private readonly IGizmoClient _gizmoClient;
+        #region FIELDS
+        private readonly IClientDialogService _dialogService;
+        private readonly IGizmoClient _gizmoClient;
 		#endregion
 
 		#region FUNCTIONS
-
-		public void SetUsername(string value)
-        {
-            ViewState.Username = value;
-            ValidateProperty(() => ViewState.Username);
-        }
 
         public void SetFirstName(string value)
         {
@@ -68,18 +66,53 @@ namespace Gizmo.Client.UI.View.Services
             DebounceViewStateChanged();
         }
 
-        public async Task LoadAsync(CancellationToken cToken = default)
+        public async Task StartAsync(CancellationToken cToken = default)
         {
-            var profile = await _gizmoClient.UserProfileGetAsync(cToken);
+            await ResetAsync();
 
-            ViewState.Username = profile.Username;
-            ViewState.FirstName = profile.FirstName;
-            ViewState.LastName = profile.LastName;
-            ViewState.BirthDate = profile.BirthDate;
-            ViewState.Sex = profile.Sex;
-            ViewState.Country = profile.Country;
+            ViewState.IsInitializing = true;
+            ViewState.IsInitialized = false;
 
-            ViewState.RaiseChanged();
+            var s = await _dialogService.ShowChangeProfileDialogAsync();
+            if (s.Result == DialogAddResult.Success)
+            {
+                //try
+                //{
+                //    var result = await s.WaitForDialogResultAsync();
+                //}
+                //catch (OperationCanceledException)
+                //{
+                //}
+            }
+
+            try
+            {
+                var profile = await _gizmoClient.UserProfileGetAsync(cToken);
+
+                ViewState.Username = profile.Username;
+                ViewState.FirstName = profile.FirstName;
+                ViewState.LastName = profile.LastName;
+                ViewState.BirthDate = profile.BirthDate;
+                ViewState.Sex = profile.Sex;
+                ViewState.Country = profile.Country;
+
+                ViewState.IsInitialized = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "User profile get error.");
+
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = ex.ToString();
+
+                ViewState.IsComplete = true;
+            }
+            finally
+            {
+                ViewState.IsInitializing = false;
+
+                ViewState.RaiseChanged();
+            }
         }
 
         public async Task SubmitAsync()
@@ -89,28 +122,20 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return;
 
+            ViewState.IsLoading = true;
+            ViewState.RaiseChanged();
+
             try
             {
                 await _gizmoClient.UserProfileUpdateAsync(new UserProfileModelUpdate()
                 {
-                    Username = ViewState.Username,
+                    //TODO: AAA REMOVE FROM MODEL? Username = ViewState.Username,
                     FirstName = ViewState.FirstName,
                     LastName = ViewState.LastName,
                     BirthDate = ViewState.BirthDate,
                     Sex = ViewState.Sex,
                     Country = ViewState.Country
                 });
-
-                //TODO: A Update loaded profile instantly or wait for event?
-
-                var userViewState = ServiceProvider.GetRequiredService<UserViewState>();
-
-                userViewState.Username = ViewState.Username;
-                userViewState.FirstName = ViewState.FirstName;
-                userViewState.LastName = ViewState.LastName;
-                userViewState.BirthDate = ViewState.BirthDate;
-                userViewState.Sex = ViewState.Sex;
-                userViewState.Country = ViewState.Country;
             }
             catch (Exception ex)
             {
@@ -121,9 +146,23 @@ namespace Gizmo.Client.UI.View.Services
             }
             finally
             {
+                ViewState.IsComplete = true;
                 ViewState.IsLoading = false;
                 ViewState.RaiseChanged();
             }
+        }
+
+        public Task ResetAsync()
+        {
+            ViewState.IsInitializing = false;
+            ViewState.IsInitialized = null;
+            ViewState.IsComplete = false;
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
+
+            ViewState.RaiseChanged();
+
+            return Task.CompletedTask;
         }
 
         #endregion

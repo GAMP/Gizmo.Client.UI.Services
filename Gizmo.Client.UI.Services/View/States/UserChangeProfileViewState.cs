@@ -10,8 +10,6 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
-        public int PageIndex { get; internal set; }
-
         [ValidatingProperty()]
         [Required()]
         public string? Username { get; internal set; }
@@ -34,6 +32,8 @@ namespace Gizmo.Client.UI.View.States
         public string? Prefix { get; internal set; }
 
         public string? Picture { get; internal set; }
+
+        public bool IsComplete { get; internal set; }
 
         public bool IsLoading { get; internal set; }
 
