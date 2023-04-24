@@ -129,7 +129,6 @@ namespace Gizmo.Client.UI.View.Services
             {
                 await _gizmoClient.UserProfileUpdateAsync(new UserProfileModelUpdate()
                 {
-                    //TODO: AAA REMOVE FROM MODEL? Username = ViewState.Username,
                     FirstName = ViewState.FirstName,
                     LastName = ViewState.LastName,
                     BirthDate = ViewState.BirthDate,
