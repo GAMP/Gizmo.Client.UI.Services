@@ -324,7 +324,7 @@ namespace Gizmo.Client
                 LastName = "#Test Last Name",
                 BirthDate = new DateTime(1950, 1, 2),
                 Sex = Sex.Male,
-                Country = "#Greece",
+                Country = "Samoa",
                 Address = "#Test Address 123",
                 Email = "#test@test.test",
                 Phone = "#0123456789",
