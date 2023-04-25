@@ -176,26 +176,45 @@ namespace Gizmo.Client
                     {
                         Id = 1,
                         Title = "DEFAULT VIDEO",
-                        Data = "DEFAULT VIDEO",
+                        Data = "Action with custom media",
                         MediaUrl = "https://media.geeksforgeeks.org/wp-content/uploads/20210314115545/sample-video.mp4",
-                        Url="gizmo://products/cart/add?productId=1&size=2"
+                        Url = "gizmo://products/cart/add?productId=1&size=2"
                     }
                 },
                 { new ()
                     {
                         Id = 2,
-                        Title = "GTA - 5",
-                        Data = "GTA - 5",
-                        ThumbnailUrl = "https://i3.ytimg.com/vi/Ce1eUo0K3VE/maxresdefault.jpg",
-                        MediaUrl = "https://vk.com/video_ext.php?oid=-2000182257&id=118182257&hash=0f8faf02a738549a&hd=2",
-                        Url="gizmo://products/details/navigate?productId=1"
+                        Title = "DEFAULT VIDEO",
+                        Data = "Action with thumb error",
+                        //MediaUrl = "https://media.geeksforgeeks.org/wp-content/uploads/20210314115545/sample-video.mp4",
+                        ThumbnailUrl = "http://localhost/test.png",
+                        Url = "gizmo://products/cart/add?productId=1&size=2"
                     }
                 },
                 { new ()
                     {
                         Id = 3,
+                        Title = "DEFAULT VIDEO",
+                        Data = "Action with thumb",
+                        ThumbnailUrl = "https://i3.ytimg.com/vi/Ce1eUo0K3VE/maxresdefault.jpg",
+                        Url = "gizmo://products/cart/add?productId=1&size=2"
+                    }
+                },
+                { new ()
+                    {
+                        Id = 4,
+                        Title = "GTA - 5",
+                        Data = "GTA - 5 VK",
+                        ThumbnailUrl = "https://i3.ytimg.com/vi/Ce1eUo0K3VE/maxresdefault.jpg",
+                        MediaUrl = "https://vk.com/video_ext.php?oid=-2000182257&id=118182257&hash=0f8faf02a738549a&hd=2",
+                        Url = "gizmo://products/details/navigate?productId=1"
+                    }
+                },
+                { new ()
+                    {
+                        Id = 5,
                         Title = "CRYSIS - 4",
-                        Data = "<div style=\"max-width: 40.0rem; margin: 8.6rem 3.2rem 6.5rem 3.2rem\">#1 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.#1 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
+                        Data = "<div style=\"max-width: 40.0rem; margin: 8.6rem 3.2rem 6.5rem 3.2rem\">Youtube with url #1 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.#1 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                         MediaUrl = "https://www.youtube.com/watch?v=TsAaH8yqB70&ab_channel=Punish",
                         Url = "https://www.theloadout.com/crysis-4/release-date"
                     }
@@ -317,6 +336,7 @@ namespace Gizmo.Client
 
         public Task<UserProfileModel> UserProfileGetAsync(CancellationToken cancellationToken = default)
         {
+            throw new Exception();
             return Task.FromResult(new UserProfileModel()
             {
                 Username = "#Test Username",

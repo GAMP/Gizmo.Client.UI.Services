@@ -86,11 +86,11 @@ namespace Gizmo.Client.UI.Services
                     if (_isWebBrowser)
                     {
                         if (imageType == ImageType.Application)
-                            url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/Apex.png";
+                            url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/DemoApex.png";
                         else if (imageType == ImageType.ProductDefault)
-                            url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/Cola2.png";
+                            url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/DemoCola2.png";
                         else
-                            url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/Chrome-icon_1.png";
+                            url = _navigationManager.GetBaseUri() + @"_content/Gizmo.Client.UI/img/DemoChrome-icon_1.png";
                     }
                     else
                     {
