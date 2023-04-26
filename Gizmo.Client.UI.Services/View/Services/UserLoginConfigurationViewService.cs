@@ -20,7 +20,6 @@ namespace Gizmo.Client.UI.View.Services
         protected override Task OnInitializing(CancellationToken ct)
         {
             ViewState.IsEnabled = true;
-            ViewState.IsQrLoginEnabled = true;
             return base.OnInitializing(ct);
         }
     }
