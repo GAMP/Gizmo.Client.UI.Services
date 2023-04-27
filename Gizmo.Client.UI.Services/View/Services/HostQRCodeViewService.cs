@@ -33,7 +33,7 @@ namespace Gizmo.Client.UI.View.Services
                     var generateResult = await _gizmoClient.HostQRCodeGeneratAsync(ct);
 
                     //use with view state
-                    ViewState.HostQRCode = System.Text.Encoding.ASCII.GetString(Convert.FromBase64String(generateResult.QRCode));
+                    ViewState.HostQRCode = generateResult.QRCode;
 
                     DebounceViewStateChanged();
                 }
