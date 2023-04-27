@@ -43,7 +43,14 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task AddUserCartProductAsync(int productId, int quantity = 1)
         {
+            var product = await _userProductViewStateLookupService.GetStateAsync(productId);
+
             var productItem = await _userCartProductItemLookupService.GetStateAsync(productId);
+
+            if (product.IsStockLimited)
+            {
+                //TODO: A CHECK STOCK?
+            }
 
             productItem.Quantity += quantity;
 
@@ -188,6 +195,7 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
+
         public override async Task ExecuteCommandAsync<TCommand>(TCommand command, CancellationToken cToken = default)
         {
             if (command.Params?.Any() != true)
