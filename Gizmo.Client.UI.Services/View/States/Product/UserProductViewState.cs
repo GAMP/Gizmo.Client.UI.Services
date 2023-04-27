@@ -19,5 +19,25 @@ namespace Gizmo.Client.UI.View.States
         public IEnumerable<UserProductBundledViewState> BundledProducts { get; internal set; } = Enumerable.Empty<UserProductBundledViewState>();
         public UserProductTimeViewState TimeProduct { get; internal set; } = null!;
         public int? DefaultImageId { get; internal set; }
+
+        /// <summary>
+        /// The usage availability of the time product.
+        /// </summary>
+        public ProductPurchaseAvailabilityViewState? PurchaseAvailability { get; set; }
+
+        /// <summary>
+        /// Whether the product has enabled stock control and disallow sale out of stock.
+        /// </summary>
+        public bool IsStockLimited { get; internal set; }
+
+        /// <summary>
+        /// Whether the product is restricted for guest and current user is guest.
+        /// </summary>
+        public bool IsRestrictedForGuest { get; internal set; }
+
+        /// <summary>
+        /// Whether the product is restricted for current user group.
+        /// </summary>
+        public bool IsRestrictedForUserGroup { get; internal set; }
     }
 }
