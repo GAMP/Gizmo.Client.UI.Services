@@ -38,7 +38,15 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task LoadAsync(CancellationToken cToken = default)
         {
-            var ordersList = await _gizmoClient.UserOrdersGetAsync(new Web.Api.Models.UserOrdersFilter(), cToken);
+            var filters = new Web.Api.Models.UserOrdersFilter();
+            filters.Pagination.Limit = 1000;
+            //filters.Pagination.Cursor = new Web.Api.Models.PaginationCursor()
+            //{
+            //    IsForward = false,
+            //    Name = ""
+            //};
+
+            var ordersList = await _gizmoClient.UserOrdersGetAsync(filters, cToken);
 
             var userOrderViewStates = new List<UserOrderViewState>();
 
