@@ -10,7 +10,9 @@ namespace Gizmo.Client.UI.View.States
 
         public int Id { get; internal set; }
 
-        public ProductType ProductType { get; internal set; }
+        public LineType LineType { get; internal set; }
+
+        public OrderLinePayType PayType { get; internal set; }
 
         public string ProductName { get; internal set; } = string.Empty;
 
