@@ -98,6 +98,7 @@ namespace Gizmo.Client.UI.View.Services
                     userOrderLineViewState.Quantity = orderLine.Quantity;
                     userOrderLineViewState.TotalPrice = orderLine.Total;
                     userOrderLineViewState.TotalPointsPrice = orderLine.PointsTotal;
+                    userOrderLineViewState.ProductId = orderLine.ProductId;
 
                     userOrderLineViewState.ProductName = orderLine.ProductName;
                     productNames.Add(userOrderLineViewState.ProductName);

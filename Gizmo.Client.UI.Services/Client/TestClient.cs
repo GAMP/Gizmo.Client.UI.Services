@@ -748,6 +748,7 @@ namespace Gizmo.Client
                         userOrderLineViewState.Quantity = random.Next(1, 5);
                         userOrderLineViewState.Total = (decimal)random.Next(1, 100) / 100;
                         userOrderLineViewState.PointsTotal = random.Next(1, 100);
+                        userOrderLineViewState.ProductId = random.Next(1, 5);
 
                         userOrderLineViewStates.Add(userOrderLineViewState);
 

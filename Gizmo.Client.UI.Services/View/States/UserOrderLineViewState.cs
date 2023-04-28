@@ -22,6 +22,8 @@ namespace Gizmo.Client.UI.View.States
 
         public int TotalPointsPrice { get; internal set; }
 
+        public int? ProductId { get; internal set; }
+
         #endregion
     }
 }
