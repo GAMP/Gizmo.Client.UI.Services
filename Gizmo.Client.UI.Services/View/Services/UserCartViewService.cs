@@ -56,6 +56,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 var checkResult = await _gizmoClient.UserProductAvailabilityCheckAsync(new UserOrderLineModelCreate()
                 {
+                    Guid = Guid.NewGuid(),
                     ProductId = productId,
                     Quantity = productItem.Quantity + quantity,
                     PayType = productItem.PayType
@@ -157,22 +158,22 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Notes = value;
             ValidateProperty(() => ViewState.Notes);
         }
+
         public void SetOrderPaymentMethod(int? paymentMethodId)
         {
             ViewState.PaymentMethodId = paymentMethodId;
             ValidateProperty(() => ViewState.PaymentMethodId);
         }
-        public Task ChangeProductPayType(int productId, OrderLinePayType payType)
+
+        public async Task ChangeProductPayTypeAsync(int productId, OrderLinePayType payType)
         {
-            var existingProductState = ViewState.Products.FirstOrDefault(a => a.ProductId == productId);
-            if (existingProductState != null)
-            {
-                existingProductState.PayType = payType;
-            }
+            var productItem = await _userCartProductItemLookupService.GetStateAsync(productId);
 
-            ViewState.RaiseChanged();
+            productItem.PayType = payType;
 
-            return Task.CompletedTask;
+            await UpdateUserCartProductsAsync();
+
+            productItem.RaiseChanged();
         }
 
         public async Task SubmitAsync()

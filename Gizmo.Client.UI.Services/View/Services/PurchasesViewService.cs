@@ -37,54 +37,8 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public async Task LoadPrevious()
+        private async Task<List<UserOrderViewState>> TransformResults(PagedList<UserOrderModel> ordersList, CancellationToken cToken = default)
         {
-            if (ViewState.PrevCursor != null)
-                await LoadCursor(ViewState.PrevCursor, true);
-        }
-
-        public async Task LoadNext()
-        {
-            if (ViewState.NextCursor != null)
-                await LoadCursor(ViewState.NextCursor, false);
-        }
-
-        public async Task LoadCursor(PaginationCursor? cursor, bool prev, CancellationToken cToken = default)
-        {
-            var filters = new Web.Api.Models.UserOrdersFilter();
-            filters.Pagination.Limit = 4;
-
-            filters.Pagination.Cursor = new Web.Api.Models.PaginationCursor()
-            {
-                Name = "CreatedTime" //Sord by CreatedTime descending. //TODO: AAA CHANGE TO MODEL FIELD NAME.
-            };
-
-            if (cursor == null)
-            {
-                //Initial load.
-                filters.Pagination.Cursor.IsForward = false; //THIS IS HOW WE SET DESCENDING NOW.
-            }
-            else
-            {
-                //Navigation by buttons.
-                if (!prev)
-                {
-                    //GET NEXT PAGE
-                    filters.Pagination.Cursor.Id = cursor.Id;
-                    filters.Pagination.Cursor.Value = cursor.Value;
-                    filters.Pagination.Cursor.IsForward = false; //WE SET DESCENDING TO LOAD THE NEXT PAGE.
-                }
-                else
-                {
-                    //GET PREVIOUS PAGE
-                    filters.Pagination.Cursor.Id = cursor.Id;
-                    filters.Pagination.Cursor.Value = cursor.Value;
-                    filters.Pagination.Cursor.IsForward = true; //WE SET ASCENDING TO LOAD THE PREVIOUS PAGE.
-                }
-            }
-
-            var ordersList = await _gizmoClient.UserOrdersGetAsync(filters, cToken);
-
             var userOrderViewStates = new List<UserOrderViewState>();
 
             foreach (var order in ordersList.Data)
@@ -150,15 +104,72 @@ namespace Gizmo.Client.UI.View.Services
                 userOrderViewStates.Add(userOrderViewState);
             }
 
-            if (prev)
+            return userOrderViewStates;
+        }
+
+        public async Task LoadPrevious()
+        {
+            if (ViewState.PrevCursor != null)
+                await LoadCursor(ViewState.PrevCursor, true);
+        }
+
+        public async Task LoadNext()
+        {
+            if (ViewState.NextCursor != null)
+                await LoadCursor(ViewState.NextCursor, false);
+        }
+
+        public async Task LoadCursor(PaginationCursor? cursor, bool prev, CancellationToken cToken = default)
+        {
+            var filters = new Web.Api.Models.UserOrdersFilter();
+            filters.Pagination.Limit = 4;
+            filters.Pagination.IsPagingSorting = true;
+
+            filters.Pagination.Cursor = new Web.Api.Models.PaginationCursor()
             {
-                //IF WE LOAD THE PREVIOUS PAGE THEN WE HAVE TO SORT THE DATA CLIENT SIDE.
-                ViewState.Orders = userOrderViewStates.OrderByDescending(a => a.OrderDate);
+                Name = "Id" //Sord by Id descending. //TODO: AAA CHANGE TO MODEL FIELD NAME.
+            };
+
+            if (cursor == null)
+            {
+                //Initial load.
+                filters.Pagination.Cursor.IsForward = false; //THIS IS HOW WE SET DESCENDING NOW.
             }
             else
             {
-                ViewState.Orders = userOrderViewStates;
+                //Navigation by buttons.
+                if (!prev)
+                {
+                    //GET NEXT PAGE
+                    filters.Pagination.Cursor.Id = cursor.Id;
+                    filters.Pagination.Cursor.Value = cursor.Value;
+                    filters.Pagination.Cursor.IsForward = false; //WE SET DESCENDING TO LOAD THE NEXT PAGE.
+                }
+                else
+                {
+                    //GET PREVIOUS PAGE
+                    filters.Pagination.Cursor.Id = cursor.Id;
+                    filters.Pagination.Cursor.Value = cursor.Value;
+                    filters.Pagination.Cursor.IsForward = true; //WE SET ASCENDING TO LOAD THE PREVIOUS PAGE.
+                }
             }
+
+            var ordersList = await _gizmoClient.UserOrdersGetAsync(filters, cToken);
+            var userOrderViewStates = await TransformResults(ordersList);
+
+            //BEFORE IsPagingSorting WE HAD TO DO THIS.
+            //if (prev)
+            //{
+            //    //IF WE LOAD THE PREVIOUS PAGE THEN WE HAVE TO SORT THE DATA CLIENT SIDE.
+            //    ViewState.Orders = userOrderViewStates.OrderByDescending(a => a.Id);
+            //}
+            //else
+            //{
+            //    ViewState.Orders = userOrderViewStates;
+            //}
+
+            //AFTER IsPagingSorting RESULTS HAVE ALWAYS WRONG SORTING.
+            ViewState.Orders = userOrderViewStates.OrderByDescending(a => a.Id);
 
             if (prev)
             {
