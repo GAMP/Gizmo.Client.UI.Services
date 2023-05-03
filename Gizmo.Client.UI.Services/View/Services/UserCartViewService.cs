@@ -47,6 +47,12 @@ namespace Gizmo.Client.UI.View.Services
             var product = await _userProductViewStateLookupService.GetStateAsync(productId);
             var productItem = await _userCartProductItemLookupService.GetStateAsync(productId);
 
+            //If PurchaseOptions is And then we cannot set PayType other than Mixed.
+            if (product.PurchaseOptions == PurchaseOptionType.And)
+            {
+                productItem.PayType = OrderLinePayType.Mixed;
+            }
+
             if (product.IsStockLimited)
             {
                 //TODO: A CHECK STOCK?
@@ -167,7 +173,19 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task ChangeProductPayTypeAsync(int productId, OrderLinePayType payType)
         {
+            var product = await _userProductViewStateLookupService.GetStateAsync(productId);
             var productItem = await _userCartProductItemLookupService.GetStateAsync(productId);
+
+            //If PurchaseOptions is And then we cannot set PayType other than Mixed.
+            if (product.PurchaseOptions == PurchaseOptionType.And)
+            {
+                if (productItem.PayType != OrderLinePayType.Mixed)
+                {
+                    productItem.PayType = OrderLinePayType.Mixed;
+                    productItem.RaiseChanged();
+                }
+                return;
+            }
 
             productItem.PayType = payType;
 
