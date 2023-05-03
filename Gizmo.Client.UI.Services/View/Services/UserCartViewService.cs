@@ -38,13 +38,13 @@ namespace Gizmo.Client.UI.View.Services
         #region FUNCTIONS
         public async Task<UserProductViewState> GetCartProductViewStateAsync(int productId) =>
            await _userProductViewStateLookupService.GetStateAsync(productId);
+        
         public async Task<UserCartProductItemViewState> GetCartProductItemViewStateAsync(int productId) =>
             await _userCartProductItemLookupService.GetStateAsync(productId);
 
         public async Task AddUserCartProductAsync(int productId, int quantity = 1)
         {
             var product = await _userProductViewStateLookupService.GetStateAsync(productId);
-
             var productItem = await _userCartProductItemLookupService.GetStateAsync(productId);
 
             if (product.IsStockLimited)
@@ -52,18 +52,42 @@ namespace Gizmo.Client.UI.View.Services
                 //TODO: A CHECK STOCK?
             }
 
-            productItem.Quantity += quantity;
+            try
+            {
+                var checkResult = await _gizmoClient.UserProductAvailabilityCheckAsync(new UserOrderLineModelCreate()
+                {
+                    ProductId = productId,
+                    Quantity = productItem.Quantity + quantity,
+                    PayType = productItem.PayType
+                });
 
-            await UpdateUserCartProductsAsync();
+                if (checkResult)
+                {
+                    productItem.Quantity += quantity;
 
-            productItem.RaiseChanged();
+                    await UpdateUserCartProductsAsync();
 
-            //If current uri is not shop or product details then navigate to shop.
-            var currentUri = NavigationService.GetUri();
+                    productItem.RaiseChanged();
 
-            //TODO: A USE CONSTS?
-            if (!currentUri.EndsWith("/shop") && !currentUri.Contains("/productdetails"))
-                NavigationService.NavigateTo(ClientRoutes.ShopRoute);
+                    //If current uri is not shop or product details then navigate to shop.
+                    var currentUri = NavigationService.GetUri();
+
+                    //TODO: A USE CONSTS?
+                    if (!currentUri.EndsWith("/shop") && !currentUri.Contains("/productdetails"))
+                        NavigationService.NavigateTo(ClientRoutes.ShopRoute);
+                }
+                else
+                {
+                    //TODO: AAA DIALOG?
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "User product availability check error.");
+            }
+            finally
+            {
+            }
         }
         public async Task RemoveUserCartProductAsync(int productId, int quantity = 1)
         {
@@ -150,6 +174,7 @@ namespace Gizmo.Client.UI.View.Services
 
             return Task.CompletedTask;
         }
+
         public async Task SubmitAsync()
         {
             Validate();
@@ -162,32 +187,48 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                OrderCalculateModelOptions calculateOrderOptions = new OrderCalculateModelOptions();
-                var result = await _gizmoClient.UserOrderCreateAsync(calculateOrderOptions);
+                var productItems = await _userCartProductItemLookupService.GetStatesAsync();
+                var products = productItems.Where(x => x.Quantity > 0).ToList();
 
-                // Simulate task.
-                await Task.Delay(2000);
+                var result = await _gizmoClient.UserOrderCreateAsync(new UserOrderModelCreate()
+                {
+                    UserNote = ViewState.Notes,
+                    PreferredPaymentMethodId = ViewState.PaymentMethodId,
+                    OrderLines = products.Select(a => new UserOrderLineModelCreate()
+                    {
+                        ProductId = a.ProductId,
+                        Quantity = a.Quantity,
+                        PayType = a.PayType
+                    }).ToList()
+                });
 
-                ViewState.IsLoading = false;
-
-                ViewState.IsComplete = true;
-
-                ViewState.Products = Enumerable.Empty<UserCartProductItemViewState>();
-                ViewState.PaymentMethodId = null;
-
-                ViewState.RaiseChanged();
+                //Clear
+                await ResetAsync();
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.LogError(ex, "User order create error.");
+
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = ex.ToString();
             }
             finally
             {
-
+                ViewState.IsComplete = true;
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
             }
         }
+
         public Task ResetAsync()
         {
+            ViewState.Notes = null;
+            ViewState.PaymentMethodId = null;
+            ViewState.Products = Enumerable.Empty<UserCartProductItemViewState>();
+
             ViewState.IsComplete = false;
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
 
             ViewState.RaiseChanged();
 

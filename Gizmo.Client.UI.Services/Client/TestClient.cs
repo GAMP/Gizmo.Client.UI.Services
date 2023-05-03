@@ -75,7 +75,7 @@ namespace Gizmo.Client
                 Description = "#Fall Guys is a massively multiplayer party game with up to 60 players online in a free-for-all struggle through round after round of escalating chaos until one victor remains!",
                 PublisherId = random.Next(1, 5),
                 ReleaseDate = DateTime.Now,
-                ImageId = i
+                //ImageId = i
             }).ToList();
 
             _userApplicationLinks = Enumerable.Range(1, 500).Select(i => new UserApplicationLinkModel()
@@ -132,7 +132,7 @@ namespace Gizmo.Client
                 PointsAward = random.Next(1, 500),
                 ProductType = (ProductType)random.Next(0, 3),
                 PurchaseOptions = (PurchaseOptionType)random.Next(0, 2),
-                DefaultImageId = x,
+                //DefaultImageId = x,
 
             }).ToList();
 
@@ -179,7 +179,7 @@ namespace Gizmo.Client
                         Title = "DEFAULT VIDEO",
                         Data = "Action with custom media",
                         MediaUrl = "https://media.geeksforgeeks.org/wp-content/uploads/20210314115545/sample-video.mp4",
-                        Url = "gizmo://products/cart/add?productId=1&size=2"
+                        //Url = "gizmo://products/cart/add?productId=1&size=2"
                     }
                 },
                 { new ()
@@ -451,11 +451,6 @@ namespace Gizmo.Client
             var pagedList = new PagedList<PaymentMethodModel>(paymentMethods);
 
             return Task.FromResult(pagedList);
-        }
-
-        public Task<CreateResult> UserOrderCreateAsync(OrderCalculateModelOptions calculateOrderOptions, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(new CreateResult());
         }
 
         public Task<PagedList<UserPaymentMethodModel>> UserPaymentMethodsGetAsync(UserPaymentMethodsFilter filters, CancellationToken cancellationToken = default) =>
@@ -767,6 +762,16 @@ namespace Gizmo.Client
             }
 
             return Task.FromResult(new PagedList<UserOrderModel>(orders));
+        }
+
+        public Task<bool> UserProductAvailabilityCheckAsync(UserOrderLineModelCreate userOrderLineModelCreate, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<bool>(true);
+        }
+
+        public Task<UserOrderCreateResult> UserOrderCreateAsync(UserOrderModelCreate userOrderModelCreate, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
     }
 }

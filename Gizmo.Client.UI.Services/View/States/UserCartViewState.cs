@@ -21,16 +21,20 @@ namespace Gizmo.Client.UI.View.States
         [ValidatingProperty()]
         [Required()]
         public int? PaymentMethodId { get; internal set; } = null!;
-
-        public bool IsLoading { get; internal set; }
-
-        public bool IsComplete { get; internal set; }
-        
+                
         public decimal Total { get; internal set; }
 
         public int? PointsTotal { get; internal set; }
 
         public int? PointsAward { get; internal set; }
+
+        public bool IsComplete { get; internal set; }
+
+        public bool IsLoading { get; internal set; }
+
+        public bool HasError { get; internal set; }
+
+        public string ErrorMessage { get; internal set; } = string.Empty;
 
         #endregion
     }
