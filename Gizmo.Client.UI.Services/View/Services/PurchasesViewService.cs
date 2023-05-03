@@ -3,6 +3,7 @@ using System.Linq;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.UI.View.States;
+using Gizmo.Web.Api.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -36,15 +37,46 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public async Task LoadAsync(CancellationToken cToken = default)
+        public async Task LoadPrevious()
+        {
+            if (ViewState.PrevCursor != null)
+                await LoadCursor(ViewState.PrevCursor, true);
+        }
+
+        public async Task LoadNext()
+        {
+            if (ViewState.NextCursor != null)
+                await LoadCursor(ViewState.NextCursor, false);
+        }
+
+        public async Task LoadCursor(PaginationCursor? cursor, bool prev, CancellationToken cToken = default)
         {
             var filters = new Web.Api.Models.UserOrdersFilter();
-            filters.Pagination.Limit = 1000;
-            //filters.Pagination.Cursor = new Web.Api.Models.PaginationCursor()
-            //{
-            //    IsForward = false,
-            //    Name = ""
-            //};
+            filters.Pagination.Limit = 4;
+
+            filters.Pagination.Cursor = new Web.Api.Models.PaginationCursor()
+            {
+                Name = "CreatedTime" //Sord by CreatedTime descending. //TODO: AAA CHANGE TO MODEL FIELD NAME.
+            };
+
+            //Initial load.
+            if (cursor == null)
+            {
+                filters.Pagination.Cursor.IsForward = false; //THIS IS HOW WE SET DESCENDING NOW.
+            }
+            else
+            {
+                if (!prev)
+                {
+                    //GET NEXT PAGE
+
+                }
+                else
+                {
+                    //GET PREVIOUS PAGE
+
+                }
+            }
 
             var ordersList = await _gizmoClient.UserOrdersGetAsync(filters, cToken);
 
@@ -56,7 +88,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 userOrderViewState.OrderDate = order.Date;
                 userOrderViewState.OrderStatus = order.Status;
-                userOrderViewState.TotalPrice= order.Total;
+                userOrderViewState.TotalPrice = order.Total;
                 userOrderViewState.TotalPointsPrice = order.PointsTotal;
                 userOrderViewState.TotalPointsAward = order.PointsAwardTotal;
                 userOrderViewState.Notes = order.UserNote;
@@ -114,8 +146,15 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             ViewState.Orders = userOrderViewStates;
+            ViewState.PrevCursor = ordersList.PrevCursor;
+            ViewState.NextCursor = ordersList.NextCursor;
 
             ViewState.RaiseChanged();
+        }
+
+        public Task LoadAsync(CancellationToken cToken = default)
+        {
+            return LoadCursor(null, false, cToken);
         }
 
         #endregion
