@@ -61,7 +61,7 @@ namespace Gizmo.Client.UI.View.Services
                     PayType = productItem.PayType
                 });
 
-                if (checkResult)
+                if (checkResult == UserProductAvailabilityCheckResult.Success)
                 {
                     productItem.Quantity += quantity;
 

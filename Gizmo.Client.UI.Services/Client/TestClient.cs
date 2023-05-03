@@ -764,12 +764,12 @@ namespace Gizmo.Client
             return Task.FromResult(new PagedList<UserOrderModel>(orders));
         }
 
-        public Task<bool> UserProductAvailabilityCheckAsync(UserOrderLineModelCreate userOrderLineModelCreate, CancellationToken cancellationToken = default)
+        public Task<UserProductAvailabilityCheckResult> UserProductAvailabilityCheckAsync(UserOrderLineModelCreate userOrderLineModelCreate, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult<bool>(true);
+            return Task.FromResult<UserProductAvailabilityCheckResult>(UserProductAvailabilityCheckResult.Success);
         }
 
-        public Task<UserOrderCreateResult> UserOrderCreateAsync(UserOrderModelCreate userOrderModelCreate, CancellationToken cancellationToken = default)
+        public Task<UserOrderCreateResultModel> UserOrderCreateAsync(UserOrderModelCreate userOrderModelCreate, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
