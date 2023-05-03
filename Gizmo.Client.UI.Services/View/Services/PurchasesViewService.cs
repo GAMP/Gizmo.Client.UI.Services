@@ -59,22 +59,27 @@ namespace Gizmo.Client.UI.View.Services
                 Name = "CreatedTime" //Sord by CreatedTime descending. //TODO: AAA CHANGE TO MODEL FIELD NAME.
             };
 
-            //Initial load.
             if (cursor == null)
             {
+                //Initial load.
                 filters.Pagination.Cursor.IsForward = false; //THIS IS HOW WE SET DESCENDING NOW.
             }
             else
             {
+                //Navigation by buttons.
                 if (!prev)
                 {
                     //GET NEXT PAGE
-
+                    filters.Pagination.Cursor.Id = cursor.Id;
+                    filters.Pagination.Cursor.Value = cursor.Value;
+                    filters.Pagination.Cursor.IsForward = false; //WE SET DESCENDING TO LOAD THE NEXT PAGE.
                 }
                 else
                 {
                     //GET PREVIOUS PAGE
-
+                    filters.Pagination.Cursor.Id = cursor.Id;
+                    filters.Pagination.Cursor.Value = cursor.Value;
+                    filters.Pagination.Cursor.IsForward = true; //WE SET ASCENDING TO LOAD THE PREVIOUS PAGE.
                 }
             }
 
@@ -145,9 +150,27 @@ namespace Gizmo.Client.UI.View.Services
                 userOrderViewStates.Add(userOrderViewState);
             }
 
-            ViewState.Orders = userOrderViewStates;
-            ViewState.PrevCursor = ordersList.PrevCursor;
-            ViewState.NextCursor = ordersList.NextCursor;
+            if (prev)
+            {
+                //IF WE LOAD THE PREVIOUS PAGE THEN WE HAVE TO SORT THE DATA CLIENT SIDE.
+                ViewState.Orders = userOrderViewStates.OrderByDescending(a => a.OrderDate);
+            }
+            else
+            {
+                ViewState.Orders = userOrderViewStates;
+            }
+
+            if (prev)
+            {
+                //IF WE LOAD THE PREVIOUS PAGE THEN WE HAVE TO REVERSE THE CURSORS.
+                ViewState.PrevCursor = ordersList.NextCursor;
+                ViewState.NextCursor = ordersList.PrevCursor;
+            }
+            else
+            {
+                ViewState.PrevCursor = ordersList.PrevCursor;
+                ViewState.NextCursor = ordersList.NextCursor;
+            }
 
             ViewState.RaiseChanged();
         }
