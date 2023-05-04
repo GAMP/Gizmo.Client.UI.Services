@@ -15,5 +15,6 @@ namespace Gizmo.Client.UI.Services
         Task<ShowDialogResult<EmptyDialogResult>> ShowChangePictureDialogAsync(CancellationToken cancellationToken = default);
         Task<ShowDialogResult<EmptyDialogResult>> ShowPaymentDialogAsync(PaymentDialogParameters paymentDialogParameters, CancellationToken cancellationToken = default);
         Task<ShowDialogResult<EmptyDialogResult>> ShowAdvertisementDialogAsync(AdvertisementViewState state, CancellationToken cancellationToken = default);
+        Task<ShowDialogResult<EmptyDialogResult>> ShowAlertDialogAsync(string title, string message, CancellationToken cancellationToken = default);
     }
 }

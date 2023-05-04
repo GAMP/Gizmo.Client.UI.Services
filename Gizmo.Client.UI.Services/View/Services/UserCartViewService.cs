@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
-
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 
@@ -21,24 +22,27 @@ namespace Gizmo.Client.UI.View.Services
             UserCartViewState viewState,
             UserProductViewStateLookupService userProductViewStateLookupService,
             UserCartProductItemViewStateLookupService userCartProductItemLookupService,
+            IClientDialogService dialogService,
             IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
         {
             _userProductViewStateLookupService = userProductViewStateLookupService;
             _userCartProductItemLookupService = userCartProductItemLookupService;
+            _dialogService = dialogService;
             _gizmoClient = gizmoClient;
         }
         #endregion
 
         #region FIELDS
-        private readonly IGizmoClient _gizmoClient;
         private readonly UserProductViewStateLookupService _userProductViewStateLookupService;
         private readonly UserCartProductItemViewStateLookupService _userCartProductItemLookupService;
+        private readonly IClientDialogService _dialogService;
+        private readonly IGizmoClient _gizmoClient;
         #endregion
 
         #region FUNCTIONS
         public async Task<UserProductViewState> GetCartProductViewStateAsync(int productId) =>
            await _userProductViewStateLookupService.GetStateAsync(productId);
-        
+
         public async Task<UserCartProductItemViewState> GetCartProductItemViewStateAsync(int productId) =>
             await _userCartProductItemLookupService.GetStateAsync(productId);
 
@@ -86,6 +90,7 @@ namespace Gizmo.Client.UI.View.Services
                 else
                 {
                     //TODO: AAA DIALOG?
+                    await _dialogService.ShowAlertDialogAsync("Error", checkResult.ToString());
                 }
             }
             catch (Exception ex)
@@ -221,8 +226,15 @@ namespace Gizmo.Client.UI.View.Services
                     }).ToList()
                 });
 
-                //Clear
-                await ResetAsync();
+                if (result.Result == UserOrderCreateResult.Success)
+                {
+                    //Clear
+                    await ResetAsync();
+                }
+                else
+                {
+                    await _dialogService.ShowAlertDialogAsync("Error", result.Result.ToString());
+                }
             }
             catch (Exception ex)
             {
@@ -230,6 +242,8 @@ namespace Gizmo.Client.UI.View.Services
 
                 ViewState.HasError = true;
                 ViewState.ErrorMessage = ex.ToString();
+
+                await _dialogService.ShowAlertDialogAsync("Error", ex.ToString());
             }
             finally
             {
@@ -239,19 +253,18 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        public Task ResetAsync()
+        public async Task ResetAsync()
         {
             ViewState.Notes = null;
             ViewState.PaymentMethodId = null;
-            ViewState.Products = Enumerable.Empty<UserCartProductItemViewState>();
+
+            await ClearUserCartProductsAsync();
 
             ViewState.IsComplete = false;
             ViewState.HasError = false;
             ViewState.ErrorMessage = string.Empty;
 
             ViewState.RaiseChanged();
-
-            return Task.CompletedTask;
         }
 
         #endregion
