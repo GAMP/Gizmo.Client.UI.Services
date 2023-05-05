@@ -57,50 +57,50 @@ namespace Gizmo.Client.UI.View.Services
                 productItem.PayType = OrderLinePayType.Mixed;
             }
 
-            if (product.IsStockLimited)
+            if (product.IsStockLimited ||
+                product.PurchaseAvailability != null ||
+                (product.ProductType == ProductType.ProductTime && product.TimeProduct?.UsageAvailability != null))
             {
-                //TODO: A CHECK STOCK?
-            }
-
-            try
-            {
-                var checkResult = await _gizmoClient.UserProductAvailabilityCheckAsync(new UserOrderLineModelCreate()
+                try
                 {
-                    Guid = Guid.NewGuid(),
-                    ProductId = productId,
-                    Quantity = productItem.Quantity + quantity,
-                    PayType = productItem.PayType
-                });
+                    var checkResult = await _gizmoClient.UserProductAvailabilityCheckAsync(new UserOrderLineModelCreate()
+                    {
+                        Guid = Guid.NewGuid(),
+                        ProductId = productId,
+                        Quantity = productItem.Quantity + quantity,
+                        PayType = productItem.PayType
+                    });
 
-                if (checkResult == UserProductAvailabilityCheckResult.Success)
-                {
-                    productItem.Quantity += quantity;
+                    if (checkResult == UserProductAvailabilityCheckResult.Success)
+                    {
+                        productItem.Quantity += quantity;
 
-                    await UpdateUserCartProductsAsync();
+                        await UpdateUserCartProductsAsync();
 
-                    productItem.RaiseChanged();
+                        productItem.RaiseChanged();
 
-                    //If current uri is not shop or product details then navigate to shop.
-                    var currentUri = NavigationService.GetUri();
+                        //If current uri is not shop or product details then navigate to shop.
+                        var currentUri = NavigationService.GetUri();
 
-                    //TODO: A USE CONSTS?
-                    if (!currentUri.EndsWith("/shop") && !currentUri.Contains("/productdetails"))
-                        NavigationService.NavigateTo(ClientRoutes.ShopRoute);
+                        //TODO: A USE CONSTS?
+                        if (!currentUri.EndsWith("/shop") && !currentUri.Contains("/productdetails"))
+                            NavigationService.NavigateTo(ClientRoutes.ShopRoute);
+                    }
+                    else
+                    {
+                        await _dialogService.ShowAlertDialogAsync("Error", checkResult.ToString());
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    //TODO: AAA DIALOG?
-                    await _dialogService.ShowAlertDialogAsync("Error", checkResult.ToString());
+                    Logger.LogError(ex, "User product availability check error.");
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "User product availability check error.");
-            }
-            finally
-            {
+                finally
+                {
+                }
             }
         }
+
         public async Task RemoveUserCartProductAsync(int productId, int quantity = 1)
         {
             var productItem = await _userCartProductItemLookupService.GetStateAsync(productId);
@@ -233,7 +233,9 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    await _dialogService.ShowAlertDialogAsync("Error", result.Result.ToString());
+                    //TODO: AAA MARK INVALID RECORD.
+                    ViewState.HasError = true;
+                    ViewState.ErrorMessage = result.Result.ToString();
                 }
             }
             catch (Exception ex)
@@ -242,8 +244,6 @@ namespace Gizmo.Client.UI.View.Services
 
                 ViewState.HasError = true;
                 ViewState.ErrorMessage = ex.ToString();
-
-                await _dialogService.ShowAlertDialogAsync("Error", ex.ToString());
             }
             finally
             {
