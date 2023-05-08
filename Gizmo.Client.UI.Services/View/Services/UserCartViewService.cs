@@ -226,7 +226,7 @@ namespace Gizmo.Client.UI.View.Services
                     }).ToList()
                 });
 
-                if (result.Result == UserOrderCreateResult.Success)
+                if (result.Result != OrderResult.Failed)
                 {
                     //Clear
                     await ResetAsync();
