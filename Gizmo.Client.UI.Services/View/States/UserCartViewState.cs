@@ -18,8 +18,9 @@ namespace Gizmo.Client.UI.View.States
         [ValidatingProperty()]
         public string? Notes { get; internal set; } = null!;
 
+        public bool ShowPaymentMethods { get; internal set; }
+
         [ValidatingProperty()]
-        [Required()]
         public int? PaymentMethodId { get; internal set; } = null!;
                 
         public decimal Total { get; internal set; }

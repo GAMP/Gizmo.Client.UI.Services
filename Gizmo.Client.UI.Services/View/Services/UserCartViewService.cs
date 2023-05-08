@@ -1,11 +1,13 @@
 ﻿using System.Globalization;
 using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
+using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -23,12 +25,14 @@ namespace Gizmo.Client.UI.View.Services
             UserProductViewStateLookupService userProductViewStateLookupService,
             UserCartProductItemViewStateLookupService userCartProductItemLookupService,
             IClientDialogService dialogService,
-            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IGizmoClient gizmoClient,
+            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
         {
             _userProductViewStateLookupService = userProductViewStateLookupService;
             _userCartProductItemLookupService = userCartProductItemLookupService;
             _dialogService = dialogService;
             _gizmoClient = gizmoClient;
+            _localizationService = localizationService;
         }
         #endregion
 
@@ -37,6 +41,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly UserCartProductItemViewStateLookupService _userCartProductItemLookupService;
         private readonly IClientDialogService _dialogService;
         private readonly IGizmoClient _gizmoClient;
+        private readonly ILocalizationService _localizationService;
         #endregion
 
         #region FUNCTIONS
@@ -57,6 +62,17 @@ namespace Gizmo.Client.UI.View.Services
                 productItem.PayType = OrderLinePayType.Mixed;
             }
 
+            //if (productItem.PayType == OrderLinePayType.Mixed && product.UnitPointsPrice > 0)
+            //{
+            //    var userBalanceViewState = ServiceProvider.GetRequiredService<UserBalanceViewState>();
+
+            //    if (ViewState.PointsTotal + product.UnitPointsPrice > userBalanceViewState.PointsBalance)
+            //    {
+            //        await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK); //TODO: AAA TRANSLATE
+            //        return;
+            //    }
+            //}
+
             if (product.IsStockLimited ||
                 product.PurchaseAvailability != null ||
                 (product.ProductType == ProductType.ProductTime && product.TimeProduct?.UsageAvailability != null))
@@ -71,34 +87,34 @@ namespace Gizmo.Client.UI.View.Services
                         PayType = productItem.PayType
                     });
 
-                    if (checkResult == UserProductAvailabilityCheckResult.Success)
+                    if (checkResult != UserProductAvailabilityCheckResult.Success)
                     {
-                        productItem.Quantity += quantity;
-
-                        await UpdateUserCartProductsAsync();
-
-                        productItem.RaiseChanged();
-
-                        //If current uri is not shop or product details then navigate to shop.
-                        var currentUri = NavigationService.GetUri();
-
-                        //TODO: A USE CONSTS?
-                        if (!currentUri.EndsWith("/shop") && !currentUri.Contains("/productdetails"))
-                            NavigationService.NavigateTo(ClientRoutes.ShopRoute);
-                    }
-                    else
-                    {
-                        await _dialogService.ShowAlertDialogAsync("Error", checkResult.ToString());
+                        await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), checkResult.ToString());
+                        return;
                     }
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError(ex, "User product availability check error.");
+                    return;
                 }
                 finally
                 {
                 }
             }
+
+            productItem.Quantity += quantity;
+
+            await UpdateUserCartProductsAsync();
+
+            productItem.RaiseChanged();
+
+            //If current uri is not shop or product details then navigate to shop.
+            var currentUri = NavigationService.GetUri();
+
+            //TODO: A USE CONSTS?
+            if (!currentUri.EndsWith("/shop") && !currentUri.Contains("/productdetails"))
+                NavigationService.NavigateTo(ClientRoutes.ShopRoute);
         }
 
         public async Task RemoveUserCartProductAsync(int productId, int quantity = 1)
@@ -123,7 +139,7 @@ namespace Gizmo.Client.UI.View.Services
             productItem.RaiseChanged();
         }
 
-        public async Task ClearUserCartProductsAsync()
+        private async Task ClearProductsAsync()
         {
             var productItems = await _userCartProductItemLookupService.GetStatesAsync();
             var products = productItems.Where(x => x.Quantity > 0).ToList();
@@ -138,6 +154,25 @@ namespace Gizmo.Client.UI.View.Services
             foreach (var item in products)
             {
                 item.RaiseChanged();
+            }
+        }
+
+        public async Task ClearUserCartProductsAsync()
+        {
+            var s = await _dialogService.ShowAlertDialogAsync("GIZ_GEN_VERIFY", "GIZ_SHOP_VERIFY_CLEAR_CART", AlertDialogButtons.YesNo);
+            if (s.Result == DialogAddResult.Success)
+            {
+                try
+                {
+                    var result = await s.WaitForDialogResultAsync();
+                    if (result.Button == AlertDialogResultButton.Yes)
+                    {
+                        await ClearProductsAsync();
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                }
             }
         }
 
@@ -201,6 +236,30 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task SubmitAsync()
         {
+            if (ViewState.Total == 0)
+            {
+                ViewState.ShowPaymentMethods = false;
+            }
+            else
+            {
+                ViewState.ShowPaymentMethods = true;
+            }
+
+            var s = await _dialogService.ShowCheckoutDialogAsync();
+            if (s.Result == DialogAddResult.Success)
+            {
+                try
+                {
+                    var result = await s.WaitForDialogResultAsync();
+                }
+                catch (OperationCanceledException)
+                {
+                }
+            }
+        }
+
+        public async Task CheckoutAsync()
+        {
             Validate();
 
             if (ViewState.IsValid != true)
@@ -233,9 +292,16 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    //TODO: AAA MARK INVALID RECORD.
                     ViewState.HasError = true;
                     ViewState.ErrorMessage = result.Result.ToString();
+
+                    if (result.OrderLines != null)
+                    {
+                        foreach (var orderLine in result.OrderLines)
+                        {
+                            ViewState.ErrorMessage += "<br>" + orderLine.Result.ToString();
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -258,7 +324,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Notes = null;
             ViewState.PaymentMethodId = null;
 
-            await ClearUserCartProductsAsync();
+            await ClearProductsAsync();
 
             ViewState.IsComplete = false;
             ViewState.HasError = false;
@@ -316,5 +382,14 @@ namespace Gizmo.Client.UI.View.Services
 
         private async void OnUpdateUserCartProductsAsync(object? _, EventArgs __) =>
             await UpdateUserCartProductsAsync();
+
+        protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
+        {
+            //TODO: AAA CHECK AFTER REMOVE PRODUCT AND RESEND.
+            if (fieldIdentifier.FieldEquals(() => ViewState.PaymentMethodId) && !ViewState.PaymentMethodId.HasValue && ViewState.Total > 0)
+            {
+                AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("VALIDATION_ERROR_REQUIRED_FIELD", nameof(ViewState.PaymentMethodId)));
+            }
+        }
     }
 }
