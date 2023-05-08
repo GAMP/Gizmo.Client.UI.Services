@@ -62,16 +62,16 @@ namespace Gizmo.Client.UI.View.Services
                 productItem.PayType = OrderLinePayType.Mixed;
             }
 
-            //if (productItem.PayType == OrderLinePayType.Mixed && product.UnitPointsPrice > 0)
-            //{
-            //    var userBalanceViewState = ServiceProvider.GetRequiredService<UserBalanceViewState>();
+            if (productItem.PayType == OrderLinePayType.Mixed && product.UnitPointsPrice > 0)
+            {
+                var userBalanceViewState = ServiceProvider.GetRequiredService<UserBalanceViewState>();
 
-            //    if (ViewState.PointsTotal + product.UnitPointsPrice > userBalanceViewState.PointsBalance)
-            //    {
-            //        await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK); //TODO: AAA TRANSLATE
-            //        return;
-            //    }
-            //}
+                if (ViewState.PointsTotal + product.UnitPointsPrice > userBalanceViewState.PointsBalance)
+                {
+                    await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK); //TODO: AAA TRANSLATE
+                    return;
+                }
+            }
 
             if (product.IsStockLimited ||
                 product.PurchaseAvailability != null ||
