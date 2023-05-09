@@ -227,6 +227,18 @@ namespace Gizmo.Client.UI.View.Services
                 return;
             }
 
+            if ((payType == OrderLinePayType.Points || productItem.PayType == OrderLinePayType.Mixed) && product.UnitPointsPrice > 0)
+            {
+                var userBalanceViewState = ServiceProvider.GetRequiredService<UserBalanceViewState>();
+
+                if (ViewState.PointsTotal + (product.UnitPointsPrice * productItem.Quantity) > userBalanceViewState.PointsBalance)
+                {
+                    await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK, AlertDialogIcons.Error);
+                    //TODO: AAA FORCE RADIO BUTTON TO PREVIOUS STATE.
+                    return;
+                }
+            }
+
             productItem.PayType = payType;
 
             await UpdateUserCartProductsAsync();
@@ -303,10 +315,10 @@ namespace Gizmo.Client.UI.View.Services
                         foreach (var orderLine in result.OrderLines)
                         {
                             var requestOrderLine = userOrderModelCreate.OrderLines.Where(a => a.Guid == orderLine.Guid).FirstOrDefault();
-                            if (requestOrderLine!=null)
+                            if (requestOrderLine != null)
                             {
                                 var product = await _userProductViewStateLookupService.GetStateAsync(requestOrderLine.ProductId);
-                                ViewState.ErrorMessage += $"<br>{ product.Name } : { orderLine.Result }";
+                                ViewState.ErrorMessage += $"<br>{product.Name}: {orderLine.Result}";
                             }
                         }
                     }

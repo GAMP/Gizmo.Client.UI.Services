@@ -130,15 +130,7 @@ namespace Gizmo.Client.UI.View.Services
             filters.Pagination.SortBy = nameof(Web.Api.Models.UserOrderModel.Date);
             filters.Pagination.IsAsc = false;
 
-            if (cursor != null)
-            {
-                filters.Pagination.Cursor = new PaginationCursor();
-
-                filters.Pagination.Cursor.Id = cursor.Id;
-                filters.Pagination.Cursor.Name = cursor.Name;
-                filters.Pagination.Cursor.Value = cursor.Value;
-                filters.Pagination.Cursor.IsForward = cursor.IsForward;
-            }
+            filters.Pagination.Cursor = cursor;
 
             var ordersList = await _gizmoClient.UserOrdersGetAsync(filters, cToken);
             var userOrderViewStates = await TransformResults(ordersList);
