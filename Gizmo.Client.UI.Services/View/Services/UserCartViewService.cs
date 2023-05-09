@@ -273,17 +273,20 @@ namespace Gizmo.Client.UI.View.Services
                 var productItems = await _userCartProductItemLookupService.GetStatesAsync();
                 var products = productItems.Where(x => x.Quantity > 0).ToList();
 
-                var result = await _gizmoClient.UserOrderCreateAsync(new UserOrderModelCreate()
+                var userOrderModelCreate = new UserOrderModelCreate()
                 {
                     UserNote = ViewState.Notes,
                     PreferredPaymentMethodId = ViewState.PaymentMethodId,
                     OrderLines = products.Select(a => new UserOrderLineModelCreate()
                     {
+                        Guid = Guid.NewGuid(),
                         ProductId = a.ProductId,
                         Quantity = a.Quantity,
                         PayType = a.PayType
                     }).ToList()
-                });
+                };
+
+                var result = await _gizmoClient.UserOrderCreateAsync(userOrderModelCreate);
 
                 if (result.Result != OrderResult.Failed)
                 {
@@ -299,7 +302,12 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         foreach (var orderLine in result.OrderLines)
                         {
-                            ViewState.ErrorMessage += "<br>" + orderLine.Result.ToString();
+                            var requestOrderLine = userOrderModelCreate.OrderLines.Where(a => a.Guid == orderLine.Guid).FirstOrDefault();
+                            if (requestOrderLine!=null)
+                            {
+                                var product = await _userProductViewStateLookupService.GetStateAsync(requestOrderLine.ProductId);
+                                ViewState.ErrorMessage += $"<br>{ product.Name } : { orderLine.Result }";
+                            }
                         }
                     }
                 }
