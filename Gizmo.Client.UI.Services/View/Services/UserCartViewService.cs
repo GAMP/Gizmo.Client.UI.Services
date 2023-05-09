@@ -62,13 +62,13 @@ namespace Gizmo.Client.UI.View.Services
                 productItem.PayType = OrderLinePayType.Mixed;
             }
 
-            if (productItem.PayType == OrderLinePayType.Mixed && product.UnitPointsPrice > 0)
+            if ((productItem.PayType == OrderLinePayType.Points || productItem.PayType == OrderLinePayType.Mixed) && product.UnitPointsPrice > 0)
             {
                 var userBalanceViewState = ServiceProvider.GetRequiredService<UserBalanceViewState>();
 
                 if (ViewState.PointsTotal + product.UnitPointsPrice > userBalanceViewState.PointsBalance)
                 {
-                    await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK);
+                    await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK, AlertDialogIcons.Error);
                     return;
                 }
             }
@@ -89,7 +89,7 @@ namespace Gizmo.Client.UI.View.Services
 
                     if (checkResult != UserProductAvailabilityCheckResult.Success)
                     {
-                        await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), checkResult.ToString());
+                        await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), checkResult.ToString(), AlertDialogButtons.OK, AlertDialogIcons.Error);
                         return;
                     }
                 }
@@ -159,7 +159,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task ClearUserCartProductsAsync()
         {
-            var s = await _dialogService.ShowAlertDialogAsync("GIZ_GEN_VERIFY", "GIZ_SHOP_VERIFY_CLEAR_CART", AlertDialogButtons.YesNo);
+            var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_VERIFY"), _localizationService.GetString("GIZ_SHOP_VERIFY_CLEAR_CART"), AlertDialogButtons.YesNo);
             if (s.Result == DialogAddResult.Success)
             {
                 try
