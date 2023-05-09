@@ -84,7 +84,6 @@ namespace Gizmo.Client.UI.View.Services
             {
                 var result = await _gizmoClient.PaymentIntentCreateAsync(new PaymentIntentCreateParametersDepositModel()
                 {
-                    //TODO: AAA UserId = this.Client.CurrentUser.Id,
                     Amount = ViewState.Amount.Value,
                     PaymentMethodId = ViewState.SelectedPaymentMethodId.Value
                 });

@@ -68,7 +68,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (ViewState.PointsTotal + product.UnitPointsPrice > userBalanceViewState.PointsBalance)
                 {
-                    await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK); //TODO: AAA TRANSLATE
+                    await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK);
                     return;
                 }
             }

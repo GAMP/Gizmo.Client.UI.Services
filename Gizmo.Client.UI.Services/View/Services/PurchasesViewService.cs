@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
@@ -20,12 +21,13 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<PurchasesViewService> logger,
             IServiceProvider serviceProvider,
             UserProductViewStateLookupService userProductViewStateLookupService,
-            PaymentMethodViewStateLookupService paymentMethodViewStateLookupService
-            ) : base(viewState, logger, serviceProvider)
+            PaymentMethodViewStateLookupService paymentMethodViewStateLookupService,
+            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _userProductViewStateLookupService = userProductViewStateLookupService;
             _paymentMethodViewStateLookupService = paymentMethodViewStateLookupService;
+            _localizationService = localizationService;
         }
         #endregion
 
@@ -33,6 +35,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IGizmoClient _gizmoClient;
         private readonly UserProductViewStateLookupService _userProductViewStateLookupService;
         private readonly PaymentMethodViewStateLookupService _paymentMethodViewStateLookupService;
+        private readonly ILocalizationService _localizationService;
         #endregion
 
         #region FUNCTIONS
@@ -71,7 +74,7 @@ namespace Gizmo.Client.UI.View.Services
 
                     if (userOrderViewState.TotalPointsPrice > 0)
                     {
-                        userOrderViewState.Invoice.PaymentMethodNames += " & Points";//TODO: A TRANSLATE
+                        userOrderViewState.Invoice.PaymentMethodNames += " & " + _localizationService.GetString("PAYMENT_METHOD_POINTS");
                     }
                 }
 
