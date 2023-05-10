@@ -2,7 +2,7 @@
 {
     public enum SearchResultTypes
     {
-        Applications,
+        Executables,
         Products
     }
 }

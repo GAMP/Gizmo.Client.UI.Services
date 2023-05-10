@@ -10,19 +10,19 @@ namespace Gizmo.Client.UI.View.Services
     public sealed class GlobalSearchViewService : ViewStateServiceBase<GlobalSearchViewState>
     {
         #region FIELDS
-        private readonly AppViewStateLookupService _appViewStateLookupService;
+        private readonly AppExeViewStateLookupService _appExeViewStateLookupService;
         private readonly UserProductViewStateLookupService _userProductStateLookupService;
         #endregion
 
         #region CONSTRUCTOR
         public GlobalSearchViewService(
             GlobalSearchViewState viewState,
-            AppViewStateLookupService appViewStateLookupService,
+            AppExeViewStateLookupService appExeViewStateLookupService,
             UserProductViewStateLookupService userProductStateLookupService,
             ILogger<GlobalSearchViewService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
-            _appViewStateLookupService = appViewStateLookupService;
+            _appExeViewStateLookupService = appExeViewStateLookupService;
             _userProductStateLookupService = userProductStateLookupService;
         }
         #endregion
@@ -43,7 +43,7 @@ namespace Gizmo.Client.UI.View.Services
             //Clear current search.
             ViewState.SearchPattern = string.Empty;
             ViewState.ProductResults = Enumerable.Empty<GlobalSearchResultViewState>();
-            ViewState.ApplicationResults = Enumerable.Empty<GlobalSearchResultViewState>();
+            ViewState.ExecutableResults = Enumerable.Empty<GlobalSearchResultViewState>();
 
             ViewState.OpenDropDown = false;
 
@@ -54,7 +54,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task ViewAllResultsAsync(SearchResultTypes searchResultTypes)
         {
-            if (searchResultTypes == SearchResultTypes.Applications)
+            if (searchResultTypes == SearchResultTypes.Executables)
             {
                 NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute + $"?SearchPattern={ViewState.SearchPattern}");
             }
@@ -70,16 +70,16 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task ProcessEnterAsync()
         {
-            if (ViewState.ApplicationResults.Count() > 0 && ViewState.ProductResults.Count() > 0)
+            if (ViewState.ExecutableResults.Count() > 0 && ViewState.ProductResults.Count() > 0)
             {
                 //Found results on both categories. Do nothing.
             }
             else
             {
-                if (ViewState.ApplicationResults.Count() > 0)
+                if (ViewState.ExecutableResults.Count() > 0)
                 {
-                    //Results found only in applications.
-                    if (ViewState.ApplicationResults.Count() == 1)
+                    //Results found only in executables.
+                    if (ViewState.ExecutableResults.Count() == 1)
                     {
                         //Only one result execute action.
                         //TODO: A Execute application?
@@ -87,13 +87,13 @@ namespace Gizmo.Client.UI.View.Services
                     else
                     {
                         //More than one results open applications page.
-                        await ViewAllResultsAsync(SearchResultTypes.Applications);
+                        await ViewAllResultsAsync(SearchResultTypes.Executables);
                     }
                 }
 
                 if (ViewState.ProductResults.Count() > 0)
                 {
-                    //Results found only in applications.
+                    //Results found only in executables.
                     if (ViewState.ProductResults.Count() == 1)
                     {
                         //Only one result execute action.
@@ -123,7 +123,7 @@ namespace Gizmo.Client.UI.View.Services
 
             ViewState.SearchPattern = string.Empty;
             ViewState.ProductResults = Enumerable.Empty<GlobalSearchResultViewState>();
-            ViewState.ApplicationResults = Enumerable.Empty<GlobalSearchResultViewState>();
+            ViewState.ExecutableResults = Enumerable.Empty<GlobalSearchResultViewState>();
 
             ViewState.RaiseChanged();
 
@@ -133,7 +133,7 @@ namespace Gizmo.Client.UI.View.Services
         public async Task SearchAsync(SearchResultTypes? searchResultTypes = null)
         {
             ViewState.ProductResults = Enumerable.Empty<GlobalSearchResultViewState>();
-            ViewState.ApplicationResults = Enumerable.Empty<GlobalSearchResultViewState>();
+            ViewState.ExecutableResults = Enumerable.Empty<GlobalSearchResultViewState>();
 
             if (ViewState.SearchPattern.Length == 0)
             {
@@ -147,25 +147,24 @@ namespace Gizmo.Client.UI.View.Services
 
                 ViewState.RaiseChanged();
 
-                if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Applications)
+                if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Executables)
                 {
-                    var applicationStates = await _appViewStateLookupService.GetStatesAsync();
+                    var executableStates = await _appExeViewStateLookupService.GetStatesAsync();
 
                     var tmp = new List<GlobalSearchResultViewState>();
 
-                    foreach (var app in applicationStates.Where(a => a.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
+                    foreach (var app in executableStates.Where(a => a.Caption.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
                     {
                         tmp.Add(new GlobalSearchResultViewState()
                         {
-                            Type = SearchResultTypes.Applications,
-                            Id = app.ApplicationId,
-                            Name = app.Title,
-                            ImageId = app.ImageId,
-                            CategoryId = app.ApplicationCategoryId
+                            Type = SearchResultTypes.Executables,
+                            Id = app.ExecutableId,
+                            Name = app.Caption,
+                            ImageId = app.ImageId
                         });
                     }
 
-                    ViewState.ApplicationResults = tmp;
+                    ViewState.ExecutableResults = tmp;
                 }
 
                 if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Products)

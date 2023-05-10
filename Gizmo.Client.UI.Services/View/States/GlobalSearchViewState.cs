@@ -14,7 +14,7 @@ namespace Gizmo.Client.UI.View.States
 
         public string SearchPattern { get; internal set; } = null!;
 
-        public IEnumerable<GlobalSearchResultViewState> ApplicationResults { get; internal set; } = Enumerable.Empty<GlobalSearchResultViewState>();
+        public IEnumerable<GlobalSearchResultViewState> ExecutableResults { get; internal set; } = Enumerable.Empty<GlobalSearchResultViewState>();
 
         public IEnumerable<GlobalSearchResultViewState> ProductResults { get; internal set; } = Enumerable.Empty<GlobalSearchResultViewState>();
 
