@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.JSInterop;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -20,13 +21,11 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
             IGizmoClient gizmoClient,
-            IClientDialogService dialogService,
             PaymentMethodViewStateLookupService paymentMethodViewStateLookupService,
             IOptions<UserOnlineDepositOptions> userOnlineDepositOptions) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _gizmoClient = gizmoClient;
-            _dialogService = dialogService;
             _paymentMethodViewStateLookupService = paymentMethodViewStateLookupService;
             _userOnlineDepositOptions = userOnlineDepositOptions;
         }
@@ -35,10 +34,8 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
-        private readonly IClientDialogService _dialogService;
         private readonly PaymentMethodViewStateLookupService _paymentMethodViewStateLookupService;
         private readonly IOptions<UserOnlineDepositOptions> _userOnlineDepositOptions;
-        private CancellationTokenSource? _dialogCancellationTokenSource = null;
         #endregion
 
         #region PROPERTIES
@@ -128,25 +125,6 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.PaymentUrl = string.Empty;
             ViewState.QrImage = string.Empty;
             ViewState.RaiseChanged();
-        }
-
-        public async Task PayFromPC()
-        {
-            _dialogCancellationTokenSource?.Cancel();
-
-            Clear();
-
-            var s = await _dialogService.ShowPaymentDialogAsync(new PaymentDialogParameters() { Url = ViewState.PaymentUrl });
-            if (s.Result == DialogAddResult.Success)
-            {
-                try
-                {
-                    var result = await s.WaitForDialogResultAsync();
-                }
-                catch (OperationCanceledException)
-                {
-                }
-            }
         }
 
         #endregion
