@@ -18,6 +18,8 @@ namespace Gizmo.Client.UI.View.States
 
         public int DisplayOrder { get; internal set; }
 
+        public bool AutoLaunch { get;internal set; }
+
         public IEnumerable<AppExePersonalFileViewState> PersonalFiles { get; internal set; } = Enumerable.Empty<AppExePersonalFileViewState>();
 
         public int? ImageId { get; internal set; }

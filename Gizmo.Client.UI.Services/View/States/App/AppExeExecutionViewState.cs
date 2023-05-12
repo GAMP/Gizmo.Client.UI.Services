@@ -26,6 +26,11 @@ namespace Gizmo.Client.UI.View.States
         public bool IsReady { get; internal set; }
 
         /// <summary>
+        /// Indicates if previous execution have failed.
+        /// </summary>
+        public bool IsFailed { get; internal set; }
+
+        /// <summary>
         /// Determines if any processes tracked (running) for this executable.
         /// </summary>
         public bool IsRunning { get; internal set; }

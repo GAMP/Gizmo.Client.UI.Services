@@ -89,10 +89,8 @@ namespace Gizmo.Client.UI.View.Services
             //filter out states that not of an interest to us
             switch (e.NewState)
             {
-                case ContextExecutionState.ProcessExited:
                 case ContextExecutionState.Finalized:
                 case ContextExecutionState.Initial:
-                case ContextExecutionState.Failed:
                     return;
             }
 
@@ -104,10 +102,20 @@ namespace Gizmo.Client.UI.View.Services
 
                 //get associated view state
                 var viewState = await GetStateAsync(e.ExecutableId);
-
+                
                 viewState.IsRunning = context.IsAlive;
                 viewState.IsActive = context.IsExecuting;
-                viewState.IsReady = context.HasCompleted || e.NewState == ContextExecutionState.Completed && !context.IsExecuting;
+                viewState.IsReady = context.HasCompleted && !context.IsExecuting;
+
+                switch(e.NewState)
+                {
+                    case ContextExecutionState.Failed:
+                        viewState.IsFailed = true;
+                        break;
+                    case ContextExecutionState.Reprocessing:
+                        viewState.IsFailed = false;
+                        break;
+                }
 
                 //update progress values
                 if (context.IsExecuting)

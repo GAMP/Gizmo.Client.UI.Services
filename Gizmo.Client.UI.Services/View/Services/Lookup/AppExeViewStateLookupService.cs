@@ -78,6 +78,8 @@ namespace Gizmo.Client.UI.View.Services
             result.Options = model.Options;
             result.Modes = model.Modes;
 
+            result.AutoLaunch = model.Options.HasFlag(ExecutableOptionType.AutoLaunch);
+
             return result;
         }
         #endregion

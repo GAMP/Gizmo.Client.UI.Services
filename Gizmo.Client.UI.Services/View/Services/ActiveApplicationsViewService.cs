@@ -49,7 +49,7 @@ namespace Gizmo.Client.UI.View.Services
                 var activeExecutables = await _appExeExecutionViewStateLookupService.GetStatesAsync();
 
                 var activeExecutablesIds = activeExecutables
-                    .Where(x => x.IsRunning || x.IsReady || x.IsActive && _gizmoClient.AppCurrentProfilePass(x.AppId))
+                    .Where(x => x.IsRunning || x.IsReady || x.IsFailed || x.IsActive && _gizmoClient.AppCurrentProfilePass(x.AppId))
                     .Select(x => x.AppExeId);
 
                 var executables = await _appExeViewStateLookupService.GetStatesAsync();
