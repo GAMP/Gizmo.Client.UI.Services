@@ -337,7 +337,6 @@ namespace Gizmo.Client
 
         public Task<UserProfileModel> UserProfileGetAsync(CancellationToken cancellationToken = default)
         {
-            throw new Exception();
             return Task.FromResult(new UserProfileModel()
             {
                 Username = "#Test Username",
@@ -761,7 +760,10 @@ namespace Gizmo.Client
 
             }
 
-            return Task.FromResult(new PagedList<UserOrderModel>(orders));
+            var result = new PagedList<UserOrderModel>(orders);
+            result.NextCursor = new PaginationCursor();
+
+            return Task.FromResult(result);
         }
 
         public Task<UserProductAvailabilityCheckResult> UserProductAvailabilityCheckAsync(UserOrderLineModelCreate userOrderLineModelCreate, CancellationToken cancellationToken = default)
