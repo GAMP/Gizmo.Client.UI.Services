@@ -148,7 +148,14 @@ namespace Gizmo.Client.View.Services
                             try
                             {
                                 var (Channel, Items) = await CreateAsync(uri, cancellationToken);
-                                foreach (var item in Items)
+
+                                //create maximum of feeds
+                                var maxFeeds = feed.Maximum <= 0 ? int.MaxValue : feed.Maximum;
+
+                                //create items query
+                                var itemsQuery = Items.Take(maxFeeds).OrderBy(item => item.PublishDate);
+
+                                foreach (var item in itemsQuery)
                                 {
                                     _feedLookup.Add(item, Channel);
                                 }
