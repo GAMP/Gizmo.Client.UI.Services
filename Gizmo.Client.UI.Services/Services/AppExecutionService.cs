@@ -53,6 +53,18 @@ namespace Gizmo.Client.UI.Services
                         return;
                     }
 
+                    //pass execution limit
+                    if (await _client.AppExeExecutionLimitPassAsync(appExeId, cancellationToken) == false)
+                    {
+                        return;
+                    }
+
+                    //pass age rating
+                    if (await _client.AppExePassAgeRatingAsync(appExeId, cancellationToken) == false)
+                    {
+                        return;
+                    }
+
                     //set auto launch value
                     executionContext.AutoLaunch = autoLaunch;
 
@@ -123,19 +135,20 @@ namespace Gizmo.Client.UI.Services
         {
             try
             {
-                var personalFileExists = await _client.PersonalFileExistAsync(appExeId, personalFileId, cancellationToken);
-                if (personalFileExists)
+                var personalFilePath = await _client.PersonalFilePathGetAsync(appExeId, personalFileId, cancellationToken);
+                if (!string.IsNullOrWhiteSpace(personalFilePath))
                 {
-                    var personalFilePath = await _client.PersonalFilePathGetAsync(appExeId, personalFileId, cancellationToken);
-                    if (!string.IsNullOrWhiteSpace(personalFilePath))
-                    {
-                        var process = new ProcessStartInfo(personalFilePath)
-                        {
-                            UseShellExecute = true,
-                        };
+                    //try to create personal file directory if one does not exist
+                    //in case of failure the error can be logged and there is nothing else that needs to be done
+                    if (!Directory.Exists(personalFilePath))
+                        Directory.CreateDirectory(personalFilePath);                   
 
-                        Process.Start(personalFilePath);
-                    }
+                    var process = new ProcessStartInfo(personalFilePath)
+                    {
+                        UseShellExecute = true,
+                    };
+
+                    Process.Start(process);
                 }
             }
             catch (Exception ex)
@@ -154,16 +167,14 @@ namespace Gizmo.Client.UI.Services
         {
             try
             {
+                //update view state to the new autolaunch value
+                await _appExeViewStateLookupService.SetAutoLaunchAsync(appExeId, autoLaunch);
+
                 var executionContextResult = await _client.AppExeExecutionContextGetAsync(appExeId, cancellationToken);
                 var executionContext = executionContextResult.ExecutionContext;
                 if (executionContextResult.IsSuccess && executionContext != null)
                 {
                     executionContext.AutoLaunch = autoLaunch;
-
-                    //update view state
-                    //TODO this is violation as we modify view state outside of service that is responsible of it
-                    var viewState = await _appExeViewStateLookupService.GetStateAsync(appExeId, cToken: cancellationToken);
-                    viewState.RaiseChanged();
                 }
             }
             catch (Exception ex)

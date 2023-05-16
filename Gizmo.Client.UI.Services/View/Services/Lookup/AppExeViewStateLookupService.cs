@@ -83,5 +83,12 @@ namespace Gizmo.Client.UI.View.Services
             return result;
         }
         #endregion
+
+        internal async Task SetAutoLaunchAsync(int appExeId, bool autoLaunch)
+        {
+            var viewState = await GetStateAsync(appExeId);
+            viewState.AutoLaunch = autoLaunch;
+            DebounceViewStateChange(viewState);
+        }
     }
 }
