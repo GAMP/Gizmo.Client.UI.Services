@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.Services;
+﻿using System.Web;
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
@@ -59,6 +60,49 @@ namespace Gizmo.Client.UI.View.Services
         }
         #endregion
 
+        private static (AdvertisementMediaUrlType MediaUrlType, Uri? MediaUri) ParseMediaUrl(string? mediaUrl)
+        {
+            if (!Uri.TryCreate(mediaUrl, UriKind.Absolute, out var mediaUri))
+                return (AdvertisementMediaUrlType.None, null);
+
+            var mediaUrlType = mediaUri.Host switch
+            {
+                "www.youtube.com" => AdvertisementMediaUrlType.YouTube,
+                "vk.com" => AdvertisementMediaUrlType.Vk,
+                _ => AdvertisementMediaUrlType.None
+            };
+
+            switch (mediaUrlType)
+            {
+                case AdvertisementMediaUrlType.YouTube:
+                    {
+                        var query = HttpUtility.ParseQueryString(mediaUri.Query);
+                        var videoId = query.AllKeys.Contains("v") ? query["v"] : mediaUri.Segments[^1];
+                        var url = $"https://www.youtube.com/embed/{videoId}?autoplay=1";
+
+                        return (mediaUrlType, new Uri(url));
+                    }
+                default:
+                    return (mediaUrlType, mediaUri);
+            }
+        }
+
+        private static string? ParseThumbnailUrl(AdvertisementMediaUrlType mediaUrlType, Uri? mediaUri)
+        {
+            if (mediaUri is null)
+                return null;
+
+            switch (mediaUrlType)
+            {
+                case AdvertisementMediaUrlType.YouTube:
+                    var videoId = mediaUri.Segments[^1];
+                    return $"https://i3.ytimg.com/vi/{videoId}/maxresdefault.jpg";
+
+                default:
+                    return null;
+            }
+        }
+
         #region PRIVATE FUNCTIONS
         private AppLinkViewState Map(UserApplicationLinkModel model, AppLinkViewState? viewState = null)
         {
@@ -67,7 +111,13 @@ namespace Gizmo.Client.UI.View.Services
             result.ApplicationId = model.ApplicationId;
             result.Url = model.Url;
             result.DisplayOrder = model.DisplayOrder;
-            
+
+            var (midiaUrlType, mediaUri) = ParseMediaUrl(model.Url);
+            result.MediaUrlType = midiaUrlType;
+            result.MediaUrl = mediaUri?.AbsoluteUri;
+
+            result.ThumbnailUrl = ParseThumbnailUrl(midiaUrlType, mediaUri);
+
             return result;
         }
         #endregion

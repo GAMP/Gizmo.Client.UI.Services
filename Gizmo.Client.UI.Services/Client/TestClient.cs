@@ -79,11 +79,41 @@ namespace Gizmo.Client
                 ImageId = random.Next(0, 2) == 1 ? i : null,
             }).ToList();
 
-            _userApplicationLinks = Enumerable.Range(1, 500).Select(i => new UserApplicationLinkModel()
+            _userApplicationLinks = new List<UserApplicationLinkModel>()
             {
-                Id = i,
-                ApplicationId = random.Next(1, 100),
-            }).ToList();
+                new UserApplicationLinkModel()
+                {
+                    Id = 1,
+                    ApplicationId = 1,
+                    Caption = "Test 1",
+                    Url = "https://www.youtube.com/watch?v=8ZXhordOp4A"
+                    //ApplicationId = random.Next(1, 100),
+                },
+                new UserApplicationLinkModel()
+                {
+                    Id = 2,
+                    ApplicationId = 1,
+                    Caption = "Test 2",
+                    Url = "https://www.newsbeast.gr/"
+                    //ApplicationId = random.Next(1, 100),
+                },
+                new UserApplicationLinkModel()
+                {
+                    Id = 3,
+                    ApplicationId = 1,
+                    Caption = "Test 3",
+                    Url = "https://www.youtube.com/watch?v=EpUI5iDsylA"
+                    //ApplicationId = random.Next(1, 100),
+                },
+                new UserApplicationLinkModel()
+                {
+                    Id = 4,
+                    ApplicationId = 1,
+                    Caption = "Test 4",
+                    Url = "https://www.newsbeast.gr/"
+                    //ApplicationId = random.Next(1, 100),
+                },
+            };
 
             List<string> executableNames = new List<string>()
             {
