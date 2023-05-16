@@ -53,7 +53,7 @@ namespace Gizmo.Client.View.Services
             {
                 case LoginState.LoggedIn:
                     _rotatateTimer?.Dispose();
-                    _rotatateTimer = new Timer(OnTimerCallback, null, 3000, 3000);
+                    _rotatateTimer = new Timer(OnTimerCallback, null, 6000, 6000);
                     break;
                 case LoginState.LoggingOut:
                     _rotatateTimer?.Dispose();

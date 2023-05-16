@@ -18,6 +18,7 @@ namespace Gizmo.Client
         private readonly List<UserProductModel> _userProducts;
         private readonly List<UserPaymentMethodModel> _userPaymentMethods;
         private readonly List<NewsModel> _newsModel;
+        private readonly List<FeedModel> _feeds;
 
         public bool IsConnected => true;
 
@@ -177,7 +178,7 @@ namespace Gizmo.Client
                     {
                         Id = 1,
                         Title = "DEFAULT VIDEO",
-                        Data = "Action with custom media",
+                        Data = "1Action with custom media",
                         MediaUrl = "https://media.geeksforgeeks.org/wp-content/uploads/20210314115545/sample-video.mp4",
                         //Url = "gizmo://products/cart/add?productId=1&size=2"
                     }
@@ -186,7 +187,26 @@ namespace Gizmo.Client
                     {
                         Id = 2,
                         Title = "DEFAULT VIDEO",
-                        Data = "Action with thumb error",
+                        Data = "2Action with thumb",
+                        ThumbnailUrl = "https://i3.ytimg.com/vi/Ce1eUo0K3VE/maxresdefault.jpg",
+                        Url = "gizmo://products/cart/add?productId=1&size=2"
+                    }
+                },
+                { new ()
+                    {
+                        Id = 3,
+                        Title = "GTA - 5",
+                        Data = "3GTA - 5 VK",
+                        //ThumbnailUrl = "https://i3.ytimg.com/vi/Ce1eUo0K3VE/maxresdefault.jpg",
+                        MediaUrl = "https://vk.com/video_ext.php?oid=-2000182257&id=118182257&hash=0f8faf02a738549a&hd=2",
+                        Url = "gizmo://products/details/navigate?productId=1"
+                    }
+                },
+                { new ()
+                    {
+                        Id = 4,
+                        Title = "DEFAULT VIDEO",
+                        Data = "4Action with thumb error",
                         //MediaUrl = "https://media.geeksforgeeks.org/wp-content/uploads/20210314115545/sample-video.mp4",
                         ThumbnailUrl = "http://localhost/test.png",
                         Url = "gizmo://products/cart/add?productId=1&size=2"
@@ -194,27 +214,8 @@ namespace Gizmo.Client
                 },
                 { new ()
                     {
-                        Id = 3,
-                        Title = "DEFAULT VIDEO",
-                        Data = "Action with thumb",
-                        ThumbnailUrl = "https://i3.ytimg.com/vi/Ce1eUo0K3VE/maxresdefault.jpg",
-                        Url = "gizmo://products/cart/add?productId=1&size=2"
-                    }
-                },
-                { new ()
-                    {
-                        Id = 4,
-                        Title = "GTA - 5",
-                        Data = "GTA - 5 VK",
-                        ThumbnailUrl = "https://i3.ytimg.com/vi/Ce1eUo0K3VE/maxresdefault.jpg",
-                        MediaUrl = "https://vk.com/video_ext.php?oid=-2000182257&id=118182257&hash=0f8faf02a738549a&hd=2",
-                        Url = "gizmo://products/details/navigate?productId=1"
-                    }
-                },
-                { new ()
-                    {
                         Id = 5,
-                        Title = "CRYSIS - 4",
+                        Title = "5CRYSIS - 4",
                         Data = "<div style=\"max-width: 40.0rem; margin: 8.6rem 3.2rem 6.5rem 3.2rem\">Youtube with url #1 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.#1 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>",
                         MediaUrl = "https://www.youtube.com/watch?v=TsAaH8yqB70&ab_channel=Punish",
                         Url = "https://www.theloadout.com/crysis-4/release-date"
@@ -222,6 +223,24 @@ namespace Gizmo.Client
                 }
             };
             #endregion
+
+            _feeds = new List<FeedModel>()
+            {
+                { new FeedModel()
+                    {
+                        Id = 1,
+                        Title = "Test 1",
+                        Url = "http://www.gameworld.gr/rss3ds/rss.php?content=all"
+                    }
+                },
+                { new FeedModel()
+                    {
+                        Id = 2,
+                        Title = "Test 2",
+                        Url = "http://feeds.feedburner.com/ign/all"
+                    }
+                }
+            };
         }
 
         public async Task<LoginResult> UserLoginAsync(string loginName, string? password, CancellationToken cancellationToken)
@@ -434,9 +453,10 @@ namespace Gizmo.Client
 
         public Task<NewsModel?> NewsGetAsync(int id, CancellationToken cToken = default) =>
             Task.FromResult(_newsModel.Find(x => x.Id == id));
+
         public Task<PagedList<FeedModel>> FeedsGetAsync(FeedsFilter filters, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new PagedList<FeedModel>(_feeds));
         }
 
         public Task<PagedList<PaymentMethodModel>> PaymentMethodsGetAsync(PaymentMethodsFilter filter, CancellationToken cancellationToken = default)
