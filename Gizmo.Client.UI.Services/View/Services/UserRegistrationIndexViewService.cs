@@ -52,12 +52,12 @@ namespace Gizmo.Client.UI.View.Services
                     Agreement = userAgreement.Agreement,
                     IsRejectable = userAgreement.IsRejectable
                 }, cancellationToken);
-                if (s.Result == DialogAddResult.Success)
+                if (s.Result == DialogResult.Opened)
                 {
-                    try
+                    var dialogResult = await s.WaitForDialogResultAsync(cancellationToken);
+                    if (s.Result == DialogResult.Ok)
                     {
-                        var result = await s.WaitForDialogResultAsync(cancellationToken);
-                        if (result.Accepted)
+                        if (dialogResult!.Accepted)
                         {
                             userAgreement.AcceptState = UserAgreementAcceptState.Accepted;
                         }
@@ -66,7 +66,7 @@ namespace Gizmo.Client.UI.View.Services
                             userAgreement.AcceptState = UserAgreementAcceptState.Rejected;
                         }
                     }
-                    catch (OperationCanceledException)
+                    else if (s.Result == DialogResult.Canceled)
                     {
                         if (userAgreement.IsRejectable)
                         {

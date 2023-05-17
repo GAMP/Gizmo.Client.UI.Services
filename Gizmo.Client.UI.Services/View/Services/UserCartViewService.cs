@@ -160,19 +160,12 @@ namespace Gizmo.Client.UI.View.Services
         public async Task ClearUserCartProductsAsync()
         {
             var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_VERIFY"), _localizationService.GetString("GIZ_SHOP_VERIFY_CLEAR_CART"), AlertDialogButtons.YesNo);
-            if (s.Result == DialogAddResult.Success)
+            if (s.Result == DialogResult.Opened)
             {
-                try
-                {
-                    var result = await s.WaitForDialogResultAsync();
-                    if (result.Button == AlertDialogResultButton.Yes)
-                    {
-                        await ClearProductsAsync();
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                }
+                var result = await s.WaitForDialogResultAsync();
+
+                if (s.Result == DialogResult.Ok && result!.Button == AlertDialogResultButton.Yes)
+                    await ClearProductsAsync();
             }
         }
 
@@ -258,16 +251,8 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             var s = await _dialogService.ShowCheckoutDialogAsync();
-            if (s.Result == DialogAddResult.Success)
-            {
-                try
-                {
-                    var result = await s.WaitForDialogResultAsync();
-                }
-                catch (OperationCanceledException)
-                {
-                }
-            }
+            if (s.Result == DialogResult.Opened)
+                _ = await s.WaitForDialogResultAsync();
         }
 
         public async Task CheckoutAsync()

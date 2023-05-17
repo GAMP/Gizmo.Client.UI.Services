@@ -20,15 +20,15 @@ namespace Gizmo.Client.UI.View.Services
         {
             _dialogService = dialogService;
             _gizmoClient = gizmoClient;
-		}
+        }
         #endregion
 
         #region FIELDS
         private readonly IClientDialogService _dialogService;
         private readonly IGizmoClient _gizmoClient;
-		#endregion
+        #endregion
 
-		#region FUNCTIONS
+        #region FUNCTIONS
 
         public void SetFirstName(string value)
         {
@@ -74,15 +74,9 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.IsInitialized = false;
 
             var s = await _dialogService.ShowChangeProfileDialogAsync();
-            if (s.Result == DialogAddResult.Success)
+            if (s.Result == DialogResult.Opened)
             {
-                //try
-                //{
-                //    var result = await s.WaitForDialogResultAsync();
-                //}
-                //catch (OperationCanceledException)
-                //{
-                //}
+                //_ = await s.WaitForDialogResultAsync();
             }
 
             try

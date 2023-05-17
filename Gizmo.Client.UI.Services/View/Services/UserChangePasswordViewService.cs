@@ -56,17 +56,9 @@ namespace Gizmo.Client.UI.View.Services
         {
             await ResetAsync();
 
-            var s = await _dialogService.ShowChangePasswordDialogAsync();
-            if (s.Result == DialogAddResult.Success)
-            {
-                //try
-                //{
-                //    var result = await s.WaitForDialogResultAsync();
-                //}
-                //catch (OperationCanceledException)
-                //{
-                //}
-            }
+            var s = await _dialogService.ShowChangePasswordDialogAsync(cToken);
+            if (s.Result == DialogResult.Opened)
+                _ = await s.WaitForDialogResultAsync(cToken);
         }
 
         public async Task SubmitAsync()
