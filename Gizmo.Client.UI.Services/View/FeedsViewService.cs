@@ -33,6 +33,15 @@ namespace Gizmo.Client.View.Services
         private readonly Dictionary<FeedViewState, FeedChannelViewState> _feedLookup = new();
         private readonly object _rotateLock = new();
         private int _currentFeedIndex = 0;
+        private bool _isPaused = false;
+
+        /// <summary>
+        /// Gets if rotation is currently paused.
+        /// </summary>
+        public bool IsRotationPaused
+        {
+            get { return _isPaused; }
+        }
 
         protected override Task OnInitializing(CancellationToken ct)
         {
@@ -67,6 +76,9 @@ namespace Gizmo.Client.View.Services
 
         private void OnTimerCallback(object? state)
         {
+            if (IsRotationPaused)
+                return;
+
             if (Monitor.TryEnter(_rotateLock))
             {
                 try
@@ -293,6 +305,16 @@ namespace Gizmo.Client.View.Services
         {
             await InitializeIfRequired(cancellationToken);
             await base.OnNavigatedIn(navigationParameters, cancellationToken);
+        }
+
+        /// <summary>
+        /// Pauses rotation.
+        /// </summary>
+        /// <param name="pause">Pause value.</param>
+        public Task PauseAsync(bool pause)
+        {
+            _isPaused = pause;
+            return Task.CompletedTask;
         }
     }
 }
