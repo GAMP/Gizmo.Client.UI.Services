@@ -484,9 +484,12 @@ namespace Gizmo.Client
         public Task<NewsModel?> NewsGetAsync(int id, CancellationToken cToken = default) =>
             Task.FromResult(_newsModel.Find(x => x.Id == id));
 
-        public Task<PagedList<FeedModel>> FeedsGetAsync(FeedsFilter filters, CancellationToken cancellationToken = default)
+        public async Task<PagedList<FeedModel>> FeedsGetAsync(FeedsFilter filters, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(new PagedList<FeedModel>(_feeds));
+            // Simulate task.
+            await Task.Delay(3000);
+
+            return new PagedList<FeedModel>(_feeds);
         }
 
         public Task<PagedList<PaymentMethodModel>> PaymentMethodsGetAsync(PaymentMethodsFilter filter, CancellationToken cancellationToken = default)

@@ -109,6 +109,8 @@ namespace Gizmo.Client.UI.View.Services
             var result = viewState ?? CreateDefaultViewState(model.Id);
             
             result.ApplicationId = model.ApplicationId;
+            result.Caption = model.Caption;
+            result.Description = model.Description;
             result.Url = model.Url;
             result.DisplayOrder = model.DisplayOrder;
 

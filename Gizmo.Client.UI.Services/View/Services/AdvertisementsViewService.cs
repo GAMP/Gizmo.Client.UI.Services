@@ -58,9 +58,14 @@ namespace Gizmo.Client.UI.View.Services
             base.OnDisposing(isDisposing);
         }
 
-        public async Task ShowMediaSync(AdvertisementViewState mediaType)
+        public async Task ShowMediaSync(AdvertisementViewState advertisementViewState)
         {
-            var dialog = await _dialogService.ShowAdvertisementDialogAsync(mediaType);
+            var dialog = await _dialogService.ShowMediaDialogAsync(new MediaDialogParameters()
+            {
+                Title = advertisementViewState.Title,
+                MediaUrlType = advertisementViewState.MediaUrlType,
+                MediaUrl = advertisementViewState.MediaUrl
+            });
             if (dialog.Result == DialogAddResult.Success)
             {
                 try
