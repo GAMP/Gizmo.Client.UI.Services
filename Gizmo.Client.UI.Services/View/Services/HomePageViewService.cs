@@ -17,10 +17,12 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient,
             UserProductViewStateLookupService userProductViewStateLookupService,
+            AppViewStateLookupService appViewStateLookupService,
             IOptions<PopularItemsOptions> popularItemsOptions) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _userProductViewStateLookupService = userProductViewStateLookupService;
+            _appViewStateLookupService = appViewStateLookupService;
             _popularItemsOptions = popularItemsOptions;
         }
         #endregion
@@ -28,6 +30,7 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
         private readonly UserProductViewStateLookupService _userProductViewStateLookupService;
+        private readonly AppViewStateLookupService _appViewStateLookupService;
         private readonly IOptions<PopularItemsOptions> _popularItemsOptions;
         #endregion
 
@@ -40,11 +43,23 @@ namespace Gizmo.Client.UI.View.Services
                 Limit = _popularItemsOptions.Value.MaxPopularProducts
             });
 
-            var productIds = popularProducts.Select(a => a.Id).ToList();
+            var productIds = popularProducts.OrderBy(a => a.TotalPurchases).Select(a => a.Id).ToList();
 
             var products = await _userProductViewStateLookupService.GetStatesAsync(cancellationToken);
 
-            ViewState.PopularProducts = products.Where(a => productIds.Contains(a.Id)).ToList();
+            ViewState.PopularProducts = products.OrderByDescending(a => productIds.IndexOf(a.Id));
+
+
+            var popularApplications = await _gizmoClient.UserPopularApplicationsGetAsync(new Web.Api.Models.UserPopularApplicationsFilter()
+            {
+                Limit = _popularItemsOptions.Value.MaxPopularApplications
+            });
+
+            var applicationIds = popularApplications.OrderBy(a => a.TotalExecutionTime).Select(a => a.Id).ToList();
+
+            var apps = await _appViewStateLookupService.GetStatesAsync(cancellationToken);
+
+            ViewState.PopularApplications = apps.OrderByDescending(a => applicationIds.IndexOf(a.ApplicationId));
 
             RaiseViewStateChanged();
         }
