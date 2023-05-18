@@ -1,11 +1,13 @@
 ﻿using System.ServiceModel.Syndication;
 using System.Xml;
 using System.Xml.Linq;
+using Gizmo.Client.UI;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.View.Services
 {
@@ -17,23 +19,26 @@ namespace Gizmo.Client.View.Services
     {
         public FeedsViewService(FeedsViewState viewState,
             IGizmoClient gizmoClient,
+            IOptionsMonitor<FeedsOptions> feedOptions,
             IHttpClientFactory httpClientFactory,
             ILogger<FeedsViewService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _httpClientFactory = httpClientFactory;
+            _feedOptions = feedOptions;
         }
 
         private const string HTTP_CLIENT_NAME = "FeedHttpClient";
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IGizmoClient _gizmoClient;
         private readonly SemaphoreSlim _initLock = new(1);
-        private System.Threading.Timer? _rotatateTimer;
+        private Timer? _rotatateTimer;
         private readonly Dictionary<FeedViewState, FeedChannelViewState> _feedLookup = new();
         private readonly object _rotateLock = new();
         private int _currentFeedIndex = 0;
         private bool _isPaused = false;
+        private readonly IOptionsMonitor<FeedsOptions> _feedOptions;
 
         /// <summary>
         /// Gets if rotation is currently paused.
@@ -43,83 +48,26 @@ namespace Gizmo.Client.View.Services
             get { return _isPaused; }
         }
 
-        protected override Task OnInitializing(CancellationToken ct)
+        /// <summary>
+        /// Pauses rotation.
+        /// </summary>
+        /// <param name="pause">Pause value.</param>
+        public Task PauseAsync(bool pause)
         {
-            _gizmoClient.LoginStateChange += OnLoginStateChange;
-            return base.OnInitializing(ct);
-        }
-
-        protected override void OnDisposing(bool isDisposing)
-        {
-            _gizmoClient.LoginStateChange -= OnLoginStateChange;
-            _rotatateTimer?.Dispose();
-            base.OnDisposing(isDisposing);
-        }
-
-        private void OnLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
-        {
-            switch (e.State)
+            _isPaused = pause;
+            if (!pause)
             {
-                case LoginState.LoggedIn:
-                    _rotatateTimer?.Dispose();
-                    _rotatateTimer = new Timer(OnTimerCallback, null, 6000, 6000);
-                    break;
-                case LoginState.LoggingOut:
-                    _rotatateTimer?.Dispose();
-                    _rotatateTimer = null;
-                    _currentFeedIndex = 0; //reset feed index
-                    break;
-                default:
-                    break;
+                _rotatateTimer?.Change(GetRotateMills(), GetRotateMills()); //need to add global options 
             }
+            return Task.CompletedTask;
         }
 
-        private void OnTimerCallback(object? state)
+        private int GetRotateMills()
         {
-            if (IsRotationPaused)
-                return;
+            if (_feedOptions.CurrentValue.RotateEvery <= 0)
+                return 6000; //just in case check that correct value is set and provide default value if not
 
-            if (Monitor.TryEnter(_rotateLock))
-            {
-                try
-                {
-                    //check if view state is initialized
-                    if (ViewState.IsInitialized != true)
-                        return;
-
-                    //check if there are any feed channels present
-                    if (!_feedLookup.Any())
-                        return;
-
-                    if (_currentFeedIndex >= _feedLookup.Count)
-                    {
-                        _currentFeedIndex = 0;
-                    }
-
-                    _currentFeedIndex = new Random().Next(0, _feedLookup.Count - 1);
-
-                    Logger.LogTrace("Current feed index {feedIndex}", _currentFeedIndex);
-
-                    var pair = _feedLookup.ElementAt(_currentFeedIndex);
-
-                    Logger.LogTrace("Current feed [{title}] Image [{image}] Channel [{channel}]", pair.Key.Title, pair.Key.Image.Url, pair.Value.Description);
-
-                    ViewState.CurrentFeedChannel = pair.Value;
-                    ViewState.CurrentFeed = pair.Key;
-
-                    _currentFeedIndex++;
-
-                    DebounceViewStateChanged();
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Feed rotation failed.");
-                }
-                finally
-                {
-                    Monitor.Exit(_rotateLock);
-                }
-            }
+            return (int)TimeSpan.FromSeconds(_feedOptions.CurrentValue.RotateEvery).TotalMilliseconds;
         }
 
         private async Task InitializeIfRequired(CancellationToken cancellationToken)
@@ -178,9 +126,11 @@ namespace Gizmo.Client.View.Services
                             }
                         }
 
-                        ViewState.IsInitialized = true;
+                        ViewState.IsInitialized = true; 
 
                         DebounceViewStateChanged();
+
+                        _rotatateTimer?.Change(0, GetRotateMills());
                     }
                     catch
                     {
@@ -301,20 +251,96 @@ namespace Gizmo.Client.View.Services
             return (false, null);
         }
 
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            _gizmoClient.LoginStateChange += OnLoginStateChange;
+            return base.OnInitializing(ct);
+        }
+
+        protected override void OnDisposing(bool isDisposing)
+        {
+            _gizmoClient.LoginStateChange -= OnLoginStateChange;
+            _rotatateTimer?.Dispose();
+            base.OnDisposing(isDisposing);
+        }
+
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
             await InitializeIfRequired(cancellationToken);
             await base.OnNavigatedIn(navigationParameters, cancellationToken);
         }
 
-        /// <summary>
-        /// Pauses rotation.
-        /// </summary>
-        /// <param name="pause">Pause value.</param>
-        public Task PauseAsync(bool pause)
+        private void OnLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
         {
-            _isPaused = pause;
-            return Task.CompletedTask;
+            try
+            {
+                switch (e.State)
+                {
+                    case LoginState.LoggedIn:
+                        _rotatateTimer?.Dispose();
+                        _rotatateTimer = new Timer(OnTimerCallback, null, 0, GetRotateMills());
+                        break;
+                    case LoginState.LoggingOut:
+                        _rotatateTimer?.Dispose();
+                        _rotatateTimer = null;
+                        _currentFeedIndex = 0; //reset feed index
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to handle user login state change event.");
+            }
+        }
+
+        private void OnTimerCallback(object? state)
+        {
+            if (IsRotationPaused)
+                return;
+
+            if (Monitor.TryEnter(_rotateLock))
+            {
+                try
+                {
+                    //check if view state is initialized
+                    if (ViewState.IsInitialized != true)
+                        return;
+
+                    //check if there are any feed channels present
+                    if (!_feedLookup.Any())
+                        return;
+
+                    if (_currentFeedIndex >= _feedLookup.Count)
+                    {
+                        _currentFeedIndex = 0;
+                    }
+
+                    _currentFeedIndex = new Random().Next(0, _feedLookup.Count - 1);
+
+                    Logger.LogTrace("Current feed index {feedIndex}", _currentFeedIndex);
+
+                    var pair = _feedLookup.ElementAt(_currentFeedIndex);
+
+                    Logger.LogTrace("Current feed [{title}] Image [{image}] Channel [{channel}]", pair.Key.Title, pair.Key.Image.Url, pair.Value.Description);
+
+                    ViewState.CurrentFeedChannel = pair.Value;
+                    ViewState.CurrentFeed = pair.Key;
+
+                    _currentFeedIndex++;
+
+                    DebounceViewStateChanged();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Feed rotation failed.");
+                }
+                finally
+                {
+                    Monitor.Exit(_rotateLock);
+                }
+            }
         }
     }
 }

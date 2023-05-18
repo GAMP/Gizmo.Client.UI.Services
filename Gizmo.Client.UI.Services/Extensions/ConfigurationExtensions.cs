@@ -37,13 +37,14 @@ namespace Gizmo.Client.UI.Services
         public static IServiceCollection AddClientOptions(this IServiceCollection services, IConfiguration configuration)
         {
             //bind client app configuration to the desired class
-            services.Configure<UICompositionOptions>(configuration.GetSection("UIComposition"));
-            services.Configure<ClientUIOptions>(configuration.GetSection("Interface"));
-            services.Configure<ClientCurrencyOptions>(configuration.GetSection("CurrencyOptions"));
-            services.Configure<UserOnlineDepositOptions>(configuration.GetSection("UserOnlineDepositOptions"));
-            services.Configure<PopularItemsOptions>(configuration.GetSection("PopularItemsOptions"));
-            services.Configure<UserLoginOptions>(configuration.GetSection("UserLoginOptions"));
-            services.Configure<HostQRCodeOptions>(configuration.GetSection("HostQRCodeOptions"));
+            services.AddOptions<UICompositionOptions>().Bind(configuration.GetSection("UIComposition"));
+            services.AddOptions<ClientUIOptions>().Bind(configuration.GetSection("Interface"));
+            services.AddOptions<ClientCurrencyOptions>().Bind(configuration.GetSection("CurrencyOptions"));
+            services.AddOptions<UserOnlineDepositOptions>().Bind(configuration.GetSection("UserOnlineDepositOptions"));
+            services.AddOptions<PopularItemsOptions>().Bind(configuration.GetSection("PopularItemsOptions"));
+            services.AddOptions<UserLoginOptions>().Bind(configuration.GetSection("UserLoginOptions"));
+            services.AddOptions<HostQRCodeOptions>().Bind(configuration.GetSection("HostQRCodeOptions"));
+            services.AddOptions<FeedsOptions>().Bind(configuration.GetSection("FeedsOptions"));
 
             return services;
         } 

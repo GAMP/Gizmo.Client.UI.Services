@@ -126,7 +126,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             var filters = new Web.Api.Models.UserOrdersFilter();
 
-            filters.Pagination.Limit = 4;
+            filters.Pagination.Limit = 8;
             filters.Pagination.SortBy = nameof(Web.Api.Models.UserOrderModel.Date);
             filters.Pagination.IsAsc = false;
 
