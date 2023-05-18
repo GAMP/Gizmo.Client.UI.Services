@@ -8,6 +8,7 @@ namespace Gizmo.Client.UI.View.States
     {
         #region FIELDS
         private IEnumerable<UserProductViewState> _popularProducts = Enumerable.Empty<UserProductViewState>();
+        private IEnumerable<AppViewState> _popularApplications = Enumerable.Empty<AppViewState>();
         #endregion
 
         #region PROPERTIES
@@ -17,8 +18,11 @@ namespace Gizmo.Client.UI.View.States
             get { return _popularProducts; }
             internal set { _popularProducts = value; }
         }
-
-        public byte CardsColumsCount { get; internal set; } = 8;
+        public IEnumerable<AppViewState> PopularApplications
+        {
+            get { return _popularApplications; }
+            internal set { _popularApplications = value; }
+        }
 
         #endregion
     }

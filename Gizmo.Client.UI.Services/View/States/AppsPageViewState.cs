@@ -16,7 +16,7 @@ namespace Gizmo.Client.UI.View.States
         public IEnumerable<AppViewState> Applications { get; internal set; } = Enumerable.Empty<AppViewState>();
 
         public string? SearchPattern { get; internal set; }
-        
+
         /// <summary>
         /// Gets currently selected application category id.
         /// </summary>
@@ -31,8 +31,6 @@ namespace Gizmo.Client.UI.View.States
         public IEnumerable<ApplicationModes> SelectedExecutableModes { get; internal set; } = Enumerable.Empty<ApplicationModes>();
 
         public int TotalFilters { get; internal set; }
-
-        public byte CardsColumsCount { get; internal set; } = 8;
 
         #endregion
     }

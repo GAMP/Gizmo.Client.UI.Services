@@ -37,7 +37,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             var popularProducts = await _gizmoClient.UserPopularProductsGetAsync(new Web.Api.Models.UserPopularProductsFilter()
             {
-                Limit = _popularItemsOptions.Value.PopularProducts
+                Limit = _popularItemsOptions.Value.MaxPopularProducts
             });
 
             var productIds = popularProducts.Select(a => a.Id).ToList();
