@@ -128,7 +128,7 @@ namespace Gizmo.Client
                 Id = i,
                 ApplicationId = random.Next(1, 100),
                 Caption = $"{executableNames[random.Next(1, 4)]} {i}",
-                Description = "",
+                Description = "Test Description",
                 PersonalFiles = Enumerable.Range(1, 4).Select(x => new UserExecutablePersonalFileModel()
                 {
                     PersonalFileId = x,

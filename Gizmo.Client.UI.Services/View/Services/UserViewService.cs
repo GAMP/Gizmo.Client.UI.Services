@@ -18,7 +18,7 @@ namespace Gizmo.Client.UI.View.Services
 
         private readonly IGizmoClient _gizmoClient;
 
-        public async Task LogοutAsync()
+        public async Task LogoutAsync()
         {
             try
             {
