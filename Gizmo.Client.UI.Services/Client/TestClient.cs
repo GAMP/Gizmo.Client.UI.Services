@@ -577,9 +577,14 @@ namespace Gizmo.Client
             return Task.FromResult(item);
         }
 
-        public Task<UpdateResult> UserPasswordUpdateAsync(string oldPassword, string newPassword, CancellationToken cancellationToken = default)
+        public async Task<UpdateResult> UserPasswordUpdateAsync(string oldPassword, string newPassword, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(new UpdateResult());
+            // Simulate task.
+            await Task.Delay(3000);
+
+            throw new Exception("Test");
+
+            //return Task.FromResult(new UpdateResult());
         }
 
         public Task<IAppExecutionContextResult> AppExeExecutionContextGetAsync(int appExeId, CancellationToken cancellationToken)
@@ -759,7 +764,7 @@ namespace Gizmo.Client
 
             try
             {
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 8; i++)
                 {
                     var userOrder = new UserOrderModel();
 
