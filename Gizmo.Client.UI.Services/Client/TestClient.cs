@@ -487,7 +487,7 @@ namespace Gizmo.Client
         public async Task<PagedList<FeedModel>> FeedsGetAsync(FeedsFilter filters, CancellationToken cancellationToken = default)
         {
             // Simulate task.
-            await Task.Delay(3000);
+            await Task.Delay(6000);
 
             return new PagedList<FeedModel>(_feeds);
         }
@@ -735,7 +735,15 @@ namespace Gizmo.Client
 
         public Task<IEnumerable<PopularApplicationModel>> UserPopularApplicationsGetAsync(UserPopularApplicationsFilter filters, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(Enumerable.Empty<PopularApplicationModel>());
+            Random random = new Random();
+
+            var popular = Enumerable.Range(1, 100).Select(i => new PopularApplicationModel()
+            {
+                Id = i,
+                TotalExecutionTime = random.Next(0, 100)
+            }).AsEnumerable();
+
+            return Task.FromResult(popular);
         }
 
         public Task<IEnumerable<PopularExecutableModel>> UserPopularExecutablesGetAsync(UserPopularExecutablesFilter filters, CancellationToken cancellationToken = default)
@@ -745,7 +753,15 @@ namespace Gizmo.Client
 
         public Task<IEnumerable<PopularProductModel>> UserPopularProductsGetAsync(UserPopularProductsFilter filters, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(Enumerable.Empty<PopularProductModel>());
+            Random random = new Random();
+
+            var popular = Enumerable.Range(1, 100).Select(i => new PopularProductModel()
+            {
+                Id = i,
+                TotalPurchases = random.Next(0, 100)
+            }).AsEnumerable();
+
+            return Task.FromResult(popular);
         }
 
         public Task<HostQRCodeResult> HostQRCodeGeneratAsync(CancellationToken cancellationToken = default)
@@ -832,6 +848,11 @@ namespace Gizmo.Client
         public Task<UserOrderCreateResultModel> UserOrderCreateAsync(UserOrderModelCreate userOrderModelCreate, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
+        }
+
+        public Task<bool> IsClientRegistrationEnabledGetAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(true);
         }
     }
 }
