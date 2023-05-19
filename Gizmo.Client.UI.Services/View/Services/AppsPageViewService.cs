@@ -161,9 +161,9 @@ namespace Gizmo.Client.UI.View.Services
                         Limit = -1
                     }, cancellationToken);
 
-                    var applicationIds = popularApplications.OrderBy(a => a.TotalExecutionTime).Select(a => a.Id).ToList();
+                    var applicationIds = popularApplications.Select(a => a.Id).ToList();
 
-                    allApplications = allApplications.OrderByDescending(a => applicationIds.IndexOf(a.ApplicationId));
+                    allApplications = allApplications.OrderBy(a => applicationIds.IndexOf(a.ApplicationId)).ToList();
 
                     break;
 

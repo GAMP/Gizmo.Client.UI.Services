@@ -38,28 +38,41 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task RefilterAsync(CancellationToken cancellationToken)
         {
-            var popularProducts = await _gizmoClient.UserPopularProductsGetAsync(new Web.Api.Models.UserPopularProductsFilter()
+            if (_popularItemsOptions.Value.MaxPopularProducts == 0)
             {
-                Limit = _popularItemsOptions.Value.MaxPopularProducts
-            });
-
-            var productIds = popularProducts.OrderBy(a => a.TotalPurchases).Select(a => a.Id).ToList();
-
-            var products = await _userProductViewStateLookupService.GetStatesAsync(cancellationToken);
-
-            ViewState.PopularProducts = products.OrderByDescending(a => productIds.IndexOf(a.Id));
-
-
-            var popularApplications = await _gizmoClient.UserPopularApplicationsGetAsync(new Web.Api.Models.UserPopularApplicationsFilter()
+                ViewState.PopularProducts = Enumerable.Empty<UserProductViewState>();
+            }
+            else
             {
-                Limit = _popularItemsOptions.Value.MaxPopularApplications
-            });
+                var popularProducts = await _gizmoClient.UserPopularProductsGetAsync(new Web.Api.Models.UserPopularProductsFilter()
+                {
+                    Limit = _popularItemsOptions.Value.MaxPopularProducts
+                });
 
-            var applicationIds = popularApplications.OrderBy(a => a.TotalExecutionTime).Select(a => a.Id).ToList();
+                var productIds = popularProducts.Select(a => a.Id).ToList();
 
-            var apps = await _appViewStateLookupService.GetStatesAsync(cancellationToken);
+                var products = await _userProductViewStateLookupService.GetStatesAsync(cancellationToken);
 
-            ViewState.PopularApplications = apps.OrderByDescending(a => applicationIds.IndexOf(a.ApplicationId));
+                ViewState.PopularProducts = products.Where(a => productIds.Contains(a.Id)).OrderBy(a => productIds.IndexOf(a.Id)).ToList();
+            }
+
+            if (_popularItemsOptions.Value.MaxPopularApplications == 0)
+            {
+                ViewState.PopularApplications = Enumerable.Empty<AppViewState>();
+            }
+            else
+            {
+                var popularApplications = await _gizmoClient.UserPopularApplicationsGetAsync(new Web.Api.Models.UserPopularApplicationsFilter()
+                {
+                    Limit = _popularItemsOptions.Value.MaxPopularApplications
+                });
+
+                var applicationIds = popularApplications.Select(a => a.Id).ToList();
+
+                var apps = await _appViewStateLookupService.GetStatesAsync(cancellationToken);
+
+                ViewState.PopularApplications = apps.Where(a => applicationIds.Contains(a.ApplicationId)).OrderBy(a => applicationIds.IndexOf(a.ApplicationId)).ToList();
+            }
 
             RaiseViewStateChanged();
         }
