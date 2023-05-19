@@ -29,8 +29,7 @@ namespace Gizmo.Client.UI.View.Services
                 //just obtain the parameters on initialization, client should be connected at this point
                 //we might re-query the parameters on client connection state change or change event once we have one
 
-                var registrationMethod = await _gizmoClient.RegistrationVerificationMethodGetAsync(ct).ConfigureAwait(false);
-                ViewState.IsEnabled = registrationMethod != RegistrationVerificationMethod.None;
+                ViewState.IsEnabled = await _gizmoClient.IsClientRegistrationEnabledGetAsync(ct).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
