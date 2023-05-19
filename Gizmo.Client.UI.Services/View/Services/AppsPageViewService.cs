@@ -161,9 +161,10 @@ namespace Gizmo.Client.UI.View.Services
                         Limit = -1
                     }, cancellationToken);
 
-                    var applicationIds = popularApplications.Select(a => a.Id).ToList();
+                    var applicationIds = popularApplications.Select(a => a.Id).Reverse().ToList();
 
-                    allApplications = allApplications.OrderBy(a => applicationIds.IndexOf(a.ApplicationId)).ToList();
+                    //Apps that are not included in popular have index -1 so we have to reverse the order and sort descending.
+                    allApplications = allApplications.OrderByDescending(a => applicationIds.IndexOf(a.ApplicationId)).ToList();
 
                     break;
 

@@ -279,7 +279,10 @@ namespace Gizmo.Client.UI.View.Services
                         Guid = Guid.NewGuid(),
                         ProductId = a.ProductId,
                         Quantity = a.Quantity,
-                        PayType = a.PayType
+                        PayType = a.PayType,
+                        Total = (a.PayType == OrderLinePayType.Cash || a.PayType == OrderLinePayType.Mixed) ? a.TotalPrice : 0,
+                        PointsTotal = (a.PayType == OrderLinePayType.Points || a.PayType == OrderLinePayType.Mixed) ? a.TotalPointsPrice.GetValueOrDefault() : 0,
+                        PointsAwardTotal = a.TotalPointsAward.GetValueOrDefault()
                     }).ToList()
                 };
 
