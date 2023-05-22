@@ -36,6 +36,7 @@ namespace Gizmo.Client
         public event EventHandler<UserIdleEventArgs>? UserIdleChange;
         public event EventHandler<AppEnterpriseChangeEventArgs>? AppEnterpriseChange;
         public event EventHandler<AppCategoryChangeEventArgs>? AppCategoryChange;
+        public event EventHandler<HostGroupChangeEventArgs>? HostGroupChange;
         public event EventHandler<AppChangeEventArgs>? AppChange;
         public event EventHandler<AppExeChangeEventArgs>? AppExeChange;
         public event EventHandler<FeedChangeEventArgs>? FeedChange;
@@ -853,6 +854,16 @@ namespace Gizmo.Client
         public Task<bool> IsClientRegistrationEnabledGetAsync(CancellationToken cancellationToken = default)
         {
             return Task.FromResult(true);
+        }
+
+        public Task<PagedList<UserHostGroupModel>> UserHostGroupsGetAsync(UserHostGroupsFilter filters, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<UserHostGroupModel?> UserHostGroupGetAsync(int id, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
     }
 }
