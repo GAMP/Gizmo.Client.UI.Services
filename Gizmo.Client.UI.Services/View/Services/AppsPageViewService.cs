@@ -96,7 +96,9 @@ namespace Gizmo.Client.UI.View.Services
 
             if (navigationParameters.IsInitial)
             {
-                ViewState.AppCategories = await _categoryViewStateLookupService.GetStatesAsync(cToken);
+                var allCategories = await _categoryViewStateLookupService.GetStatesAsync(cToken);
+
+                ViewState.AppCategories = allCategories.OrderBy(c => c.Name).ToList();
             }
 
             if (navigationParameters.IsInitial)
