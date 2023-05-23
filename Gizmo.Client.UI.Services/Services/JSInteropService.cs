@@ -66,8 +66,13 @@ namespace Gizmo.Client.UI.Services
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Sets full screen mode.
+        /// </summary>
+        /// <param name="isFullScreen">Enable or disable full screen mode.</param>
+        /// <param name="error">Optional error.</param>
         [JSInvokable]
-        public Task IsFullScreenAsync(bool isFullScreen, string error)
+        public Task SetFullScreenAsync(bool isFullScreen, string error)
         {
             //TODO: Handle full-screen events
             if (!string.IsNullOrEmpty(error))
@@ -86,7 +91,7 @@ namespace Gizmo.Client.UI.Services
             try
             {
                 await JSRuntime.InvokeVoidAsync("ClientFunctions.SetDotnetObjectReference", ObjectReference);
-                await JSRuntime.InvokeVoidAsync("ClientFunctions.SubscribeOnFullScreenChange", nameof(IsFullScreenAsync));
+                await JSRuntime.InvokeVoidAsync("ClientFunctions.SubscribeOnFullScreenChange", nameof(SetFullScreenAsync));
             }
             catch (Exception ex)
             {
@@ -99,7 +104,7 @@ namespace Gizmo.Client.UI.Services
         #region IDisposable
         public void Dispose()
         {
-            JSRuntime.InvokeVoidAsync("ClientFunctions.UnsubscribeOnFullScreenChange", nameof(IsFullScreenAsync))
+            JSRuntime.InvokeVoidAsync("ClientFunctions.UnsubscribeOnFullScreenChange", nameof(SetFullScreenAsync))
                 .AsTask()
                 .ContinueWith(
                     task =>
