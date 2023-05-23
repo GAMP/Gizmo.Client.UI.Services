@@ -66,11 +66,27 @@ namespace Gizmo.Client.UI.Services
             return Task.CompletedTask;
         }
 
-        public async Task InitializeAsync(CancellationToken cancellationToken)
+        [JSInvokable]
+        public Task IsFullScreenAsync(bool isFullScreen, string error)
+        {
+            //TODO: Handle full-screen events
+            if (!string.IsNullOrEmpty(error))
+            {
+                Console.WriteLine($"FULLSCREEN ERROR: {error}");
+            }
+            else
+            {
+                Console.WriteLine($"FULLSCREEN: {isFullScreen}");
+            }
+
+            return Task.CompletedTask;
+        }
+        public async Task InitializeAsync(CancellationToken cToken)
         {
             try
             {
                 await JSRuntime.InvokeVoidAsync("ClientFunctions.SetDotnetObjectReference", ObjectReference);
+                await JSRuntime.InvokeVoidAsync("ClientFunctions.SubscribeOnFullScreenChange", nameof(IsFullScreenAsync));
             }
             catch (Exception ex)
             {
@@ -83,8 +99,19 @@ namespace Gizmo.Client.UI.Services
         #region IDisposable
         public void Dispose()
         {
+            JSRuntime.InvokeVoidAsync("ClientFunctions.UnsubscribeOnFullScreenChange", nameof(IsFullScreenAsync))
+                .AsTask()
+                .ContinueWith(
+                    task =>
+                    {
+                        if (task.Exception != null)
+                        {
+                            throw task.Exception;
+                        }
+                    });
+
             _objectReference.Dispose();
-        } 
+        }
         #endregion
     }
 }
