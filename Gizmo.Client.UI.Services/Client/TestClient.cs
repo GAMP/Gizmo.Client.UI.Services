@@ -20,6 +20,8 @@ namespace Gizmo.Client
         private readonly List<NewsModel> _newsModel;
         private readonly List<FeedModel> _feeds;
 
+        private readonly List<UserHostGroupModel> _userHostGroups;
+
         public bool IsConnected => true;
 
         public bool IsConnecting => false;
@@ -41,8 +43,8 @@ namespace Gizmo.Client
         public event EventHandler<AppExeChangeEventArgs>? AppExeChange;
         public event EventHandler<FeedChangeEventArgs>? FeedChange;
         public event EventHandler<NewsChangeEventArgs>? NewsChange;
-        public event EventHandler<PersonalFileChangeEventArgs> PersonalFileChange;
-        public event EventHandler<AppLinkChangeEventArgs> AppLinkChange;
+        public event EventHandler<PersonalFileChangeEventArgs>? PersonalFileChange;
+        public event EventHandler<AppLinkChangeEventArgs>? AppLinkChange;
         public event EventHandler<ConnectionStateEventArgs>? ConnectionStateChange;
         public event EventHandler<LockStateEventArgs> LockStateChange;
         public event EventHandler<OutOfOrderStateEventArgs> OutOfOrderStateChange;
@@ -153,6 +155,31 @@ namespace Gizmo.Client
             #endregion
 
             #region PRODUCTS
+            ProductPurchaseAvailabilityModel productPurchaseAvailabilityModel = new ProductPurchaseAvailabilityModel()
+            {
+                //TODO: AAA DateRange ?
+            };
+
+            productPurchaseAvailabilityModel.DaysAvailable = new List<ProductModelAvailabilityDay>()
+            {
+                {
+                    new ProductModelAvailabilityDay()
+                    {
+                        Day = DayOfWeek.Wednesday,
+                        DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+                        {
+                            {
+                                new ProductModelAvailabilityDayTime()
+                                {
+                                    StartSecond = 1200,
+                                    EndSecond = 3600
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
             _userProducts = Enumerable.Range(1, 500).Select(x => new UserProductModel()
             {
                 Id = x,
@@ -165,8 +192,33 @@ namespace Gizmo.Client
                 ProductType = (ProductType)random.Next(0, 3),
                 PurchaseOptions = (PurchaseOptionType)random.Next(0, 2),
                 DefaultImageId = random.Next(0, 2) == 1 ? x : null,
-
+                PurchaseAvailability = productPurchaseAvailabilityModel
             }).ToList();
+
+            ProductTimeUsageAvailabilityModel productTimeUsageAvailabilityModel = new ProductTimeUsageAvailabilityModel()
+            {
+                //TODO: AAA DateRange ?
+            };
+
+            productTimeUsageAvailabilityModel.DaysAvailable = new List<ProductModelAvailabilityDay>()
+            {
+                {
+                    new ProductModelAvailabilityDay()
+                    {
+                        Day = DayOfWeek.Wednesday,
+                        DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+                        {
+                            {
+                                new ProductModelAvailabilityDayTime()
+                                {
+                                    StartSecond = 1200,
+                                    EndSecond = 3600
+                                }
+                            }
+                        }
+                    }
+                }
+            };
 
             _userProducts.Where(product => product.ProductType == ProductType.ProductTime)
                 .ToList()
@@ -174,7 +226,9 @@ namespace Gizmo.Client
                 {
                     product.TimeProduct = new UserProductTimeModel()
                     {
-                        Minutes = random.Next(30, 180)
+                        Minutes = random.Next(30, 180),
+                        DisallowedHostGroups = new List<int>() { 1, 2 },
+                        UsageAvailability = productTimeUsageAvailabilityModel
                     };
                 });
 
@@ -272,6 +326,12 @@ namespace Gizmo.Client
                     }
                 }
             };
+
+            _userHostGroups = Enumerable.Range(1, 10).Select(i => new UserHostGroupModel()
+            {
+                Id = i,
+                Name = $"#Test ({i})"
+            }).ToList();
         }
 
         public async Task<LoginResult> UserLoginAsync(string loginName, string? password, CancellationToken cancellationToken)
@@ -856,14 +916,17 @@ namespace Gizmo.Client
             return Task.FromResult(true);
         }
 
-        public Task<PagedList<UserHostGroupModel>> UserHostGroupsGetAsync(UserHostGroupsFilter filters, CancellationToken cancellationToken = default)
+        public async Task<PagedList<UserHostGroupModel>> UserHostGroupsGetAsync(UserHostGroupsFilter filters, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await Task.Delay(3000);
+
+            return new PagedList<UserHostGroupModel>(_userHostGroups);
         }
 
         public Task<UserHostGroupModel?> UserHostGroupGetAsync(int id, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var userHostGroup = _userHostGroups.Find(x => x.Id == id);
+            return Task.FromResult(userHostGroup);
         }
     }
 }

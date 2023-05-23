@@ -95,6 +95,8 @@ namespace Gizmo.Client.UI.View.Services
 
                             timesAvailable.Add(timeAvailable);
                         }
+
+                        dayAvailable.DayTimesAvailable = timesAvailable;
                     }
 
                     daysAvailable.Add(dayAvailable);
@@ -126,6 +128,7 @@ namespace Gizmo.Client.UI.View.Services
                     var timeProductResult = ServiceProvider.GetRequiredService<UserProductTimeViewState>();
 
                     timeProductResult.Minutes = model.TimeProduct.Minutes;
+                    timeProductResult.DisallowedHostGroups = model.TimeProduct.DisallowedHostGroups;
 
                     if (model.TimeProduct.UsageAvailability != null)
                     {
@@ -157,6 +160,8 @@ namespace Gizmo.Client.UI.View.Services
 
                                     timesAvailable.Add(timeAvailable);
                                 }
+
+                                dayAvailable.DayTimesAvailable = timesAvailable;
                             }
 
                             daysAvailable.Add(dayAvailable);
