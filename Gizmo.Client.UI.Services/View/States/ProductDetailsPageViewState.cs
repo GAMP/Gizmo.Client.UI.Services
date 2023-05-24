@@ -8,7 +8,7 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
-        public int? CurrentHostGroup { get; internal set; }
+        public int? CurrentHostGroupId { get; internal set; }
 
         public UserProductViewState Product { get; internal set; } = new();
 
