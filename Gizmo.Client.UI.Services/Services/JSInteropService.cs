@@ -72,20 +72,29 @@ namespace Gizmo.Client.UI.Services
         /// <param name="isFullScreen">Enable or disable full screen mode.</param>
         /// <param name="error">Optional error.</param>
         [JSInvokable]
-        public Task SetFullScreenAsync(bool isFullScreen, string error)
+        public async Task SetFullScreenAsync(bool isFullScreen, string error)
         {
+            var client = _serviceProvider.GetRequiredService<IGizmoClient>();
             //TODO: Handle full-screen events
             if (!string.IsNullOrEmpty(error))
-            {
+            {     
                 Console.WriteLine($"FULLSCREEN ERROR: {error}");
             }
             else
             {
+                if (isFullScreen)
+                {
+                    await client.EnterFullSceenAsync();
+                }
+                else
+                {
+                    await client.ExitFullSceenAsync();
+                }
                 Console.WriteLine($"FULLSCREEN: {isFullScreen}");
             }
-
-            return Task.CompletedTask;
         }
+
+
         public async Task InitializeAsync(CancellationToken cToken)
         {
             try

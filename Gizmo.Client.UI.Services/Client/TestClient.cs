@@ -928,5 +928,15 @@ namespace Gizmo.Client
             var userHostGroup = _userHostGroups.Find(x => x.Id == id);
             return Task.FromResult(userHostGroup);
         }
+
+        public Task<FullScreenEnterResult> EnterFullSceenAsync(FullScreenEnterOptions? enterOptions = null, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<FullScreenExitResult> ExitFullSceenAsync(FullScreenExitOptions? exitOptions = null, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
