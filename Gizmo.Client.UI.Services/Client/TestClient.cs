@@ -945,5 +945,10 @@ namespace Gizmo.Client
             //full screen not supported in web
             return Task.FromResult(FullScreenExitResult.Default);
         }
+
+        public Task NotifyAppExeLaunchFailureAsync(int appExeId, AppExeLaunchFailReason reason = AppExeLaunchFailReason.Unknown, Exception? exception = null, CancellationToken cancellationToken = default)
+        {
+            return Task.CompletedTask;
+        }
     }
 }
