@@ -15,21 +15,26 @@ namespace Gizmo.Client.UI.View.Services
     {
         #region CONSTRUCTOR
         public ProductDetailsPageViewService(ProductDetailsPageViewState viewState,
+            IGizmoClient gizmoClient,
             ILogger<ProductDetailsPageViewService> logger,
             IServiceProvider serviceProvider,
             UserProductViewStateLookupService productLookupService) : base(viewState, logger, serviceProvider)
         {
+            _gizmoClient = gizmoClient;
             _productLookupService = productLookupService;
         }
         #endregion
 
         #region FIELDS
+        private readonly IGizmoClient _gizmoClient;
         private readonly UserProductViewStateLookupService _productLookupService;
         #endregion
 
         #region OVERRIDES
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
+            ViewState.CurrentHostGroup = await _gizmoClient.CurrentHostGroupGetAsync(cancellationToken);
+
             if (Uri.TryCreate(NavigationService.GetUri(), UriKind.Absolute, out var uri))
             {
                 string? productId = HttpUtility.ParseQueryString(uri.Query).Get("ProductId");

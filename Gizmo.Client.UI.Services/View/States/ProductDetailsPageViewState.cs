@@ -6,24 +6,13 @@ namespace Gizmo.Client.UI.View.States
     [Register()]
     public sealed class ProductDetailsPageViewState : ViewStateBase
     {
-        #region FIELDS
-        private UserProductViewState _product = new();
-        private IEnumerable<UserProductViewState> _relatedProducts = Enumerable.Empty<UserProductViewState>();
-        #endregion
-
         #region PROPERTIES
 
-        public UserProductViewState Product
-        {
-            get { return _product; }
-            internal set { _product = value; }
-        }
+        public int? CurrentHostGroup { get; internal set; }
 
-        public IEnumerable<UserProductViewState> RelatedProducts
-        {
-            get { return _relatedProducts; }
-            internal set { _relatedProducts = value; }
-        }
+        public UserProductViewState Product { get; internal set; } = new();
+
+        public IEnumerable<UserProductViewState> RelatedProducts { get; internal set; } = Enumerable.Empty<UserProductViewState>();
 
         #endregion
     }

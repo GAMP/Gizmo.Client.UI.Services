@@ -934,6 +934,11 @@ namespace Gizmo.Client
             return Task.FromResult(userHostGroup);
         }
 
+        public Task<int?> CurrentHostGroupGetAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult((int?)3);
+        }
+
         public Task<FullScreenEnterResult> EnterFullSceenAsync(FullScreenEnterOptions? enterOptions = null, CancellationToken cancellationToken = default)
         {
             //full screen not supported in web
