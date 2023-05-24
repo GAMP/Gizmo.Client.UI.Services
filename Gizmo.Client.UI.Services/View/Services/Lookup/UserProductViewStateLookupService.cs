@@ -128,7 +128,6 @@ namespace Gizmo.Client.UI.View.Services
                     var timeProductResult = ServiceProvider.GetRequiredService<UserProductTimeViewState>();
 
                     timeProductResult.Minutes = model.TimeProduct.Minutes;
-                    timeProductResult.DisallowedHostGroups = model.TimeProduct.DisallowedHostGroups;
 
                     if (model.TimeProduct.UsageAvailability != null)
                     {
@@ -172,6 +171,12 @@ namespace Gizmo.Client.UI.View.Services
                         timeProductResult.UsageAvailability = usageAvailability;
                     }
 
+                    timeProductResult.DisallowedHostGroups = model.TimeProduct.DisallowedHostGroups;
+                    timeProductResult.ExpiresAfter = model.TimeProduct.ExpiresAfter;
+                    timeProductResult.ExpirationOptions = model.TimeProduct.ExpirationOptions;
+                    timeProductResult.ExpireFromOptions = model.TimeProduct.ExpireFromOptions;
+                    timeProductResult.ExpireAfterType = model.TimeProduct.ExpireAfterType;
+                    timeProductResult.ExpireAtDayTimeMinute = model.TimeProduct.ExpireAtDayTimeMinute;
                     timeProductResult.IsRestrictedForHostGroup = model.TimeProduct.IsRestrictedForHostGroup;
 
                     result.TimeProduct = timeProductResult;
