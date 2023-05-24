@@ -44,7 +44,7 @@ namespace Gizmo.Client.UI.View.Services
             _syncUpdateTimer?.Dispose();
             _syncUpdateTimer = null;
 
-            _gizmoClient.AppExeChange += async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
+            _gizmoClient.AppExeChange -= async (e, v) => await HandleChangesAsync(v.EntityId, v.ModificationType.FromModificationType());
             _gizmoClient.ExecutionContextStateChange -= OnExecutionContextStateChange;
         }        
         protected override async Task<IDictionary<int, AppExeExecutionViewState>> DataInitializeAsync(CancellationToken cToken)
