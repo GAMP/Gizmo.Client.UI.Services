@@ -227,6 +227,11 @@ namespace Gizmo.Client
                     product.TimeProduct = new UserProductTimeModel()
                     {
                         Minutes = random.Next(30, 180),
+                        ExpiresAfter = 90,
+                        ExpirationOptions = ProductTimeExpirationOptionType.ExpiresAtLogout | ProductTimeExpirationOptionType.ExpireAfterTime | ProductTimeExpirationOptionType.ExpireAtDayTime,
+                        ExpireFromOptions = ExpireFromOptionType.Use,
+                        ExpireAfterType = ExpireAfterType.Minute,
+                        ExpireAtDayTimeMinute = 90,
                         DisallowedHostGroups = new List<int>() { 1, 2 },
                         UsageAvailability = productTimeUsageAvailabilityModel
                     };
