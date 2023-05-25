@@ -61,6 +61,22 @@ namespace Gizmo.Client.UI.View.Services
             {
                 Logger.LogError(ex, "Failed to handle execution context change event.");
             }
+
+            try
+            {
+                if(e.NewState == ContextExecutionState.Failed)
+                {
+                    await _gizmoClient.NotifyAppExeLaunchFailureAsync(e.ExecutableId, AppExeLaunchFailReason.ExecutableFileNotFound, e.StateObject as Exception);
+                }    
+            }
+            catch (OperationCanceledException)
+            {
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to notify user on app exe launch failure");
+            }
         }
     }
 }
