@@ -39,5 +39,20 @@ namespace Gizmo.Client.UI.View.States
         /// Whether the product is restricted for current user group.
         /// </summary>
         public bool IsRestrictedForUserGroup { get; internal set; }
+
+        /// <summary>
+        /// The list of host group where this product is hidden.
+        /// </summary>
+        public IEnumerable<int> HiddenHostGroups { get; internal set; } = Enumerable.Empty<int>();
+
+        /// <summary>
+        /// Whether the product is restricted for current user.
+        /// </summary>
+        public bool DisallowPurchase { get; internal set; }
+
+        /// <summary>
+        /// The reason for this product to be restricted for current user.
+        /// </summary>
+        public string DisallowPurchaseReason { get; internal set; } = null!;
     }
 }

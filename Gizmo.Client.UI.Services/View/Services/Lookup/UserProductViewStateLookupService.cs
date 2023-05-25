@@ -110,6 +110,7 @@ namespace Gizmo.Client.UI.View.Services
             result.IsStockLimited = model.IsStockLimited;
             result.IsRestrictedForGuest = model.IsRestrictedForGuest;
             result.IsRestrictedForUserGroup = model.IsRestrictedForUserGroup;
+            result.HiddenHostGroups = model.HiddenHostGroups;
 
             if (model.ProductType == ProductType.ProductBundle)
             {
@@ -182,6 +183,9 @@ namespace Gizmo.Client.UI.View.Services
                     result.TimeProduct = timeProductResult;
                 }
             }
+
+            result.DisallowPurchase = true;
+            result.DisallowPurchaseReason = "No reason";
 
             return result;
         }

@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.Linq;
+using System.Web;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 
@@ -14,21 +15,29 @@ namespace Gizmo.Client.UI.View.Services
     {
         private readonly UserProductViewStateLookupService _userProductService;
         private readonly UserProductGroupViewStateLookupService _userProductGroupService;
+        private readonly HostGroupViewState _hostGroupViewState;
 
         public ProductsPageViewService(
             IServiceProvider serviceProvider,
             ILogger<ProductsPageViewService> logger,
             ProductsPageViewState viewState,
             UserProductViewStateLookupService userProductService,
-            UserProductGroupViewStateLookupService userProductGroupService) : base(viewState, logger, serviceProvider)
+            UserProductGroupViewStateLookupService userProductGroupService,
+            HostGroupViewState hostGroupViewState) : base(viewState, logger, serviceProvider)
         {
             _userProductService = userProductService;
             _userProductGroupService = userProductGroupService;
+            _hostGroupViewState = hostGroupViewState;
         }
 
         private async Task RefilterRequest(CancellationToken cToken)
         {
             var productStates = await _userProductService.GetStatesAsync(cToken);
+
+            if (_hostGroupViewState.HostGroupId.HasValue)
+            {
+                productStates = productStates.Where(a => !a.HiddenHostGroups.Contains(_hostGroupViewState.HostGroupId.Value));
+            }
 
             if (!string.IsNullOrEmpty(ViewState.SearchPattern))
             {
