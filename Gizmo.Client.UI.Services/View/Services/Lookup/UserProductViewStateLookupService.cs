@@ -10,13 +10,16 @@ namespace Gizmo.Client.UI.View.Services
     public sealed class UserProductViewStateLookupService : ViewStateLookupServiceBase<int, UserProductViewState>
     {
         private readonly IGizmoClient _gizmoClient;
+        private readonly HostGroupViewState _hostGroupViewState;
 
         public UserProductViewStateLookupService(
             IGizmoClient gizmoClient,
             ILogger<UserProductViewStateLookupService> logger,
-            IServiceProvider serviceProvider) : base(logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            HostGroupViewState hostGroupViewState) : base(logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
+            _hostGroupViewState = hostGroupViewState;
         }
 
         #region OVERRIDED FUNCTIONS
@@ -51,6 +54,54 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region PRIVATE FUNCTIONS
+        private void RefreshProductAvailability(UserProductViewState product)
+        {
+            if (product.PurchaseAvailability != null)
+            {
+                if (product.PurchaseAvailability.DateRange &&
+                    ((product.PurchaseAvailability.StartDate.HasValue && product.PurchaseAvailability.StartDate.Value > DateTime.Now)
+                    || (product.PurchaseAvailability.EndDate.HasValue && product.PurchaseAvailability.EndDate.Value < DateTime.Now)))
+                {
+                    if (product.PurchaseAvailability.StartDate.HasValue && product.PurchaseAvailability.StartDate.Value > DateTime.Now)
+                    {
+                        product.DisallowPurchase = true;
+                        product.DisallowPurchaseReason = "Not yet available."; //TODO: AAA translate
+                    }
+                    else if (product.PurchaseAvailability.EndDate.HasValue && product.PurchaseAvailability.EndDate.Value < DateTime.Now)
+                    {
+                        product.DisallowPurchase = true;
+                        product.DisallowPurchaseReason = "Not available anymore."; //TODO: AAA translate
+                    }
+                }
+                else if (product.PurchaseAvailability.DaysAvailable.Count() > 0)
+                {
+                    product.DisallowPurchase = true;
+                    product.DisallowPurchaseReason = "Currently not available."; //TODO: AAA translate and better messages
+
+                    var today = product.PurchaseAvailability.DaysAvailable.Where(a => a.Day == DateTime.Now.DayOfWeek).FirstOrDefault();
+                    if (today != null && today.DayTimesAvailable != null)
+                    {
+                        var timeSpan = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
+
+                        foreach (var time in today.DayTimesAvailable)
+                        {
+                            if (time.StartSecond < timeSpan.TotalSeconds && time.EndSecond > timeSpan.TotalSeconds)
+                            {
+                                product.DisallowPurchase = false;
+                                product.DisallowPurchaseReason = string.Empty;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (product.ProductType == ProductType.ProductTime && _hostGroupViewState.HostGroupId.HasValue && product.TimeProduct.DisallowedHostGroups.Contains(_hostGroupViewState.HostGroupId.Value))
+            {
+                product.DisallowPurchase = true;
+                product.DisallowPurchaseReason = "Not available on this host."; //TODO: AAA translate
+            }
+        }
+
         private UserProductViewState Map(UserProductModel model, UserProductViewState? viewState = null)
         {
             var result = viewState ?? CreateDefaultViewState(model.Id);
@@ -184,8 +235,8 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            result.DisallowPurchase = true;
-            result.DisallowPurchaseReason = "No reason";
+            //TODO: AAA REFRESH TIMER?
+            RefreshProductAvailability(result);
 
             return result;
         }
