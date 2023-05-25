@@ -28,6 +28,8 @@ namespace Gizmo.Client
 
         public int Number => 100;
 
+        public int? HostGroupId => 1;
+
         public bool IsOutOfOrder => false;
 
         public bool IsInputLocked => false;
@@ -932,11 +934,6 @@ namespace Gizmo.Client
         {
             var userHostGroup = _userHostGroups.Find(x => x.Id == id);
             return Task.FromResult(userHostGroup);
-        }
-
-        public Task<int?> CurrentHostGroupGetAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult((int?)3);
         }
 
         public Task<FullScreenEnterResult> EnterFullSceenAsync(FullScreenEnterOptions? enterOptions = null, CancellationToken cancellationToken = default)

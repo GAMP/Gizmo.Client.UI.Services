@@ -33,8 +33,6 @@ namespace Gizmo.Client.UI.View.Services
         #region OVERRIDES
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            ViewState.CurrentHostGroupId = await _gizmoClient.CurrentHostGroupGetAsync(cancellationToken);
-
             if (Uri.TryCreate(NavigationService.GetUri(), UriKind.Absolute, out var uri))
             {
                 string? productId = HttpUtility.ParseQueryString(uri.Query).Get("ProductId");
