@@ -60,14 +60,14 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (product.PurchaseAvailability.DateRange &&
                     ((product.PurchaseAvailability.StartDate.HasValue && product.PurchaseAvailability.StartDate.Value > DateTime.Now) ||
-                    (product.PurchaseAvailability.EndDate.HasValue && product.PurchaseAvailability.EndDate.Value < DateTime.Now)))
+                    (product.PurchaseAvailability.EndDate.HasValue && product.PurchaseAvailability.EndDate.Value.AddDays(1) < DateTime.Now)))
                 {
                     if (product.PurchaseAvailability.StartDate.HasValue && product.PurchaseAvailability.StartDate.Value > DateTime.Now)
                     {
                         product.DisallowPurchase = true;
                         product.DisallowPurchaseReason = "Not yet available."; //TODO: AAA translate
                     }
-                    else if (product.PurchaseAvailability.EndDate.HasValue && product.PurchaseAvailability.EndDate.Value < DateTime.Now)
+                    else if (product.PurchaseAvailability.EndDate.HasValue && product.PurchaseAvailability.EndDate.Value.AddDays(1) < DateTime.Now)
                     {
                         product.DisallowPurchase = true;
                         product.DisallowPurchaseReason = "Not available anymore."; //TODO: AAA translate
@@ -85,7 +85,7 @@ namespace Gizmo.Client.UI.View.Services
 
                         foreach (var time in today.DayTimesAvailable)
                         {
-                            if (time.StartSecond < timeSpan.TotalSeconds && time.EndSecond > timeSpan.TotalSeconds)
+                            if (time.StartSecond <= timeSpan.TotalSeconds && time.EndSecond > timeSpan.TotalSeconds)
                             {
                                 product.DisallowPurchase = false;
                                 product.DisallowPurchaseReason = string.Empty;
@@ -107,13 +107,13 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     if (product.TimeProduct.UsageAvailability.DateRange &&
                         ((product.TimeProduct.UsageAvailability.StartDate.HasValue && product.TimeProduct.UsageAvailability.StartDate.Value > DateTime.Now) ||
-                        (product.TimeProduct.UsageAvailability.EndDate.HasValue && product.TimeProduct.UsageAvailability.EndDate.Value < DateTime.Now)))
+                        (product.TimeProduct.UsageAvailability.EndDate.HasValue && product.TimeProduct.UsageAvailability.EndDate.Value.AddDays(1) < DateTime.Now)))
                     {
                         if (product.TimeProduct.UsageAvailability.StartDate.HasValue && product.TimeProduct.UsageAvailability.StartDate.Value > DateTime.Now)
                         {
                             product.DisallowUse = true;
                         }
-                        else if (product.TimeProduct.UsageAvailability.EndDate.HasValue && product.TimeProduct.UsageAvailability.EndDate.Value < DateTime.Now)
+                        else if (product.TimeProduct.UsageAvailability.EndDate.HasValue && product.TimeProduct.UsageAvailability.EndDate.Value.AddDays(1) < DateTime.Now)
                         {
                             product.DisallowUse = true;
                         }
@@ -129,7 +129,7 @@ namespace Gizmo.Client.UI.View.Services
 
                             foreach (var time in today.DayTimesAvailable)
                             {
-                                if (time.StartSecond < timeSpan.TotalSeconds && time.EndSecond > timeSpan.TotalSeconds)
+                                if (time.StartSecond <= timeSpan.TotalSeconds && time.EndSecond > timeSpan.TotalSeconds)
                                 {
                                     product.DisallowUse = false;
                                 }
