@@ -54,5 +54,10 @@ namespace Gizmo.Client.UI.View.States
         /// The reason for this product to be restricted for current user.
         /// </summary>
         public string DisallowPurchaseReason { get; internal set; } = null!;
+
+        /// <summary>
+        /// Whether the product is restricted for the moment.
+        /// </summary>
+        public bool DisallowUse { get; internal set; }
     }
 }

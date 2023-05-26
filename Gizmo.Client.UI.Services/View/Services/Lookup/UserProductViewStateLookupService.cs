@@ -59,8 +59,8 @@ namespace Gizmo.Client.UI.View.Services
             if (product.PurchaseAvailability != null)
             {
                 if (product.PurchaseAvailability.DateRange &&
-                    ((product.PurchaseAvailability.StartDate.HasValue && product.PurchaseAvailability.StartDate.Value > DateTime.Now)
-                    || (product.PurchaseAvailability.EndDate.HasValue && product.PurchaseAvailability.EndDate.Value < DateTime.Now)))
+                    ((product.PurchaseAvailability.StartDate.HasValue && product.PurchaseAvailability.StartDate.Value > DateTime.Now) ||
+                    (product.PurchaseAvailability.EndDate.HasValue && product.PurchaseAvailability.EndDate.Value < DateTime.Now)))
                 {
                     if (product.PurchaseAvailability.StartDate.HasValue && product.PurchaseAvailability.StartDate.Value > DateTime.Now)
                     {
@@ -95,10 +95,48 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            if (product.ProductType == ProductType.ProductTime && _hostGroupViewState.HostGroupId.HasValue && product.TimeProduct.DisallowedHostGroups.Contains(_hostGroupViewState.HostGroupId.Value))
+            if (product.ProductType == ProductType.ProductTime)
             {
-                product.DisallowPurchase = true;
-                product.DisallowPurchaseReason = "Not available on this host."; //TODO: AAA translate
+                if (_hostGroupViewState.HostGroupId.HasValue && product.TimeProduct.DisallowedHostGroups.Contains(_hostGroupViewState.HostGroupId.Value))
+                {
+                    product.DisallowPurchase = true;
+                    product.DisallowPurchaseReason = "Not available on this host."; //TODO: AAA translate
+                }
+
+                if (product.TimeProduct.UsageAvailability != null)
+                {
+                    if (product.TimeProduct.UsageAvailability.DateRange &&
+                        ((product.TimeProduct.UsageAvailability.StartDate.HasValue && product.TimeProduct.UsageAvailability.StartDate.Value > DateTime.Now) ||
+                        (product.TimeProduct.UsageAvailability.EndDate.HasValue && product.TimeProduct.UsageAvailability.EndDate.Value < DateTime.Now)))
+                    {
+                        if (product.TimeProduct.UsageAvailability.StartDate.HasValue && product.TimeProduct.UsageAvailability.StartDate.Value > DateTime.Now)
+                        {
+                            product.DisallowUse = true;
+                        }
+                        else if (product.TimeProduct.UsageAvailability.EndDate.HasValue && product.TimeProduct.UsageAvailability.EndDate.Value < DateTime.Now)
+                        {
+                            product.DisallowUse = true;
+                        }
+                    }
+                    else if (product.TimeProduct.UsageAvailability.DaysAvailable.Count() > 0)
+                    {
+                        product.DisallowUse = true;
+
+                        var today = product.TimeProduct.UsageAvailability.DaysAvailable.Where(a => a.Day == DateTime.Now.DayOfWeek).FirstOrDefault();
+                        if (today != null && today.DayTimesAvailable != null)
+                        {
+                            var timeSpan = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
+
+                            foreach (var time in today.DayTimesAvailable)
+                            {
+                                if (time.StartSecond < timeSpan.TotalSeconds && time.EndSecond > timeSpan.TotalSeconds)
+                                {
+                                    product.DisallowUse = false;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 

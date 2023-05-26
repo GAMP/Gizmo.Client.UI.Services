@@ -159,7 +159,6 @@ namespace Gizmo.Client
             #region PRODUCTS
             ProductPurchaseAvailabilityModel productPurchaseAvailabilityModel = new ProductPurchaseAvailabilityModel()
             {
-                //TODO: AAA DateRange ?
             };
 
             productPurchaseAvailabilityModel.DaysAvailable = new List<ProductModelAvailabilityDay>()
@@ -199,7 +198,6 @@ namespace Gizmo.Client
 
             ProductTimeUsageAvailabilityModel productTimeUsageAvailabilityModel = new ProductTimeUsageAvailabilityModel()
             {
-                //TODO: AAA DateRange ?
             };
 
             productTimeUsageAvailabilityModel.DaysAvailable = new List<ProductModelAvailabilityDay>()
