@@ -157,11 +157,11 @@ namespace Gizmo.Client.UI.View.Services
             if (model.PurchaseAvailability != null)
             {
                 var hasDateRange = model.PurchaseAvailability.DateRange && (model.PurchaseAvailability.StartDate.HasValue || model.PurchaseAvailability.EndDate.HasValue);
-                var hasTimeRange = model.PurchaseAvailability.DaysAvailable.Where(a => a.DayTimesAvailable != null && a.DayTimesAvailable.Count() > 0).Count() > 0;
+                var hasTimeRange = model.PurchaseAvailability.TimeRange && model.PurchaseAvailability.DaysAvailable.Where(a => a.DayTimesAvailable != null && a.DayTimesAvailable.Count() > 0).Count() > 0;
 
                 if (hasDateRange || hasTimeRange)
                 {
-                    var purchaseAvailability = ServiceProvider.GetRequiredService<ProductPurchaseAvailabilityViewState>();
+                    var purchaseAvailability = ServiceProvider.GetRequiredService<ProductAvailabilityViewState>();
 
                     if (hasDateRange)
                     {
@@ -235,21 +235,21 @@ namespace Gizmo.Client.UI.View.Services
                     if (model.TimeProduct.UsageAvailability != null)
                     {
                         var hasDateRange = model.TimeProduct.UsageAvailability.DateRange && (model.TimeProduct.UsageAvailability.StartDate.HasValue || model.TimeProduct.UsageAvailability.EndDate.HasValue);
-                        var hasTimeRange = model.TimeProduct.UsageAvailability.DaysAvailable.Where(a => a.DayTimesAvailable != null && a.DayTimesAvailable.Count() > 0).Count() > 0;
+                        var hasTimeRange = model.TimeProduct.UsageAvailability.TimeRange && model.TimeProduct.UsageAvailability.DaysAvailable.Where(a => a.DayTimesAvailable != null && a.DayTimesAvailable.Count() > 0).Count() > 0;
 
                         if (hasDateRange || hasTimeRange)
                         {
-                            var usageAvailability = ServiceProvider.GetRequiredService<ProductTimeUsageAvailabilityViewState>();
+                            var usageAvailability = ServiceProvider.GetRequiredService<ProductAvailabilityViewState>();
 
                             if (hasDateRange)
                             {
                                 usageAvailability.DateRange = model.TimeProduct.UsageAvailability.DateRange;
                                 usageAvailability.StartDate = model.TimeProduct.UsageAvailability.StartDate;
+                                usageAvailability.EndDate = model.TimeProduct.UsageAvailability.EndDate;
                             }
 
                             if (hasTimeRange)
                             {
-                                usageAvailability.EndDate = model.TimeProduct.UsageAvailability.EndDate;
                                 usageAvailability.TimeRange = model.TimeProduct.UsageAvailability.TimeRange;
 
                                 var daysAvailable = new List<ProductAvailabilityDayViewState>();

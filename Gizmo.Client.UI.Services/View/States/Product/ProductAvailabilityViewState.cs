@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Gizmo.Client.UI.View.States
 {
     [Register(Scope = RegisterScope.Transient)]
-    public class ProductTimeUsageAvailabilityViewState : ViewStateBase
+    public class ProductAvailabilityViewState : ViewStateBase
     {
         /// <summary>
         /// Whether the product is available only for a specific date range.

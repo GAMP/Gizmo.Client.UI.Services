@@ -23,7 +23,7 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// The usage availability of the time product.
         /// </summary>
-        public ProductPurchaseAvailabilityViewState? PurchaseAvailability { get; set; }
+        public ProductAvailabilityViewState? PurchaseAvailability { get; set; }
 
         /// <summary>
         /// Whether the product has enabled stock control and disallow sale out of stock.

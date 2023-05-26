@@ -14,7 +14,7 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// The usage availability of the time product.
         /// </summary>
-        public ProductTimeUsageAvailabilityViewState? UsageAvailability { get; internal set; }
+        public ProductAvailabilityViewState? UsageAvailability { get; internal set; }
 
         public IEnumerable<int> DisallowedHostGroups { get; internal set; } = Enumerable.Empty<int>();
 
