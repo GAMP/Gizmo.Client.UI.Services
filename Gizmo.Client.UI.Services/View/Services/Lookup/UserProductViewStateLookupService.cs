@@ -58,16 +58,41 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (product.PurchaseAvailability != null)
             {
+                DateTime? lastTimeRangeEnd = null;
+
+                if (product.PurchaseAvailability.DateRange && product.PurchaseAvailability.EndDate.HasValue && product.PurchaseAvailability.TimeRange)
+                {
+                    int days = 6;
+                    if (product.PurchaseAvailability.StartDate.HasValue)
+                    {
+                        days = Math.Min((int)product.PurchaseAvailability.EndDate.Value.Subtract(product.PurchaseAvailability.StartDate.Value).TotalDays, days); //TODO: AAA REVIEW
+                    }
+                    for (int i = 0; i < days; i++)
+                    {
+                        var date = product.PurchaseAvailability.EndDate.Value.AddDays(i * -1);
+                        var lastEndDate = product.PurchaseAvailability.DaysAvailable.Where(a => a.Day == date.DayOfWeek).FirstOrDefault();
+                        if (lastEndDate != null && lastEndDate.DayTimesAvailable != null)
+                        {
+                            var lastEndSecond = lastEndDate.DayTimesAvailable.OrderByDescending(a => a.EndSecond).Select(a => a.EndSecond).FirstOrDefault();
+                            TimeSpan endTimeSpan = TimeSpan.FromSeconds(lastEndSecond);
+                            lastTimeRangeEnd = new DateTime(date.Year, date.Month, date.Day, endTimeSpan.Hours, endTimeSpan.Minutes, endTimeSpan.Seconds);
+                            break;
+                        }
+                    }
+                }
+
+                bool expired = (product.PurchaseAvailability.EndDate.HasValue && product.PurchaseAvailability.EndDate.Value.AddDays(1) < DateTime.Now) || (lastTimeRangeEnd.HasValue && lastTimeRangeEnd.Value < DateTime.Now);
+
                 if (product.PurchaseAvailability.DateRange &&
                     ((product.PurchaseAvailability.StartDate.HasValue && product.PurchaseAvailability.StartDate.Value > DateTime.Now) ||
-                    (product.PurchaseAvailability.EndDate.HasValue && product.PurchaseAvailability.EndDate.Value.AddDays(1) < DateTime.Now)))
+                    expired))
                 {
                     if (product.PurchaseAvailability.StartDate.HasValue && product.PurchaseAvailability.StartDate.Value > DateTime.Now)
                     {
                         product.DisallowPurchase = true;
                         product.DisallowPurchaseReason = "Not yet available."; //TODO: AAA translate
                     }
-                    else if (product.PurchaseAvailability.EndDate.HasValue && product.PurchaseAvailability.EndDate.Value.AddDays(1) < DateTime.Now)
+                    else if (expired)
                     {
                         product.DisallowPurchase = true;
                         product.DisallowPurchaseReason = "Not available anymore."; //TODO: AAA translate
@@ -105,15 +130,40 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (product.TimeProduct.UsageAvailability != null)
                 {
+                    DateTime? lastTimeRangeEnd = null;
+
+                    if (product.TimeProduct.UsageAvailability.DateRange && product.TimeProduct.UsageAvailability.EndDate.HasValue && product.TimeProduct.UsageAvailability.TimeRange)
+                    {
+                        int days = 6;
+                        if (product.TimeProduct.UsageAvailability.StartDate.HasValue)
+                        {
+                            days = Math.Min((int)product.TimeProduct.UsageAvailability.EndDate.Value.Subtract(product.TimeProduct.UsageAvailability.StartDate.Value).TotalDays, days); //TODO: AAA REVIEW
+                        }
+                        for (int i = 0; i < days; i++)
+                        {
+                            var date = product.TimeProduct.UsageAvailability.EndDate.Value.AddDays(i * -1);
+                            var lastEndDate = product.TimeProduct.UsageAvailability.DaysAvailable.Where(a => a.Day == date.DayOfWeek).FirstOrDefault();
+                            if (lastEndDate != null && lastEndDate.DayTimesAvailable != null)
+                            {
+                                var lastEndSecond = lastEndDate.DayTimesAvailable.OrderByDescending(a => a.EndSecond).Select(a => a.EndSecond).FirstOrDefault();
+                                TimeSpan endTimeSpan = TimeSpan.FromSeconds(lastEndSecond);
+                                lastTimeRangeEnd = new DateTime(date.Year, date.Month, date.Day, endTimeSpan.Hours, endTimeSpan.Minutes, endTimeSpan.Seconds);
+                                break;
+                            }
+                        }
+                    }
+
+                    bool expired = (product.TimeProduct.UsageAvailability.EndDate.HasValue && product.TimeProduct.UsageAvailability.EndDate.Value.AddDays(1) < DateTime.Now) || (lastTimeRangeEnd.HasValue && lastTimeRangeEnd.Value < DateTime.Now);
+
                     if (product.TimeProduct.UsageAvailability.DateRange &&
                         ((product.TimeProduct.UsageAvailability.StartDate.HasValue && product.TimeProduct.UsageAvailability.StartDate.Value > DateTime.Now) ||
-                        (product.TimeProduct.UsageAvailability.EndDate.HasValue && product.TimeProduct.UsageAvailability.EndDate.Value.AddDays(1) < DateTime.Now)))
+                        expired))
                     {
                         if (product.TimeProduct.UsageAvailability.StartDate.HasValue && product.TimeProduct.UsageAvailability.StartDate.Value > DateTime.Now)
                         {
                             product.DisallowUse = true;
                         }
-                        else if (product.TimeProduct.UsageAvailability.EndDate.HasValue && product.TimeProduct.UsageAvailability.EndDate.Value.AddDays(1) < DateTime.Now)
+                        else if (expired)
                         {
                             product.DisallowUse = true;
                         }
