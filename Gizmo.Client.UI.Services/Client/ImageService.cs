@@ -104,12 +104,12 @@ namespace Gizmo.Client.UI.Services
                         }
                     }
 
-
                     var request = new HttpRequestMessage(HttpMethod.Get, url);
 
                     request.SetBrowserRequestMode(BrowserRequestMode.NoCors);
 
                     var response = await httpClient.SendAsync(request);
+
                     image = await response.Content.ReadAsByteArrayAsync(cancellationToken);
                 }
 
@@ -123,23 +123,25 @@ namespace Gizmo.Client.UI.Services
             {
                 _semaphore.Release();
             }
-
         }
 
         public async Task<string> ImageHashGetAsync(ImageType imageType, int imageId, CancellationToken cancellationToken)
         {
             var data = await ImageGetAsync(imageType, imageId, cancellationToken);
 
-            using (SHA1 provider = SHA1.Create())
-            {
-                var hashData = provider.ComputeHash(data);
-                StringBuilder result = new StringBuilder(hashData.Length * 2);
+            return Convert.ToBase64String(data);
 
-                for (int i = 0; i < hashData.Length; i++)
-                    result.Append(hashData[i].ToString("x2"));
+            //using (SHA1 provider = SHA1.Create())
+            //{
+            //    var hashData = provider.ComputeHash(data);
 
-                return result.ToString();
-            }
+            //    StringBuilder result = new StringBuilder(hashData.Length * 2);
+
+            //    for (int i = 0; i < hashData.Length; i++)
+            //        result.Append(hashData[i].ToString("x2"));
+
+            //    return result.ToString();
+            //}
         }
 
         private ConcurrentDictionary<int, byte[]> _imageCache = new();
