@@ -45,6 +45,8 @@ namespace Gizmo.Client.UI.View.States
         /// </summary>
         public IEnumerable<int> HiddenHostGroups { get; internal set; } = Enumerable.Empty<int>();
 
+        public OrderOptionType OrderOptions { get; internal set; }
+
         /// <summary>
         /// Whether the product is restricted for current user.
         /// </summary>

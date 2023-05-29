@@ -34,9 +34,25 @@ namespace Gizmo.Client.UI.View.Services
         {
             var productStates = await _userProductService.GetStatesAsync(cToken);
 
+            //only include products allowing client order
+            productStates = productStates.Where(product => !product.OrderOptions.HasFlag(OrderOptionType.DisallowAllowOrder));
+
+            //Only include products that is allowed for guests.
+            productStates = productStates.Where(a => !a.IsRestrictedForGuest);
+
+            //only include products that is allowing sale
+            productStates = productStates.Where(a => !a.OrderOptions.HasFlag(OrderOptionType.RestrictSale));
+
+            //only include products that is allowed for specified user group
+            productStates = productStates.Where(a => !a.IsRestrictedForUserGroup);
+
             if (_hostGroupViewState.HostGroupId.HasValue)
             {
+                //only include products that is visible for specified host group
                 productStates = productStates.Where(a => !a.HiddenHostGroups.Contains(_hostGroupViewState.HostGroupId.Value));
+
+                //Only include time products that are allowed for specified host group.
+                productStates = productStates.Where(a => a.ProductType != ProductType.ProductTime || (a.ProductType == ProductType.ProductTime && !a.TimeProduct.DisallowedHostGroups.Contains(_hostGroupViewState.HostGroupId.Value)));
             }
 
             if (!string.IsNullOrEmpty(ViewState.SearchPattern))

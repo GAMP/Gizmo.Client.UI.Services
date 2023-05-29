@@ -203,6 +203,7 @@ namespace Gizmo.Client.UI.View.Services
             result.UnitPointsAward = model.PointsAward;
             result.DefaultImageId = model.DefaultImageId;
             result.PurchaseOptions = model.PurchaseOptions;
+            result.OrderOptions = model.OrderOptions;
 
             if (model.PurchaseAvailability != null)
             {
