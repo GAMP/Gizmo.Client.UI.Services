@@ -159,6 +159,8 @@ namespace Gizmo.Client
             #region PRODUCTS
             ProductPurchaseAvailabilityModel productPurchaseAvailabilityModel = new ProductPurchaseAvailabilityModel()
             {
+                DateRange = true,
+                StartDate = DateTime.Now.AddDays(-1)
             };
 
             productPurchaseAvailabilityModel.DaysAvailable = new List<ProductModelAvailabilityDay>()
@@ -400,6 +402,41 @@ namespace Gizmo.Client
             });
 
 
+
+
+
+
+            ProductPurchaseAvailabilityModel notAll = new ProductPurchaseAvailabilityModel()
+            {
+                DateRange = true,
+                EndDate = DateTime.Now.AddDays(2),
+                TimeRange = true
+            };
+
+            notAll.DaysAvailable = Enumerable.Range(0, 6).Select(i => new ProductModelAvailabilityDay()
+            {
+                Day = (DayOfWeek)i,
+                DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+                {
+                    {
+                        new ProductModelAvailabilityDayTime()
+                        {
+                            StartSecond = 0,
+                            EndSecond = 1800
+                        }
+                    }
+                }
+            }).ToList();
+
+            _userProducts.Add(new UserProductModel()
+            {
+                Id = 1008,
+                ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
+                ProductType = ProductType.ProductTime,
+                Name = "Not all days",
+                PurchaseAvailability = notAll
+            });
+
             ProductTimeUsageAvailabilityModel productTimeUsageAvailabilityModel = new ProductTimeUsageAvailabilityModel()
             {
             };
@@ -448,7 +485,7 @@ namespace Gizmo.Client
                    product.Bundle = new UserProductBundleModel()
                    {
                        BundledProducts = Enumerable.Range(1, 20)
-                        .Take(random.Next(1, 5))
+                        .Take(random.Next(1, 15))
                         .Select(x => new UserProductBundledModel() { ProductId = x, Quantity = random.Next(1, 3) })
                    };
                });

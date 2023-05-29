@@ -51,8 +51,8 @@ namespace Gizmo.Client.UI.View.Services
                 //only include products that is visible for specified host group
                 productStates = productStates.Where(a => !a.HiddenHostGroups.Contains(_hostGroupViewState.HostGroupId.Value));
 
-                //Only include time products that are allowed for specified host group.
-                productStates = productStates.Where(a => a.ProductType != ProductType.ProductTime || (a.ProductType == ProductType.ProductTime && !a.TimeProduct.DisallowedHostGroups.Contains(_hostGroupViewState.HostGroupId.Value)));
+                ////Only include time products that are allowed for specified host group.
+                //productStates = productStates.Where(a => a.ProductType != ProductType.ProductTime || (a.ProductType == ProductType.ProductTime && !a.TimeProduct.DisallowedHostGroups.Contains(_hostGroupViewState.HostGroupId.Value)));
             }
 
             if (!string.IsNullOrEmpty(ViewState.SearchPattern))
