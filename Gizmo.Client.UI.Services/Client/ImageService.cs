@@ -38,29 +38,15 @@ namespace Gizmo.Client.UI.Services
         #endregion
 
         /// <inheritdoc/>
-        public async ValueTask<Stream> ImageStreamGetAsync(ImageType imageType, int imageId, CancellationToken cancellationToken)
+        public async ValueTask<Stream> ImageStreamGetAsync(ImageType imageType, int imageId, CancellationToken cToken)
         {
             try
             {
-                var imageIdHash = ImageIdHashGet(imageType, imageId);
+                var imageData = await ImageCachedDataGetAsync(imageType, imageId, cToken);
 
-                if (!TryGetImageFromCache(imageIdHash, out var imageData))
-                {
-                    imageData = await ImageGetAsync(imageType, imageId, cancellationToken);
-
-                    var isAdded = TryAddImageToCache(imageIdHash, imageData);
-
-                    if (!isAdded)
-                    {
-                        _logger.LogError("Failed adding image to cache.");
-                    }
-                }
-
-                if (imageData == null)
-                    return Stream.Null;
-
-                //create recyclable stream from cached or newly obtain image buffer
-                return _memoryStreamManager.GetStream(imageData);
+                return imageData is null
+                    ? Stream.Null
+                    : _memoryStreamManager.GetStream(imageData); // create recyclable stream
             }
             catch (OperationCanceledException)
             {
@@ -74,57 +60,32 @@ namespace Gizmo.Client.UI.Services
             }
         }
         /// <inheritdoc/>
-        public async Task<string> ImageSourceGetAsync(ImageType imageType, int imageId, CancellationToken cToken)
+        public async ValueTask<string> ImageSourceGetAsync(ImageType imageType, int imageId, CancellationToken cToken)
         {
-            var imageIdHash = ImageIdHashGet(imageType, imageId);
+            var imageData = await ImageCachedDataGetAsync(imageType, imageId, cToken);
 
-            if (!TryGetImageFromCache(imageIdHash, out var imageData))
-            {
-                imageData = await ImageGetAsync(imageType, imageId, cToken);
-
-                var isAdded = TryAddImageToCache(imageIdHash, imageData);
-
-                if (!isAdded)
-                {
-                    _logger.LogError("Failed adding image to cache.");
-                }
-            }
-
-            if (imageData == null)
-                return string.Empty;
-
-            return $"data:image/png;base64,{Convert.ToBase64String(imageData)}";
-        }
-
-        private bool TryAddImageToCache(string hash, byte[] imageData)
-        {
-            var cache = ImageCacheGet();
-            return cache.TryAdd(hash, imageData);
-        }
-        private bool TryGetImageFromCache(string hash, out byte[]? imageData)
-        {
-            var cache = ImageCacheGet();
-            return cache.TryGetValue(hash, out imageData);
+            return imageData is null
+                ? string.Empty
+                : $"data:image/png;base64,{Convert.ToBase64String(imageData)}";
         }
 
         private ConcurrentDictionary<string, byte[]> ImageCacheGet() =>
             IsWebBrowser ? _webImageCache : _fileImageCache;
-        private static string ImageIdHashGet(ImageType imageType, int imageId)
-        {
-            var buffer = Encoding.UTF8.GetBytes($"{imageType}{imageId}");
+        private bool TryAddImageToCache(string hash, byte[] imageData) =>
+            ImageCacheGet().TryAdd(hash, imageData);
+        private bool TryGetImageFromCache(string hash, out byte[]? imageData) =>
+            ImageCacheGet().TryGetValue(hash, out imageData);
 
-            return ImageHashGet(buffer);
-        }
-        private static string ImageHashGet(byte[] imageData)
+        private static string SHA1HashCompute(byte[] data)
         {
             using SHA1 provider = SHA1.Create();
 
-            var imageHash = provider.ComputeHash(imageData);
+            var hash = provider.ComputeHash(data);
 
-            var result = new StringBuilder(imageHash.Length * 2);
+            var result = new StringBuilder(hash.Length * 2);
 
-            for (int i = 0; i < imageHash.Length; i++)
-                result.Append(imageHash[i].ToString("x2"));
+            for (int i = 0; i < hash.Length; i++)
+                result.Append(hash[i].ToString("x2"));
 
             return result.ToString();
         }
@@ -141,11 +102,12 @@ namespace Gizmo.Client.UI.Services
                 ImageType.Application => "https://api.lorem.space/image/game?w=200&h=300",
                 _ => "https://www.iconfinder.com/icons/87865/download/png/64"
             };
-        private async ValueTask<byte[]> ImageGetAsync(ImageType imageType, int imageId, CancellationToken cToken = default)
+        private async ValueTask<byte[]> ImageServerDataGetAsync(ImageType imageType, int imageId, CancellationToken cToken)
         {
             await _semaphore.WaitAsync(cToken);
 
             var httpClient = _httpClientFactory.CreateClient(nameof(ImageService));
+
             var imageUrl = ImageUrlGet(imageType);
 
             try
@@ -166,6 +128,26 @@ namespace Gizmo.Client.UI.Services
             {
                 _semaphore.Release();
             }
+        }
+        private async ValueTask<byte[]?> ImageCachedDataGetAsync(ImageType imageType, int imageId, CancellationToken cToken)
+        {
+            var buffer = Encoding.UTF8.GetBytes($"{imageType}{imageId}");
+
+            var hash = SHA1HashCompute(buffer);
+
+            if (!TryGetImageFromCache(hash, out var data))
+            {
+                data = await ImageServerDataGetAsync(imageType, imageId, cToken);
+
+                var isCached = TryAddImageToCache(hash, data);
+
+                if (!isCached)
+                {
+                    _logger.LogError("Failed adding image to cache.");
+                }
+            }
+
+            return data;
         }
     }
 }
