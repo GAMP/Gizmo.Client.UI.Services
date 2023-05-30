@@ -15,6 +15,8 @@ namespace Gizmo.Client.UI.Services
     /// </summary>
     public sealed class ImageService : IImageService
     {
+        private static readonly bool IsWebBrowser = RuntimeInformation.IsOSPlatform(OSPlatform.Create("browser"));
+
         #region CONSTRUCTOR
         public ImageService(ILogger<ImageService> logger, IHttpClientFactory httpClientFactory, NavigationService navigationManager)
         {
@@ -22,21 +24,17 @@ namespace Gizmo.Client.UI.Services
             _logger = logger;
             _navigationManager = navigationManager;
         }
-
         #endregion
 
-        #region FIELDS
+        #region PRIVATE FIELDS
         private readonly ILogger _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly NavigationService _navigationManager;
-        private static readonly bool IsWebBrowser = RuntimeInformation.IsOSPlatform(OSPlatform.Create("browser"));
         private readonly SemaphoreSlim _semaphore = new(100);
         private readonly RecyclableMemoryStreamManager _memoryStreamManager = new();
-
-        private readonly ConcurrentDictionary<string, byte[]> _webImageCache = new();
-        private readonly ConcurrentDictionary<string, byte[]> _fileImageCache = new();
         #endregion
 
+        #region PUBLIC FUNCTIONS
         /// <inheritdoc/>
         public async ValueTask<Stream> ImageStreamGetAsync(ImageType imageType, int imageId, CancellationToken cToken)
         {
@@ -68,14 +66,26 @@ namespace Gizmo.Client.UI.Services
                 ? string.Empty
                 : $"data:image/png;base64,{Convert.ToBase64String(imageData)}";
         }
+        #endregion
 
-        private ConcurrentDictionary<string, byte[]> ImageCacheGet() =>
-            IsWebBrowser ? _webImageCache : _fileImageCache;
+        #region IMAGE CACHE STORAGES 
+        private readonly ConcurrentDictionary<string, byte[]> _webImageCache = new();
+        private readonly ConcurrentDictionary<string, byte[]> _fileImageCache = new();
+
+        private IDictionary<string, byte[]> WebCache() => _webImageCache;
+        private IDictionary<string, byte[]> FileCache() => _fileImageCache;
+        #endregion
+
+        #region IMAGE CACHE FUNCTIONS
+        private IDictionary<string, byte[]> ImageCache() => IsWebBrowser ? WebCache() : FileCache();
+
         private bool TryAddImageToCache(string hash, byte[] imageData) =>
-            ImageCacheGet().TryAdd(hash, imageData);
+            ImageCache().TryAdd(hash, imageData);
         private bool TryGetImageFromCache(string hash, out byte[]? imageData) =>
-            ImageCacheGet().TryGetValue(hash, out imageData);
+            ImageCache().TryGetValue(hash, out imageData);
+        #endregion
 
+        #region IMAGE DATA FUNCTIONS
         private static string SHA1HashCompute(byte[] data)
         {
             using SHA1 provider = SHA1.Create();
@@ -149,5 +159,6 @@ namespace Gizmo.Client.UI.Services
 
             return data;
         }
+        #endregion
     }
 }
