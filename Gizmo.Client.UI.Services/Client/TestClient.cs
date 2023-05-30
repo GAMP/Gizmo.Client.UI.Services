@@ -1191,5 +1191,10 @@ namespace Gizmo.Client
         {
             return Task.CompletedTask;
         }
+
+        public string CachePathGet()
+        {
+            return @"C:\ProgramData\Application Data\NETProjects\Gizmo Client\Cache";
+        }
     }
 }
