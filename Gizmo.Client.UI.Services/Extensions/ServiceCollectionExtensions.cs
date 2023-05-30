@@ -63,6 +63,7 @@ namespace Gizmo.Client.UI.Services
                 client.BaseAddress = new Uri("http://www.geoplugin.net");
                 client.Timeout = API_HTTP_CLIENT_DEFAULT_TIMEOUT;
             });
+            services.AddHttpClient(nameof(ImageService));
 
             //add country info service, singelton for now
             services.AddSingleton<CountryInformationService>();
