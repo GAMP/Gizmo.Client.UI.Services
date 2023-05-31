@@ -1,4 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,15 +11,18 @@ namespace Gizmo.Client.UI.View.Services
     public sealed class UserProductViewStateLookupService : ViewStateLookupServiceBase<int, UserProductViewState>
     {
         private readonly IGizmoClient _gizmoClient;
+        private readonly ILocalizationService _localizationService;
         private readonly HostGroupViewState _hostGroupViewState;
 
         public UserProductViewStateLookupService(
             IGizmoClient gizmoClient,
+            ILocalizationService localizationService,
             ILogger<UserProductViewStateLookupService> logger,
             IServiceProvider serviceProvider,
             HostGroupViewState hostGroupViewState) : base(logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
+            _localizationService = localizationService;
             _hostGroupViewState = hostGroupViewState;
         }
 
@@ -90,18 +94,18 @@ namespace Gizmo.Client.UI.View.Services
                     if (product.PurchaseAvailability.StartDate.HasValue && product.PurchaseAvailability.StartDate.Value > DateTime.Now)
                     {
                         product.DisallowPurchase = true;
-                        product.DisallowPurchaseReason = "Not yet available."; //TODO: AAA translate
+                        product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_NOT_YET_AVAILABLE");
                     }
                     else if (expired)
                     {
                         product.DisallowPurchase = true;
-                        product.DisallowPurchaseReason = "Not available anymore."; //TODO: AAA translate
+                        product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_NOT_AVAILABLE_ANYMORE");
                     }
                 }
                 else if (product.PurchaseAvailability.DaysAvailable.Count() > 0)
                 {
                     product.DisallowPurchase = true;
-                    product.DisallowPurchaseReason = "Currently not available."; //TODO: AAA translate and better messages
+                    product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_CURRENTLY_NOT_AVAILABLE");
 
                     var today = product.PurchaseAvailability.DaysAvailable.Where(a => a.Day == DateTime.Now.DayOfWeek).FirstOrDefault();
                     if (today != null && today.DayTimesAvailable != null)
@@ -125,7 +129,7 @@ namespace Gizmo.Client.UI.View.Services
                 if (_hostGroupViewState.HostGroupId.HasValue && product.TimeProduct.DisallowedHostGroups.Contains(_hostGroupViewState.HostGroupId.Value))
                 {
                     product.DisallowPurchase = true;
-                    product.DisallowPurchaseReason = "Not available on this host."; //TODO: AAA translate
+                    product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_TIME_NOT_AVAILABLE_ON_THIS_HOST");
                 }
 
                 if (product.TimeProduct.UsageAvailability != null)
