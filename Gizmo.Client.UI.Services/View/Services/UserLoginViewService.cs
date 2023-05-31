@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
@@ -15,12 +16,15 @@ namespace Gizmo.Client.UI.View.Services
             UserLoginViewState viewState,
             ILogger<UserLoginViewService> logger,
             IServiceProvider serviceProvider,
-            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IGizmoClient gizmoClient,
+            IClientNotificationService notificationsService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
+            _notificationsService = notificationsService;
         }
 
         private readonly IGizmoClient _gizmoClient;
+        private readonly IClientNotificationService _notificationsService;
 
         public void SetLoginMethod(UserLoginType userLoginType)
         {
