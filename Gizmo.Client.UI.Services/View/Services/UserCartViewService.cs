@@ -74,8 +74,7 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             if (product.IsStockLimited ||
-                product.PurchaseAvailability != null ||
-                (product.ProductType == ProductType.ProductTime && product.TimeProduct?.UsageAvailability != null))
+                product.PurchaseAvailability != null)
             {
                 try
                 {
@@ -100,6 +99,40 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 finally
                 {
+                }
+            }
+
+            if (productItem.Quantity == 0 && product.ProductType == ProductType.ProductTime && product.TimeProduct?.UsageAvailability != null)
+            {
+                bool verifyNotAvailableTimeProduct = false;
+
+                if (product.TimeProduct.UsageAvailability.DateRange)
+                {
+                    if ((product.TimeProduct.UsageAvailability.StartDate.HasValue && product.TimeProduct.UsageAvailability.StartDate.Value > DateTime.Now) ||
+                        (product.TimeProduct.UsageAvailability.EndDate.HasValue && product.TimeProduct.UsageAvailability.EndDate.Value < DateTime.Now))
+                    {
+                        verifyNotAvailableTimeProduct = true;
+                    }
+                }
+
+                if (product.TimeProduct.UsageAvailability.TimeRange)
+                {
+                    var daySecond = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second).TotalSeconds;
+
+                    if (product.TimeProduct.UsageAvailability.DaysAvailable.Where(day => day.Day == DateTime.Now.DayOfWeek && day.DayTimesAvailable != null && day.DayTimesAvailable.Where(time => time.StartSecond <= daySecond && time.EndSecond > daySecond).Any()).Any() == false)
+                    {
+                        verifyNotAvailableTimeProduct = true;
+                    }
+                }
+
+                if (verifyNotAvailableTimeProduct)
+                {
+                    var dialogResult = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_WARNING"), _localizationService.GetString("GIZ_VERIFY_PRODUCT_TIME_CURRENTLY_UNAVAILABLE"), AlertDialogButtons.YesNo, AlertDialogIcons.Warning);
+                    var dialogResponse = await dialogResult.WaitForDialogResultAsync();
+                    if (dialogResponse?.Button == AlertDialogResultButton.No)
+                    {
+                        return;
+                    }
                 }
             }
 
