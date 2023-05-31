@@ -160,11 +160,11 @@ namespace Gizmo.Client.UI.View.Services
         public async Task ClearUserCartProductsAsync()
         {
             var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_VERIFY"), _localizationService.GetString("GIZ_SHOP_VERIFY_CLEAR_CART"), AlertDialogButtons.YesNo);
-            if (s.Result == DialogResult.Opened)
+            if (s.Result == AddComponentResultCode.Opened)
             {
                 var result = await s.WaitForDialogResultAsync();
 
-                if (s.Result == DialogResult.Ok && result!.Button == AlertDialogResultButton.Yes)
+                if (s.Result == AddComponentResultCode.Ok && result!.Button == AlertDialogResultButton.Yes)
                     await ClearProductsAsync();
             }
         }
@@ -251,7 +251,7 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             var s = await _dialogService.ShowCheckoutDialogAsync();
-            if (s.Result == DialogResult.Opened)
+            if (s.Result == AddComponentResultCode.Opened)
                 _ = await s.WaitForDialogResultAsync();
         }
 

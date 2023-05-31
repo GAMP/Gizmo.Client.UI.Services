@@ -74,7 +74,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.IsInitialized = false;
 
             var s = await _dialogService.ShowChangeProfileDialogAsync();
-            if (s.Result == DialogResult.Opened)
+            if (s.Result == AddComponentResultCode.Opened)
             {
                 //_ = await s.WaitForDialogResultAsync();
             }
