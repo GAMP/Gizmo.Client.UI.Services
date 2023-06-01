@@ -7,11 +7,6 @@ namespace Gizmo.Client
 {
     public partial class TestClient : IGizmoClient
     {
-        public TestClient(INotificationsService notificationsService)
-        {
-                        _notificationsService = notificationsService;
-        }
-
         private readonly INotificationsService _notificationsService;
 
         private readonly List<UserPersonalFileModel> _personalFiles;
@@ -59,8 +54,10 @@ namespace Gizmo.Client
         public event EventHandler<LockStateEventArgs> LockStateChange;
         public event EventHandler<OutOfOrderStateEventArgs> OutOfOrderStateChange;
 
-        public TestClient()
+        public TestClient(INotificationsService notificationsService)
         {
+            _notificationsService = notificationsService;
+
             Random random = new();
 
             _personalFiles = Enumerable.Range(1, 5).Select(i => new UserPersonalFileModel()
@@ -1174,7 +1171,7 @@ namespace Gizmo.Client
 
         public async Task<PagedList<UserHostGroupModel>> UserHostGroupsGetAsync(UserHostGroupsFilter filters, CancellationToken cancellationToken = default)
         {
-            await Task.Delay(3000);
+            await Task.Delay(1000);
 
             return new PagedList<UserHostGroupModel>(_userHostGroups);
         }
