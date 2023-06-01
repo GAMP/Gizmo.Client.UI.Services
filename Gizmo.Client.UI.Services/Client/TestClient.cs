@@ -1,4 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
 
@@ -6,6 +7,13 @@ namespace Gizmo.Client
 {
     public partial class TestClient : IGizmoClient
     {
+        public TestClient(INotificationsService notificationsService)
+        {
+                        _notificationsService = notificationsService;
+        }
+
+        private readonly INotificationsService _notificationsService;
+
         private readonly List<UserPersonalFileModel> _personalFiles;
         private readonly List<UserApplicationEnterpriseModel> _applicationEnterprises;
         private readonly List<UserApplicationCategoryModel> _userApplicationCategories;
@@ -582,6 +590,8 @@ namespace Gizmo.Client
 
         public async Task<LoginResult> UserLoginAsync(string loginName, string? password, CancellationToken cancellationToken)
         {
+            await _notificationsService.ShowAsync();
+
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggingIn));
             await Task.Delay(new Random().Next(100, 1000), cancellationToken);
 
