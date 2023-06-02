@@ -206,6 +206,22 @@ namespace Gizmo.Client
 
             _userProducts = new List<UserProductModel>();
 
+            ProductPurchaseAvailabilityModel invalidAvailabilityModel = new ProductPurchaseAvailabilityModel()
+            {
+                DateRange = true,
+                EndDate = DateTime.Now.AddDays(8),
+                TimeRange = true,
+            };
+
+            _userProducts.Add(new UserProductModel()
+            {
+                Id = 2000,
+                ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
+                ProductType = ProductType.ProductTime,
+                Name = "Invalid TimeRange",
+                PurchaseAvailability = invalidAvailabilityModel
+            });
+
             ProductPurchaseAvailabilityModel untilAvailabilityModel = new ProductPurchaseAvailabilityModel()
             {
                 DateRange = true,
