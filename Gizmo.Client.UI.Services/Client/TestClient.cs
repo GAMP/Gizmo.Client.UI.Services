@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
@@ -7,7 +8,7 @@ namespace Gizmo.Client
 {
     public partial class TestClient : IGizmoClient
     {
-        private readonly INotificationsService _notificationsService;
+        private readonly IClientNotificationService _notificationsService;
 
         private readonly List<UserPersonalFileModel> _personalFiles;
         private readonly List<UserApplicationEnterpriseModel> _applicationEnterprises;
@@ -54,7 +55,7 @@ namespace Gizmo.Client
         public event EventHandler<LockStateEventArgs> LockStateChange;
         public event EventHandler<OutOfOrderStateEventArgs> OutOfOrderStateChange;
 
-        public TestClient(INotificationsService notificationsService)
+        public TestClient(IClientNotificationService notificationsService)
         {
             _notificationsService = notificationsService;
 
@@ -587,7 +588,15 @@ namespace Gizmo.Client
 
         public async Task<LoginResult> UserLoginAsync(string loginName, string? password, CancellationToken cancellationToken)
         {
-            await _notificationsService.ShowAsync();
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            //cancellationTokenSource.CancelAfter(3000);
+            await _notificationsService.ShowAlertNotification(1, "Error", "Do this now!", cancellationTokenSource.Token);
+            await Task.Delay(1000);
+            await _notificationsService.ShowAlertNotification(2, "Error", "Do this now!", cancellationTokenSource.Token);
+            await Task.Delay(1000);
+            await _notificationsService.ShowAlertNotification(3, "Error", "Do this now!", cancellationTokenSource.Token);
+            await Task.Delay(1000);
+            await _notificationsService.ShowAlertNotification(4, "Error", "Do this now!", cancellationTokenSource.Token);
 
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggingIn));
             await Task.Delay(new Random().Next(100, 1000), cancellationToken);
