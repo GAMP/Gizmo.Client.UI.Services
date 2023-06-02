@@ -212,7 +212,7 @@ namespace Gizmo.Client.UI.View.Services
             if (model.PurchaseAvailability != null)
             {
                 var hasDateRange = model.PurchaseAvailability.DateRange && (model.PurchaseAvailability.StartDate.HasValue || model.PurchaseAvailability.EndDate.HasValue);
-                var hasTimeRange = model.PurchaseAvailability.TimeRange && model.PurchaseAvailability.DaysAvailable.Where(a => a.DayTimesAvailable != null && a.DayTimesAvailable.Count() > 0).Count() > 0;
+                var hasTimeRange = model.PurchaseAvailability.TimeRange; // && model.PurchaseAvailability.DaysAvailable.Where(a => a.DayTimesAvailable != null && a.DayTimesAvailable.Count() > 0).Count() > 0;
 
                 if (hasDateRange || hasTimeRange)
                 {
@@ -231,30 +231,33 @@ namespace Gizmo.Client.UI.View.Services
 
                         var daysAvailable = new List<ProductAvailabilityDayViewState>();
 
-                        foreach (var day in model.PurchaseAvailability.DaysAvailable)
+                        if (model.PurchaseAvailability.DaysAvailable != null)
                         {
-                            var dayAvailable = ServiceProvider.GetRequiredService<ProductAvailabilityDayViewState>();
-
-                            dayAvailable.Day = day.Day;
-
-                            if (day.DayTimesAvailable != null)
+                            foreach (var day in model.PurchaseAvailability.DaysAvailable)
                             {
-                                var timesAvailable = new List<ProductAvailabilityDayTimeViewState>();
+                                var dayAvailable = ServiceProvider.GetRequiredService<ProductAvailabilityDayViewState>();
 
-                                foreach (var time in day.DayTimesAvailable)
+                                dayAvailable.Day = day.Day;
+
+                                if (day.DayTimesAvailable != null)
                                 {
-                                    var timeAvailable = ServiceProvider.GetRequiredService<ProductAvailabilityDayTimeViewState>();
+                                    var timesAvailable = new List<ProductAvailabilityDayTimeViewState>();
 
-                                    timeAvailable.StartSecond = time.StartSecond;
-                                    timeAvailable.EndSecond = time.EndSecond;
+                                    foreach (var time in day.DayTimesAvailable)
+                                    {
+                                        var timeAvailable = ServiceProvider.GetRequiredService<ProductAvailabilityDayTimeViewState>();
 
-                                    timesAvailable.Add(timeAvailable);
+                                        timeAvailable.StartSecond = time.StartSecond;
+                                        timeAvailable.EndSecond = time.EndSecond;
+
+                                        timesAvailable.Add(timeAvailable);
+                                    }
+
+                                    dayAvailable.DayTimesAvailable = timesAvailable;
                                 }
 
-                                dayAvailable.DayTimesAvailable = timesAvailable;
+                                daysAvailable.Add(dayAvailable);
                             }
-
-                            daysAvailable.Add(dayAvailable);
                         }
 
                         purchaseAvailability.DaysAvailable = daysAvailable;
@@ -290,7 +293,7 @@ namespace Gizmo.Client.UI.View.Services
                     if (model.TimeProduct.UsageAvailability != null)
                     {
                         var hasDateRange = model.TimeProduct.UsageAvailability.DateRange && (model.TimeProduct.UsageAvailability.StartDate.HasValue || model.TimeProduct.UsageAvailability.EndDate.HasValue);
-                        var hasTimeRange = model.TimeProduct.UsageAvailability.TimeRange && model.TimeProduct.UsageAvailability.DaysAvailable.Where(a => a.DayTimesAvailable != null && a.DayTimesAvailable.Count() > 0).Count() > 0;
+                        var hasTimeRange = model.TimeProduct.UsageAvailability.TimeRange; // && model.TimeProduct.UsageAvailability.DaysAvailable.Where(a => a.DayTimesAvailable != null && a.DayTimesAvailable.Count() > 0).Count() > 0;
 
                         if (hasDateRange || hasTimeRange)
                         {
@@ -309,30 +312,33 @@ namespace Gizmo.Client.UI.View.Services
 
                                 var daysAvailable = new List<ProductAvailabilityDayViewState>();
 
-                                foreach (var day in model.TimeProduct.UsageAvailability.DaysAvailable)
+                                if (model.TimeProduct.UsageAvailability.DaysAvailable != null)
                                 {
-                                    var dayAvailable = ServiceProvider.GetRequiredService<ProductAvailabilityDayViewState>();
-
-                                    dayAvailable.Day = day.Day;
-
-                                    if (day.DayTimesAvailable != null)
+                                    foreach (var day in model.TimeProduct.UsageAvailability.DaysAvailable)
                                     {
-                                        var timesAvailable = new List<ProductAvailabilityDayTimeViewState>();
+                                        var dayAvailable = ServiceProvider.GetRequiredService<ProductAvailabilityDayViewState>();
 
-                                        foreach (var time in day.DayTimesAvailable)
+                                        dayAvailable.Day = day.Day;
+
+                                        if (day.DayTimesAvailable != null)
                                         {
-                                            var timeAvailable = ServiceProvider.GetRequiredService<ProductAvailabilityDayTimeViewState>();
+                                            var timesAvailable = new List<ProductAvailabilityDayTimeViewState>();
 
-                                            timeAvailable.StartSecond = time.StartSecond;
-                                            timeAvailable.EndSecond = time.EndSecond;
+                                            foreach (var time in day.DayTimesAvailable)
+                                            {
+                                                var timeAvailable = ServiceProvider.GetRequiredService<ProductAvailabilityDayTimeViewState>();
 
-                                            timesAvailable.Add(timeAvailable);
+                                                timeAvailable.StartSecond = time.StartSecond;
+                                                timeAvailable.EndSecond = time.EndSecond;
+
+                                                timesAvailable.Add(timeAvailable);
+                                            }
+
+                                            dayAvailable.DayTimesAvailable = timesAvailable;
                                         }
 
-                                        dayAvailable.DayTimesAvailable = timesAvailable;
+                                        daysAvailable.Add(dayAvailable);
                                     }
-
-                                    daysAvailable.Add(dayAvailable);
                                 }
 
                                 usageAvailability.DaysAvailable = daysAvailable;
