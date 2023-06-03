@@ -67,7 +67,7 @@ namespace Gizmo.Client.UI.View.Services
                 MediaUrl = advertisementViewState.MediaUrl
             });
             if (dialog.Result == AddComponentResultCode.Opened)
-                _ = await dialog.WaitForDialogResultAsync();
+                _ = await dialog.WaitForResultAsync();
         }
         public async Task<AdvertisementViewState> GetAdvertisementViewStateAsync(int id)
         {

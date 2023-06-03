@@ -54,7 +54,7 @@ namespace Gizmo.Client.UI.View.Services
                 }, cancellationToken);
                 if (s.Result == AddComponentResultCode.Opened)
                 {
-                    var dialogResult = await s.WaitForDialogResultAsync(cancellationToken);
+                    var dialogResult = await s.WaitForResultAsync(cancellationToken);
                     if (s.Result == AddComponentResultCode.Ok)
                     {
                         if (dialogResult!.Accepted)

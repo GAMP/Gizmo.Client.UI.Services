@@ -128,7 +128,7 @@ namespace Gizmo.Client.UI.View.Services
                 if (verifyNotAvailableTimeProduct)
                 {
                     var dialogResult = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_WARNING"), _localizationService.GetString("GIZ_VERIFY_PRODUCT_TIME_CURRENTLY_UNAVAILABLE"), AlertDialogButtons.YesNo, AlertDialogIcons.Warning);
-                    var dialogResponse = await dialogResult.WaitForDialogResultAsync();
+                    var dialogResponse = await dialogResult.WaitForResultAsync();
                     if (dialogResponse?.Button == AlertDialogResultButton.No)
                     {
                         return;
@@ -195,7 +195,7 @@ namespace Gizmo.Client.UI.View.Services
             var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_VERIFY"), _localizationService.GetString("GIZ_SHOP_VERIFY_CLEAR_CART"), AlertDialogButtons.YesNo);
             if (s.Result == AddComponentResultCode.Opened)
             {
-                var result = await s.WaitForDialogResultAsync();
+                var result = await s.WaitForResultAsync();
 
                 if (s.Result == AddComponentResultCode.Ok && result!.Button == AlertDialogResultButton.Yes)
                     await ClearProductsAsync();
@@ -285,7 +285,7 @@ namespace Gizmo.Client.UI.View.Services
 
             var s = await _dialogService.ShowCheckoutDialogAsync();
             if (s.Result == AddComponentResultCode.Opened)
-                _ = await s.WaitForDialogResultAsync();
+                _ = await s.WaitForResultAsync();
         }
 
         public async Task CheckoutAsync()
