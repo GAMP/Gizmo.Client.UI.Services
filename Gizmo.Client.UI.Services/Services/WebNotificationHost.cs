@@ -4,7 +4,7 @@ namespace Gizmo.Client.UI.Services
 {
     public sealed class WebNotificationHost : INotificationsHost
     {
-        public Task HideAsyc()
+        public Task HideAsync()
         {
             return Task.CompletedTask;
         }

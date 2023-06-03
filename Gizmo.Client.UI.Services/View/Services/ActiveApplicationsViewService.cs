@@ -1,5 +1,9 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System;
+using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Microsoft.AspNetCore.Connections.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -64,9 +68,26 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
+                if(e.NewState == ContextExecutionState.Completed)
+                {
+                    await Task.Delay(5000);
+                    var notificationService = ServiceProvider.GetRequiredService<IClientNotificationService>();
+                    var res = await notificationService.ShowAlertNotification(1,"The game is running!","Yes! I can see it already?");
+
+                    await res.WaitForResultAsync();
+
+                    //if (res.Result == AddComponentResultCode.Canceled)
+                    //{
+                    //    await notificationService.ShowAlertNotification(3, "HEY!", "Why did you cancel this ??");
+                    //}
+                }
+
                 if(e.NewState == ContextExecutionState.Failed)
                 {
-                    await _gizmoClient.NotifyAppExeLaunchFailureAsync(e.ExecutableId, AppExeLaunchFailReason.ExecutableFileNotFound, e.StateObject as Exception);
+                    var notificationService = ServiceProvider.GetRequiredService<IClientNotificationService>();
+                    var dialog = await notificationService.ShowAlertNotification(2, "Opps!", $"Game failed to start :(");
+                    var res = await dialog.WaitForResultAsync();
+                    //await _gizmoClient.NotifyAppExeLaunchFailureAsync(e.ExecutableId, AppExeLaunchFailReason.ExecutableFileNotFound, e.StateObject as Exception);
                 }    
             }
             catch (OperationCanceledException)
