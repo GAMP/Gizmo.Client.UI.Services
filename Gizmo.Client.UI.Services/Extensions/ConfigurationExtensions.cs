@@ -45,7 +45,8 @@ namespace Gizmo.Client.UI.Services
             services.AddOptions<UserLoginOptions>().Bind(configuration.GetSection("UserLoginOptions"));
             services.AddOptions<HostQRCodeOptions>().Bind(configuration.GetSection("HostQRCodeOptions"));
             services.AddOptions<FeedsOptions>().Bind(configuration.GetSection("FeedsOptions"));
-
+            services.AddOptions<NotificationsOptions>().Bind(configuration.GetSection("NotificationsOptions"));
+            services.AddOptions<DialogOptions>().Bind(configuration.GetSection("DialogOptions"));
             return services;
         } 
 

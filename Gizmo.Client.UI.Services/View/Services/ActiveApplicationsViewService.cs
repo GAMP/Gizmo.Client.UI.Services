@@ -68,26 +68,15 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                if(e.NewState == ContextExecutionState.Completed)
+                if(e.NewState == ContextExecutionState.Deploying)
                 {
-                    await Task.Delay(5000);
-                    var notificationService = ServiceProvider.GetRequiredService<IClientNotificationService>();
-                    var res = await notificationService.ShowAlertNotification(1,"The game is running!","Yes! I can see it already?");
-
-                    await res.WaitForResultAsync();
-
-                    //if (res.Result == AddComponentResultCode.Canceled)
-                    //{
-                    //    await notificationService.ShowAlertNotification(3, "HEY!", "Why did you cancel this ??");
-                    //}
+                    //notify of deployment if required
                 }
 
                 if(e.NewState == ContextExecutionState.Failed)
                 {
-                    var notificationService = ServiceProvider.GetRequiredService<IClientNotificationService>();
-                    var dialog = await notificationService.ShowAlertNotification(2, "Opps!", $"Game failed to start :(");
-                    var res = await dialog.WaitForResultAsync();
-                    //await _gizmoClient.NotifyAppExeLaunchFailureAsync(e.ExecutableId, AppExeLaunchFailReason.ExecutableFileNotFound, e.StateObject as Exception);
+                    //notify of error
+                    await _gizmoClient.NotifyAppExeLaunchFailureAsync(e.ExecutableId, AppExeLaunchFailReason.ExecutableFileNotFound, e.StateObject as Exception);
                 }    
             }
             catch (OperationCanceledException)
