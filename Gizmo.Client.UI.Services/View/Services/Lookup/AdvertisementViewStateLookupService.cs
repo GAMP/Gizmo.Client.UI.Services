@@ -58,7 +58,7 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
         var defaultState = ServiceProvider.GetRequiredService<AdvertisementViewState>();
 
         defaultState.Id = lookUpkey;
-        defaultState.Body = "<div style=\"max-width: 40.0rem; margin: 8.6rem 3.2rem 6.5rem 3.2rem\">DEFAULT BODY</div>";
+        defaultState.Body = new("<div style=\"max-width: 40.0rem; margin: 8.6rem 3.2rem 6.5rem 3.2rem\">DEFAULT BODY</div>");
         defaultState.MediaUrlType = AdvertisementMediaUrlType.None;
 
         return defaultState;
@@ -72,7 +72,7 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
 
         result.IsCustomTemplate = model.IsCustomTemplate;
 
-        result.Body = model.Data;
+        result.Body = new(model.Data);
 
         if (!result.IsCustomTemplate)
         {

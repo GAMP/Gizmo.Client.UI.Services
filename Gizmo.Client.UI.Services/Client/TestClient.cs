@@ -574,6 +574,32 @@ namespace Gizmo.Client
                         MediaUrl = "https://www.youtube.com/watch?v=TsAaH8yqB70&ab_channel=Punish",
                         Url = "https://www.theloadout.com/crysis-4/release-date"
                     }
+                },
+                {
+                    new NewsModel
+                    {
+                        Id = 6,
+                        Title = "Test",
+                        IsCustomTemplate = true,
+                        Data = @"
+                                        <style>
+                                            .centered-content {
+                                                display: grid;
+                                                height: 100%;
+                                                justify-items: center;
+                                                padding-top:25%;
+                                            }
+                                        </style>
+                                        
+                                        <div class='centered-content'>
+                                            <h1 id='test'>Test</h1>
+                                        </div>
+
+                                        <script>
+                                            alert('Hello JavaScript!');
+                                        </script>
+                                    ",
+                    }
                 }
             };
             #endregion
