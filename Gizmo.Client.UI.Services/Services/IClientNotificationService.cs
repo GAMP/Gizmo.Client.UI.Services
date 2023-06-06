@@ -1,4 +1,5 @@
-﻿using Gizmo.UI.Services;
+﻿using Gizmo.UI;
+using Gizmo.UI.Services;
 
 namespace Gizmo.Client.UI.Services
 {
@@ -12,7 +13,7 @@ namespace Gizmo.Client.UI.Services
         /// <param name="message">Message.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Add result.</returns>
-        Task<AddNotificationResult<EmptyComponentResult>> ShowAlertNotification(int alertTypes,
+        Task<AddNotificationResult<EmptyComponentResult>> ShowAlertNotification(AlertTypes alertTypes,
             string title,
             string message,
             CancellationToken cancellationToken = default);

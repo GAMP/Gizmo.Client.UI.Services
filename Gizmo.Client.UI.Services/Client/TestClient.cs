@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
+using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
@@ -606,13 +607,13 @@ namespace Gizmo.Client
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             //cancellationTokenSource.CancelAfter(3000);
-            await _notificationsService.ShowAlertNotification(1, "Error", "Do this now!", cancellationTokenSource.Token);
+            await _notificationsService.ShowAlertNotification(AlertTypes.Danger, "Error", "LoremIpsumissimplydummytextoftheprintingandtypesettingindustry.LoremIpsumhasbeentheindustry'sstandarddummytexteversincethe1500s,whenanunknownprintertookagalleyoftypeandscrambledittomakeatypespecimenbook.Ithassurvivednotonlyfivecenturies,butalsotheleapintoelectronictypesetting,remainingessentiallyunchanged.Itwaspopularisedinthe1960swiththereleaseofLetrasetsheetscontainingLoremIpsumpassages,andmorerecentlywithdesktoppublishingsoftwarelikeAldusPageMakerincludingversionsofLoremIpsum.!", cancellationTokenSource.Token);
             await Task.Delay(1000);
-            await _notificationsService.ShowAlertNotification(2, "Error", "Do this now!", cancellationTokenSource.Token);
+            await _notificationsService.ShowAlertNotification(AlertTypes.Success, "Error", "LoremIpsumissimplydummytextoftheprintingandtypesettingindustry.LoremIpsumhasbeentheindustry'sstandarddummytexteversincethe1500s,whenanunknownprintertookagalleyoftypeandscrambledittomakeatypespecimenbook.Ithassurvivednotonlyfivecenturies,butalsotheleapintoelectronictypesetting,remainingessentiallyunchanged.Itwaspopularisedinthe1960swiththereleaseofLetrasetsheetscontainingLoremIpsumpassages,andmorerecentlywithdesktoppublishingsoftwarelikeAldusPageMakerincludingversionsofLoremIpsum.!", cancellationTokenSource.Token);
             await Task.Delay(1000);
-            await _notificationsService.ShowAlertNotification(3, "Error", "Do this now!", cancellationTokenSource.Token);
+            await _notificationsService.ShowAlertNotification(AlertTypes.Warning, "Error", "LoremIpsumissimplydummytextoftheprintingandtypesettingindustry.LoremIpsumhasbeentheindustry'sstandarddummytexteversincethe1500s,whenanunknownprintertookagalleyoftypeandscrambledittomakeatypespecimenbook.Ithassurvivednotonlyfivecenturies,butalsotheleapintoelectronictypesetting,remainingessentiallyunchanged.Itwaspopularisedinthe1960swiththereleaseofLetrasetsheetscontainingLoremIpsumpassages,andmorerecentlywithdesktoppublishingsoftwarelikeAldusPageMakerincludingversionsofLoremIpsum.!", cancellationTokenSource.Token);
             await Task.Delay(1000);
-            await _notificationsService.ShowAlertNotification(4, "Error", "Do this now!", cancellationTokenSource.Token);
+            await _notificationsService.ShowAlertNotification(AlertTypes.Info, "Error", "LoremIpsumissimplydummytextoftheprintingandtypesettingindustry.LoremIpsumhasbeentheindustry'sstandarddummytexteversincethe1500s,whenanunknownprintertookagalleyoftypeandscrambledittomakeatypespecimenbook.Ithassurvivednotonlyfivecenturies,butalsotheleapintoelectronictypesetting,remainingessentiallyunchanged.Itwaspopularisedinthe1960swiththereleaseofLetrasetsheetscontainingLoremIpsumpassages,andmorerecentlywithdesktoppublishingsoftwarelikeAldusPageMakerincludingversionsofLoremIpsum.", cancellationTokenSource.Token);
 
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggingIn));
             await Task.Delay(new Random().Next(100, 1000), cancellationToken);
