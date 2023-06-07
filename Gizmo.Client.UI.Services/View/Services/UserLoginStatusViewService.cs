@@ -36,7 +36,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             switch(e.State)
             {
-                case LoginState.LoggedIn:
+                case LoginState.LoginCompleted: // use login completed so the ui will only be unblocked when all login procedures have finished
                     ViewState.IsLoggedIn = true;
                     ViewState.Username = e.UserProfile?.UserName;
                     break;
