@@ -68,7 +68,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (ViewState.PointsTotal + product.UnitPointsPrice > userBalanceViewState.PointsBalance)
                 {
-                    await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK, AlertDialogIcons.Error);
+                    await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK, AlertTypes.Danger);
                     return;
                 }
             }
@@ -88,7 +88,7 @@ namespace Gizmo.Client.UI.View.Services
 
                     if (checkResult != UserProductAvailabilityCheckResult.Success)
                     {
-                        await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), checkResult.ToString(), AlertDialogButtons.OK, AlertDialogIcons.Error);
+                        await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), checkResult.ToString(), AlertDialogButtons.OK, AlertTypes.Danger);
                         return;
                     }
                 }
@@ -127,7 +127,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (verifyNotAvailableTimeProduct)
                 {
-                    var dialogResult = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_WARNING"), _localizationService.GetString("GIZ_VERIFY_PRODUCT_TIME_CURRENTLY_UNAVAILABLE"), AlertDialogButtons.YesNo, AlertDialogIcons.Warning);
+                    var dialogResult = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_WARNING"), _localizationService.GetString("GIZ_VERIFY_PRODUCT_TIME_CURRENTLY_UNAVAILABLE"), AlertDialogButtons.YesNo, AlertTypes.Warning);
                     var dialogResponse = await dialogResult.WaitForResultAsync();
                     if (dialogResponse?.Button == AlertDialogResultButton.No)
                     {
@@ -259,7 +259,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (ViewState.PointsTotal + (product.UnitPointsPrice * productItem.Quantity) > userBalanceViewState.PointsBalance)
                 {
-                    await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK, AlertDialogIcons.Error);
+                    await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK, AlertTypes.Danger);
                     //TODO: AAA FORCE RADIO BUTTON TO PREVIOUS STATE.
                     return;
                 }
