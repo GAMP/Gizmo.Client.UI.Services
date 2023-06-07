@@ -574,6 +574,42 @@ namespace Gizmo.Client
                         MediaUrl = "https://www.youtube.com/watch?v=TsAaH8yqB70&ab_channel=Punish",
                         Url = "https://www.theloadout.com/crysis-4/release-date"
                     }
+                },
+                {
+                    new NewsModel
+                    {
+                        Id = 6,
+                        Title = "Test the custom template",
+                        IsCustomTemplate = true,
+                        Data = @"
+                                        <style>
+                                            .test-centered-content {
+                                                display: grid;
+                                                height: 100%;
+                                                justify-items: center;
+                                                padding-top:20%;
+                                            }
+
+                                            .internal:hover {
+                                                color: blue;
+                                            }
+                                        </style>
+                                        
+                                        <div class='test-centered-content'>
+                                            <h1 class=""external external_scss"" onclick=""ExternalFunctions.testFunction()"">Test external CSS and JavaScript</h1>
+                                            <h1 class=""internal external_scss"" onclick=""InternalFunctions.testFunction()"">Test internal CSS and JavaScript</h1>
+                                        </div>
+                                        
+                                        <script>
+                                            class InternalFunctions
+                                            {
+                                                static testFunction(){
+                                                    alert(""Test internal JavaScript alert!"")
+                                                }
+                                             }
+                                        </script>
+                                    ",
+                    }
                 }
             };
             #endregion
