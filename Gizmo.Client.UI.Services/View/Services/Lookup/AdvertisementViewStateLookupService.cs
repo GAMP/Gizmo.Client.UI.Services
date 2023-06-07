@@ -1,5 +1,4 @@
 ﻿using System.Reactive.Linq;
-using System.Text.RegularExpressions;
 using System.Web;
 
 using Gizmo.Client.UI.Services;
@@ -88,15 +87,6 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
             result.Title = model.Title;
             result.StartDate = model.StartDate;
             result.EndDate = model.EndDate;
-        }
-        else
-        {
-            string pattern = @"<script\b[^>]*>(.*?)</script>";
-            
-            var match = Regex.Match(model.Data, pattern, RegexOptions.Singleline | RegexOptions.IgnoreCase);
-            
-            if (match.Success)
-                result.Script = match.Groups[1].Value;
         }
 
         return result;

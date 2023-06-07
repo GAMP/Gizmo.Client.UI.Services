@@ -579,36 +579,13 @@ namespace Gizmo.Client
                     new NewsModel
                     {
                         Id = 6,
-                        Title = "Test the custom template",
+                        Title = "Test the custom HTML",
                         IsCustomTemplate = true,
                         Data = @"
-                                        <style>
-                                            .test-centered-content {
-                                                display: grid;
-                                                height: 100%;
-                                                justify-items: center;
-                                                padding-top:20%;
-                                            }
-
-                                            .internal:hover {
-                                                color: blue;
-                                            }
-                                        </style>
-                                        
-                                        <div class='test-centered-content'>
-                                            <h1 class=""external external_scss"" onclick=""ExternalFunctions.testFunction()"">Test external CSS and JavaScript</h1>
-                                            <h1 class=""internal external_scss"" onclick=""InternalFunctions.testFunction()"">Test internal CSS and JavaScript</h1>
-                                        </div>
-                                        
-                                        <script>
-                                            class InternalFunctions
-                                            {
-                                                static testFunction(){
-                                                    alert(""Test internal JavaScript alert!"")
-                                                }
-                                             }
-                                        </script>
-                                    ",
+                                    <div class='external-css_content'>
+                                        <h1 class=""external-css"" onclick=""ExternalFunctions.testAlert()"">Test external CSS and JavaScript</h1>
+                                    </div>
+                                ",
                     }
                 }
             };
@@ -643,7 +620,7 @@ namespace Gizmo.Client
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             //cancellationTokenSource.CancelAfter(3000);
-            await _notificationsService.ShowAlertNotification(AlertTypes.Danger, "Error", "Do this now!",default,default,
+            await _notificationsService.ShowAlertNotification(AlertTypes.Danger, "Error", "Do this now!", default, default,
                 cancellationTokenSource.Token);
             //await Task.Delay(1000);
             //await _notificationsService.ShowAlertNotification(AlertTypes.Success, "Error", "Do this now!", cancellationTokenSource.Token);
