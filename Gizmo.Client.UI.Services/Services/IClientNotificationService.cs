@@ -18,8 +18,8 @@ namespace Gizmo.Client.UI.Services
         Task<AddNotificationResult<EmptyComponentResult>> ShowAlertNotification(AlertTypes alertTypes,
             string title,
             string message,
-            NotificationDisplayOptions? displayOptions,
-            NotificationAddOptions? addOptions,
+            NotificationDisplayOptions? displayOptions = default,
+            NotificationAddOptions? addOptions = default,
             CancellationToken cancellationToken = default);
     }
 }
