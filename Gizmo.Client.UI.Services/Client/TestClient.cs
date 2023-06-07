@@ -643,7 +643,8 @@ namespace Gizmo.Client
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             //cancellationTokenSource.CancelAfter(3000);
-            await _notificationsService.ShowAlertNotification(AlertTypes.Danger, "Error", "Do this now!", cancellationTokenSource.Token);
+            await _notificationsService.ShowAlertNotification(AlertTypes.Danger, "Error", "Do this now!",default,default,
+                cancellationTokenSource.Token);
             //await Task.Delay(1000);
             //await _notificationsService.ShowAlertNotification(AlertTypes.Success, "Error", "Do this now!", cancellationTokenSource.Token);
             //await Task.Delay(1000);
