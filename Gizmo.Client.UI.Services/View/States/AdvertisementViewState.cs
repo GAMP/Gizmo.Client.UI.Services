@@ -13,6 +13,7 @@ namespace Gizmo.Client.UI.View.States
         public bool IsCustomTemplate { get; internal set; }
         public string? Title { get; internal set; }
         public MarkupString Body { get; internal set; }
+        public string? Script { get; internal set; }
         public DateTime? StartDate { get; internal set; }
         public DateTime? EndDate { get; internal set; }
         public string? Url { get; internal set; }

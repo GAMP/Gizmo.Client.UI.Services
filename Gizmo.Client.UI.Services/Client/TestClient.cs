@@ -579,24 +579,34 @@ namespace Gizmo.Client
                     new NewsModel
                     {
                         Id = 6,
-                        Title = "Test",
+                        Title = "Test the custom template",
                         IsCustomTemplate = true,
                         Data = @"
                                         <style>
-                                            .centered-content {
+                                            .test-centered-content {
                                                 display: grid;
                                                 height: 100%;
                                                 justify-items: center;
-                                                padding-top:25%;
+                                                padding-top:20%;
+                                            }
+
+                                            .internal:hover {
+                                                color: blue;
                                             }
                                         </style>
                                         
-                                        <div class='centered-content'>
-                                            <h1 id='test'>Test</h1>
+                                        <div class='test-centered-content'>
+                                            <h1 class=""external external_scss"" onclick=""ExternalFunctions.testFunction()"">Test external CSS and JavaScript</h1>
+                                            <h1 class=""internal external_scss"" onclick=""InternalFunctions.testFunction()"">Test internal CSS and JavaScript</h1>
                                         </div>
-
+                                        
                                         <script>
-                                            alert('Hello JavaScript!');
+                                            class InternalFunctions
+                                            {
+                                                static testFunction(){
+                                                    alert(""Test internal JavaScript alert!"")
+                                                }
+                                             }
                                         </script>
                                     ",
                     }
