@@ -75,25 +75,19 @@ namespace Gizmo.Client.UI.Services
         public async Task SetFullScreenAsync(bool isFullScreen, string error)
         {
             var client = _serviceProvider.GetRequiredService<IGizmoClient>();
-            //TODO: Handle full-screen events
-            if (!string.IsNullOrEmpty(error))
-            {     
-                Console.WriteLine($"FULLSCREEN ERROR: {error}");
+
+            if (!string.IsNullOrEmpty(error)) // TODO What does this error represent?
+                return;
+
+            if (isFullScreen)
+            {
+                await client.EnterFullSceenAsync();
             }
             else
             {
-                if (isFullScreen)
-                {
-                    await client.EnterFullSceenAsync();
-                }
-                else
-                {
-                    await client.ExitFullSceenAsync();
-                }
-                Console.WriteLine($"FULLSCREEN: {isFullScreen}");
+                await client.ExitFullSceenAsync();
             }
         }
-
 
         public async Task InitializeAsync(CancellationToken cToken)
         {
