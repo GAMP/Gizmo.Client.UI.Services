@@ -75,13 +75,10 @@ namespace Gizmo.Client.UI.Services
         public async Task SetFullScreenAsync(bool isFullScreen, string error)
         {
             var client = _serviceProvider.GetRequiredService<IGizmoClient>();
-
-            if (!string.IsNullOrEmpty(error)) // TODO What does this error represent?
-                return;
-
-            if (isFullScreen)
-            {
-                await client.EnterFullSceenAsync();
+            //TODO: Handle full-screen events
+            if (!string.IsNullOrEmpty(error))
+            {     
+                Console.WriteLine($"FULLSCREEN ERROR: {error}");
             }
             else
             {
@@ -93,12 +90,14 @@ namespace Gizmo.Client.UI.Services
         {
             try
             {
-                await JSRuntime.InvokeVoidAsync("ClientFunctions.SetDotnetObjectReference", ObjectReference);
-                await JSRuntime.InvokeVoidAsync("ClientFunctions.SubscribeOnFullScreenChange", nameof(SetFullScreenAsync));
+                await JSRuntime.InvokeVoidAsync("ClientAPI.SetDotnetObjectReference", ObjectReference);
+                await JSRuntime.InvokeVoidAsync("InternalFunctions.SetDotnetObjectReference", ObjectReference);
+
+                await JSRuntime.InvokeVoidAsync("InternalFunctions.SubscribeOnFullScreenChange", nameof(SetFullScreenAsync));
             }
             catch (Exception ex)
             {
-                _logger.LogCritical(ex, "Could not initalize client javascrip interop.");
+                _logger.LogCritical(ex, "Could not initalize client JavaScript interop.");
             }
         }
 
@@ -107,7 +106,7 @@ namespace Gizmo.Client.UI.Services
         #region IDisposable
         public void Dispose()
         {
-            JSRuntime.InvokeVoidAsync("ClientFunctions.UnsubscribeOnFullScreenChange", nameof(SetFullScreenAsync))
+            JSRuntime.InvokeVoidAsync("InternalFunctions.UnsubscribeOnFullScreenChange", nameof(SetFullScreenAsync))
                 .AsTask()
                 .ContinueWith(
                     task =>
