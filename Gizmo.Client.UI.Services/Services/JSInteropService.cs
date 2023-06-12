@@ -81,8 +81,7 @@ namespace Gizmo.Client.UI.Services
             }
             else
             {
-                Console.WriteLine("FULLSCREEN: " + isFullScreen.ToString());
-                //await client.ExitFullSceenAsync();
+                await client.ExitFullSceenAsync();
             }
         }
 
