@@ -55,6 +55,7 @@ namespace Gizmo.Client
         public event EventHandler<ConnectionStateEventArgs>? ConnectionStateChange;
         public event EventHandler<LockStateEventArgs> LockStateChange;
         public event EventHandler<OutOfOrderStateEventArgs> OutOfOrderStateChange;
+        public event EventHandler<ReservationChangeEventArgs> ReservationChange;
 
         public TestClient(IClientNotificationService notificationsService)
         {
@@ -1242,6 +1243,11 @@ namespace Gizmo.Client
         public string CachePathGet()
         {
             return @"C:\ProgramData\Application Data\NETProjects\Gizmo Client\Cache";
+        }
+
+        public Task<NextHostReservationModel?> NextHostReservationGetAsync(CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
     }
 }
