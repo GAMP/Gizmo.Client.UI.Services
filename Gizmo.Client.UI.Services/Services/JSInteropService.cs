@@ -77,7 +77,7 @@ namespace Gizmo.Client.UI.Services
             var client = _serviceProvider.GetRequiredService<IGizmoClient>();
             //TODO: Handle full-screen events
             if (!string.IsNullOrEmpty(error))
-            {     
+            {
                 Console.WriteLine($"FULLSCREEN ERROR: {error}");
             }
             else
@@ -91,9 +91,9 @@ namespace Gizmo.Client.UI.Services
             try
             {
                 await JSRuntime.InvokeVoidAsync("ClientAPI.SetDotnetObjectReference", ObjectReference);
-                await JSRuntime.InvokeVoidAsync("InternalFunctions.SetDotnetObjectReference", ObjectReference);
+                await JSRuntime.InvokeVoidAsync("ClientFullScreen.SetDotnetObjectReference", ObjectReference);
 
-                await JSRuntime.InvokeVoidAsync("InternalFunctions.SubscribeOnFullScreenChange", nameof(SetFullScreenAsync));
+                await JSRuntime.InvokeVoidAsync("ClientFullScreen.SubscribeOnFullScreenChange", nameof(SetFullScreenAsync));
             }
             catch (Exception ex)
             {
@@ -106,7 +106,7 @@ namespace Gizmo.Client.UI.Services
         #region IDisposable
         public void Dispose()
         {
-            JSRuntime.InvokeVoidAsync("InternalFunctions.UnsubscribeOnFullScreenChange", nameof(SetFullScreenAsync))
+            JSRuntime.InvokeVoidAsync("ClientFullScreen.UnsubscribeOnFullScreenChange", nameof(SetFullScreenAsync))
                 .AsTask()
                 .ContinueWith(
                     task =>
