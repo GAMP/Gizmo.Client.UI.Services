@@ -77,7 +77,7 @@ namespace Gizmo.Client.UI.Services
             var client = _serviceProvider.GetRequiredService<IGizmoClient>();
             //TODO: Handle full-screen events
             if (!string.IsNullOrEmpty(error))
-            {     
+            {
                 Console.WriteLine($"FULLSCREEN ERROR: {error}");
             }
             else
