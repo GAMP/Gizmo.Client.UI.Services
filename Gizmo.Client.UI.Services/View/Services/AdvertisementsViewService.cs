@@ -43,18 +43,18 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnInitializing(CancellationToken ct)
         {
-            _advertisementViewStateLookupService.Changed += _advertisementViewStateLookupService_Changed;
+            _advertisementViewStateLookupService.Changed += OnAdvertisementViewStateLookupServiceChanged;
             return base.OnInitializing(ct);
         }
 
-        private async void _advertisementViewStateLookupService_Changed(object? sender, LookupServiceChangeArgs e)
+        private async void OnAdvertisementViewStateLookupServiceChanged(object? sender, LookupServiceChangeArgs e)
         {
             await LoadAdvertisementsAsync();
         }
 
         protected override void OnDisposing(bool isDisposing)
         {
-            _advertisementViewStateLookupService.Changed -= _advertisementViewStateLookupService_Changed;
+            _advertisementViewStateLookupService.Changed -= OnAdvertisementViewStateLookupServiceChanged;
             base.OnDisposing(isDisposing);
         }
 
@@ -75,8 +75,16 @@ namespace Gizmo.Client.UI.View.Services
         }
         public async Task LoadAdvertisementsAsync(CancellationToken cToken = default)
         {
-            ViewState.Advertisements = await _advertisementViewStateLookupService.GetStatesAsync(cToken);
-            ViewState.RaiseChanged();
+            try
+            {
+                ViewState.Advertisements = await _advertisementViewStateLookupService.GetStatesAsync(cToken);
+
+                DebounceViewStateChanged();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to load advertisements.");
+            }
         }
         private async void OnLoadAdvertisementsAsync(object? _, EventArgs __) =>
             await LoadAdvertisementsAsync();

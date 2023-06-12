@@ -26,6 +26,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             try
             {
+                var configuration = await _gizmoClient.ReservationConfigurationGetAsync();
                 var currentData = await _gizmoClient.NextHostReservationGetAsync();
 
                 var reservationId = currentData?.NextReservationId;
@@ -39,24 +40,24 @@ namespace Gizmo.Client.UI.View.Services
                     ViewState.Time = reservationTime;
                     ViewState.IsReserved = DateTime.Now.AddHours(1) >= reservationTime;
 
-                    //if (currentData.EnableLoginBlock)
-                    //{
-                    //    var blockTime = reservationTime.Value.AddMinutes(currentData.LoginBlockTime * -1);
+                    if (configuration.EnableLoginBlock)
+                    {
+                        var blockTime = reservationTime.Value.AddMinutes(configuration.LoginBlockTime * -1);
 
-                    //    if (currentData.EnableLoginUnblock)
-                    //    {
-                    //        var unblockTime = reservationTime.Value.AddMinutes(currentData.LoginUnblockTime);
-                    //        ViewState.IsLoginBlocked = currentTime <= unblockTime;
-                    //    }
-                    //    else
-                    //    {
-                    //        ViewState.IsLoginBlocked = currentTime >= blockTime;
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    ViewState.IsLoginBlocked = false;
-                    //}
+                        if (configuration.EnableLoginUnblock)
+                        {
+                            var unblockTime = reservationTime.Value.AddMinutes(configuration.LoginUnblockTime);
+                            ViewState.IsLoginBlocked = currentTime <= unblockTime;
+                        }
+                        else
+                        {
+                            ViewState.IsLoginBlocked = currentTime >= blockTime;
+                        }
+                    }
+                    else
+                    {
+                        ViewState.IsLoginBlocked = false;
+                    }
                 }
                 else
                 {
@@ -71,7 +72,7 @@ namespace Gizmo.Client.UI.View.Services
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Failed to get the next host reservation.");
+                Logger.LogError(ex, "Failed to load next host reservation.");
             }
         }
 
@@ -94,7 +95,8 @@ namespace Gizmo.Client.UI.View.Services
 
         private async void OnConnectionStateChange(object? sender, ConnectionStateEventArgs e)
         {
-            await LoadNextHostReservation();
+            if (e.IsConnected)
+                await LoadNextHostReservation();
         }
 
         private async void OnReservationChange(object? sender, ReservationChangeEventArgs e)

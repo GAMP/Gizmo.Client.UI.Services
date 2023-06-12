@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.Services;
+﻿using Gizmo.Client.UI;
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
@@ -1246,6 +1247,11 @@ namespace Gizmo.Client
         }
 
         public Task<NextHostReservationModel?> NextHostReservationGetAsync(CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ClientReservationOptions> ReservationConfigurationGetAsync(CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
