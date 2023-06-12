@@ -99,9 +99,9 @@ namespace Gizmo.Client.UI.Services
             try
             {
                 await JSRuntime.InvokeVoidAsync("ClientAPI.SetDotnetObjectReference", ObjectReference);
-                await JSRuntime.InvokeVoidAsync("ClientFullScreen.SetDotnetObjectReference", ObjectReference);
+                await JSRuntime.InvokeVoidAsync("InternalFunctions.SetDotnetObjectReference", ObjectReference);
 
-                await JSRuntime.InvokeVoidAsync("ClientFullScreen.SubscribeOnFullScreenChange", nameof(SetFullScreenAsync));
+                await JSRuntime.InvokeVoidAsync("InternalFunctions.FullScreen.SubscribeOnFullScreenChange", nameof(SetFullScreenAsync));
             }
             catch (Exception ex)
             {
@@ -114,7 +114,7 @@ namespace Gizmo.Client.UI.Services
         #region IDisposable
         public void Dispose()
         {
-            JSRuntime.InvokeVoidAsync("ClientFullScreen.UnsubscribeOnFullScreenChange", nameof(SetFullScreenAsync))
+            JSRuntime.InvokeVoidAsync("InternalFunctions.FullScreen.UnsubscribeOnFullScreenChange", nameof(SetFullScreenAsync))
                 .AsTask()
                 .ContinueWith(
                     task =>
