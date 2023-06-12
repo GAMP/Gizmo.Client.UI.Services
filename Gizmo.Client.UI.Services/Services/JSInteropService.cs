@@ -75,10 +75,9 @@ namespace Gizmo.Client.UI.Services
         public async Task SetFullScreenAsync(bool isFullScreen, string error)
         {
             var client = _serviceProvider.GetRequiredService<IGizmoClient>();
-            //TODO: Handle full-screen events
-            if (!string.IsNullOrEmpty(error))
-            {     
-                Console.WriteLine($"FULLSCREEN ERROR: {error}");
+            if (isFullScreen)
+            {
+                await client.EnterFullSceenAsync();
             }
             else
             {
