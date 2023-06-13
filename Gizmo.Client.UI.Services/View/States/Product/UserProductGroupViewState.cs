@@ -23,5 +23,10 @@ namespace Gizmo.Client.UI.View.States
         /// Gets sort option.
         /// </summary>
         public ProductSortOptionType SortOption { get; internal set; }
+
+        /// <summary>
+        /// Gets display order.
+        /// </summary>
+        public int DisplayOrder { get; internal set; }
     }
 }

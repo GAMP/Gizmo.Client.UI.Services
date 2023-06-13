@@ -57,6 +57,7 @@ namespace Gizmo.Client.UI.View.Services
 
             result.Name = model.Name;
             result.SortOption = model.SortOption;
+            result.DisplayOrder = model.DisplayOrder;
             
             return result;
         }
