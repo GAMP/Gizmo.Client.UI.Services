@@ -93,17 +93,17 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (_userPasswordRecoveryViewState.SelectedRecoveryMethod == UserRecoveryMethod.Email)
             {
-                ViewState.ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_EMAIL_MESSAGE", _userPasswordRecoveryViewState.Destination);
+                ViewState.ConfirmationCodeMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_EMAIL_MESSAGE", _userPasswordRecoveryViewState.Destination);
             }
             else if (_userPasswordRecoveryViewState.SelectedRecoveryMethod == UserRecoveryMethod.Mobile)
             {
                 if (_userPasswordRecoveryViewState.DeliveryMethod == ConfirmationCodeDeliveryMethod.FlashCall)
                 {
-                    ViewState.ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_FLASH_CALL_MESSAGE", _userPasswordRecoveryViewState.Destination, _userPasswordRecoveryViewState.CodeLength);
+                    ViewState.ConfirmationCodeMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_FLASH_CALL_MESSAGE", _userPasswordRecoveryViewState.Destination, _userPasswordRecoveryViewState.CodeLength);
                 }
                 else
                 {
-                    ViewState.ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_SMS_MESSAGE", _userPasswordRecoveryViewState.Destination);
+                    ViewState.ConfirmationCodeMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_SMS_MESSAGE", _userPasswordRecoveryViewState.Destination);
                 }
             }
 
@@ -131,13 +131,13 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         if (!await _gizmoClient.TokenIsValidAsync(TokenType.ResetPassword, _userPasswordRecoveryViewState.Token, ViewState.ConfirmationCode))
                         {
-                            return new string[] { _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID") };
+                            return new string[] { _localizationService.GetString("GIZ_USER_CONFIRMATION_CONFIRMATION_CODE_IS_INVALID") };
                         }
                     }
                     catch (Exception ex)
                     {
                         Logger.LogError(ex, "Check password recovery token validity error.");
-                        return new string[] { _localizationService.GetString("VE_ERROR_CANNOT_VALIDATE_REGISTRATION_TOKEN") };
+                        return new string[] { _localizationService.GetString("GIZ_USER_CONFIRMATION_VE_CANNOT_VALIDATE_TOKEN") };
                     }
                 }
             }

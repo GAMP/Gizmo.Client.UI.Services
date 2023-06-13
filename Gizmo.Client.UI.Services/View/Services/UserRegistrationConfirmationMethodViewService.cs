@@ -135,7 +135,7 @@ namespace Gizmo.Client.UI.View.Services
                     else if (result.Result == Gizmo.VerificationStartResultCode.NoRouteForDelivery)
                     {
                         ViewState.HasError = true;
-                        ViewState.ErrorMessage = _localizationService.GetString("PROVIDER_NO_ROUTE_FOR_DELIVERY");
+                        ViewState.ErrorMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY");
                     }
                     else
                     {
@@ -181,14 +181,14 @@ namespace Gizmo.Client.UI.View.Services
                         case Gizmo.VerificationStartResultCode.NonUniqueInput:
 
                             ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("VE_MOBILE_PHONE_USED");
+                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_REGISTRATION_VE_MOBILE_PHONE_USED");
 
                             break;
 
                         case Gizmo.VerificationStartResultCode.NoRouteForDelivery:
 
                             ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("PROVIDER_NO_ROUTE_FOR_DELIVERY");
+                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY");
 
                             break;
 
@@ -239,7 +239,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (string.IsNullOrEmpty(ViewState.Email))
                 {
-                    AddError(() => ViewState.Email, _localizationService.GetString("EMAIL_IS_REQUIRED"));
+                    AddError(() => ViewState.Email, _localizationService.GetString("GIZ_USER_CONFIRMATION_VE_EMAIL_IS_REQUIRED"));
                 }
             }
 
@@ -248,7 +248,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (string.IsNullOrEmpty(ViewState.MobilePhone))
                 {
-                    AddError(() => ViewState.MobilePhone, _localizationService.GetString("PHONE_IS_REQUIRED"));
+                    AddError(() => ViewState.MobilePhone, _localizationService.GetString("GIZ_USER_CONFIRMATION_VE_PHONE_IS_REQUIRED"));
                 }
             }
         }
@@ -264,13 +264,13 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         if (await _gizmoClient.UserEmailExistAsync(ViewState.Email))
                         {
-                            return new string[] { _localizationService.GetString("VE_EMAIL_ADDRESS_USED") };
+                            return new string[] { _localizationService.GetString("GIZ_REGISTRATION_VE_EMAIL_ADDRESS_USED") };
                         }
                     }
                     catch (Exception ex)
                     {
                         Logger.LogError(ex, "Cannot validate email.");
-                        return new string[] { _localizationService.GetString("VE_ERROR_CANNOT_VALIDATE_EMAIL") };
+                        return new string[] { _localizationService.GetString("GIZ_REGISTRATION_VE_CANNOT_VALIDATE_EMAIL") };
                     }
                 }
             }
@@ -290,13 +290,13 @@ namespace Gizmo.Client.UI.View.Services
 
                         if (await _gizmoClient.UserMobileExistAsync(tmp))
                         {
-                            return new string[] { _localizationService.GetString("VE_MOBILE_PHONE_USED") };
+                            return new string[] { _localizationService.GetString("GIZ_REGISTRATION_VE_MOBILE_PHONE_USED") };
                         }
                     }
                     catch (Exception ex)
                     {
                         Logger.LogError(ex, "Cannot validate phone.");
-                        return new string[] { _localizationService.GetString("VE_ERROR_CANNOT_VALIDATE_PHONE") };
+                        return new string[] { _localizationService.GetString("GIZ_REGISTRATION_VE_CANNOT_VALIDATE_PHONE") };
                     }
                 }
             }

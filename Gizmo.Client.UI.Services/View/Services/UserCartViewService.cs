@@ -129,7 +129,7 @@ namespace Gizmo.Client.UI.View.Services
 
                     if (verifyNotAvailableTimeProduct)
                     {
-                        var dialogResult = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_WARNING"), _localizationService.GetString("GIZ_VERIFY_PRODUCT_TIME_CURRENTLY_UNAVAILABLE"), AlertDialogButtons.YesNo, AlertTypes.Warning);
+                        var dialogResult = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_WARNING"), _localizationService.GetString("GIZ_PRODUCT_TIME_CURRENTLY_UNAVAILABLE_VERIFY"), AlertDialogButtons.YesNo, AlertTypes.Warning);
                         var dialogResponse = await dialogResult.WaitForResultAsync();
                         if (dialogResponse?.Button == AlertDialogResultButton.No)
                         {
@@ -478,7 +478,7 @@ namespace Gizmo.Client.UI.View.Services
             //TODO: AAA CHECK AFTER REMOVE PRODUCT AND RESEND.
             if (fieldIdentifier.FieldEquals(() => ViewState.PaymentMethodId) && !ViewState.PaymentMethodId.HasValue && ViewState.Total > 0)
             {
-                AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("VALIDATION_ERROR_REQUIRED_FIELD", nameof(ViewState.PaymentMethodId)));
+                AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD", nameof(ViewState.PaymentMethodId)));
             }
         }
     }

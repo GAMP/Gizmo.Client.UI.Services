@@ -172,7 +172,7 @@ namespace Gizmo.Client.UI.View.Services
                         if (result.Result != AccountCreationCompleteResultCode.Success)
                         {
                             ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("REGISTER_FAILED_MESSAGE");
+                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_REGISTRATION_FAILED_MESSAGE");
 
                             return;
                         }
@@ -184,7 +184,7 @@ namespace Gizmo.Client.UI.View.Services
                         if (result.Result != AccountCreationByTokenCompleteResultCode.Success)
                         {
                             ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("REGISTER_FAILED_MESSAGE");
+                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_REGISTRATION_FAILED_MESSAGE");
 
                             return;
                         }
@@ -218,7 +218,7 @@ namespace Gizmo.Client.UI.View.Services
                 ClearError(() => ViewState.RepeatPassword);
                 if (!string.IsNullOrEmpty(ViewState.Password) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.Password, ViewState.RepeatPassword) != 0)
                 {
-                    AddError(() => ViewState.RepeatPassword, _localizationService.GetString("PASSWORDS_DO_NOT_MATCH"));
+                    AddError(() => ViewState.RepeatPassword, _localizationService.GetString("GIZ_GEN_PASSWORDS_DO_NOT_MATCH"));
                 }
             }
         }
@@ -233,13 +233,13 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         if (await _gizmoClient.UserExistAsync(ViewState.Username))
                         {
-                            return new string[] { _localizationService.GetString("VE_USERNAME_USED") };
+                            return new string[] { _localizationService.GetString("GIZ_REGISTRATION_VE_USERNAME_IN_USE") };
                         }
                     }
                     catch (Exception ex)
                     {
                         Logger.LogError(ex, "Cannot validate username.");
-                        return new string[] { _localizationService.GetString("VE_ERROR_CANNOT_VALIDATE_USERNAME") };
+                        return new string[] { _localizationService.GetString("GIZ_REGISTRATION_VE_CANNOT_VALIDATE_USERNAME") };
                     }
                 }
             }

@@ -67,7 +67,7 @@ namespace Gizmo.Client.UI.View.Services
                 if (result != PasswordRecoveryCompleteResultCode.Success)
                 {
                     ViewState.HasError = true;
-                    ViewState.ErrorMessage = _localizationService.GetString("PASSWORD_RESET_FAILED_MESSAGE");
+                    ViewState.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_RECOVERY_PASSWORD_RESET_FAILED_MESSAGE");
 
                     return;
                 }
@@ -113,7 +113,7 @@ namespace Gizmo.Client.UI.View.Services
                 ClearError(() => ViewState.RepeatPassword);
                 if (!string.IsNullOrEmpty(ViewState.NewPassword) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.NewPassword, ViewState.RepeatPassword) != 0)
                 {
-                    AddError(() => ViewState.RepeatPassword, _localizationService.GetString("PASSWORDS_DO_NOT_MATCH"));
+                    AddError(() => ViewState.RepeatPassword, _localizationService.GetString("GIZ_GEN_PASSWORDS_DO_NOT_MATCH"));
                 }
             }
         }

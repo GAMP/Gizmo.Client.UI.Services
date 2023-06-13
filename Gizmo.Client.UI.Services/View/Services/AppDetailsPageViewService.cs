@@ -39,13 +39,20 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     if (int.TryParse(applicationId, out int id))
                     {
-                        var applicationViewState = await _appLookupService.GetStateAsync(id, false, cancellationToken);
-                        ViewState.Application = applicationViewState;
+                        try
+                        {
+                            var applicationViewState = await _appLookupService.GetStateAsync(id, false, cancellationToken);
+                            var executables = await _appExeLookupService.GetStatesAsync(cancellationToken);
 
-                        var executables = await _appExeLookupService.GetStatesAsync(cancellationToken);
-                        ViewState.Executables = executables.Where(a => a.ApplicationId == id).ToList();
+                            ViewState.Application = applicationViewState;
+                            ViewState.Executables = executables.Where(a => a.ApplicationId == id).ToList();
 
-                        DebounceViewStateChanged();
+                            DebounceViewStateChanged();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError(ex, "Failed to load application.");
+                        }
                     }
                 }
             }
