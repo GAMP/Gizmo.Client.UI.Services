@@ -72,6 +72,7 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
 
         result.IsCustomTemplate = model.IsCustomTemplate;
 
+        result.Title = model.Title;
         result.Body = new(model.Data);
 
         if (!result.IsCustomTemplate)
@@ -84,7 +85,6 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
 
             (result.Url, result.Command) = ParseUrl(model.Url);
 
-            result.Title = model.Title;
             result.StartDate = model.StartDate;
             result.EndDate = model.EndDate;
         }

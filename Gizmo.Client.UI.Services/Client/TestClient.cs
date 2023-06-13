@@ -581,7 +581,7 @@ namespace Gizmo.Client
                     new NewsModel
                     {
                         Id = 6,
-                        Title = "Test the custom HTML",
+                        Title = "Custom HTML of an Advertisement",
                         IsCustomTemplate = true,
                         Data = @"
                                     <div class='external-css_content'>
