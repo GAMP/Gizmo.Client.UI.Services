@@ -252,6 +252,14 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.PointsTotal = ViewState.Products.Where(a => a.PayType == OrderLinePayType.Points || a.PayType == OrderLinePayType.Mixed).Select(a => (a.TotalPointsPrice ?? 0)).Sum();
                 ViewState.PointsAward = ViewState.Products.Select(a => (a.TotalPointsAward ?? 0)).Sum();
 
+                if (ViewState.Total == 0)
+                {
+                    //Payment method is not required, it's not even visible when the total price is 0.
+                    //In case the user previously had validation error for payment method, the submit is blocked.
+                    //Clear this error to unblock order submit.
+                    ClearError(() => ViewState.PaymentMethodId);
+                }
+
                 ViewState.RaiseChanged();
             }
             catch (Exception ex)
@@ -290,8 +298,8 @@ namespace Gizmo.Client.UI.View.Services
                         productItem.PayType = OrderLinePayType.Mixed;
                     }
 
-                    productItem.RaiseChanged();
                     await UpdateUserCartProductsAsync();
+                    productItem.RaiseChanged();
 
                     return;
                 }
@@ -302,9 +310,8 @@ namespace Gizmo.Client.UI.View.Services
 
                     if (ViewState.PointsTotal + (product.UnitPointsPrice * productItem.Quantity) > userBalanceViewState.PointsBalance)
                     {
-                        //TODO: AAA FORCE RADIO BUTTON TO PREVIOUS STATE.
-                        productItem.RaiseChanged();
                         await UpdateUserCartProductsAsync();
+                        productItem.RaiseChanged();
 
                         await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK, AlertTypes.Danger);
 
@@ -314,8 +321,8 @@ namespace Gizmo.Client.UI.View.Services
 
                 productItem.PayType = payType;
 
-                productItem.RaiseChanged();
                 await UpdateUserCartProductsAsync();
+                productItem.RaiseChanged();
             }
             catch (Exception ex)
             {
@@ -484,7 +491,6 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
-            //TODO: AAA CHECK AFTER REMOVE PRODUCT AND RESEND.
             if (fieldIdentifier.FieldEquals(() => ViewState.PaymentMethodId) && !ViewState.PaymentMethodId.HasValue && ViewState.Total > 0)
             {
                 AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD", nameof(ViewState.PaymentMethodId)));
