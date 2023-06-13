@@ -8,19 +8,19 @@ namespace Gizmo.Client.UI.Services
 {
     [Register()]
     public sealed class AppExecutionService : ViewServiceBase
-    {
-        private readonly IGizmoClient _client;
+    {   
         public AppExecutionService(IGizmoClient client,
             IClientNotificationService clientNotificationService,
             AppExeViewStateLookupService appExeViewStateLookupService,
             ILogger<AppExecutionService> logger,
             IServiceProvider serviceProvider) : base(logger, serviceProvider)
         {
-            _clientNotificationService = clientNotificationService;
             _client = client;
+            _clientNotificationService = clientNotificationService;
             _appExeViewStateLookupService = appExeViewStateLookupService;
         }
 
+        private readonly IGizmoClient _client;
         private readonly AppExeViewStateLookupService _appExeViewStateLookupService;
         private readonly IClientNotificationService _clientNotificationService;
 
