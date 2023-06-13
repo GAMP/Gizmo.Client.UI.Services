@@ -10,15 +10,19 @@ namespace Gizmo.Client.UI.Services
     public sealed class AppExecutionService : ViewServiceBase
     {
         private readonly IGizmoClient _client;
-        public AppExecutionService(IGizmoClient client, AppExeViewStateLookupService appExeViewStateLookupService,
+        public AppExecutionService(IGizmoClient client,
+            IClientNotificationService clientNotificationService,
+            AppExeViewStateLookupService appExeViewStateLookupService,
             ILogger<AppExecutionService> logger,
             IServiceProvider serviceProvider) : base(logger, serviceProvider)
         {
+            _clientNotificationService = clientNotificationService;
             _client = client;
             _appExeViewStateLookupService = appExeViewStateLookupService;
         }
 
         private readonly AppExeViewStateLookupService _appExeViewStateLookupService;
+        private readonly IClientNotificationService _clientNotificationService;
 
         /// <summary>
         /// Executes app.
@@ -56,12 +60,18 @@ namespace Gizmo.Client.UI.Services
                     //pass execution limit
                     if (await _client.AppExeExecutionLimitPassAsync(appExeId, cancellationToken) == false)
                     {
+                        _ = await _clientNotificationService.ShowAlertNotification(Gizmo.UI.AlertTypes.Warning, 
+                            "Maximum applications", "You can only run one application!",
+                            cancellationToken: cancellationToken);
                         return;
                     }
 
                     //pass age rating
                     if (await _client.AppExePassAgeRatingAsync(appExeId, cancellationToken) == false)
                     {
+                        _ = await _clientNotificationService.ShowAlertNotification(Gizmo.UI.AlertTypes.Warning,
+                           "Age rating", "You are not old enough!",
+                           cancellationToken: cancellationToken);
                         return;
                     }
 
@@ -141,7 +151,7 @@ namespace Gizmo.Client.UI.Services
                     //try to create personal file directory if one does not exist
                     //in case of failure the error can be logged and there is nothing else that needs to be done
                     if (!Directory.Exists(personalFilePath))
-                        Directory.CreateDirectory(personalFilePath);                   
+                        Directory.CreateDirectory(personalFilePath);
 
                     var process = new ProcessStartInfo(personalFilePath)
                     {
