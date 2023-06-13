@@ -66,7 +66,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (culture == null)
             {
-                _logger.LogWarning("Culture '{0}' was not found. Using default culture 'en'.", twoLetterISOLanguageName);
+                _logger.LogWarning("Culture '{twoLetterName}' was not found. Using default culture 'en'.", twoLetterISOLanguageName);
 
                 culture = ViewState.AvailableCultures.FirstOrDefault(x => x.TwoLetterISOLanguageName == "en");
 
