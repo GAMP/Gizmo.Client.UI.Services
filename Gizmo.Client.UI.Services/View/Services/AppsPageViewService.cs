@@ -54,31 +54,31 @@ namespace Gizmo.Client.UI.View.Services
 
             List<EnumFilterViewState<ApplicationSortingOption>> sortingOptions = new List<EnumFilterViewState<ApplicationSortingOption>>();
 
-            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Popularity, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_POPULARITY") });
-            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Title, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_TITLE") });
-            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.AddDate, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_ADD_DATE") });
-            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.ReleaseDate, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_RELEASE_DATE") });
-            //sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Use, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_USE") });
-            //sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Rating, DisplayName = _localizationService.GetString("APPLICATION_SORTING_OPTION_RATING") });
+            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Popularity, DisplayName = _localizationService.GetString("GIZ_APP_SORTING_OPTION_POPULARITY") });
+            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Title, DisplayName = _localizationService.GetString("GIZ_APP_SORTING_OPTION_TITLE") });
+            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.AddDate, DisplayName = _localizationService.GetString("GIZ_APP_SORTING_OPTION_ADD_DATE") });
+            sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.ReleaseDate, DisplayName = _localizationService.GetString("GIZ_APP_SORTING_OPTION_RELEASE_DATE") });
+            //sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Use, DisplayName = _localizationService.GetString("GIZ_APP_SORTING_OPTION_USE") });
+            //sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Rating, DisplayName = _localizationService.GetString("GIZ_APP_SORTING_OPTION_RATING") });
 
             ViewState.SortingOptions = sortingOptions;
 
             List<EnumFilterViewState<ApplicationModes>> executableModes = new List<EnumFilterViewState<ApplicationModes>>();
             //executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.DefaultMode, DisplayName = "DefaultMode" });
-            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.SinglePlayer, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_SINGLE_PLAYER") });
-            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Online, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_ONLINE") });
-            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Multiplayer, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_MULTIPLAYER") });
-            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Settings, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_SETTINGS") });
-            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Utility, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_UTILITY") });
-            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Game, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_GAME") });
-            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Application, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_APPLICATION") });
-            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.FreeToPlay, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_FREE_TO_PLAY") });
-            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.RequiresSubscription, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_REQUIRES_SUBSCRIPTION") });
-            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.FreeTrial, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_FREE_TRIAL") });
-            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.SplitScreenMultiPlayer, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_SPLIT_SCREEN_MULTIPLAYER") });
-            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.CoOpLan, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_CO_OP") });
-            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.CoOpOnline, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_CO_OP_ONLINE") });
-            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.OneTimePurchase, DisplayName = _localizationService.GetString("EXECUTABLE_MODE_ONE_TIME_PURCHASE") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.SinglePlayer, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_SINGLE_PLAYER") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Online, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_ONLINE") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Multiplayer, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_MULTIPLAYER") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Settings, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_SETTINGS") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Utility, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_UTILITY") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Game, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_GAME") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Application, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_APPLICATION") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.FreeToPlay, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_FREE_TO_PLAY") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.RequiresSubscription, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_REQUIRES_SUBSCRIPTION") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.FreeTrial, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_FREE_TRIAL") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.SplitScreenMultiPlayer, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_SPLIT_SCREEN_MULTIPLAYER") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.CoOpLan, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_CO_OP") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.CoOpOnline, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_CO_OP_ONLINE") });
+            executableModes.Add(new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.OneTimePurchase, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_ONE_TIME_PURCHASE") });
 
             ViewState.ExecutableModes = executableModes;
         }
@@ -109,89 +109,94 @@ namespace Gizmo.Client.UI.View.Services
 
         private async Task RefilterRequest(CancellationToken cancellationToken)
         {
-            ViewState.TotalFilters = 0;
-
-            //get all app view states
-            var allApplications = await _appViewStateLookupService.GetStatesAsync(cancellationToken);
-
-            //filter out any applications that passes current app profile
-            allApplications = allApplications.Where(app => _gizmoClient.AppCurrentProfilePass(app.ApplicationId));
-
-            if (ViewState.SelectedSortingOption != ApplicationSortingOption.Popularity)
+            try
             {
-                ViewState.TotalFilters += 1;
-            }
+                ViewState.TotalFilters = 0;
 
-            if (!string.IsNullOrEmpty(ViewState.SearchPattern))
-            {
-                allApplications = allApplications.Where(app => app.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase));
-                ViewState.TotalFilters += 1;
-            }
+                //get all app view states
+                var allApplications = await _appViewStateLookupService.GetStatesAsync(cancellationToken);
 
-            if (ViewState.SelectedCategoryId.HasValue)
-            {
-                allApplications = allApplications.Where(app => app.ApplicationCategoryId == ViewState.SelectedCategoryId);
-                ViewState.TotalFilters += 1;
-            }
+                //filter out any applications that passes current app profile
+                allApplications = allApplications.Where(app => _gizmoClient.AppCurrentProfilePass(app.ApplicationId));
 
-            if (ViewState.SelectedExecutableModes.Count() > 0)
-            {
-                var allExecutables = await _appExeViewStateLookupService.GetStatesAsync(cancellationToken);
-
-                ExecutableOptionType mode = ExecutableOptionType.None;
-
-                foreach (var item in ViewState.SelectedExecutableModes)
+                if (ViewState.SelectedSortingOption != ApplicationSortingOption.Popularity)
                 {
-                    mode |= (ExecutableOptionType)item;
+                    ViewState.TotalFilters += 1;
                 }
 
-                var applicationWithModes = allExecutables.Where(a => ((int)a.Modes & (int)mode) > 0).Select(a => a.ApplicationId).ToList();
+                if (!string.IsNullOrEmpty(ViewState.SearchPattern))
+                {
+                    allApplications = allApplications.Where(app => app.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase));
+                    ViewState.TotalFilters += 1;
+                }
 
-                allApplications = allApplications.Where(app => applicationWithModes.Contains(app.ApplicationId));
+                if (ViewState.SelectedCategoryId.HasValue)
+                {
+                    allApplications = allApplications.Where(app => app.ApplicationCategoryId == ViewState.SelectedCategoryId);
+                    ViewState.TotalFilters += 1;
+                }
 
-                ViewState.TotalFilters += 1;
+                if (ViewState.SelectedExecutableModes.Count() > 0)
+                {
+                    var allExecutables = await _appExeViewStateLookupService.GetStatesAsync(cancellationToken);
 
-                ViewState.RaiseChanged();
-            }
+                    ExecutableOptionType mode = ExecutableOptionType.None;
 
-            switch (ViewState.SelectedSortingOption)
-            {
-                case ApplicationSortingOption.Popularity:
-
-                    var popularApplications = await _gizmoClient.UserPopularApplicationsGetAsync(new Web.Api.Models.UserPopularApplicationsFilter()
+                    foreach (var item in ViewState.SelectedExecutableModes)
                     {
-                        Limit = -1
-                    }, cancellationToken);
+                        mode |= (ExecutableOptionType)item;
+                    }
 
-                    var applicationIds = popularApplications.Select(a => a.Id).Reverse().ToList();
+                    var applicationWithModes = allExecutables.Where(a => ((int)a.Modes & (int)mode) > 0).Select(a => a.ApplicationId).ToList();
 
-                    //Apps that are not included in popular have index -1 so we have to reverse the order and sort descending.
-                    allApplications = allApplications.OrderByDescending(a => applicationIds.IndexOf(a.ApplicationId)).ToList();
+                    allApplications = allApplications.Where(app => applicationWithModes.Contains(app.ApplicationId));
 
-                    break;
+                    ViewState.TotalFilters += 1;
+                }
 
-                case ApplicationSortingOption.Title:
+                switch (ViewState.SelectedSortingOption)
+                {
+                    case ApplicationSortingOption.Popularity:
 
-                    allApplications = allApplications.OrderBy(a => a.Title);
+                        var popularApplications = await _gizmoClient.UserPopularApplicationsGetAsync(new Web.Api.Models.UserPopularApplicationsFilter()
+                        {
+                            Limit = -1
+                        }, cancellationToken);
 
-                    break;
+                        var applicationIds = popularApplications.Select(a => a.Id).Reverse().ToList();
 
-                case ApplicationSortingOption.AddDate:
+                        //Apps that are not included in popular have index -1 so we have to reverse the order and sort descending.
+                        allApplications = allApplications.OrderByDescending(a => applicationIds.IndexOf(a.ApplicationId)).ToList();
 
-                    allApplications = allApplications.OrderByDescending(a => a.AddDate);
+                        break;
 
-                    break;
+                    case ApplicationSortingOption.Title:
 
-                case ApplicationSortingOption.ReleaseDate:
+                        allApplications = allApplications.OrderBy(a => a.Title);
 
-                    allApplications = allApplications.OrderByDescending(a => a.ReleaseDate);
+                        break;
 
-                    break;
+                    case ApplicationSortingOption.AddDate:
+
+                        allApplications = allApplications.OrderByDescending(a => a.AddDate);
+
+                        break;
+
+                    case ApplicationSortingOption.ReleaseDate:
+
+                        allApplications = allApplications.OrderByDescending(a => a.ReleaseDate);
+
+                        break;
+                }
+
+                ViewState.Applications = allApplications.ToList();
+
+                DebounceViewStateChanged();
             }
-
-            ViewState.Applications = allApplications.ToList();
-
-            ViewState.RaiseChanged();
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to filter applications.");
+            }
         }
 
         public Task SetSelectedSortingOption(ApplicationSortingOption value)

@@ -74,7 +74,7 @@ namespace Gizmo.Client.UI.View.Services
 
                     if (userOrderViewState.TotalPointsPrice > 0)
                     {
-                        userOrderViewState.Invoice.PaymentMethodNames += " & " + _localizationService.GetString("PAYMENT_METHOD_POINTS");
+                        userOrderViewState.Invoice.PaymentMethodNames += " & " + _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_POINTS");
                     }
                 }
 

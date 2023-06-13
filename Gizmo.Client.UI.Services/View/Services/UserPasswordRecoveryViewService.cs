@@ -125,14 +125,14 @@ namespace Gizmo.Client.UI.View.Services
 
                         case PasswordRecoveryStartResultCode.NoRouteForDelivery:
                             ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("PROVIDER_NO_ROUTE_FOR_DELIVERY");
+                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY");
 
                             break;
 
                         default:
 
                             ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("PASSWORD_RESET_FAILED_MESSAGE");
+                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_RECOVERY_PASSWORD_RESET_FAILED_MESSAGE");
 
                             break;
                     }
@@ -177,7 +177,7 @@ namespace Gizmo.Client.UI.View.Services
                         case PasswordRecoveryStartResultCode.NoRouteForDelivery:
 
                             ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("PROVIDER_NO_ROUTE_FOR_DELIVERY");
+                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY");
 
                             break;
 
@@ -185,22 +185,22 @@ namespace Gizmo.Client.UI.View.Services
                         case PasswordRecoveryStartResultCode.DeliveryFailed:
 
                             ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("PASSWORD_RESET_FAILED_MESSAGE");
+                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_RECOVERY_PASSWORD_RESET_FAILED_MESSAGE");
 
                             break;
 
                         case PasswordRecoveryStartResultCode.InvalidInput:
 
                             ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("PASSWORD_RESET_FAILED_MESSAGE");
-                            ViewState.ErrorMessage += " " + _localizationService.GetString("PASSWORD_RESET_NO_VALID_MOBILE");
+                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_RECOVERY_PASSWORD_RESET_FAILED_MESSAGE");
+                            ViewState.ErrorMessage += " " + _localizationService.GetString("GIZ_PASSWORD_RECOVERY_NO_VALID_MOBILE");
 
                             break;
 
                         default:
 
                             ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("PASSWORD_RESET_FAILED_MESSAGE");
+                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_RECOVERY_PASSWORD_RESET_FAILED_MESSAGE");
 
                             break;
                     }
@@ -272,14 +272,14 @@ namespace Gizmo.Client.UI.View.Services
                 fieldIdentifier.FieldEquals(() => ViewState.Email) &&
                 string.IsNullOrEmpty(ViewState.Email))
             {
-                AddError(() => ViewState.Email, _localizationService.GetString("EMAIL_IS_REQUIRED"));
+                AddError(() => ViewState.Email, _localizationService.GetString("GIZ_USER_CONFIRMATION_VE_EMAIL_IS_REQUIRED"));
             }
 
             if (ViewState.SelectedRecoveryMethod == UserRecoveryMethod.Mobile &&
                 fieldIdentifier.FieldEquals(() => ViewState.MobilePhone) &&
                 string.IsNullOrEmpty(ViewState.MobilePhone))
             {
-                AddError(() => ViewState.MobilePhone, _localizationService.GetString("PHONE_IS_REQUIRED"));
+                AddError(() => ViewState.MobilePhone, _localizationService.GetString("GIZ_USER_CONFIRMATION_VE_PHONE_IS_REQUIRED"));
             }
         }
 

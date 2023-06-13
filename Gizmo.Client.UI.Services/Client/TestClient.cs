@@ -1248,12 +1248,22 @@ namespace Gizmo.Client
 
         public Task<NextHostReservationModel?> NextHostReservationGetAsync(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult<NextHostReservationModel?>(null);
+            return Task.FromResult<NextHostReservationModel?>(new NextHostReservationModel()
+            {
+                NextReservationId = 1,
+                NextReservationTime = DateTime.Now
+            });
         }
 
         public Task<ClientReservationOptions> ReservationConfigurationGetAsync(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(new ClientReservationOptions() {  EnableLoginBlock = true });
+            return Task.FromResult<ClientReservationOptions>(new ClientReservationOptions()
+            {
+                EnableLoginBlock = true,
+                LoginBlockTime = 30,
+                EnableLoginUnblock = true,
+                LoginUnblockTime = 30
+            });
         }
     }
 }

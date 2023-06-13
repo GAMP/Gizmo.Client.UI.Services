@@ -42,7 +42,12 @@ namespace Gizmo.Client.UI.View.Services
                         ViewState.Application = await _appLookupService.GetStateAsync(id, false, cancellationToken);
                         ViewState.Executables = await _appExeLookupService.GetFilteredStatesAsync(id, cancellationToken);
 
-                        DebounceViewStateChanged();
+                            DebounceViewStateChanged();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError(ex, "Failed to load application.");
+                        }
                     }
                 }
             }

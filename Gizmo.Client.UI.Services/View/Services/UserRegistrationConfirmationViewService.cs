@@ -96,17 +96,17 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email)
             {
-                ViewState.ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_EMAIL_MESSAGE", _userRegistrationConfirmationMethodViewState.Destination);
+                ViewState.ConfirmationCodeMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_EMAIL_MESSAGE", _userRegistrationConfirmationMethodViewState.Destination);
             }
             else if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
             {
                 if (_userRegistrationConfirmationMethodViewState.DeliveryMethod == ConfirmationCodeDeliveryMethod.FlashCall)
                 {
-                    ViewState.ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_FLASH_CALL_MESSAGE", _userRegistrationConfirmationMethodViewState.Destination, _userRegistrationConfirmationMethodViewState.CodeLength);
+                    ViewState.ConfirmationCodeMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_FLASH_CALL_MESSAGE", _userRegistrationConfirmationMethodViewState.Destination, _userRegistrationConfirmationMethodViewState.CodeLength);
                 }
                 else
                 {
-                    ViewState.ConfirmationCodeMessage = _localizationService.GetString("CONFIRMATION_SMS_MESSAGE", _userRegistrationConfirmationMethodViewState.Destination);
+                    ViewState.ConfirmationCodeMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_SMS_MESSAGE", _userRegistrationConfirmationMethodViewState.Destination);
                 }
             }
 
@@ -134,13 +134,13 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         if (!await _gizmoClient.TokenIsValidAsync(TokenType.CreateAccount, _userRegistrationConfirmationMethodViewState.Token, ViewState.ConfirmationCode))
                         {
-                            return new string[] { _localizationService.GetString("CONFIRMATION_CODE_IS_INVALID") };
+                            return new string[] { _localizationService.GetString("GIZ_USER_CONFIRMATION_CONFIRMATION_CODE_IS_INVALID") };
                         }
                     }
                     catch (Exception ex)
                     {
                         Logger.LogError(ex, "Check create account token validity error.");
-                        return new string[] { _localizationService.GetString("VE_ERROR_CANNOT_VALIDATE_RECOVERY_TOKEN") };
+                        return new string[] { _localizationService.GetString("GIZ_USER_CONFIRMATION_VE_CANNOT_VALIDATE_TOKEN") };
                     }
                 }
             }

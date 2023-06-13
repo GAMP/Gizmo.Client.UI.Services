@@ -149,10 +149,10 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (ViewState.Amount < ViewState.MinimumAmount)
                 {
-                    AddError(() => ViewState.Amount, _localizationService.GetString("USER_ONLINE_DEPOSIT_MINIMUM_AMOUNT_IS", ViewState.MinimumAmount));
+                    AddError(() => ViewState.Amount, _localizationService.GetString("GIZ_ONLINE_DEPOSIT_MINIMUM_AMOUNT_IS", ViewState.MinimumAmount));
                 } else if (ViewState.Amount > _userOnlineDepositOptions.Value.MaximumAmount)
                 {
-                    AddError(() => ViewState.Amount, _localizationService.GetString("USER_ONLINE_DEPOSIT_MAXIMUM_AMOUNT_IS", _userOnlineDepositOptions.Value.MaximumAmount));
+                    AddError(() => ViewState.Amount, _localizationService.GetString("GIZ_ONLINE_DEPOSIT_MAXIMUM_AMOUNT_IS", _userOnlineDepositOptions.Value.MaximumAmount));
                 }
             }
         }

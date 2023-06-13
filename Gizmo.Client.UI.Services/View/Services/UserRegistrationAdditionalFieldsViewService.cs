@@ -149,7 +149,7 @@ namespace Gizmo.Client.UI.View.Services
                     if (result.Result != AccountCreationCompleteResultCode.Success)
                     {
                         ViewState.HasError = true;
-                        ViewState.ErrorMessage = _localizationService.GetString("REGISTER_FAILED_MESSAGE");
+                        ViewState.ErrorMessage = _localizationService.GetString("GIZ_REGISTRATION_FAILED_MESSAGE");
 
                         return;
                     }
@@ -164,7 +164,7 @@ namespace Gizmo.Client.UI.View.Services
                     if (result.Result != AccountCreationByTokenCompleteResultCode.Success)
                     {
                         ViewState.HasError = true;
-                        ViewState.ErrorMessage = _localizationService.GetString("REGISTER_FAILED_MESSAGE");
+                        ViewState.ErrorMessage = _localizationService.GetString("GIZ_REGISTRATION_FAILED_MESSAGE");
 
                         return;
                     }
