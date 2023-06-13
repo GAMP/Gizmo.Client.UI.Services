@@ -151,7 +151,7 @@ namespace Gizmo.Client.UI.View.Services
                     ViewState.HasLoginError = true;
                     ViewState.LoginError = e.FailReason.ToString();
                     break;
-                case LoginState.LoggedIn:
+                case LoginState.LoginCompleted:
                     Reset();
                     break;
                 default:

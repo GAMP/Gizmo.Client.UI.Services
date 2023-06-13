@@ -70,6 +70,7 @@ namespace Gizmo.Client.UI.View.Services
             result.Caption = model.Caption;
             result.Description = model.Description;
             result.DisplayOrder = model.DisplayOrder;
+            result.Accessible = model.Accessible;
             result.PersonalFiles = model.PersonalFiles.Select(a => new AppExePersonalFileViewState()
             {
                 PersonalFileId = a.PersonalFileId
