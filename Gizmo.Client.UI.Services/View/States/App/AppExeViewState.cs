@@ -20,6 +20,8 @@ namespace Gizmo.Client.UI.View.States
 
         public bool AutoLaunch { get;internal set; }
 
+        public bool Accessible { get;internal set; }
+
         public IEnumerable<AppExePersonalFileViewState> PersonalFiles { get; internal set; } = Enumerable.Empty<AppExePersonalFileViewState>();
 
         public int? ImageId { get; internal set; }

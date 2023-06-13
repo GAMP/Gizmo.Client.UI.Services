@@ -10,10 +10,12 @@ namespace Gizmo.Client.UI.Services
     public sealed class JSInteropService : IDisposable
     {
         #region CONSTRUCTOR
-        public JSInteropService(IJSRuntime jSRuntime,
+        public JSInteropService(IGizmoClient client,
+            IJSRuntime jSRuntime,
             IServiceProvider serviceProvider,
             ILogger<JSInteropService> logger)
         {
+            _client = client;
             _jsRuntime = jSRuntime;
             _logger = logger;
             _serviceProvider = serviceProvider;
@@ -22,6 +24,7 @@ namespace Gizmo.Client.UI.Services
         #endregion
 
         #region FIELDS
+        private readonly IGizmoClient _client;
         private readonly IJSRuntime _jsRuntime;
         private readonly DotNetObjectReference<JSInteropService> _objectReference;
         private readonly ILogger<JSInteropService> _logger;
@@ -73,16 +76,21 @@ namespace Gizmo.Client.UI.Services
         /// <param name="error">Optional error.</param>
         [JSInvokable]
         public async Task SetFullScreenAsync(bool isFullScreen, string error)
-        {
-            var client = _serviceProvider.GetRequiredService<IGizmoClient>();
-            //TODO: Handle full-screen events
-            if (!string.IsNullOrEmpty(error))
+        {            
+            //log the error if one specified, not further processing should be needed
+            if(!string.IsNullOrEmpty(error))
             {
-                Console.WriteLine($"FULLSCREEN ERROR: {error}");
+                _logger.LogError("Javascript full screen request error {error}", error);
+                return;
+            }
+
+            if (isFullScreen)
+            {
+                await _client.EnterFullSceenAsync();
             }
             else
             {
-                await client.ExitFullSceenAsync();
+                await _client.ExitFullSceenAsync();
             }
         }
 
@@ -91,9 +99,9 @@ namespace Gizmo.Client.UI.Services
             try
             {
                 await JSRuntime.InvokeVoidAsync("ClientAPI.SetDotnetObjectReference", ObjectReference);
-                await JSRuntime.InvokeVoidAsync("ClientFullScreen.SetDotnetObjectReference", ObjectReference);
+                await JSRuntime.InvokeVoidAsync("InternalFunctions.SetDotnetObjectReference", ObjectReference);
 
-                await JSRuntime.InvokeVoidAsync("ClientFullScreen.SubscribeOnFullScreenChange", nameof(SetFullScreenAsync));
+                await JSRuntime.InvokeVoidAsync("InternalFunctions.FullScreen.SubscribeOnFullScreenChange", nameof(SetFullScreenAsync));
             }
             catch (Exception ex)
             {
@@ -106,7 +114,7 @@ namespace Gizmo.Client.UI.Services
         #region IDisposable
         public void Dispose()
         {
-            JSRuntime.InvokeVoidAsync("ClientFullScreen.UnsubscribeOnFullScreenChange", nameof(SetFullScreenAsync))
+            JSRuntime.InvokeVoidAsync("InternalFunctions.FullScreen.UnsubscribeOnFullScreenChange", nameof(SetFullScreenAsync))
                 .AsTask()
                 .ContinueWith(
                     task =>
