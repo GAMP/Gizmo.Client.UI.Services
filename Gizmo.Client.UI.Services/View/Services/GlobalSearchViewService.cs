@@ -12,16 +12,18 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly AppExeViewStateLookupService _appExeViewStateLookupService;
         private readonly UserProductViewStateLookupService _userProductStateLookupService;
+        private readonly IGizmoClient _gizmoClient;
         #endregion
 
         #region CONSTRUCTOR
-        public GlobalSearchViewService(
-            GlobalSearchViewState viewState,
+        public GlobalSearchViewService(GlobalSearchViewState viewState,
+            IGizmoClient gizmoClient,
             AppExeViewStateLookupService appExeViewStateLookupService,
             UserProductViewStateLookupService userProductStateLookupService,
             ILogger<GlobalSearchViewService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
+            _gizmoClient = gizmoClient;
             _appExeViewStateLookupService = appExeViewStateLookupService;
             _userProductStateLookupService = userProductStateLookupService;
         }
@@ -149,7 +151,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Executables)
                 {
-                    var executableStates = await _appExeViewStateLookupService.GetStatesAsync();
+                    var executableStates = await _appExeViewStateLookupService.GetFilteredStatesAsync();
 
                     var tmp = new List<GlobalSearchResultViewState>();
 
@@ -190,7 +192,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 ViewState.IsLoading = false;
 
-                ViewState.RaiseChanged();
+                DebounceViewStateChanged();
             }
         }
 

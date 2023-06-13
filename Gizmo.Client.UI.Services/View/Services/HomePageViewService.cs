@@ -69,12 +69,16 @@ namespace Gizmo.Client.UI.View.Services
 
                 var applicationIds = popularApplications.Select(a => a.Id).ToList();
 
-                var apps = await _appViewStateLookupService.GetStatesAsync(cancellationToken);
+                //TODO we might get less apps than expected due to app profile not allowing the app
+                var apps = await _appViewStateLookupService.GetFilteredStatesAsync(cancellationToken);
 
-                ViewState.PopularApplications = apps.Where(a => applicationIds.Contains(a.ApplicationId)).OrderBy(a => applicationIds.IndexOf(a.ApplicationId)).ToList();
+                ViewState.PopularApplications = apps
+                    .Where(a => applicationIds.Contains(a.ApplicationId))
+                    .OrderBy(a => applicationIds.IndexOf(a.ApplicationId))
+                    .ToList();
             }
 
-            RaiseViewStateChanged();
+            DebounceViewStateChanged();
         }
 
         #endregion

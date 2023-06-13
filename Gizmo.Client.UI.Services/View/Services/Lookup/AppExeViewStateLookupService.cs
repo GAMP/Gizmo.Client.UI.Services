@@ -12,6 +12,7 @@ namespace Gizmo.Client.UI.View.Services
     public sealed class AppExeViewStateLookupService : ViewStateLookupServiceBase<int, AppExeViewState>
     {
         private readonly IGizmoClient _gizmoClient;
+
         public AppExeViewStateLookupService(
             IGizmoClient gizmoClient,
             ILogger<AppExeViewStateLookupService> logger,
@@ -84,6 +85,46 @@ namespace Gizmo.Client.UI.View.Services
             return result;
         }
         #endregion
+
+        /// <summary>
+        /// Gets filtered states for specified app.
+        /// </summary>
+        /// <param name="appId">App id.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Filtered view states.</returns>
+        /// <remarks>
+        /// This function will return all app exe states for specified app that accessible and their app passing current app profile.
+        /// </remarks>
+        public async Task<IEnumerable<AppExeViewState>> GetFilteredStatesAsync(int appId, CancellationToken cancellationToken =default)
+        {
+            var viewStates = await GetStatesAsync(cancellationToken);
+
+            viewStates = viewStates.Where(state=>state.ApplicationId == appId)                
+                .Where(state => state.Accessible)
+                .Where(state => _gizmoClient.AppCurrentProfilePass(state.ApplicationId));
+
+            return viewStates.ToList();
+        }
+
+        /// <summary>
+        /// Gets filtered states.
+        /// </summary>
+        /// <param name="appId">App id.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Filtered view states.</returns>
+        /// <remarks>
+        /// This function will return all app exe states that accessible and their app passing current app profile.
+        /// </remarks>
+        public async Task<IEnumerable<AppExeViewState>> GetFilteredStatesAsync(CancellationToken cancellationToken = default)
+        {
+            var viewStates = await GetStatesAsync(cancellationToken);
+
+            viewStates = viewStates
+                .Where(state => state.Accessible)
+                .Where(state => _gizmoClient.AppCurrentProfilePass(state.ApplicationId));
+
+            return viewStates.ToList();
+        }
 
         internal async Task SetAutoLaunchAsync(int appExeId, bool autoLaunch)
         {
