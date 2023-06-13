@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,14 +14,17 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public UserChangeMobileViewService(UserChangeMobileViewState viewState,
             ILogger<UserChangeMobileViewService> logger,
-            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
         {
+            _localizationService = localizationService;
             _timer.Elapsed += timer_Elapsed;
         }
         #endregion
 
         #region FIELDS
 
+        private readonly ILocalizationService _localizationService;
         private System.Timers.Timer _timer = new System.Timers.Timer(1000);
 
         #endregion
@@ -133,7 +137,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (ViewState.PageIndex == 1 && fieldIdentifier.FieldEquals(() => ViewState.ConfirmationCode) && string.IsNullOrEmpty(ViewState.ConfirmationCode))
             {
-                AddError(() => ViewState.ConfirmationCode, "The confirmation code field is required."); //TODO: A TRANSLATE
+                AddError(() => ViewState.ConfirmationCode, _localizationService.GetString("GIZ_USER_CONFIRMATION_VE_CONFIRMATION_CODE_IS_REQUIRED"));
             }
         }
 
