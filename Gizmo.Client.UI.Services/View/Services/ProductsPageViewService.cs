@@ -33,10 +33,46 @@ namespace Gizmo.Client.UI.View.Services
         private async Task RefilterRequest(CancellationToken cToken)
         {
             var productStates = await _userProductService.GetFilteredStatesAsync(ViewState.SearchPattern, cToken);
+            var productGroups = await _userProductGroupService.GetStatesAsync(cToken);
 
-            ViewState.UserGroupedProducts = ViewState.SelectedUserProductGroupId.HasValue
-                ? ViewState.UserGroupedProducts = productStates.Where(x => x.ProductGroupId == ViewState.SelectedUserProductGroupId).GroupBy(x => x.ProductGroupId)
-                : ViewState.UserGroupedProducts = productStates.GroupBy(x => x.ProductGroupId);
+            //product group look up dictionary
+            var productGroupLookup = productGroups.ToDictionary(x => x.ProductGroupId, y => y);
+
+            //sort the products based on product group settings
+            var sortedProducts = productStates.OrderBy(x => 
+            {
+                //try to obtain the product group from lookup
+                if (productGroupLookup.TryGetValue(x.ProductGroupId, out var productGroup))
+                {
+                    switch(productGroup.SortOption)
+                    {
+                        case ProductSortOptionType.Name:
+                            return x.Name;
+                        case ProductSortOptionType.Created:
+                            return x.CreatedTime.ToString();
+                    }
+                }
+
+                //by default sort by sort order
+                return x.DisplayOrder.ToString();
+            });
+
+            //group products 
+            var grouppedProducts = ViewState.SelectedUserProductGroupId.HasValue
+                ? ViewState.UserGroupedProducts = sortedProducts.Where(x => x.ProductGroupId == ViewState.SelectedUserProductGroupId).GroupBy(x => x.ProductGroupId)
+                : ViewState.UserGroupedProducts = sortedProducts.GroupBy(x => x.ProductGroupId);
+
+            //order product groups
+            ViewState.UserGroupedProducts = grouppedProducts.OrderBy(x => 
+            {
+                //try to obtain the product group from lookup
+                if (productGroupLookup.TryGetValue(x.Key,out var productGroup))
+                {
+                    return productGroup.DisplayOrder;
+                }
+
+                return x.Key;
+            });
 
             ViewState.RaiseChanged();
         }
@@ -55,7 +91,9 @@ namespace Gizmo.Client.UI.View.Services
 
             var groupStates = await _userProductGroupService.GetStatesAsync(cToken);
 
-            ViewState.UserProductGroups = groupStates.Where(a => ids.Contains(a.ProductGroupId)).ToList();
+            ViewState.UserProductGroups = groupStates.Where(a => ids.Contains(a.ProductGroupId))
+                .OrderBy(a => a.DisplayOrder)
+                .ToList();
 
             ViewState.RaiseChanged();
         }
