@@ -54,9 +54,9 @@ namespace Gizmo.Client
         public event EventHandler<PersonalFileChangeEventArgs>? PersonalFileChange;
         public event EventHandler<AppLinkChangeEventArgs>? AppLinkChange;
         public event EventHandler<ConnectionStateEventArgs>? ConnectionStateChange;
-        public event EventHandler<LockStateEventArgs> LockStateChange;
-        public event EventHandler<OutOfOrderStateEventArgs> OutOfOrderStateChange;
-        public event EventHandler<ReservationChangeEventArgs> ReservationChange;
+        public event EventHandler<LockStateEventArgs>? LockStateChange;
+        public event EventHandler<OutOfOrderStateEventArgs>? OutOfOrderStateChange;
+        public event EventHandler<ReservationChangeEventArgs>? ReservationChange;
 
         public TestClient(IClientNotificationService notificationsService)
         {
@@ -692,7 +692,7 @@ namespace Gizmo.Client
             // Simulate task.
             await Task.Delay(3000);
 
-            throw new Exception("Test");
+            //throw new Exception("Test");
 
             return email == "1" ? true : false;
         }
@@ -717,7 +717,7 @@ namespace Gizmo.Client
             // Simulate task.
             await Task.Delay(3000);
 
-            throw new Exception("Test");
+            //throw new Exception("Test");
 
             return new AccountCreationCompleteResultModel();
         }
@@ -727,7 +727,7 @@ namespace Gizmo.Client
             // Simulate task.
             await Task.Delay(3000);
 
-            throw new Exception("Test");
+            //throw new Exception("Test");
 
             return new AccountCreationCompleteResultModelByToken();
         }
@@ -1014,7 +1014,7 @@ namespace Gizmo.Client
             // Simulate task.
             await Task.Delay(3000);
 
-            throw new Exception("Test");
+            //throw new Exception("Test");
 
             var result = new PasswordRecoveryStartResultModelByEmail()
             {
@@ -1031,7 +1031,7 @@ namespace Gizmo.Client
             // Simulate task.
             await Task.Delay(3000);
 
-            throw new Exception("Test");
+            //throw new Exception("Test");
 
             var result = new PasswordRecoveryStartResultModelByMobile()
             {
@@ -1049,7 +1049,7 @@ namespace Gizmo.Client
             // Simulate task.
             await Task.Delay(3000);
 
-            throw new Exception("Test");
+            //throw new Exception("Test");
 
             return new PasswordRecoveryCompleteResultCode();
         }
@@ -1059,7 +1059,7 @@ namespace Gizmo.Client
             // Simulate task.
             await Task.Delay(3000);
 
-            throw new Exception("Test");
+            //throw new Exception("Test");
 
             var result = new AccountCreationResultModelByEmail()
             {
@@ -1185,7 +1185,7 @@ namespace Gizmo.Client
                     orders.Add(userOrder);
                 }
             }
-            catch (Exception ex)
+            catch
             {
 
             }

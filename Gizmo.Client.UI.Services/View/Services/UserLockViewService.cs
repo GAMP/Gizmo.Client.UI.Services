@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,9 +14,15 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public UserLockViewService(UserLockViewState viewState,
             ILogger<UserLockViewService> logger,
-            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
         {
+            _localizationService = localizationService;
         }
+        #endregion
+
+        #region FIELDS
+        private readonly ILocalizationService _localizationService;
         #endregion
 
         #region FUNCTIONS
@@ -91,7 +98,7 @@ namespace Gizmo.Client.UI.View.Services
             }
             else
             {
-                ViewState.Error = "Incorrect PIN"; //TODO: A TRANSLATE
+                ViewState.Error = _localizationService.GetString("GIZ_USER_LOCK_SCREEN_INCORRECT_PIN");
             }
 
             ViewState.RaiseChanged();
@@ -131,7 +138,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (ViewState.InputPassword.Length != 4)
                 {
-                    AddError(() => ViewState.InputPassword, "Password should have 4 digits!");
+                    AddError(() => ViewState.InputPassword, _localizationService.GetString("GIZ_USER_LOCK_SCREEN_VE_PASSWORD_LENGTH"));
                 }
             }
         }
