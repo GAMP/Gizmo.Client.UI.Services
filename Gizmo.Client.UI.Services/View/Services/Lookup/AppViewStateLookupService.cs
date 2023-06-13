@@ -36,7 +36,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             var clientResult = await _gizmoClient.UserApplicationsGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
 
-           return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
+            return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
         }
         protected override async ValueTask<AppViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
         {
@@ -47,7 +47,7 @@ namespace Gizmo.Client.UI.View.Services
         protected override async ValueTask<AppViewState> UpdateViewStateAsync(AppViewState viewState, CancellationToken cToken = default)
         {
             var clientResult = await _gizmoClient.UserApplicationGetAsync(viewState.ApplicationId, cToken);
-            
+
             return clientResult is null ? viewState : Map(clientResult, viewState);
         }
         protected override AppViewState CreateDefaultViewState(int lookUpkey)
@@ -75,9 +75,23 @@ namespace Gizmo.Client.UI.View.Services
             result.DeveloperId = model.DeveloperId;
             result.PublisherId = model.PublisherId;
             result.ImageId = model.ImageId;
-            
+
             return result;
         }
         #endregion
+
+        /// <summary>
+        /// Gets filtered app states.
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>App states.</returns>
+        /// <remarks>
+        /// Only app states that pass current app profile will be returned.
+        /// </remarks>
+        public async Task<IEnumerable<AppViewState>> GetFilteredStatesAsync(CancellationToken cancellationToken = default)
+        {
+            var states = await GetStatesAsync(cancellationToken);
+            return states.Where(state => _gizmoClient.AppCurrentProfilePass(state.ApplicationId)).ToList();
+        }
     }
 }

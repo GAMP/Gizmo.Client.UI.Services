@@ -40,24 +40,18 @@ namespace Gizmo.Client.UI.View.Services
             {
                 Limit = _popularItemsOptions.Value.MaxQuickLaunchExecutables,
                 CurrentUserOnly = true
-            });
+            }, cancellationToken);
 
             var executableIds = popularExecutables
                 .Select(a => a.Id)
                 .ToList();
 
-            var executables = await _appExeViewStateLookupService.GetStatesAsync(cancellationToken);
-
-            //filter out executables
-            //must be accessible
-            //app must be allowed by current profile
+            var executables = await _appExeViewStateLookupService.GetFilteredStatesAsync(cancellationToken);
             ViewState.Executables = executables
-                .Where(appExe => appExe.Accessible)
-                .Where(appExe => _gizmoClient.AppCurrentProfilePass(appExe.ApplicationId))
                 .Where(appExe => executableIds.Contains(appExe.ExecutableId))
                 .ToList();
 
-            RaiseViewStateChanged();
+            DebounceViewStateChanged();
         }
 
         #endregion
