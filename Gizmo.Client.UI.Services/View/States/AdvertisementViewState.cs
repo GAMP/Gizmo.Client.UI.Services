@@ -1,7 +1,6 @@
 ﻿using Gizmo.UI;
 using Gizmo.UI.View.States;
 
-using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gizmo.Client.UI.View.States
@@ -12,7 +11,7 @@ namespace Gizmo.Client.UI.View.States
         public int Id { get; internal set; }
         public bool IsCustomTemplate { get; internal set; }
         public string? Title { get; internal set; }
-        public MarkupString Body { get; internal set; }
+        public string Body { get; internal set; } = string.Empty;
         public DateTime? StartDate { get; internal set; }
         public DateTime? EndDate { get; internal set; }
         public string? Url { get; internal set; }
