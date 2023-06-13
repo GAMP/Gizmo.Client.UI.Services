@@ -32,33 +32,7 @@ namespace Gizmo.Client.UI.View.Services
 
         private async Task RefilterRequest(CancellationToken cToken)
         {
-            var productStates = await _userProductService.GetStatesAsync(cToken);
-
-            //only include products allowing client order
-            productStates = productStates.Where(product => !product.OrderOptions.HasFlag(OrderOptionType.DisallowAllowOrder));
-
-            //Only include products that is allowed for guests.
-            productStates = productStates.Where(a => !a.IsRestrictedForGuest);
-
-            //only include products that is allowing sale
-            productStates = productStates.Where(a => !a.OrderOptions.HasFlag(OrderOptionType.RestrictSale));
-
-            //only include products that is allowed for specified user group
-            productStates = productStates.Where(a => !a.IsRestrictedForUserGroup);
-
-            if (_hostGroupViewState.HostGroupId.HasValue)
-            {
-                //only include products that is visible for specified host group
-                productStates = productStates.Where(a => !a.HiddenHostGroups.Contains(_hostGroupViewState.HostGroupId.Value));
-
-                ////Only include time products that are allowed for specified host group.
-                //productStates = productStates.Where(a => a.ProductType != ProductType.ProductTime || (a.ProductType == ProductType.ProductTime && !a.TimeProduct.DisallowedHostGroups.Contains(_hostGroupViewState.HostGroupId.Value)));
-            }
-
-            if (!string.IsNullOrEmpty(ViewState.SearchPattern))
-            {
-                productStates = productStates.Where(a => a.Name.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase));
-            }
+            var productStates = await _userProductService.GetFilteredStatesAsync(ViewState.SearchPattern, cToken);
 
             ViewState.UserGroupedProducts = ViewState.SelectedUserProductGroupId.HasValue
                 ? ViewState.UserGroupedProducts = productStates.Where(x => x.ProductGroupId == ViewState.SelectedUserProductGroupId).GroupBy(x => x.ProductGroupId)
@@ -73,9 +47,15 @@ namespace Gizmo.Client.UI.View.Services
 
             await RefilterRequest(cToken);
         }
+
         public async Task UpdateUserProductGroupsAsync(CancellationToken cToken = default)
         {
-            ViewState.UserProductGroups = await _userProductGroupService.GetStatesAsync(cToken);
+            var productStates = await _userProductService.GetFilteredStatesAsync(ViewState.SearchPattern, cToken);
+            var ids = productStates.Select(a => a.ProductGroupId).Distinct();
+
+            var groupStates = await _userProductGroupService.GetStatesAsync(cToken);
+
+            ViewState.UserProductGroups = groupStates.Where(a => ids.Contains(a.ProductGroupId)).ToList();
 
             ViewState.RaiseChanged();
         }

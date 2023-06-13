@@ -276,8 +276,11 @@ namespace Gizmo.Client.UI.View.Services
         {
             try
             {
-                var product = await _userProductViewStateLookupService.GetStateAsync(productId);
                 var productItem = await _userCartProductItemLookupService.GetStateAsync(productId);
+                if (productItem.PayType == payType)
+                    return;
+
+                var product = await _userProductViewStateLookupService.GetStateAsync(productId);
 
                 //If PurchaseOptions is And then we cannot set PayType other than Mixed.
                 if (product.PurchaseOptions == PurchaseOptionType.And)
@@ -285,8 +288,11 @@ namespace Gizmo.Client.UI.View.Services
                     if (productItem.PayType != OrderLinePayType.Mixed)
                     {
                         productItem.PayType = OrderLinePayType.Mixed;
-                        productItem.RaiseChanged();
                     }
+
+                    productItem.RaiseChanged();
+                    await UpdateUserCartProductsAsync();
+
                     return;
                 }
 
@@ -296,17 +302,20 @@ namespace Gizmo.Client.UI.View.Services
 
                     if (ViewState.PointsTotal + (product.UnitPointsPrice * productItem.Quantity) > userBalanceViewState.PointsBalance)
                     {
-                        await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK, AlertTypes.Danger);
                         //TODO: AAA FORCE RADIO BUTTON TO PREVIOUS STATE.
+                        productItem.RaiseChanged();
+                        await UpdateUserCartProductsAsync();
+
+                        await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK, AlertTypes.Danger);
+
                         return;
                     }
                 }
 
                 productItem.PayType = payType;
 
-                await UpdateUserCartProductsAsync();
-
                 productItem.RaiseChanged();
+                await UpdateUserCartProductsAsync();
             }
             catch (Exception ex)
             {

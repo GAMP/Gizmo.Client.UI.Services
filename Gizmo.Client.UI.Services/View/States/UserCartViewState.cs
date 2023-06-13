@@ -25,9 +25,9 @@ namespace Gizmo.Client.UI.View.States
                 
         public decimal Total { get; internal set; }
 
-        public int? PointsTotal { get; internal set; }
+        public int PointsTotal { get; internal set; }
 
-        public int? PointsAward { get; internal set; }
+        public int PointsAward { get; internal set; }
 
         public bool IsComplete { get; internal set; }
 

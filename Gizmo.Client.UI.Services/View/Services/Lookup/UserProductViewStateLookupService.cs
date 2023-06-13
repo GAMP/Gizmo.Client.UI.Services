@@ -1,6 +1,7 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -366,5 +367,46 @@ namespace Gizmo.Client.UI.View.Services
             return result;
         }
         #endregion
+
+        /// <summary>
+        /// Gets filtered user product states.
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>User product states.</returns>
+        /// <remarks>
+        /// Only user product states that pass the filters will be returned.
+        /// </remarks>
+        public async Task<IEnumerable<UserProductViewState>> GetFilteredStatesAsync(string? searchPattern, CancellationToken cancellationToken = default)
+        {
+            var states = await GetStatesAsync(cancellationToken);
+
+            //only include products allowing client order
+            states = states.Where(product => !product.OrderOptions.HasFlag(OrderOptionType.DisallowAllowOrder));
+
+            //Only include products that is allowed for guests.
+            states = states.Where(a => !a.IsRestrictedForGuest);
+
+            //only include products that is allowing sale
+            states = states.Where(a => !a.OrderOptions.HasFlag(OrderOptionType.RestrictSale));
+
+            //only include products that is allowed for specified user group
+            states = states.Where(a => !a.IsRestrictedForUserGroup);
+
+            if (_hostGroupViewState.HostGroupId.HasValue)
+            {
+                //only include products that is visible for specified host group
+                states = states.Where(a => !a.HiddenHostGroups.Contains(_hostGroupViewState.HostGroupId.Value));
+
+                ////Only include time products that are allowed for specified host group.
+                //states = states.Where(a => a.ProductType != ProductType.ProductTime || (a.ProductType == ProductType.ProductTime && !a.TimeProduct.DisallowedHostGroups.Contains(_hostGroupViewState.HostGroupId.Value)));
+            }
+
+            if (!string.IsNullOrEmpty(searchPattern))
+            {
+                states = states.Where(a => a.Name.Contains(searchPattern, StringComparison.InvariantCultureIgnoreCase));
+            }
+
+            return states.ToList();
+        }
     }
 }
