@@ -209,7 +209,8 @@ namespace Gizmo.Client.UI.View.Services
             result.DefaultImageId = model.DefaultImageId;
             result.PurchaseOptions = model.PurchaseOptions;
             result.OrderOptions = model.OrderOptions;
-
+            result.DisplayOrder = model.DisplayOrder;
+            result.CreatedTime = model.CreatedTime;
             if (model.PurchaseAvailability != null)
             {
                 var hasDateRange = model.PurchaseAvailability.DateRange && (model.PurchaseAvailability.StartDate.HasValue || model.PurchaseAvailability.EndDate.HasValue);

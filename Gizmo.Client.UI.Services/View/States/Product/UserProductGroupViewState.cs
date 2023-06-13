@@ -18,5 +18,10 @@ namespace Gizmo.Client.UI.View.States
         /// Gets product group name.
         /// </summary>
         public string Name { get; internal set; } = null!;
+
+        /// <summary>
+        /// Gets sort option.
+        /// </summary>
+        public ProductSortOptionType SortOption { get; internal set; }
     }
 }

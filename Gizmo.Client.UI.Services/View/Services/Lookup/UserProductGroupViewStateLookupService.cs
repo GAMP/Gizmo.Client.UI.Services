@@ -56,6 +56,7 @@ namespace Gizmo.Client.UI.View.Services
             var result = viewState ?? CreateDefaultViewState(model.Id);
 
             result.Name = model.Name;
+            result.SortOption = model.SortOption;
             
             return result;
         }

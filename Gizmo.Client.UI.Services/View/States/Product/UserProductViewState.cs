@@ -61,5 +61,15 @@ namespace Gizmo.Client.UI.View.States
         /// Whether the product is restricted for the moment.
         /// </summary>
         public bool DisallowUse { get; internal set; }
+
+        /// <summary>
+        /// Gets display order.
+        /// </summary>
+        public int DisplayOrder { get; internal set; }
+
+        /// <summary>
+        /// Gets created time.
+        /// </summary>
+        public DateTime CreatedTime { get; internal set; }
     }
 }
