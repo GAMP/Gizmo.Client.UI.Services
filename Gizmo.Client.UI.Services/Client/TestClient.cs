@@ -584,7 +584,7 @@ namespace Gizmo.Client
                         Title = "Custom HTML of an Advertisement",
                         IsCustomTemplate = true,
                         Data = @"
-                                    <div class='external-css_content'>
+                                    <div onload='ExternalFunctions.Advertisement.OnLoad' class='external-css_content'>
                                         <h1 class=""external-css"" onclick=""ExternalFunctions.testAlert()"">Test external CSS and JavaScript</h1>
                                     </div>
                                 ",
