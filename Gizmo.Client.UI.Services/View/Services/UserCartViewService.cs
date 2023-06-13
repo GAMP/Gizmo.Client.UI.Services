@@ -70,8 +70,18 @@ namespace Gizmo.Client.UI.View.Services
 
                     if (ViewState.PointsTotal + product.UnitPointsPrice > userBalanceViewState.PointsBalance)
                     {
-                        await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK, AlertTypes.Danger);
-                        return;
+                        if (productItem.Quantity == 0 && product.PurchaseOptions == PurchaseOptionType.Or)
+                        {
+                            //There is a case where the user previously used all his points and bought this product with points.
+                            //When this product is added again in the cart the pay type is Points, but the user does'n have enough points to add it in the cart.
+                            //Change the pay type to Cash to unblock add to cart.
+                            productItem.PayType = OrderLinePayType.Cash;
+                        }
+                        else
+                        {
+                            await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK, AlertTypes.Danger);
+                            return;
+                        }
                     }
                 }
 
