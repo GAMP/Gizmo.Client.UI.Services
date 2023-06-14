@@ -18,6 +18,10 @@ namespace Gizmo.Client.UI.View.States
 
         public IEnumerable<GlobalSearchResultViewState> ProductResults { get; internal set; } = Enumerable.Empty<GlobalSearchResultViewState>();
 
+        public string EmptyResultTitle { get; internal set; } = null!;
+
+        public string EmptyResultMessage { get; internal set; } = null!;
+
         #endregion
     }
 }

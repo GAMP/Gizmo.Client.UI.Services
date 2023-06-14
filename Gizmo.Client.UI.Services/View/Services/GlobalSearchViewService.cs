@@ -1,4 +1,5 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -9,16 +10,12 @@ namespace Gizmo.Client.UI.View.Services
     [Register()]
     public sealed class GlobalSearchViewService : ViewStateServiceBase<GlobalSearchViewState>
     {
-        #region FIELDS
-        private readonly AppViewStateLookupService _appViewStateLookupService;
-        private readonly AppExeViewStateLookupService _appExeViewStateLookupService;
-        private readonly UserProductViewStateLookupService _userProductStateLookupService;
-        private readonly IGizmoClient _gizmoClient;
-        #endregion
+        private const int GLOBAL_SEARCH_MINIMUM_CHARACTERS = 3;
 
         #region CONSTRUCTOR
         public GlobalSearchViewService(GlobalSearchViewState viewState,
             IGizmoClient gizmoClient,
+            ILocalizationService localizationService,
             AppViewStateLookupService appViewStateLookupService,
             AppExeViewStateLookupService appExeViewStateLookupService,
             UserProductViewStateLookupService userProductStateLookupService,
@@ -26,10 +23,19 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
+            _localizationService = localizationService;
             _appViewStateLookupService = appViewStateLookupService;
             _appExeViewStateLookupService = appExeViewStateLookupService;
             _userProductStateLookupService = userProductStateLookupService;
         }
+        #endregion
+
+        #region FIELDS
+        private readonly IGizmoClient _gizmoClient;
+        private readonly ILocalizationService _localizationService;
+        private readonly AppViewStateLookupService _appViewStateLookupService;
+        private readonly AppExeViewStateLookupService _appExeViewStateLookupService;
+        private readonly UserProductViewStateLookupService _userProductStateLookupService;
         #endregion
 
         #region FUNCTIONS
@@ -49,6 +55,9 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.SearchPattern = string.Empty;
             ViewState.ProductResults = Enumerable.Empty<GlobalSearchResultViewState>();
             ViewState.ExecutableResults = Enumerable.Empty<GlobalSearchResultViewState>();
+
+            ViewState.EmptyResultTitle = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_TITLE");
+            ViewState.EmptyResultMessage = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_MESSAGE", GLOBAL_SEARCH_MINIMUM_CHARACTERS);
 
             ViewState.OpenDropDown = false;
 
@@ -130,6 +139,9 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.ProductResults = Enumerable.Empty<GlobalSearchResultViewState>();
             ViewState.ExecutableResults = Enumerable.Empty<GlobalSearchResultViewState>();
 
+            ViewState.EmptyResultTitle = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_TITLE");
+            ViewState.EmptyResultMessage = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_MESSAGE", GLOBAL_SEARCH_MINIMUM_CHARACTERS);
+
             ViewState.RaiseChanged();
 
             return Task.CompletedTask;
@@ -140,9 +152,15 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.ProductResults = Enumerable.Empty<GlobalSearchResultViewState>();
             ViewState.ExecutableResults = Enumerable.Empty<GlobalSearchResultViewState>();
 
-            if (ViewState.SearchPattern.Length == 0)
+            ViewState.EmptyResultTitle = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NO_RESULTS_TITLE");
+            ViewState.EmptyResultMessage = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NO_RESULTS_MESSAGE");
+
+            if (ViewState.SearchPattern.Length < GLOBAL_SEARCH_MINIMUM_CHARACTERS)
             {
                 ViewState.IsLoading = false;
+
+                ViewState.EmptyResultTitle = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_TITLE");
+                ViewState.EmptyResultMessage = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_MESSAGE", GLOBAL_SEARCH_MINIMUM_CHARACTERS);
 
                 ViewState.RaiseChanged();
             }
