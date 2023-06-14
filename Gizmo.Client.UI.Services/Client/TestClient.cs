@@ -589,6 +589,15 @@ namespace Gizmo.Client
                                     </div>
                                 ",
                     }
+                },
+                {
+                    new NewsModel
+                    {
+                        Id = 7,
+                        Title = "Custom img HTML of an Advertisement",
+                        IsCustomTemplate = true,
+                        Data = @"<img width=""550"" height=""300"" src=""https://cdn.discordapp.com/attachments/1021454167786672149/1029782729375617134/22A157EA-F5E9-4750-BF37-E1AD1BCFBBBC.jpeg""/>",
+                    }
                 }
             };
             #endregion
