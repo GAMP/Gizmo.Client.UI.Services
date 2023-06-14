@@ -73,20 +73,21 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
         result.IsCustomTemplate = model.IsCustomTemplate;
 
         result.Body = model.Data;
+        result.Title = model.Title;
+
         result.StartDate = model.StartDate;
         result.EndDate = model.EndDate;
 
         if (!result.IsCustomTemplate)
         {
             var (midiaUrlType, mediaUri) = ParseMediaUrl(model.MediaUrl);
+
             result.MediaUrlType = midiaUrlType;
             result.MediaUrl = mediaUri?.AbsoluteUri;
 
             result.ThumbnailUrl = ParseThumbnailUrl(model.ThumbnailUrl, midiaUrlType, mediaUri);
 
             (result.Url, result.Command) = ParseUrl(model.Url);
-
-            result.Title = model.Title;
         }
 
         return result;
