@@ -6,6 +6,7 @@ using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -18,19 +19,29 @@ namespace Gizmo.Client.UI.View.Services
             IGizmoClient gizmoClient,
             ILogger<ProductDetailsPageViewService> logger,
             IServiceProvider serviceProvider,
-            UserProductViewStateLookupService productLookupService) : base(viewState, logger, serviceProvider)
+            UserProductViewStateLookupService productLookupService,
+            IOptions<ClientUIOptions> clientUIOptions) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _productLookupService = productLookupService;
+            _clientUIOptions = clientUIOptions;
         }
         #endregion
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
         private readonly UserProductViewStateLookupService _productLookupService;
+        private readonly IOptions<ClientUIOptions> _clientUIOptions;
         #endregion
 
         #region OVERRIDES
+
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            ViewState.DisableProductDetails = _clientUIOptions.Value.DisableProductDetails;
+            return base.OnInitializing(ct);
+        }
+
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
             if (Uri.TryCreate(NavigationService.GetUri(), UriKind.Absolute, out var uri))

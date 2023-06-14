@@ -12,6 +12,8 @@ namespace Gizmo.Client.UI.View.States
 
         public IEnumerable<UserProductViewState> RelatedProducts { get; internal set; } = Enumerable.Empty<UserProductViewState>();
 
+        public bool DisableProductDetails { get; internal set; }
+
         #endregion
     }
 }

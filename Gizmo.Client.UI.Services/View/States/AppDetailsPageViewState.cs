@@ -11,6 +11,8 @@ namespace Gizmo.Client.UI.View.States
         public AppViewState? Application { get; internal set; }
 
         public IEnumerable<AppExeViewState> Executables { get; internal set; } = Enumerable.Empty<AppExeViewState>();
+        
+        public bool DisableAppDetails { get; internal set; }
 
         #endregion
     }

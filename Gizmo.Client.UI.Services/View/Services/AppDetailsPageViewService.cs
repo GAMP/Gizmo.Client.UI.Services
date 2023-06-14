@@ -3,6 +3,7 @@ using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Web;
 
 namespace Gizmo.Client.UI.View.Services
@@ -16,19 +17,28 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<AppDetailsPageViewService> logger,
             IServiceProvider serviceProvider,
             AppViewStateLookupService appLookupService,
-            AppExeViewStateLookupService appExeLookupService) : base(viewState, logger, serviceProvider)
+            AppExeViewStateLookupService appExeLookupService,
+            IOptions<ClientUIOptions> clientUIOptions) : base(viewState, logger, serviceProvider)
         {
             _appLookupService = appLookupService;
             _appExeLookupService = appExeLookupService;
+            _clientUIOptions = clientUIOptions;
         }
         #endregion
 
         #region FIELDS
         private readonly AppViewStateLookupService _appLookupService;
         private readonly AppExeViewStateLookupService _appExeLookupService;
+        private readonly IOptions<ClientUIOptions> _clientUIOptions;
         #endregion
 
         #region OVERRIDES
+
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            ViewState.DisableAppDetails = _clientUIOptions.Value.DisableAppDetails;
+            return base.OnInitializing(ct);
+        }
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
