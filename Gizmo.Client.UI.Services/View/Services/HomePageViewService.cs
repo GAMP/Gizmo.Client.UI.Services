@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System.Collections.Generic;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,13 +48,22 @@ namespace Gizmo.Client.UI.View.Services
                 var popularProducts = await _gizmoClient.UserPopularProductsGetAsync(new Web.Api.Models.UserPopularProductsFilter()
                 {
                     Limit = _popularItemsOptions.Value.MaxPopularProducts
-                });
+                }, cancellationToken);
 
                 var productIds = popularProducts.Select(a => a.Id).ToList();
 
                 var products = await _userProductViewStateLookupService.GetStatesAsync(cancellationToken);
 
-                ViewState.PopularProducts = products.Where(a => productIds.Contains(a.Id)).OrderBy(a => productIds.IndexOf(a.Id)).ToList();
+                //filter products
+                products = products.Where(a => productIds.Contains(a.Id)).
+                    OrderBy(a => productIds.IndexOf(a.Id));
+
+                //take desired amount
+                if (_popularItemsOptions.Value.MaxPopularProducts > 0)
+                    products = products.Take(_popularItemsOptions.Value.MaxPopularProducts);
+
+                ViewState.PopularProducts = products
+                    .ToList();
             }
 
             if (_popularItemsOptions.Value.MaxPopularApplications == 0)
@@ -72,9 +82,15 @@ namespace Gizmo.Client.UI.View.Services
                 //TODO we might get less apps than expected due to app profile not allowing the app
                 var apps = await _appViewStateLookupService.GetFilteredStatesAsync(cancellationToken);
 
+                //filter apps
+                apps = apps.Where(a => applicationIds.Contains(a.ApplicationId))
+                    .OrderBy(a => applicationIds.IndexOf(a.ApplicationId));
+
+                //take desired amount
+                if (_popularItemsOptions.Value.MaxPopularApplications > 0)
+                    apps = apps.Take(_popularItemsOptions.Value.MaxPopularApplications);
+
                 ViewState.PopularApplications = apps
-                    .Where(a => applicationIds.Contains(a.ApplicationId))
-                    .OrderBy(a => applicationIds.IndexOf(a.ApplicationId))
                     .ToList();
             }
 
