@@ -584,19 +584,10 @@ namespace Gizmo.Client
                         Title = "Custom HTML of an Advertisement",
                         IsCustomTemplate = true,
                         Data = @"
-                                    <div _onload='ExternalFunctions.Advertisement.OnLoad' class='external-css_content'>
+                                    <div _onload='ExternalFunctions.Advertisement.OnLoad({""key"": 1, ""value"": ""string""})' class='external-css_content'>
                                         <h1 class=""external-css"" onclick=""ExternalFunctions.testAlert()"">Test external CSS and JavaScript</h1>
                                     </div>
                                 ",
-                    }
-                },
-                {
-                    new NewsModel
-                    {
-                        Id = 7,
-                        Title = "Custom img HTML of an Advertisement",
-                        IsCustomTemplate = true,
-                        Data = @"<img width=""550"" height=""300"" src=""https://cdn.discordapp.com/attachments/1021454167786672149/1029782729375617134/22A157EA-F5E9-4750-BF37-E1AD1BCFBBBC.jpeg""/>",
                     }
                 }
             };
