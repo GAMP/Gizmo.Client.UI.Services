@@ -117,28 +117,35 @@ namespace Gizmo.Client.UI.View.Services
                 var allApplications = await _appViewStateLookupService.GetStatesAsync(cancellationToken);
 
                 //filter out any applications that passes current app profile
-                allApplications = allApplications.Where(app => _gizmoClient.AppCurrentProfilePass(app.ApplicationId));
+                var filteredApplications = allApplications.Where(app => _gizmoClient.AppCurrentProfilePass(app.ApplicationId));
 
                 if (ViewState.SelectedSortingOption != ApplicationSortingOption.Popularity)
                 {
                     ViewState.TotalFilters += 1;
                 }
 
-                if (!string.IsNullOrEmpty(ViewState.SearchPattern))
+                if (ViewState.SelectedCategoryId.HasValue)
                 {
-                    allApplications = allApplications.Where(app => app.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase));
+                    filteredApplications = filteredApplications.Where(app => app.ApplicationCategoryId == ViewState.SelectedCategoryId);
                     ViewState.TotalFilters += 1;
                 }
 
-                if (ViewState.SelectedCategoryId.HasValue)
+                IEnumerable<AppExeViewState>? allExecutables = null;
+                IEnumerable<AppExeViewState>? filteredExecutables = null;
+
+                if (!string.IsNullOrEmpty(ViewState.SearchPattern))
                 {
-                    allApplications = allApplications.Where(app => app.ApplicationCategoryId == ViewState.SelectedCategoryId);
+                    filteredApplications = filteredApplications.Where(app => app.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase));
                     ViewState.TotalFilters += 1;
+
+                    allExecutables = await _appExeViewStateLookupService.GetFilteredStatesAsync(cancellationToken);
+                    filteredExecutables = allExecutables.Where(a => a.Caption.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)).ToList();
                 }
 
                 if (ViewState.SelectedExecutableModes.Count() > 0)
                 {
-                    var allExecutables = await _appExeViewStateLookupService.GetStatesAsync(cancellationToken);
+                    if (allExecutables == null)
+                        allExecutables = await _appExeViewStateLookupService.GetFilteredStatesAsync(cancellationToken);
 
                     ExecutableOptionType mode = ExecutableOptionType.None;
 
@@ -149,7 +156,10 @@ namespace Gizmo.Client.UI.View.Services
 
                     var applicationWithModes = allExecutables.Where(a => ((int)a.Modes & (int)mode) > 0).Select(a => a.ApplicationId).ToList();
 
-                    allApplications = allApplications.Where(app => applicationWithModes.Contains(app.ApplicationId));
+                    filteredApplications = filteredApplications.Where(app => applicationWithModes.Contains(app.ApplicationId));
+
+                    if (filteredExecutables != null)
+                        filteredExecutables = filteredExecutables.Where(a => ((int)a.Modes & (int)mode) > 0);
 
                     ViewState.TotalFilters += 1;
                 }
@@ -166,30 +176,39 @@ namespace Gizmo.Client.UI.View.Services
                         var applicationIds = popularApplications.Select(a => a.Id).Reverse().ToList();
 
                         //Apps that are not included in popular have index -1 so we have to reverse the order and sort descending.
-                        allApplications = allApplications.OrderByDescending(a => applicationIds.IndexOf(a.ApplicationId)).ToList();
+                        filteredApplications = filteredApplications.OrderByDescending(a => applicationIds.IndexOf(a.ApplicationId)).ToList();
 
                         break;
 
                     case ApplicationSortingOption.Title:
 
-                        allApplications = allApplications.OrderBy(a => a.Title);
+                        filteredApplications = filteredApplications.OrderBy(a => a.Title);
 
                         break;
 
                     case ApplicationSortingOption.AddDate:
 
-                        allApplications = allApplications.OrderByDescending(a => a.AddDate);
+                        filteredApplications = filteredApplications.OrderByDescending(a => a.AddDate);
 
                         break;
 
                     case ApplicationSortingOption.ReleaseDate:
 
-                        allApplications = allApplications.OrderByDescending(a => a.ReleaseDate);
+                        filteredApplications = filteredApplications.OrderByDescending(a => a.ReleaseDate);
 
                         break;
                 }
 
-                ViewState.Applications = allApplications.ToList();
+                var tmp = filteredApplications.ToList();
+
+                if (filteredExecutables != null)
+                {
+                    var alreadyIncludedIds = tmp.Select(a => a.ApplicationId).ToList();
+                    var additionalIds = filteredExecutables.Where(a => !alreadyIncludedIds.Contains(a.ApplicationId)).Select(a => a.ApplicationId).Distinct();
+                    tmp.AddRange(allApplications.Where(a => additionalIds.Contains(a.ApplicationId)));
+                }
+
+                ViewState.Applications = tmp;
 
                 DebounceViewStateChanged();
             }

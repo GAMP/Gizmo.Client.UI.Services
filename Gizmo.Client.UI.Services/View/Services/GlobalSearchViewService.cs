@@ -10,6 +10,7 @@ namespace Gizmo.Client.UI.View.Services
     public sealed class GlobalSearchViewService : ViewStateServiceBase<GlobalSearchViewState>
     {
         #region FIELDS
+        private readonly AppViewStateLookupService _appViewStateLookupService;
         private readonly AppExeViewStateLookupService _appExeViewStateLookupService;
         private readonly UserProductViewStateLookupService _userProductStateLookupService;
         private readonly IGizmoClient _gizmoClient;
@@ -18,12 +19,14 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public GlobalSearchViewService(GlobalSearchViewState viewState,
             IGizmoClient gizmoClient,
+            AppViewStateLookupService appViewStateLookupService,
             AppExeViewStateLookupService appExeViewStateLookupService,
             UserProductViewStateLookupService userProductStateLookupService,
             ILogger<GlobalSearchViewService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
+            _appViewStateLookupService = appViewStateLookupService;
             _appExeViewStateLookupService = appExeViewStateLookupService;
             _userProductStateLookupService = userProductStateLookupService;
         }
@@ -152,18 +155,38 @@ namespace Gizmo.Client.UI.View.Services
                 if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Executables)
                 {
                     var executableStates = await _appExeViewStateLookupService.GetFilteredStatesAsync();
+                    var appStates = await _appViewStateLookupService.GetFilteredStatesAsync();
 
                     var tmp = new List<GlobalSearchResultViewState>();
 
-                    foreach (var app in executableStates.Where(a => a.Caption.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
+                    foreach (var exe in executableStates.Where(a => a.Caption.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
                     {
                         tmp.Add(new GlobalSearchResultViewState()
                         {
                             Type = SearchResultTypes.Executables,
-                            Id = app.ExecutableId,
-                            Name = app.Caption,
-                            ImageId = app.ImageId
+                            Id = exe.ExecutableId,
+                            Name = exe.Caption,
+                            ImageId = exe.ImageId
                         });
+                    }
+
+                    foreach (var app in appStates.Where(a => a.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        var appExecutables = executableStates.Where(a => a.ApplicationId == app.ApplicationId).ToList();
+
+                        foreach (var appExe in appExecutables)
+                        {
+                            if (!tmp.Where(a => a.Id == appExe.ExecutableId).Any())
+                            {
+                                tmp.Add(new GlobalSearchResultViewState()
+                                {
+                                    Type = SearchResultTypes.Executables,
+                                    Id = appExe.ExecutableId,
+                                    Name = appExe.Caption,
+                                    ImageId = appExe.ImageId
+                                });
+                            }
+                        }
                     }
 
                     ViewState.ExecutableResults = tmp;

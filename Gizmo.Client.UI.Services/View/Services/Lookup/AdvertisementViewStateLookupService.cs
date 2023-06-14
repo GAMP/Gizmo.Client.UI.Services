@@ -73,6 +73,8 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
         result.IsCustomTemplate = model.IsCustomTemplate;
 
         result.Body = model.Data;
+        result.StartDate = model.StartDate;
+        result.EndDate = model.EndDate;
 
         if (!result.IsCustomTemplate)
         {
@@ -85,8 +87,6 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
             (result.Url, result.Command) = ParseUrl(model.Url);
 
             result.Title = model.Title;
-            result.StartDate = model.StartDate;
-            result.EndDate = model.EndDate;
         }
 
         return result;
@@ -197,4 +197,19 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
         return (null, command);
     }
     #endregion
+
+    /// <summary>
+    /// Gets filtered advertisement states.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Advertisement states.</returns>
+    /// <remarks>
+    /// Only advertisement states that pass the filters will be returned.
+    /// </remarks>
+    public async Task<IEnumerable<AdvertisementViewState>> GetFilteredStatesAsync(CancellationToken cancellationToken = default)
+    {
+        var states = await GetStatesAsync(cancellationToken);
+        return states.Where(state => (!state.StartDate.HasValue || state.StartDate.Value <= DateTime.Now) &&
+                                     (!state.EndDate.HasValue || state.EndDate.Value > DateTime.Now)).ToList();
+    }
 }

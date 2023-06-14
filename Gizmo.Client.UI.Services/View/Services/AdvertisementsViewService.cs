@@ -77,7 +77,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             try
             {
-                ViewState.Advertisements = await _advertisementViewStateLookupService.GetStatesAsync(cToken);
+                ViewState.Advertisements = await _advertisementViewStateLookupService.GetFilteredStatesAsync(cToken);
 
                 DebounceViewStateChanged();
             }
