@@ -1265,5 +1265,15 @@ namespace Gizmo.Client
                 LoginUnblockTime = 30
             });
         }
+
+        public Task UserLockEnterAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task UserLockExitAsync()
+        {
+            return Task.CompletedTask;
+        }
     }
 }

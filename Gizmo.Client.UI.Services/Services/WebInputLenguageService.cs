@@ -9,6 +9,7 @@ namespace Gizmo.Client.UI.Services
 
         public IEnumerable<CultureInfo> AvailableInputLanguages => Enumerable.Empty<CultureInfo>();
 
+        public CultureInfo CurrentInputLanguage => CultureInfo.CurrentCulture;
 
         public Task SetCurrentInputLanguageAsync(CultureInfo culture)
         {

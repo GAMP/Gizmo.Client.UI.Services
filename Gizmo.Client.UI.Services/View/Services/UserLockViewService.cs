@@ -13,16 +13,19 @@ namespace Gizmo.Client.UI.View.Services
     {
         #region CONSTRUCTOR
         public UserLockViewService(UserLockViewState viewState,
+            IGizmoClient gizmoClient,
             ILogger<UserLockViewService> logger,
             IServiceProvider serviceProvider,
             ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
         {
+            _gizmoClient = gizmoClient;
             _localizationService = localizationService;
         }
         #endregion
 
         #region FIELDS
         private readonly ILocalizationService _localizationService;
+        private readonly IGizmoClient _gizmoClient;
         #endregion
 
         #region FUNCTIONS
@@ -33,28 +36,27 @@ namespace Gizmo.Client.UI.View.Services
             DebounceViewStateChanged();
         }
 
-        public Task LockAsync()
+        public async Task LockAsync()
         {
+            //go into full screen mode
+            await _gizmoClient.EnterFullSceenAsync();
+
             ViewState.IsLocking = true;
-
-            ViewState.RaiseChanged();
-
-            return Task.CompletedTask;
+            ViewState.RaiseChanged();            
         }
 
-        public Task CancelLockAsync()
+        public async Task CancelLockAsync()
         {
             //Do not allow cancel if it's already locked.
             if (ViewState.IsLocking && !ViewState.IsLocked)
             {
+                //exit full screen mode
+                await _gizmoClient.ExitFullSceenAsync();
+
                 ViewState.IsLocking = false;
-
                 ViewState.InputPassword = string.Empty;
-
-                ViewState.RaiseChanged();
+                ViewState.RaiseChanged();             
             }
-
-            return Task.CompletedTask;
         }
 
         public Task SetPasswordAsync()
@@ -66,6 +68,8 @@ namespace Gizmo.Client.UI.View.Services
 
             if (ViewState.InputPassword.Length == 4)
             {
+                _gizmoClient.UserLockEnterAsync();
+
                 ViewState.IsLocking = false;
                 ViewState.IsLocked = true;
 
@@ -82,19 +86,23 @@ namespace Gizmo.Client.UI.View.Services
             return Task.CompletedTask;
         }
 
-        public Task UnlockAsync()
+        public async Task UnlockAsync()
         {
             Validate();
 
             if (ViewState.IsValid != true)
-                return Task.CompletedTask;
+                return;
 
             if (ViewState.InputPassword == ViewState.LockPassword)
             {
-                ViewState.IsLocked = false;
+                //exit user lock mode
+                await _gizmoClient.UserLockExitAsync();
 
+                ViewState.IsLocked = false;
                 ViewState.InputPassword = string.Empty;
                 ViewState.LockPassword = string.Empty;
+
+               
             }
             else
             {
@@ -102,8 +110,6 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             ViewState.RaiseChanged();
-
-            return Task.CompletedTask;
         }
 
         public Task PutDigitAsync(int number)
