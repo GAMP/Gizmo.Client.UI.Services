@@ -156,11 +156,22 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task ResetAsync()
         {
+            ViewState.Username = string.Empty;
+            ViewState.FirstName = string.Empty;
+            ViewState.LastName = string.Empty;
+            ViewState.BirthDate = null;
+            ViewState.Sex = Sex.Unspecified;
+            ViewState.Country = string.Empty;
+            ViewState.Prefix = string.Empty;
+            ViewState.Picture = string.Empty;
+
             ViewState.IsInitializing = false;
             ViewState.IsInitialized = null;
             ViewState.IsComplete = false;
             ViewState.HasError = false;
             ViewState.ErrorMessage = string.Empty;
+
+            ResetValidationState();
 
             ViewState.RaiseChanged();
 

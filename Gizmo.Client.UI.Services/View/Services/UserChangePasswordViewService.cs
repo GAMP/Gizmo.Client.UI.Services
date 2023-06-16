@@ -101,6 +101,11 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task ResetAsync()
         {
+            ViewState.ShowOldPassword = false;
+            ViewState.OldPassword = string.Empty;
+            ViewState.NewPassword = string.Empty;
+            ViewState.RepeatPassword = string.Empty;
+
             ViewState.IsInitializing = false;
             ViewState.IsInitialized = null;
             ViewState.IsComplete = false;
