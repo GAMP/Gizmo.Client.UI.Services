@@ -11,7 +11,6 @@ namespace Gizmo.Client.UI.View.States
         #region PROPERTIES
 
         [ValidatingProperty()]
-        [Required()]
         public string? OldPassword { get; internal set; }
 
         /// <summary>
