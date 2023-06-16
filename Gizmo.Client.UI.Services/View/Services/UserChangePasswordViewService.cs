@@ -52,13 +52,22 @@ namespace Gizmo.Client.UI.View.Services
             ValidateProperty(() => ViewState.RepeatPassword);
         }
 
-        public async Task StartAsync(CancellationToken cToken = default)
+        public async Task StartAsync(bool showOldPassword, CancellationToken cToken = default)
         {
-            await ResetAsync();
+            try
+            {
+                await ResetAsync();
 
-            var s = await _dialogService.ShowChangePasswordDialogAsync(true, cToken);
-            if (s.Result == AddComponentResultCode.Opened)
-                _ = await s.WaitForResultAsync(cToken);
+                ViewState.ShowOldPassword = showOldPassword;
+
+                var s = await _dialogService.ShowChangePasswordDialogAsync(cToken);
+                if (s.Result == AddComponentResultCode.Opened)
+                    _ = await s.WaitForResultAsync(cToken);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to update user password.");
+            }
         }
 
         public async Task SubmitAsync()

@@ -55,7 +55,6 @@ namespace Gizmo.Client.UI.View.States
         /// Gets or sets user password.
         /// </summary>
         [ValidatingProperty()]
-        [Required()]
         public string? Password
         {
             get { return _password; }

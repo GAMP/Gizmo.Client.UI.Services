@@ -68,44 +68,53 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task StartAsync(CancellationToken cToken = default)
         {
-            await ResetAsync();
-
-            ViewState.IsInitializing = true;
-            ViewState.IsInitialized = false;
-
-            var s = await _dialogService.ShowChangeProfileDialogAsync();
-            if (s.Result == AddComponentResultCode.Opened)
-            {
-                //_ = await s.WaitForDialogResultAsync();
-            }
-
             try
             {
-                var profile = await _gizmoClient.UserProfileGetAsync(cToken);
+                await ResetAsync();
 
-                ViewState.Username = profile.Username;
-                ViewState.FirstName = profile.FirstName;
-                ViewState.LastName = profile.LastName;
-                ViewState.BirthDate = profile.BirthDate;
-                ViewState.Sex = profile.Sex;
-                ViewState.Country = profile.Country;
+                ViewState.IsInitializing = true;
+                ViewState.IsInitialized = false;
 
-                ViewState.IsInitialized = true;
+                var s = await _dialogService.ShowChangeProfileDialogAsync();
+                if (s.Result == AddComponentResultCode.Opened)
+                {
+                    //_ = await s.WaitForDialogResultAsync();
+                }
+
+                try
+                {
+                    var profile = await _gizmoClient.UserProfileGetAsync(cToken);
+
+                    ViewState.Username = profile.Username;
+                    ViewState.FirstName = profile.FirstName;
+                    ViewState.LastName = profile.LastName;
+                    ViewState.BirthDate = profile.BirthDate;
+                    ViewState.Sex = profile.Sex;
+                    ViewState.Country = profile.Country;
+
+                    ViewState.IsInitialized = true;
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "User profile get error.");
+
+                    ViewState.HasError = true;
+                    ViewState.ErrorMessage = ex.ToString();
+
+                    ViewState.IsComplete = true;
+
+                    throw;
+                }
+                finally
+                {
+                    ViewState.IsInitializing = false;
+
+                    ViewState.RaiseChanged();
+                }
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "User profile get error.");
-
-                ViewState.HasError = true;
-                ViewState.ErrorMessage = ex.ToString();
-
-                ViewState.IsComplete = true;
-            }
-            finally
-            {
-                ViewState.IsInitializing = false;
-
-                ViewState.RaiseChanged();
+                Logger.LogError(ex, "Failed to update user profile.");
             }
         }
 

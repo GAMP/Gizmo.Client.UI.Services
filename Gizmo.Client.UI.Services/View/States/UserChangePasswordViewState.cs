@@ -10,6 +10,8 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
+        public bool ShowOldPassword { get; internal set; }
+
         [ValidatingProperty()]
         public string? OldPassword { get; internal set; }
 

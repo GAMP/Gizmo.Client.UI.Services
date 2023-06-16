@@ -15,15 +15,18 @@ namespace Gizmo.Client.UI.View.Services
             IClientDialogService dialogService,
             ILogger<UserLoginStatusViewService> logger,
             IServiceProvider serviceProvider,
+            UserChangePasswordViewService userChangePasswordViewService,
             UserChangeProfileViewService userChangeProfileViewService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _dialogService = dialogService;
+            _userChangePasswordViewService = userChangePasswordViewService;
             _userChangeProfileViewService = userChangeProfileViewService;
         }
 
         private readonly IGizmoClient _gizmoClient;
         private readonly IClientDialogService _dialogService;
+        private readonly UserChangePasswordViewService _userChangePasswordViewService;
         private readonly UserChangeProfileViewService _userChangeProfileViewService;
 
         protected override Task OnInitializing(CancellationToken ct)
@@ -68,28 +71,12 @@ namespace Gizmo.Client.UI.View.Services
 
             if (e.State == LoginState.LoginCompleted && e.IsUserPasswordRequired)
             {
-                try
-                {
-                    var s = await _dialogService.ShowChangePasswordDialogAsync(false);
-                    if (s.Result == AddComponentResultCode.Opened)
-                        _ = await s.WaitForResultAsync();
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Failed to update user password.");
-                }
+                await _userChangePasswordViewService.StartAsync(false);
             }
 
             if (e.State == LoginState.LoginCompleted && e.IsUserInfoRequired)
             {
-                try
-                {
-                    await _userChangeProfileViewService.StartAsync();
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Failed to update user profile.");
-                }
+                await _userChangeProfileViewService.StartAsync();
             }
         }
     }

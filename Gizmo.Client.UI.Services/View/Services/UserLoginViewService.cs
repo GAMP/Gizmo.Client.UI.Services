@@ -67,7 +67,7 @@ namespace Gizmo.Client.UI.View.Services
             string? loginName = ViewState.LoginName;
             string? password = ViewState.Password;
 
-            if (string.IsNullOrEmpty(loginName) || string.IsNullOrEmpty(password))
+            if (string.IsNullOrEmpty(loginName))
                 return;
 
             try
