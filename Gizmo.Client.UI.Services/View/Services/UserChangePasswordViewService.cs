@@ -107,6 +107,8 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.HasError = false;
             ViewState.ErrorMessage = string.Empty;
 
+            ResetValidationState();
+
             ViewState.RaiseChanged();
 
             return Task.CompletedTask;
@@ -116,6 +118,10 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
+            if (ViewState.ShowOldPassword && fieldIdentifier.FieldEquals(() => ViewState.OldPassword) && string.IsNullOrEmpty(ViewState.OldPassword))
+            {
+                AddError(() => ViewState.OldPassword, _localizationService.GetString("GIZ_USER_CHANGE_PASSWORD_VE_OLD_PASSWORD_IS_REQUIRED"));
+            }
             if (fieldIdentifier.FieldEquals(() => ViewState.NewPassword) || fieldIdentifier.FieldEquals(() => ViewState.RepeatPassword))
             {
                 if (!string.IsNullOrEmpty(ViewState.NewPassword) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.NewPassword, ViewState.RepeatPassword) != 0)
