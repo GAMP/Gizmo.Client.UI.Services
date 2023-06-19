@@ -36,13 +36,26 @@ namespace Gizmo.Client.UI.Services
         {
             foreach (var culture in cultures)
             {
-                culture.NumberFormat.CurrencySymbol = _currencyOptions.CurrencySymbol ?? culture.NumberFormat.CurrencySymbol;
-                culture.NumberFormat.CurrencyDecimalDigits = _currencyOptions.CurrencyDecimalDigits ?? culture.NumberFormat.CurrencyDecimalDigits;
-                culture.NumberFormat.CurrencyDecimalSeparator = _currencyOptions.CurrencyDecimalSeparator ?? culture.NumberFormat.CurrencyDecimalSeparator;
-                culture.NumberFormat.CurrencyGroupSeparator = _currencyOptions.CurrencyGroupSeparator ?? culture.NumberFormat.CurrencyGroupSeparator;
-                culture.NumberFormat.CurrencyGroupSizes = _currencyOptions.CurrencyGroupSizes ?? culture.NumberFormat.CurrencyGroupSizes;
-                culture.NumberFormat.CurrencyNegativePattern = _currencyOptions.CurrencyNegativePattern ?? culture.NumberFormat.CurrencyNegativePattern;
-                culture.NumberFormat.CurrencyPositivePattern = _currencyOptions.CurrencyPositivePattern ?? culture.NumberFormat.CurrencyPositivePattern;
+                if (!string.IsNullOrWhiteSpace(_currencyOptions.CurrencySymbol))
+                        culture.NumberFormat.CurrencySymbol = _currencyOptions.CurrencySymbol;
+
+                if (_currencyOptions.CurrencyDecimalDigits.HasValue)
+                        culture.NumberFormat.CurrencyDecimalDigits = _currencyOptions.CurrencyDecimalDigits.Value;
+
+                if (!string.IsNullOrWhiteSpace(_currencyOptions.CurrencyDecimalSeparator))
+                        culture.NumberFormat.CurrencyDecimalSeparator = _currencyOptions.CurrencyDecimalSeparator;
+
+                if (!string.IsNullOrWhiteSpace(_currencyOptions.CurrencyGroupSeparator))
+                        culture.NumberFormat.CurrencyGroupSeparator = _currencyOptions.CurrencyGroupSeparator;
+
+                if (_currencyOptions.CurrencyGroupSizes != null)
+                        culture.NumberFormat.CurrencyGroupSizes = _currencyOptions.CurrencyGroupSizes;
+
+                if (_currencyOptions.CurrencyNegativePattern.HasValue)
+                        culture.NumberFormat.CurrencyNegativePattern = _currencyOptions.CurrencyNegativePattern.Value;
+
+                if (_currencyOptions.CurrencyPositivePattern.HasValue)
+                        culture.NumberFormat.CurrencyPositivePattern = _currencyOptions.CurrencyPositivePattern.Value;
             }
         }
     }
