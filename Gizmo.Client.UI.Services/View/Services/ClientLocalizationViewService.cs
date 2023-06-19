@@ -20,6 +20,7 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
+            _localizationService.LocalizationOptionsChanged += OnLocalizationOptionsChanged;
             _logger = logger;
         }
         #endregion
@@ -36,11 +37,21 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.AvailableCultures = await _localizationService.GetSupportedCulturesAsync(cToken);
 
-            ViewState.CurrentCulture = GetViewStatesCulture("en");
+            ViewState.CurrentCulture = GetViewStatesCulture("el");
 
             await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
             await base.OnInitializing(cToken);
+        }
+
+        protected override void OnDisposing(bool isDisposing)
+        {
+            if (isDisposing)
+            {
+                _localizationService.LocalizationOptionsChanged -= OnLocalizationOptionsChanged;
+            }
+
+            base.OnDisposing(isDisposing);
         }
 
         #endregion
@@ -75,6 +86,17 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             return culture;
+        }
+
+        private async void OnLocalizationOptionsChanged(object? _, EventArgs __)
+        {
+            ViewState.AvailableCultures = await _localizationService.GetSupportedCulturesAsync(default);
+
+            ViewState.CurrentCulture = GetViewStatesCulture(ViewState.CurrentCulture.TwoLetterISOLanguageName);
+
+            await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
+
+            ViewState.RaiseChanged();
         }
 
         #endregion

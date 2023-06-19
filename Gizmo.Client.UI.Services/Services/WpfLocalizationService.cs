@@ -16,7 +16,7 @@ namespace Gizmo.Client.UI.Services
         public WpfLocalizationService(
             ILogger<WpfLocalizationService> logger,
             IStringLocalizer localizer,
-            IOptions<ClientCurrencyOptions> options) : base(logger, localizer, options) { }
+            IOptionsMonitor<CurrencyOptions> options) : base(logger, localizer, options) { }
 
         public override async Task SetCurrentCultureAsync(CultureInfo culture)
         {

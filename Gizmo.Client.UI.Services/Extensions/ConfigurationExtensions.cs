@@ -39,7 +39,7 @@ namespace Gizmo.Client.UI.Services
             //bind client app configuration to the desired class
             services.AddOptions<UICompositionOptions>().Bind(configuration.GetSection("UIComposition"));
             services.AddOptions<ClientUIOptions>().Bind(configuration.GetSection("Interface"));
-            services.AddOptions<ClientCurrencyOptions>().Bind(configuration.GetSection("CurrencyOptions"));
+            services.AddOptions<CurrencyOptions>().Bind(configuration.GetSection("CurrencyOptions"));
             services.AddOptions<UserOnlineDepositOptions>().Bind(configuration.GetSection("UserOnlineDepositOptions"));
             services.AddOptions<PopularItemsOptions>().Bind(configuration.GetSection("PopularItemsOptions"));
             services.AddOptions<UserLoginOptions>().Bind(configuration.GetSection("UserLoginOptions"));

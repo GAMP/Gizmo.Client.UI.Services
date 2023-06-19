@@ -1,4 +1,6 @@
 ﻿using System.Globalization;
+
+using Gizmo.UI;
 using Gizmo.UI.Services;
 
 using Microsoft.Extensions.Localization;
@@ -9,12 +11,20 @@ namespace Gizmo.Client.UI.Services
 {
     public abstract class ClientLocalizationServiceBase : LocalizationServiceBase
     {
-        private readonly ClientCurrencyOptions _cultureOptions;
+        private CurrencyOptions _currencyOptions;
 
-        protected ClientLocalizationServiceBase(ILogger logger, IStringLocalizer localizer, IOptions<ClientCurrencyOptions> options) : base(logger, localizer)
+        protected ClientLocalizationServiceBase(ILogger logger, IStringLocalizer localizer, IOptionsMonitor<CurrencyOptions> options) : base(logger, localizer)
         {
-            _cultureOptions = options.Value;
+            _currencyOptions = options.CurrentValue;
+
+            options.OnChange(currencyOptions =>
+            {
+                _currencyOptions = currencyOptions;
+                LocalizationOptionsChanged?.Invoke(this, EventArgs.Empty);
+            });
         }
+
+        public override event EventHandler<EventArgs>? LocalizationOptionsChanged;
 
         /// <summary>
         /// Sets currency options  from the configuration for the <paramref name="cultures"/>.
@@ -24,33 +34,29 @@ namespace Gizmo.Client.UI.Services
         /// </param>
         protected override void ConfigureLocalizationOptions(IEnumerable<CultureInfo> cultures)
         {
-            if (!string.IsNullOrWhiteSpace(_cultureOptions.CurrencySymbol))
-                foreach (var culture in cultures)
-                    culture.NumberFormat.CurrencySymbol = _cultureOptions.CurrencySymbol;
+            foreach (var culture in cultures)
+            {
+                if (!string.IsNullOrWhiteSpace(_currencyOptions.CurrencySymbol))
+                        culture.NumberFormat.CurrencySymbol = _currencyOptions.CurrencySymbol;
 
-            if (_cultureOptions.CurrencyDecimalDigits.HasValue)
-                foreach (var culture in cultures)
-                    culture.NumberFormat.CurrencyDecimalDigits = _cultureOptions.CurrencyDecimalDigits.Value;
+                if (_currencyOptions.CurrencyDecimalDigits.HasValue)
+                        culture.NumberFormat.CurrencyDecimalDigits = _currencyOptions.CurrencyDecimalDigits.Value;
 
-            if (!string.IsNullOrWhiteSpace(_cultureOptions.CurrencyDecimalSeparator))
-                foreach (var culture in cultures)
-                    culture.NumberFormat.CurrencyDecimalSeparator = _cultureOptions.CurrencyDecimalSeparator;
+                if (!string.IsNullOrWhiteSpace(_currencyOptions.CurrencyDecimalSeparator))
+                        culture.NumberFormat.CurrencyDecimalSeparator = _currencyOptions.CurrencyDecimalSeparator;
 
-            if (!string.IsNullOrWhiteSpace(_cultureOptions.CurrencyGroupSeparator))
-                foreach (var culture in cultures)
-                    culture.NumberFormat.CurrencyGroupSeparator = _cultureOptions.CurrencyGroupSeparator;
+                if (!string.IsNullOrWhiteSpace(_currencyOptions.CurrencyGroupSeparator))
+                        culture.NumberFormat.CurrencyGroupSeparator = _currencyOptions.CurrencyGroupSeparator;
 
-            if (_cultureOptions.CurrencyGroupSizes != null)
-                foreach (var culture in cultures)
-                    culture.NumberFormat.CurrencyGroupSizes = _cultureOptions.CurrencyGroupSizes;
+                if (_currencyOptions.CurrencyGroupSizes != null)
+                        culture.NumberFormat.CurrencyGroupSizes = _currencyOptions.CurrencyGroupSizes;
 
-            if (_cultureOptions.CurrencyNegativePattern.HasValue)
-                foreach (var culture in cultures)
-                    culture.NumberFormat.CurrencyNegativePattern = _cultureOptions.CurrencyNegativePattern.Value;
+                if (_currencyOptions.CurrencyNegativePattern.HasValue)
+                        culture.NumberFormat.CurrencyNegativePattern = _currencyOptions.CurrencyNegativePattern.Value;
 
-            if (_cultureOptions.CurrencyPositivePattern.HasValue)
-                foreach (var culture in cultures)
-                    culture.NumberFormat.CurrencyPositivePattern = _cultureOptions.CurrencyPositivePattern.Value;
+                if (_currencyOptions.CurrencyPositivePattern.HasValue)
+                        culture.NumberFormat.CurrencyPositivePattern = _currencyOptions.CurrencyPositivePattern.Value;
+            }
         }
     }
 }
