@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Gizmo.UI;
 using Gizmo.UI.Services;
 
 using Microsoft.Extensions.Localization;
@@ -9,11 +10,11 @@ namespace Gizmo.Client.UI.Services
 {
     public abstract class ClientLocalizationServiceBase : LocalizationServiceBase
     {
-        private readonly ClientCurrencyOptions _cultureOptions;
+        private CurrencyOptions _cultureOptions;
 
-        protected ClientLocalizationServiceBase(ILogger logger, IStringLocalizer localizer, IOptions<ClientCurrencyOptions> options) : base(logger, localizer)
+        protected ClientLocalizationServiceBase(ILogger logger, IStringLocalizer localizer, IOptionsMonitor<CurrencyOptions> options) : base(logger, localizer)
         {
-            _cultureOptions = options.Value;
+            _cultureOptions = options.CurrentValue;
         }
 
         /// <summary>

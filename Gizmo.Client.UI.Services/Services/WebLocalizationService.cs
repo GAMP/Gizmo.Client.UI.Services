@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-
+using Gizmo.UI;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -20,7 +20,7 @@ namespace Gizmo.Client.UI.Services
         public WebLocalizationService(
             ILogger<WebLocalizationService> logger,
             IStringLocalizer localizer,
-            IOptions<ClientCurrencyOptions> options) : base(logger, localizer, options) { }
+            IOptionsMonitor<CurrencyOptions> options) : base(logger, localizer, options) { }
         #endregion
 
         // TODO: FOR EXAMPLE ONLY, REMOVE THIS
