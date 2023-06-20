@@ -33,5 +33,11 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.IsIdle = true;
             DebounceViewStateChanged();
         }
+
+        public void Toggle()
+        {
+            ViewState.IsIdle = !ViewState.IsIdle;
+            DebounceViewStateChanged();
+        }
     }
 }
