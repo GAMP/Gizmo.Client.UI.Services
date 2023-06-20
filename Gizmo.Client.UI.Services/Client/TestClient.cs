@@ -620,17 +620,6 @@ namespace Gizmo.Client
 
         public async Task<LoginResult> UserLoginAsync(string loginName, string? password, CancellationToken cancellationToken)
         {
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-            //cancellationTokenSource.CancelAfter(3000);
-            await _notificationsService.ShowAlertNotification(AlertTypes.Danger, "Error", "Do this now!", default, default,
-                cancellationTokenSource.Token);
-            //await Task.Delay(1000);
-            //await _notificationsService.ShowAlertNotification(AlertTypes.Success, "Error", "Do this now!", cancellationTokenSource.Token);
-            //await Task.Delay(1000);
-            //await _notificationsService.ShowAlertNotification(AlertTypes.Warning, "Error", "Do this now!", cancellationTokenSource.Token);
-            //await Task.Delay(1000);
-            //await _notificationsService.ShowAlertNotification(AlertTypes.Info, "Error", "Do this now!", cancellationTokenSource.Token);
-
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggingIn));
             await Task.Delay(new Random().Next(100, 1000), cancellationToken);
 
