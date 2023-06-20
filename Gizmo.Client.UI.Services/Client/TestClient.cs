@@ -1275,5 +1275,15 @@ namespace Gizmo.Client
         {
             return Task.CompletedTask;
         }
+
+        public string GetCurrentSkinPath()
+        {
+            return @"C:\ProgramData\Application Data\NETProjects\Gizmo Client\Cache\Skins\Next\Media";
+        }
+
+        public string GetCurrentRotatorPath()
+        {
+            return @"C:\ProgramData\Application Data\NETProjects\Gizmo Client\Cache\Skins\Next\Rotator";
+        }
     }
 }

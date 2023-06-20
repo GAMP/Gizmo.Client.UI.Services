@@ -13,10 +13,12 @@ namespace Gizmo.Client.UI.View.Services
     {
         #region CONSTRUCTOR
         public LoginRotatorViewService(LoginRotatorViewState viewState,
+            IGizmoClient gizmoClient,
             ILogger<LoginRotatorViewService> logger,
-            IServiceProvider serviceProvider,
+            IServiceProvider serviceProvider,         
             IOptions<LoginRotatorOptions> loginRotatorOptions) : base(viewState, logger, serviceProvider)
         {
+            _gizmoClient = gizmoClient;
             _loginRotatorOptions = loginRotatorOptions;
         }
         #endregion
@@ -43,6 +45,7 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region FIELDS
+        private readonly IGizmoClient _gizmoClient;
         private readonly IOptions<LoginRotatorOptions> _loginRotatorOptions;
         private Timer? _rotatateTimer;
         private List<LoginRotatorItemViewState> _items = new();
@@ -134,7 +137,7 @@ namespace Gizmo.Client.UI.View.Services
             if (_loginRotatorOptions.Value.IsEnabled)
             {
                 //get current rotator folder
-                var rotateFolder = _loginRotatorOptions.Value.Path;
+                var rotateFolder = _gizmoClient.GetCurrentRotatorPath();
 
                 if (!string.IsNullOrEmpty(rotateFolder))
                 {
@@ -174,14 +177,13 @@ namespace Gizmo.Client.UI.View.Services
                     try
                     {
                         var mediaFilesRelativePaths = GetRelativePaths(rotateFolder);
-                        var random = new Random();
                         _items = mediaFilesRelativePaths.Select(FILE => new LoginRotatorItemViewState()
                         {
                             MediaPath = Path.Combine("https://", "rotator", FILE).Replace('\\', '/'),
                             IsVideo = VIDEO_EXTENSIONS.Any(EXTENSION => FILE.EndsWith(EXTENSION, StringComparison.InvariantCultureIgnoreCase))
                         }).ToList();
 
-                        _items.Shuffle();
+                        _items.Shuffle(); //randomize
                     }
                     catch (Exception ex)
                     {
