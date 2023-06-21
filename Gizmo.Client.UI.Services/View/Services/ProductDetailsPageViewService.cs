@@ -20,7 +20,7 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<ProductDetailsPageViewService> logger,
             IServiceProvider serviceProvider,
             UserProductViewStateLookupService productLookupService,
-            IOptions<ClientUIOptions> clientUIOptions) : base(viewState, logger, serviceProvider)
+            IOptions<ClientInterfaceOptions> clientUIOptions) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _productLookupService = productLookupService;
@@ -31,7 +31,7 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
         private readonly UserProductViewStateLookupService _productLookupService;
-        private readonly IOptions<ClientUIOptions> _clientUIOptions;
+        private readonly IOptions<ClientInterfaceOptions> _clientUIOptions;
         #endregion
 
         #region OVERRIDES

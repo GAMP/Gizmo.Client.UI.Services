@@ -15,14 +15,14 @@ namespace Gizmo.Client.UI.View.Services
         public LoginWallpaperViewService(LoginWallpaperViewState viewState,
             ILogger<LoginWallpaperViewService> logger,
             IServiceProvider serviceProvider,
-            IOptions<ClientUIOptions> clientUIOptions) : base(viewState, logger, serviceProvider)
+            IOptions<ClientInterfaceOptions> clientUIOptions) : base(viewState, logger, serviceProvider)
         {
             _clientUIOptions = clientUIOptions;
         }
         #endregion
 
         #region FIELDS
-        private readonly IOptions<ClientUIOptions> _clientUIOptions;
+        private readonly IOptions<ClientInterfaceOptions> _clientUIOptions;
         #endregion
 
         #region FUNCTIONS

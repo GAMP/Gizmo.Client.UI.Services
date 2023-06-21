@@ -38,16 +38,16 @@ namespace Gizmo.Client.UI.Services
         {
             //bind client app configuration to the desired class
             services.AddOptions<UICompositionOptions>().Bind(configuration.GetSection("UIComposition"));
-            services.AddOptions<ClientUIOptions>().Bind(configuration.GetSection("Interface"));
-            services.AddOptions<CurrencyOptions>().Bind(configuration.GetSection("CurrencyOptions"));
-            services.AddOptions<UserOnlineDepositOptions>().Bind(configuration.GetSection("UserOnlineDepositOptions"));
-            services.AddOptions<PopularItemsOptions>().Bind(configuration.GetSection("PopularItemsOptions"));
-            services.AddOptions<UserLoginOptions>().Bind(configuration.GetSection("UserLoginOptions"));
-            services.AddOptions<HostQRCodeOptions>().Bind(configuration.GetSection("HostQRCodeOptions"));
-            services.AddOptions<FeedsOptions>().Bind(configuration.GetSection("FeedsOptions"));
-            services.AddOptions<NotificationsOptions>().Bind(configuration.GetSection("NotificationsOptions"));
-            services.AddOptions<DialogOptions>().Bind(configuration.GetSection("DialogOptions"));
-            services.AddOptions<LoginRotatorOptions>().Bind(configuration.GetSection("LoginRotatorOptions"));
+            services.AddOptions<ClientInterfaceOptions>().Bind(configuration.GetSection("ClientInterface"));
+            services.AddOptions<CurrencyOptions>().Bind(configuration.GetSection("Currency"));
+            services.AddOptions<UserOnlineDepositOptions>().Bind(configuration.GetSection("UserOnlineDeposit"));
+            services.AddOptions<PopularItemsOptions>().Bind(configuration.GetSection("PopularItems"));
+            services.AddOptions<UserLoginOptions>().Bind(configuration.GetSection("UserLogin"));
+            services.AddOptions<HostQRCodeOptions>().Bind(configuration.GetSection("HostQRCode"));
+            services.AddOptions<FeedsOptions>().Bind(configuration.GetSection("Feeds"));
+            services.AddOptions<NotificationsOptions>().Bind(configuration.GetSection("Notifications"));
+            services.AddOptions<DialogOptions>().Bind(configuration.GetSection("Dialog"));
+            services.AddOptions<LoginRotatorOptions>().Bind(configuration.GetSection("LoginRotator"));
             return services;
         } 
 
