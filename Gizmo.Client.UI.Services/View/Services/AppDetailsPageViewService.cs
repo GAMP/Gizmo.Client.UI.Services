@@ -18,7 +18,7 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             AppViewStateLookupService appLookupService,
             AppExeViewStateLookupService appExeLookupService,
-            IOptions<ClientUIOptions> clientUIOptions) : base(viewState, logger, serviceProvider)
+            IOptions<ClientInterfaceOptions> clientUIOptions) : base(viewState, logger, serviceProvider)
         {
             _appLookupService = appLookupService;
             _appExeLookupService = appExeLookupService;
@@ -29,7 +29,7 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly AppViewStateLookupService _appLookupService;
         private readonly AppExeViewStateLookupService _appExeLookupService;
-        private readonly IOptions<ClientUIOptions> _clientUIOptions;
+        private readonly IOptions<ClientInterfaceOptions> _clientUIOptions;
         #endregion
 
         #region OVERRIDES

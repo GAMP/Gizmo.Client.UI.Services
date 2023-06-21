@@ -38,7 +38,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             var popularExecutables = await _gizmoClient.UserPopularExecutablesGetAsync(new Web.Api.Models.UserPopularExecutablesFilter()
             {
-                Limit = _popularItemsOptions.Value.MaxQuickLaunchExecutables,
+                Limit = _popularItemsOptions.Value.MaxPopularUserExecutables,
                 CurrentUserOnly = true
             }, cancellationToken);
 
