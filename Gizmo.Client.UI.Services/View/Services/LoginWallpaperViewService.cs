@@ -33,7 +33,8 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
         {
-            ViewState.Wallpaper = "_content/Gizmo.Client.UI/img/" + _clientUIOptions.Value.Background;
+            if (!string.IsNullOrEmpty(_clientUIOptions.Value.Background))
+                ViewState.Wallpaper = Path.Combine("https://", "media", _clientUIOptions.Value.Background).Replace('\\', '/');
 
             return Task.CompletedTask;
         }
