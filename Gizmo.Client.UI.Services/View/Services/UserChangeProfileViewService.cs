@@ -60,12 +60,6 @@ namespace Gizmo.Client.UI.View.Services
             ValidateProperty(() => ViewState.Country);
         }
 
-        public void SetPrefix(string value)
-        {
-            ViewState.Prefix = value;
-            DebounceViewStateChanged();
-        }
-
         public async Task StartAsync(CancellationToken cToken = default)
         {
             try
@@ -162,7 +156,6 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.BirthDate = null;
             ViewState.Sex = Sex.Unspecified;
             ViewState.Country = string.Empty;
-            ViewState.Prefix = string.Empty;
             ViewState.Picture = string.Empty;
 
             ViewState.IsInitializing = false;

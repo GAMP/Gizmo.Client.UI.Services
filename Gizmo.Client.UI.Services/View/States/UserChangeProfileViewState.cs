@@ -29,8 +29,6 @@ namespace Gizmo.Client.UI.View.States
         [ValidatingProperty()]
         public string? Country { get; internal set; }
 
-        public string? Prefix { get; internal set; }
-
         public string? Picture { get; internal set; }
 
         public bool IsComplete { get; internal set; }
