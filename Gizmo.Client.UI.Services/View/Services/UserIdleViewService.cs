@@ -30,7 +30,7 @@ namespace Gizmo.Client.UI.View.Services
 
         private void OnUserIdleChange(object? sender, UserIdleEventArgs e)
         {
-            ViewState.IsIdle = true;
+            ViewState.IsIdle = e.IsIdle;
             DebounceViewStateChanged();
         }
 
