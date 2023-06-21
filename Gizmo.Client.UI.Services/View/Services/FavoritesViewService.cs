@@ -18,18 +18,18 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient,
             AppExeViewStateLookupService appExeViewStateLookupService,
-            IOptions<PopularItemsOptions> popularItemsOptions) : base(viewState, logger, serviceProvider)
+            IOptions<ClientInterfaceOptions> clientInterfaceOptions) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _appExeViewStateLookupService = appExeViewStateLookupService;
-            _popularItemsOptions = popularItemsOptions;
+            _clientInterfaceOptions = clientInterfaceOptions;
         }
         #endregion
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
         private readonly AppExeViewStateLookupService _appExeViewStateLookupService;
-        private readonly IOptions<PopularItemsOptions> _popularItemsOptions;
+        private readonly IOptions<ClientInterfaceOptions> _clientInterfaceOptions;
         #endregion
 
         #region FUNCTIONS
@@ -38,7 +38,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             var popularExecutables = await _gizmoClient.UserPopularExecutablesGetAsync(new Web.Api.Models.UserPopularExecutablesFilter()
             {
-                Limit = _popularItemsOptions.Value.MaxPopularUserExecutables,
+                Limit = _clientInterfaceOptions.Value.QuickLaunchMaxItems,
                 CurrentUserOnly = true
             }, cancellationToken);
 
