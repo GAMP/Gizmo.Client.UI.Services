@@ -134,7 +134,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
         {
-            if (_loginRotatorOptions.Value.IsEnabled)
+            if (_loginRotatorOptions.Value.Enabled)
             {
                 //get current rotator folder
                 var rotateFolder = _gizmoClient.GetCurrentRotatorPath();
@@ -192,7 +192,7 @@ namespace Gizmo.Client.UI.View.Services
 
                     if (_items.Any())
                     {
-                        ViewState.IsEnabled = _loginRotatorOptions.Value.IsEnabled;
+                        ViewState.IsEnabled = _loginRotatorOptions.Value.Enabled;
                         ViewState.CurrentItem = _items[_index];
 
                         if (ViewState.CurrentItem?.IsVideo == false)

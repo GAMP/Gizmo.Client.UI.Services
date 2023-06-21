@@ -165,7 +165,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 try
                 {
-                    if (_userOnlineDepositOptions.Value.ShowUserOnlineDeposit)
+                    if (!_userOnlineDepositOptions.Value.Disabled)
                     {
                         var paymentMethods = await _paymentMethodViewStateLookupService.GetStatesAsync();
 
