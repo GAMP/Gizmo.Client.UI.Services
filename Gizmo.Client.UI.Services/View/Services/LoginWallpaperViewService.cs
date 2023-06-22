@@ -34,7 +34,15 @@ namespace Gizmo.Client.UI.View.Services
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
         {
             if (!string.IsNullOrEmpty(_clientUIOptions.Value.Background))
-                ViewState.Wallpaper = Path.Combine("https://", "media", _clientUIOptions.Value.Background).Replace('\\', '/');
+            {
+                ViewState.Wallpaper = Path.Combine("https://", "static", Environment.ExpandEnvironmentVariables(_clientUIOptions.Value.Background))
+                    .Replace('\\', '/');
+            }
+            else
+            {
+                //use default
+                ViewState.Wallpaper = "_content/Gizmo.Client.UI/img/login-background.jpg";
+            }
 
             return Task.CompletedTask;
         }
