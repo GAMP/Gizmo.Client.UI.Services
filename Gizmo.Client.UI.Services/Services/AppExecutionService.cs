@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Gizmo.Client.UI.View.Services;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -13,16 +14,22 @@ namespace Gizmo.Client.UI.Services
             IClientNotificationService clientNotificationService,
             AppExeViewStateLookupService appExeViewStateLookupService,
             ILogger<AppExecutionService> logger,
-            IServiceProvider serviceProvider) : base(logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            ILocalizationService localizationService,
+            IClientDialogService dialogService) : base(logger, serviceProvider)
         {
             _client = client;
             _clientNotificationService = clientNotificationService;
             _appExeViewStateLookupService = appExeViewStateLookupService;
+            _localizationService = localizationService;
+            _dialogService = dialogService;
         }
 
         private readonly IGizmoClient _client;
         private readonly AppExeViewStateLookupService _appExeViewStateLookupService;
         private readonly IClientNotificationService _clientNotificationService;
+        private readonly ILocalizationService _localizationService;
+        private readonly IClientDialogService _dialogService;
 
         /// <summary>
         /// Executes app.
@@ -57,22 +64,41 @@ namespace Gizmo.Client.UI.Services
                         return;
                     }
 
-                    //pass execution limit
-                    if (await _client.AppExeExecutionLimitPassAsync(appExeId, cancellationToken) == false)
-                    {
-                        _ = await _clientNotificationService.ShowAlertNotification(Gizmo.UI.AlertTypes.Warning, 
-                            "Maximum applications", "You can only run one application!",
-                            cancellationToken: cancellationToken);
-                        return;
-                    }
-
                     //pass age rating
                     if (await _client.AppExePassAgeRatingAsync(appExeId, cancellationToken) == false)
                     {
                         _ = await _clientNotificationService.ShowAlertNotification(Gizmo.UI.AlertTypes.Warning,
-                           "Age rating", "You are not old enough!",
+                           _localizationService.GetString("GIZ_APP_EXE_AGE_RATING_WARNING_TITLE"), _localizationService.GetString("GIZ_APP_EXE_AGE_RATING_WARNING_MESSAGE"),
                            cancellationToken: cancellationToken);
                         return;
+                    }
+
+                    //pass execution limit
+                    if (await _client.AppExeExecutionLimitPassAsync(appExeId, cancellationToken) == false)
+                    {
+                        var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_APP_EXE_MAX_LIMIT_WARNING_TITLE"), _localizationService.GetString("GIZ_APP_EXE_MAX_LIMIT_WARNING_MESSAGE"), AlertDialogButtons.YesNo);
+                        if (s.Result == AddComponentResultCode.Opened)
+                        {
+                            var result = await s.WaitForResultAsync();
+
+                            if (s.Result != AddComponentResultCode.Ok || result!.Button != AlertDialogResultButton.Yes)
+                                return;
+
+                            //kill all context if required
+                            //TODO: AAA DIALOG await Client.ExecutionContextKillAsync();
+                        }
+                    }
+
+                    if (reprocess)
+                    {
+                        var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_APP_EXE_REPAIR_VERIFICATION_TITLE"), _localizationService.GetString("GIZ_APP_EXE_REPAIR_VERIFICATION_MESSAGE"), AlertDialogButtons.YesNo);
+                        if (s.Result == AddComponentResultCode.Opened)
+                        {
+                            var result = await s.WaitForResultAsync();
+
+                            if (s.Result != AddComponentResultCode.Ok || result!.Button != AlertDialogResultButton.Yes)
+                                return;
+                        }
                     }
 
                     //set auto launch value
@@ -100,8 +126,14 @@ namespace Gizmo.Client.UI.Services
                 var executionContext = executionContextResult.ExecutionContext;
                 if (executionContextResult.IsSuccess && executionContext != null && !executionContext.IsAborting)
                 {
-                    //TODO show confirmation dialog before proceeding
-                    await executionContext.AbortAsync();
+                    var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_APP_EXE_ABORT_LAUNCH_VERIFICATION_TITLE"), _localizationService.GetString("GIZ_APP_EXE_ABORT_LAUNCH_VERIFICATION_MESSAGE"), AlertDialogButtons.YesNo);
+                    if (s.Result == AddComponentResultCode.Opened)
+                    {
+                        var result = await s.WaitForResultAsync();
+
+                        if (s.Result == AddComponentResultCode.Ok && result!.Button == AlertDialogResultButton.Yes)
+                            await executionContext.AbortAsync();
+                    }
                 }
             }
             catch (Exception ex)
@@ -126,7 +158,14 @@ namespace Gizmo.Client.UI.Services
                 var executionContext = executionContextResult.ExecutionContext;
                 if (executionContextResult.IsSuccess && executionContext != null)
                 {
-                    await executionContext.TerminateAsync(cancellationToken);
+                    var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_APP_EXE_TERMINATE_VERIFICATION_TITLE"), _localizationService.GetString("GIZ_APP_EXE_TERMINATE_VERIFICATION_MESSAGE"), AlertDialogButtons.YesNo);
+                    if (s.Result == AddComponentResultCode.Opened)
+                    {
+                        var result = await s.WaitForResultAsync();
+
+                        if (s.Result == AddComponentResultCode.Ok && result!.Button == AlertDialogResultButton.Yes)
+                            await executionContext.TerminateAsync(cancellationToken);
+                    }
                 }
             }
             catch (Exception ex)
