@@ -40,6 +40,7 @@ namespace Gizmo.Client.UI.View.Services
             }
             else
             {
+                //use default
                 ViewState.Wallpaper = "_content/Gizmo.Client.UI/img/login-background.jpg";
             }
 
