@@ -31,7 +31,7 @@ namespace Gizmo.Client.UI.View.Services
         private void OnUserIdleChange(object? sender, UserIdleEventArgs e)
         {
             ViewState.IsIdle = e.IsIdle;
-            DebounceViewStateChanged();
+            RaiseViewStateChanged(); // raise instantly 
         }
 
         public void Toggle()
