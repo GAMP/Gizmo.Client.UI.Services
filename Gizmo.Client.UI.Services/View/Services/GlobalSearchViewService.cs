@@ -4,6 +4,7 @@ using Gizmo.UI.View.Services;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -15,6 +16,7 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public GlobalSearchViewService(GlobalSearchViewState viewState,
             IGizmoClient gizmoClient,
+            IOptionsMonitor<ClientShopOptions> shopOptions,
             ILocalizationService localizationService,
             AppViewStateLookupService appViewStateLookupService,
             AppExeViewStateLookupService appExeViewStateLookupService,
@@ -23,6 +25,7 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
+            _shopOptions = shopOptions;
             _localizationService = localizationService;
             _appViewStateLookupService = appViewStateLookupService;
             _appExeViewStateLookupService = appExeViewStateLookupService;
@@ -32,6 +35,7 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
+        private readonly IOptionsMonitor<ClientShopOptions> _shopOptions;
         private readonly ILocalizationService _localizationService;
         private readonly AppViewStateLookupService _appViewStateLookupService;
         private readonly AppExeViewStateLookupService _appExeViewStateLookupService;

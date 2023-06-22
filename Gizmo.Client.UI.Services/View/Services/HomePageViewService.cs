@@ -14,6 +14,7 @@ namespace Gizmo.Client.UI.View.Services
     {
         #region CONSTRUCTOR
         public HomePageViewService(HomePageViewState viewState,
+            IOptionsMonitor<ClientShopOptions> shopOptions,
             ILogger<HomePageViewService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient,
@@ -22,6 +23,7 @@ namespace Gizmo.Client.UI.View.Services
             IOptions<PopularItemsOptions> popularItemsOptions) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
+            _shopOptions = shopOptions;
             _userProductViewStateLookupService = userProductViewStateLookupService;
             _appViewStateLookupService = appViewStateLookupService;
             _popularItemsOptions = popularItemsOptions;
@@ -30,6 +32,7 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
+        private readonly IOptionsMonitor<ClientShopOptions> _shopOptions;
         private readonly UserProductViewStateLookupService _userProductViewStateLookupService;
         private readonly AppViewStateLookupService _appViewStateLookupService;
         private readonly IOptions<PopularItemsOptions> _popularItemsOptions;
@@ -39,31 +42,35 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task RefilterAsync(CancellationToken cancellationToken)
         {
-            if (_popularItemsOptions.Value.MaxPopularProducts == 0)
+            //only show products if shop is enabled
+            if (_shopOptions.CurrentValue.Disabled == false)
             {
-                ViewState.PopularProducts = Enumerable.Empty<UserProductViewState>();
-            }
-            else
-            {
-                var popularProducts = await _gizmoClient.UserPopularProductsGetAsync(new Web.Api.Models.UserPopularProductsFilter()
+                if (_popularItemsOptions.Value.MaxPopularProducts == 0)
                 {
-                    Limit = _popularItemsOptions.Value.MaxPopularProducts
-                }, cancellationToken);
+                    ViewState.PopularProducts = Enumerable.Empty<UserProductViewState>();
+                }
+                else
+                {
+                    var popularProducts = await _gizmoClient.UserPopularProductsGetAsync(new Web.Api.Models.UserPopularProductsFilter()
+                    {
+                        Limit = _popularItemsOptions.Value.MaxPopularProducts
+                    }, cancellationToken);
 
-                var productIds = popularProducts.Select(a => a.Id).ToList();
+                    var productIds = popularProducts.Select(a => a.Id).ToList();
 
-                var products = await _userProductViewStateLookupService.GetStatesAsync(cancellationToken);
+                    var products = await _userProductViewStateLookupService.GetStatesAsync(cancellationToken);
 
-                //filter products
-                products = products.Where(a => productIds.Contains(a.Id)).
-                    OrderBy(a => productIds.IndexOf(a.Id));
+                    //filter products
+                    products = products.Where(a => productIds.Contains(a.Id)).
+                        OrderBy(a => productIds.IndexOf(a.Id));
 
-                //take desired amount
-                if (_popularItemsOptions.Value.MaxPopularProducts > 0)
-                    products = products.Take(_popularItemsOptions.Value.MaxPopularProducts);
+                    //take desired amount
+                    if (_popularItemsOptions.Value.MaxPopularProducts > 0)
+                        products = products.Take(_popularItemsOptions.Value.MaxPopularProducts);
 
-                ViewState.PopularProducts = products
-                    .ToList();
+                    ViewState.PopularProducts = products
+                        .ToList();
+                }
             }
 
             if (_popularItemsOptions.Value.MaxPopularApplications == 0)
@@ -99,12 +106,21 @@ namespace Gizmo.Client.UI.View.Services
 
         #endregion
 
-        #region OVERRIDES       
+        #region OVERRIDES   
+
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            //provide shop settings through the view state
+            ViewState.IsShopEnabled = !_shopOptions.CurrentValue.Disabled;
+
+            return base.OnInitializing(ct);
+        }
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
             await RefilterAsync(cancellationToken);
         }
+
         #endregion
     }
 }

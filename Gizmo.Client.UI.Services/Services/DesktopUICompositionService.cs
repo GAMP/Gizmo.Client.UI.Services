@@ -1,6 +1,5 @@
 ﻿using Gizmo.UI;
 using Gizmo.UI.Services;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Reflection;
@@ -25,7 +24,6 @@ namespace Gizmo.Client.UI.Services
         #endregion        
 
         #region FIELDS
-
         private string _basePath = Environment.CurrentDirectory;
         private readonly UICompositionInMemoryConfiurationSource _uiCompositionConfiurationSource;
         private readonly UIOptionsInMemoryConfigurationSource _uiOptionsConfigurationSource;
