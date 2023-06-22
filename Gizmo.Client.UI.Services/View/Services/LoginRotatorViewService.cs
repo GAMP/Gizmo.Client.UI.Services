@@ -141,7 +141,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (!string.IsNullOrEmpty(rotateFolder))
                 {
-                    if (Monitor.TryEnter(_loginRotatorOptions, Timeout.Infinite))
+                    if (Monitor.TryEnter(_itemsLock, Timeout.Infinite))
                     {
                         try
                         {
@@ -153,7 +153,7 @@ namespace Gizmo.Client.UI.View.Services
                         }
                         finally
                         {
-                            Monitor.Exit(_loginRotatorOptions);
+                            Monitor.Exit(_itemsLock);
                         }
                     }
 
@@ -168,7 +168,7 @@ namespace Gizmo.Client.UI.View.Services
                         int rootLength = root.Length + (root[^1] == '\\' ? 0 : 1);
 
                         foreach (string path in Directory.GetFiles(root, "*.*", SearchOption.AllDirectories)
-                                               .Where(FILE => ALL_EXTENSIONS.Any(EXTESNSION => FILE.EndsWith(EXTESNSION, StringComparison.InvariantCultureIgnoreCase))))
+                                               .Where(fileName => ALL_EXTENSIONS.Any(EXTESNSION => fileName.EndsWith(EXTESNSION, StringComparison.InvariantCultureIgnoreCase))))
                         {
                             yield return path.Remove(0, rootLength);
                         }
@@ -177,10 +177,10 @@ namespace Gizmo.Client.UI.View.Services
                     try
                     {
                         var mediaFilesRelativePaths = GetRelativePaths(rotateFolder);
-                        _items = mediaFilesRelativePaths.Select(FILE => new LoginRotatorItemViewState()
+                        _items = mediaFilesRelativePaths.Select(fileName => new LoginRotatorItemViewState()
                         {
-                            MediaPath = Path.Combine("https://", "rotator", FILE).Replace('\\', '/'),
-                            IsVideo = VIDEO_EXTENSIONS.Any(EXTENSION => FILE.EndsWith(EXTENSION, StringComparison.InvariantCultureIgnoreCase))
+                            MediaPath = Path.Combine("https://", "static", "rotator", fileName).Replace('\\', '/'),
+                            IsVideo = VIDEO_EXTENSIONS.Any(EXTENSION => fileName.EndsWith(EXTENSION, StringComparison.InvariantCultureIgnoreCase))
                         }).ToList();
 
                         _items.Shuffle(); //randomize
