@@ -97,11 +97,6 @@ namespace Gizmo.Client.UI.Services
             return Task.FromResult(assembly);
         }
 
-        protected override bool IsAllowedModule(UIPageModuleMetadata metadata)
-        {
-            return base.IsAllowedModule(metadata);
-        }
-
         #endregion
     }
 }
