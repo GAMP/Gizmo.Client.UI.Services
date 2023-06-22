@@ -1,5 +1,6 @@
 ﻿using Gizmo.UI;
 using Gizmo.UI.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Reflection;
@@ -94,6 +95,11 @@ namespace Gizmo.Client.UI.Services
             var assembly = Assembly.LoadFrom(fullAssemblyPath);           
 
             return Task.FromResult(assembly);
+        }
+
+        protected override bool IsAllowedModule(UIPageModuleMetadata metadata)
+        {
+            return base.IsAllowedModule(metadata);
         }
 
         #endregion

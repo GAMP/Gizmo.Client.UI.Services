@@ -48,6 +48,7 @@ namespace Gizmo.Client.UI.Services
             services.AddOptions<NotificationsOptions>().Bind(configuration.GetSection("Notifications"));
             services.AddOptions<DialogOptions>().Bind(configuration.GetSection("Dialog"));
             services.AddOptions<LoginRotatorOptions>().Bind(configuration.GetSection("LoginRotator"));
+            services.AddOptions<ClientShopOptions>().Bind(configuration.GetSection("Shop"));
             return services;
         } 
 
