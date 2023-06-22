@@ -86,11 +86,18 @@ namespace Gizmo.Client.UI.View.Services
             }
             catch (Exception ex)
             {
-                //TODO: AAA DIALOG CANNOT TRANSLATE SharedLib.Dispatcher.Exceptions.AccessDeniedException
                 Logger.LogError(ex, "User password update error.");
 
                 ViewState.HasError = true;
-                ViewState.ErrorMessage = _localizationService.GetString("GIZ_CHANGE_PASSWORD_ERROR_MESSAGE");
+
+                if (ex.Message == "WRONG_PASSWORD")
+                {
+                    ViewState.ErrorMessage = _localizationService.GetString("GIZ_CHANGE_PASSWORD_WRONG_PASSWORD_ERROR_MESSAGE");
+                }
+                else
+                {
+                    ViewState.ErrorMessage = _localizationService.GetString("GIZ_CHANGE_PASSWORD_ERROR_MESSAGE");
+                }
             }
             finally
             {
