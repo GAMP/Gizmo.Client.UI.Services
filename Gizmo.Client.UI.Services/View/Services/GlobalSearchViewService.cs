@@ -214,25 +214,29 @@ namespace Gizmo.Client.UI.View.Services
                     ViewState.ExecutableResults = tmp;
                 }
 
-                if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Products)
+                //only produce search results for producst if shop is enabled
+                if (!_shopOptions.CurrentValue.Disabled)
                 {
-                    var productStates = await _userProductStateLookupService.GetStatesAsync();
-
-                    var tmp = new List<GlobalSearchResultViewState>();
-
-                    foreach (var product in productStates.Where(a => a.Name.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
+                    if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Products)
                     {
-                        tmp.Add(new GlobalSearchResultViewState()
-                        {
-                            Type = SearchResultTypes.Products,
-                            Id = product.Id,
-                            Name = product.Name,
-                            ImageId = product.DefaultImageId,
-                            CategoryId = product.ProductGroupId
-                        });
-                    }
+                        var productStates = await _userProductStateLookupService.GetStatesAsync();
 
-                    ViewState.ProductResults = tmp;
+                        var tmp = new List<GlobalSearchResultViewState>();
+
+                        foreach (var product in productStates.Where(a => a.Name.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
+                        {
+                            tmp.Add(new GlobalSearchResultViewState()
+                            {
+                                Type = SearchResultTypes.Products,
+                                Id = product.Id,
+                                Name = product.Name,
+                                ImageId = product.DefaultImageId,
+                                CategoryId = product.ProductGroupId
+                            });
+                        }
+
+                        ViewState.ProductResults = tmp;
+                    }
                 }
 
                 ViewState.IsLoading = false;
