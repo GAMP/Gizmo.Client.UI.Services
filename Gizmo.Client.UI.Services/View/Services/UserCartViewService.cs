@@ -25,14 +25,18 @@ namespace Gizmo.Client.UI.View.Services
             UserProductViewStateLookupService userProductViewStateLookupService,
             UserCartProductItemViewStateLookupService userCartProductItemLookupService,
             IClientDialogService dialogService,
+            IClientNotificationService notificationService,
             IGizmoClient gizmoClient,
-            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
+            ILocalizationService localizationService,
+            UserBalanceViewState userBalanceViewState) : base(viewState, logger, serviceProvider)
         {
             _userProductViewStateLookupService = userProductViewStateLookupService;
             _userCartProductItemLookupService = userCartProductItemLookupService;
             _dialogService = dialogService;
+            _notificationService = notificationService;
             _gizmoClient = gizmoClient;
             _localizationService = localizationService;
+            _userBalanceViewState = userBalanceViewState;
         }
         #endregion
 
@@ -40,8 +44,10 @@ namespace Gizmo.Client.UI.View.Services
         private readonly UserProductViewStateLookupService _userProductViewStateLookupService;
         private readonly UserCartProductItemViewStateLookupService _userCartProductItemLookupService;
         private readonly IClientDialogService _dialogService;
+        private readonly IClientNotificationService _notificationService;
         private readonly IGizmoClient _gizmoClient;
         private readonly ILocalizationService _localizationService;
+        private readonly UserBalanceViewState _userBalanceViewState;
         #endregion
 
         #region FUNCTIONS
@@ -66,9 +72,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 if ((productItem.PayType == OrderLinePayType.Points || productItem.PayType == OrderLinePayType.Mixed) && product.UnitPointsPrice > 0)
                 {
-                    var userBalanceViewState = ServiceProvider.GetRequiredService<UserBalanceViewState>();
-
-                    if (ViewState.PointsTotal + product.UnitPointsPrice > userBalanceViewState.PointsBalance)
+                    if (ViewState.PointsTotal + product.UnitPointsPrice > _userBalanceViewState.PointsBalance)
                     {
                         if (productItem.Quantity == 0 && product.PurchaseOptions == PurchaseOptionType.Or)
                         {
@@ -79,7 +83,7 @@ namespace Gizmo.Client.UI.View.Services
                         }
                         else
                         {
-                            await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK, AlertTypes.Danger);
+                            await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS_MESSAGE"));
                             return;
                         }
                     }
@@ -100,7 +104,35 @@ namespace Gizmo.Client.UI.View.Services
 
                         if (checkResult != UserProductAvailabilityCheckResult.Success)
                         {
-                            await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), checkResult.ToString(), AlertDialogButtons.OK, AlertTypes.Danger);
+                            string ERROR_MESSAGE = string.Empty;
+
+                            switch (checkResult)
+                            {
+                                case UserProductAvailabilityCheckResult.ClientOrderDisallowed:
+                                    ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_CLIENT_ORDER_DISALLOWED_MESSAGE");
+                                    break;
+                                case UserProductAvailabilityCheckResult.UserGroupDisallowed:
+                                    ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_DISALLOWED_USER_GROUP_MESSAGE");
+                                    break;
+                                case UserProductAvailabilityCheckResult.SaleDisallowed:
+                                    ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_SALE_DISALLOWED_MESSAGE");
+                                    break;
+                                case UserProductAvailabilityCheckResult.GuestSaleDisallowed:
+                                    ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_GUEST_SALE_DISALLOWED_MESSAGE");
+                                    break;
+                                case UserProductAvailabilityCheckResult.OutOfStock:
+                                    ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_OUT_OF_STOCK_MESSAGE");
+                                    break;
+                                case UserProductAvailabilityCheckResult.PeriodDisallowed:
+                                    ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_PURCHASE_PERIOD_DISALLOWED_MESSAGE");
+                                    break;
+                                //TODO: AAA DIALOG TRANSLATE MORE RESULTS
+                                default:
+                                    ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_ERROR_MESSAGE");
+                                    break;
+                            }
+
+                            await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_ERROR"), ERROR_MESSAGE);
                             return;
                         }
                     }
@@ -316,14 +348,12 @@ namespace Gizmo.Client.UI.View.Services
 
                 if ((payType == OrderLinePayType.Points || productItem.PayType == OrderLinePayType.Mixed) && product.UnitPointsPrice > 0)
                 {
-                    var userBalanceViewState = ServiceProvider.GetRequiredService<UserBalanceViewState>();
-
-                    if (ViewState.PointsTotal + (product.UnitPointsPrice * productItem.Quantity) > userBalanceViewState.PointsBalance)
+                    if (ViewState.PointsTotal + (product.UnitPointsPrice * productItem.Quantity) > _userBalanceViewState.PointsBalance)
                     {
                         await UpdateUserCartProductsAsync();
                         productItem.RaiseChanged();
 
-                        await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS"), AlertDialogButtons.OK, AlertTypes.Danger);
+                        await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS_MESSAGE"), AlertDialogButtons.OK, AlertTypes.Danger);
 
                         return;
                     }
@@ -407,7 +437,36 @@ namespace Gizmo.Client.UI.View.Services
                             if (requestOrderLine != null)
                             {
                                 var product = await _userProductViewStateLookupService.GetStateAsync(requestOrderLine.ProductId);
-                                ViewState.ErrorMessage += $"<br>{product.Name}: {orderLine.Result}";
+
+                                string ERROR_MESSAGE = string.Empty;
+
+                                switch (orderLine.Result)
+                                {
+                                    case UserProductAvailabilityCheckResult.ClientOrderDisallowed:
+                                        ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_CLIENT_ORDER_DISALLOWED_MESSAGE");
+                                        break;
+                                    case UserProductAvailabilityCheckResult.UserGroupDisallowed:
+                                        ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_DISALLOWED_USER_GROUP_MESSAGE");
+                                        break;
+                                    case UserProductAvailabilityCheckResult.SaleDisallowed:
+                                        ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_SALE_DISALLOWED_MESSAGE");
+                                        break;
+                                    case UserProductAvailabilityCheckResult.GuestSaleDisallowed:
+                                        ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_GUEST_SALE_DISALLOWED_MESSAGE");
+                                        break;
+                                    case UserProductAvailabilityCheckResult.OutOfStock:
+                                        ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_OUT_OF_STOCK_MESSAGE");
+                                        break;
+                                    case UserProductAvailabilityCheckResult.PeriodDisallowed:
+                                        ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_PURCHASE_PERIOD_DISALLOWED_MESSAGE");
+                                        break;
+                                    //TODO: AAA DIALOG TRANSLATE MORE RESULTS
+                                    default:
+                                        ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_ERROR_MESSAGE");
+                                        break;
+                                }
+
+                                ViewState.ErrorMessage += $"<br>{product.Name}: {ERROR_MESSAGE}";
                             }
                         }
                     }
@@ -501,9 +560,19 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
-            if (fieldIdentifier.FieldEquals(() => ViewState.PaymentMethodId) && !ViewState.PaymentMethodId.HasValue && ViewState.Total > 0)
+            if (fieldIdentifier.FieldEquals(() => ViewState.PaymentMethodId))
             {
-                AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD", nameof(ViewState.PaymentMethodId)));
+                if (ViewState.Total > 0)
+                {
+                    if (!ViewState.PaymentMethodId.HasValue)
+                    {
+                        AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD", nameof(ViewState.PaymentMethodId)));
+                    }
+                    else if (ViewState.PaymentMethodId.Value == -3 && ViewState.Total > _userBalanceViewState.Balance)
+                    {
+                        AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("GIZ_INSUFFICIENT_DEPOSITS_MESSAGE", nameof(ViewState.PaymentMethodId)));
+                    }
+                }
             }
         }
     }
