@@ -83,7 +83,7 @@ namespace Gizmo.Client.UI.View.Services
                         }
                         else
                         {
-                            await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS_MESSAGE"));
+                            await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_INSUFFICIENT_POINTS_ERROR_TITLE"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS_ERROR_MESSAGE"));
                             return;
                         }
                     }
@@ -132,7 +132,7 @@ namespace Gizmo.Client.UI.View.Services
                                     break;
                             }
 
-                            await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_ERROR"), ERROR_MESSAGE);
+                            await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_ERROR_TITLE"), ERROR_MESSAGE);
                             return;
                         }
                     }
@@ -353,7 +353,7 @@ namespace Gizmo.Client.UI.View.Services
                         await UpdateUserCartProductsAsync();
                         productItem.RaiseChanged();
 
-                        await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS_MESSAGE"), AlertDialogButtons.OK, AlertTypes.Danger);
+                        await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS_ERROR_MESSAGE"), AlertDialogButtons.OK, AlertTypes.Danger);
 
                         return;
                     }
