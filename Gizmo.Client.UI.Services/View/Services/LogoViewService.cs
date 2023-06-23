@@ -21,6 +21,12 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnInitializing(CancellationToken ct)
         {
+            if (!string.IsNullOrEmpty(_logoOptions.CurrentValue.Logo))
+            {
+                ViewState.Logo = Path.Combine("https://", "static", Environment.ExpandEnvironmentVariables(_logoOptions.CurrentValue.Logo))
+                    .Replace('\\', '/');
+            }
+
             return base.OnInitializing(ct);
         }
     }
