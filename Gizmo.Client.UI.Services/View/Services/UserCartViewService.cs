@@ -427,7 +427,7 @@ namespace Gizmo.Client.UI.View.Services
                 else
                 {
                     ViewState.HasError = true;
-                    ViewState.ErrorMessage = result.Result.ToString();
+                    ViewState.ErrorMessage = result.Result.ToString(); //TODO: AAA TRANSLATE
 
                     if (result.OrderLines != null)
                     {
@@ -477,7 +477,7 @@ namespace Gizmo.Client.UI.View.Services
                 Logger.LogError(ex, "User order create error.");
 
                 ViewState.HasError = true;
-                ViewState.ErrorMessage = ex.ToString();
+                ViewState.ErrorMessage = ex.ToString(); //TODO: AAA TRANSLATE
             }
             finally
             {

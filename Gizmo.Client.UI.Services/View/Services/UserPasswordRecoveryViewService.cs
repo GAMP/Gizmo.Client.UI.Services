@@ -211,7 +211,7 @@ namespace Gizmo.Client.UI.View.Services
                 Logger.LogError(ex, "Password recovery start error.");
 
                 ViewState.HasError = true;
-                ViewState.ErrorMessage = ex.ToString();
+                ViewState.ErrorMessage = ex.ToString(); //TODO: AAA TRANSLATE
             }
             finally
             {
