@@ -188,5 +188,11 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
+
+        public void Reset()
+        {
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
+        }
     }
 }
