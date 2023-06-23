@@ -11,7 +11,6 @@ namespace Gizmo.Client.UI.View.States
         private decimal _balance;
         private int _pointsBalance;
         private decimal _outstanding;
-        private string _currentTimeProduct = string.Empty;
         private TimeSpan _time;
         #endregion
 
@@ -36,12 +35,6 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _outstanding; }
             internal set { _outstanding = value; }
-        }
-
-        public string CurrentTimeProduct
-        {
-            get { return _currentTimeProduct; }
-            internal set { _currentTimeProduct = value; }
         }
 
         public TimeSpan Time
