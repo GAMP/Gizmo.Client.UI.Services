@@ -126,7 +126,7 @@ namespace Gizmo.Client.View.Services
                             }
                         }
 
-                        ViewState.IsInitialized = true; 
+                        ViewState.IsInitialized = true;
 
                         DebounceViewStateChanged();
 
@@ -266,7 +266,13 @@ namespace Gizmo.Client.View.Services
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            await InitializeIfRequired(cancellationToken);
+            ViewState.IsEnabled = !_feedOptions.CurrentValue.Disabled;
+
+            if (ViewState.IsEnabled)
+            {
+                await InitializeIfRequired(cancellationToken);
+            }
+
             await base.OnNavigatedIn(navigationParameters, cancellationToken);
         }
 
