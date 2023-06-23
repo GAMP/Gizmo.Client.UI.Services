@@ -85,9 +85,6 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
         {
-            //TODO: AAA
-            ViewState.IsFeedEnabled = true;
-
             if (Uri.TryCreate(NavigationService.GetUri(), UriKind.Absolute, out var uri))
             {
                 string? searchPattern = HttpUtility.ParseQueryString(uri.Query).Get("SearchPattern");

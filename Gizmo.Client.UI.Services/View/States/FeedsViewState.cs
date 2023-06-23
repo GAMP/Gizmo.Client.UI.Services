@@ -9,6 +9,8 @@ namespace Gizmo.Client.UI.View.States
     [Register()]
     public sealed class FeedsViewState : ViewStateBase
     {
+        public bool IsEnabled { get; internal set; }
+
         /// <summary>
         /// Gets current feed view state.
         /// </summary>

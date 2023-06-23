@@ -109,30 +109,30 @@ namespace Gizmo.Client.UI.View.Services
                             switch (checkResult)
                             {
                                 case UserProductAvailabilityCheckResult.ClientOrderDisallowed:
-                                    ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_CLIENT_ORDER_DISALLOWED_MESSAGE");
+                                    ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_CLIENT_ORDER_DISALLOWED_MESSAGE");
                                     break;
                                 case UserProductAvailabilityCheckResult.UserGroupDisallowed:
-                                    ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_DISALLOWED_USER_GROUP_MESSAGE");
+                                    ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_DISALLOWED_USER_GROUP_MESSAGE");
                                     break;
                                 case UserProductAvailabilityCheckResult.SaleDisallowed:
-                                    ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_SALE_DISALLOWED_MESSAGE");
+                                    ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_SALE_DISALLOWED_MESSAGE");
                                     break;
                                 case UserProductAvailabilityCheckResult.GuestSaleDisallowed:
-                                    ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_GUEST_SALE_DISALLOWED_MESSAGE");
+                                    ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_GUEST_SALE_DISALLOWED_MESSAGE");
                                     break;
                                 case UserProductAvailabilityCheckResult.OutOfStock:
-                                    ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_OUT_OF_STOCK_MESSAGE");
+                                    ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_OUT_OF_STOCK_MESSAGE");
                                     break;
                                 case UserProductAvailabilityCheckResult.PeriodDisallowed:
-                                    ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_PURCHASE_PERIOD_DISALLOWED_MESSAGE");
+                                    ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_PURCHASE_PERIOD_DISALLOWED_MESSAGE");
                                     break;
                                 //TODO: AAA DIALOG TRANSLATE MORE RESULTS
                                 default:
-                                    ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_ERROR_MESSAGE");
+                                    ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_ERROR_MESSAGE");
                                     break;
                             }
 
-                            await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_ERROR_TITLE"), ERROR_MESSAGE);
+                            await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_ERROR_TITLE"), ERROR_MESSAGE);
                             return;
                         }
                     }
@@ -443,26 +443,26 @@ namespace Gizmo.Client.UI.View.Services
                                 switch (orderLine.Result)
                                 {
                                     case UserProductAvailabilityCheckResult.ClientOrderDisallowed:
-                                        ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_CLIENT_ORDER_DISALLOWED_MESSAGE");
+                                        ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_CLIENT_ORDER_DISALLOWED_MESSAGE");
                                         break;
                                     case UserProductAvailabilityCheckResult.UserGroupDisallowed:
-                                        ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_DISALLOWED_USER_GROUP_MESSAGE");
+                                        ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_DISALLOWED_USER_GROUP_MESSAGE");
                                         break;
                                     case UserProductAvailabilityCheckResult.SaleDisallowed:
-                                        ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_SALE_DISALLOWED_MESSAGE");
+                                        ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_SALE_DISALLOWED_MESSAGE");
                                         break;
                                     case UserProductAvailabilityCheckResult.GuestSaleDisallowed:
-                                        ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_GUEST_SALE_DISALLOWED_MESSAGE");
+                                        ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_GUEST_SALE_DISALLOWED_MESSAGE");
                                         break;
                                     case UserProductAvailabilityCheckResult.OutOfStock:
-                                        ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_OUT_OF_STOCK_MESSAGE");
+                                        ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_OUT_OF_STOCK_MESSAGE");
                                         break;
                                     case UserProductAvailabilityCheckResult.PeriodDisallowed:
-                                        ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_PURCHASE_PERIOD_DISALLOWED_MESSAGE");
+                                        ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_PURCHASE_PERIOD_DISALLOWED_MESSAGE");
                                         break;
                                     //TODO: AAA DIALOG TRANSLATE MORE RESULTS
                                     default:
-                                        ERROR_MESSAGE = _localizationService.GetString("PRODUCT_ORDER_PASS_RESULT_ERROR_MESSAGE");
+                                        ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_ERROR_MESSAGE");
                                         break;
                                 }
 

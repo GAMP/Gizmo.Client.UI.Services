@@ -30,8 +30,6 @@ namespace Gizmo.Client.UI.View.States
             get;internal set;
         }
 
-        public bool IsFeedEnabled { get; internal set; }
-
         #endregion
     }
 }

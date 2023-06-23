@@ -118,9 +118,6 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            //TODO: AAA
-            ViewState.IsFeedEnabled = false;
-
             await RefilterAsync(cancellationToken);
         }
 
