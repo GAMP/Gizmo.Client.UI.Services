@@ -1272,7 +1272,7 @@ namespace Gizmo.Client
 
         public string GetCurrentRotatorPath()
         {
-            return @"C:\ProgramData\Application Data\NETProjects\Gizmo Client\Cache\Skins\Next\Rotator";
+            return Path.Combine(Environment.CurrentDirectory,"static", "rotator");
         }
     }
 }

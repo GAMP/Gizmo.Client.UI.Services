@@ -93,7 +93,7 @@ namespace Gizmo.Client.UI.View.Services
                     Logger.LogError(ex, "User profile get error.");
 
                     ViewState.HasError = true;
-                    ViewState.ErrorMessage = ex.ToString();
+                    ViewState.ErrorMessage = ex.ToString(); //TODO: AAA TRANSLATE
 
                     ViewState.IsComplete = true;
 
@@ -138,7 +138,7 @@ namespace Gizmo.Client.UI.View.Services
                 Logger.LogError(ex, "User profile update error.");
 
                 ViewState.HasError = true;
-                ViewState.ErrorMessage = ex.ToString();
+                ViewState.ErrorMessage = ex.ToString(); //TODO: AAA TRANSLATE
             }
             finally
             {

@@ -97,8 +97,11 @@ namespace Gizmo.Client.UI.View.Services
             DebounceViewStateChanged();
         }
 
-        public Task PlayNext()
+        public bool PlayNext()
         {
+            if (_items.Count <= 1)
+                return false;
+
             if (Monitor.TryEnter(_itemsLock))
             {
                 try
@@ -128,7 +131,7 @@ namespace Gizmo.Client.UI.View.Services
 
             DebounceViewStateChanged();
 
-            return Task.CompletedTask;
+            return true;
         }
 
         #region OVERRIDES
@@ -196,7 +199,7 @@ namespace Gizmo.Client.UI.View.Services
                         ViewState.IsEnabled = _loginRotatorOptions.Value.Enabled;
                         ViewState.CurrentItem = _items[_index];
 
-                        if (ViewState.CurrentItem?.IsVideo == false)
+                        if (ViewState.CurrentItem?.IsVideo == false && _items.Count > 1)
                         {
                             _rotatateTimer?.Dispose();
                             _rotatateTimer = new Timer(OnTimerCallback, null, GetRotateMills(), GetRotateMills());
