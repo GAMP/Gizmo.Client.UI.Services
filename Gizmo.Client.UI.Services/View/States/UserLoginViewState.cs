@@ -10,6 +10,7 @@ namespace Gizmo.Client.UI.View.States
     {
         #region FIELDS
         private bool _isLogginIn;
+        private bool _isLogginOut;
         private UserLoginType _userLoginType;
 #if RELEASE
         private string? _loginName;
@@ -29,6 +30,12 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _isLogginIn; }
             internal set { _isLogginIn = value; }
+        }
+
+        public bool IsLogginOut
+        {
+            get { return _isLogginOut; }
+            internal set { _isLogginOut = value; }
         }
 
         /// <summary>

@@ -214,10 +214,14 @@ namespace Gizmo.Client.UI.View.Services
                 case LoginState.LoggingIn:
                     ViewState.IsLogginIn = true;
                     break;
+                case LoginState.LoggingOut:
+                    ViewState.IsLogginOut = true;
+                    break;
                 case LoginState.LoggedOut:
                 case LoginState.LoginCompleted:
                 case LoginState.LoginFailed:
                     ViewState.IsLogginIn = false;
+                    ViewState.IsLogginOut = false;
                     break;
                 default:
                     break;
