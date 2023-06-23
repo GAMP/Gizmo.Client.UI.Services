@@ -17,14 +17,17 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserLoginViewService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient,
-            IClientNotificationService notificationsService) : base(viewState, logger, serviceProvider)
+            IClientNotificationService notificationsService,
+            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _notificationsService = notificationsService;
+            _localizationService = localizationService;
         }
 
         private readonly IGizmoClient _gizmoClient;
         private readonly IClientNotificationService _notificationsService;
+        private readonly ILocalizationService _localizationService;
 
         public void SetLoginMethod(UserLoginType userLoginType)
         {
@@ -149,7 +152,54 @@ namespace Gizmo.Client.UI.View.Services
 
                     //process login error reason
                     ViewState.HasLoginError = true;
-                    ViewState.LoginError = e.FailReason.ToString();
+
+                    string ERROR_MESSAGE = string.Empty;
+
+                    switch (e.FailReason)
+                    {
+                        case LoginResult.AccountDisabled:
+                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_ACCOUNT_DISABLED");
+                            break;
+                        case LoginResult.AlreadyLoggedIn:
+                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_ALREADY_LOGGED_IN");
+                            break;
+                        case LoginResult.Denied:
+                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_DENIED");
+                            break;
+                        case LoginResult.Failed:
+                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_FAILED");
+                            break;
+                        case LoginResult.InsufficientBalance:
+                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_INSUFFICIENT_BALANCE");
+                            break;
+                        case LoginResult.InvalidCredentials:
+                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_INVALID_CREDENTIALS");
+                            break;
+                        case LoginResult.InvalidParameters:
+                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_INVALID_PARAMETERS");
+                            break;
+                        case LoginResult.InvalidPassword:
+                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_INVALID_PASSWORD");
+                            break;
+                        case LoginResult.InvalidUserName:
+                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_INVALID_USERNAME");
+                            break;
+                        case LoginResult.MaximumSessionsReached:
+                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_MAX_SESSIONS_REACHED");
+                            break;
+                        case LoginResult.NotInWaitingLine:
+                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_NOT_IN_WAITING_LINE");
+                            break;
+                        case LoginResult.Sucess:
+                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_SUCESS");
+                            break;
+                        default:
+                            ERROR_MESSAGE = e.FailReason.ToString();
+                            break;
+                    }
+
+                    ViewState.LoginError = ERROR_MESSAGE;
+
                     break;
                 case LoginState.LoginCompleted:
                     Reset();
