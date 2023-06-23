@@ -1,7 +1,6 @@
 ﻿using System.ServiceModel.Syndication;
 using System.Xml;
 using System.Xml.Linq;
-using Gizmo.Client.UI;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
@@ -9,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Gizmo.Client.View.Services
+namespace Gizmo.Client.UI.View.Services
 {
     [Route(ClientRoutes.HomeRoute)]
     [Route(ClientRoutes.ApplicationsRoute)]
