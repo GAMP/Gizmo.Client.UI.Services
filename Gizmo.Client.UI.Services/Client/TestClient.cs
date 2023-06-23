@@ -57,6 +57,7 @@ namespace Gizmo.Client
         public event EventHandler<LockStateEventArgs>? LockStateChange;
         public event EventHandler<OutOfOrderStateEventArgs>? OutOfOrderStateChange;
         public event EventHandler<ReservationChangeEventArgs>? ReservationChange;
+        public event EventHandler<UsageSessionChangedEventArgs> UsageSessionChanged;
 
         public TestClient(IClientNotificationService notificationsService)
         {
