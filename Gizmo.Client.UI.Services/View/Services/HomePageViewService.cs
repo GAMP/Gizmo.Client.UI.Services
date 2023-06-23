@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Gizmo.UI.View.States;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -117,6 +118,9 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
+            //TODO: AAA
+            ViewState.IsFeedEnabled = false;
+
             await RefilterAsync(cancellationToken);
         }
 
