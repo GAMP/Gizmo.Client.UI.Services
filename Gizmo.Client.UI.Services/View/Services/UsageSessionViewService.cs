@@ -49,7 +49,7 @@ namespace Gizmo.Client.UI.View.Services
             base.OnDisposing(isDisposing);
         }
 
-        private void OnUsageSessionChange(object? sender, UsageSessionChangedEventArgs e)
+        private void OnUsageSessionChange(object? sender, UsageSessionChangeEventArgs e)
         {
             switch(e.CurrentUsageType)
             {
