@@ -76,27 +76,27 @@ namespace Gizmo.Client.UI.Services
                     //pass execution limit
                     if (await _client.AppExeExecutionLimitPassAsync(appExeId, cancellationToken) == false)
                     {
-                        var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_APP_EXE_MAX_LIMIT_WARNING_TITLE"), _localizationService.GetString("GIZ_APP_EXE_MAX_LIMIT_WARNING_MESSAGE"), AlertDialogButtons.YesNo);
-                        if (s.Result == AddComponentResultCode.Opened)
+                        var addDialogResult = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_APP_EXE_MAX_LIMIT_WARNING_TITLE"), _localizationService.GetString("GIZ_APP_EXE_MAX_LIMIT_WARNING_MESSAGE"), AlertDialogButtons.YesNo, cancellationToken: cancellationToken);
+                        if (addDialogResult.Result == AddComponentResultCode.Opened)
                         {
-                            var result = await s.WaitForResultAsync();
+                            var result = await addDialogResult.WaitForResultAsync(cancellationToken);
 
-                            if (s.Result != AddComponentResultCode.Ok || result!.Button != AlertDialogResultButton.Yes)
+                            if (addDialogResult.Result != AddComponentResultCode.Ok || result!.Button != AlertDialogResultButton.Yes)
                                 return;
 
                             //kill all context if required
-                            //TODO: AAA DIALOG await Client.ExecutionContextKillAsync();
+                            await _client.ExecutionContextKillNonLimitedAsync(cancellationToken);
                         }
                     }
 
                     if (reprocess)
                     {
-                        var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_APP_EXE_REPAIR_VERIFICATION_TITLE"), _localizationService.GetString("GIZ_APP_EXE_REPAIR_VERIFICATION_MESSAGE"), AlertDialogButtons.YesNo);
-                        if (s.Result == AddComponentResultCode.Opened)
+                        var addDialogResult = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_APP_EXE_REPAIR_VERIFICATION_TITLE"), _localizationService.GetString("GIZ_APP_EXE_REPAIR_VERIFICATION_MESSAGE"), AlertDialogButtons.YesNo, cancellationToken: cancellationToken);
+                        if (addDialogResult.Result == AddComponentResultCode.Opened)
                         {
-                            var result = await s.WaitForResultAsync();
+                            var result = await addDialogResult.WaitForResultAsync(cancellationToken);
 
-                            if (s.Result != AddComponentResultCode.Ok || result!.Button != AlertDialogResultButton.Yes)
+                            if (addDialogResult.Result != AddComponentResultCode.Ok || result!.Button != AlertDialogResultButton.Yes)
                                 return;
                         }
                     }

@@ -1275,5 +1275,10 @@ namespace Gizmo.Client
         {
             return Path.Combine(Environment.CurrentDirectory,"static", "rotator");
         }
+
+        public Task ExecutionContextKillNonLimitedAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.CompletedTask;
+        }
     }
 }
