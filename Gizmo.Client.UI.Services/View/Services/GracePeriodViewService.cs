@@ -6,11 +6,11 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    public sealed class HostLockViewService : ViewStateServiceBase<HostLockViewState>
+    public sealed class GracePeriodViewService : ViewStateServiceBase<GracePeriodViewState>
     {
-        public HostLockViewService(HostLockViewState viewState,
+        public GracePeriodViewService(GracePeriodViewState viewState,
             IGizmoClient gizmoClient,
-            ILogger<HostLockViewService> logger, 
+            ILogger<GracePeriodViewService> logger, 
             IServiceProvider serviceProvider)
             :base(viewState, logger, serviceProvider)
         {
@@ -21,22 +21,22 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnInitializing(CancellationToken ct)
         {
-            ViewState.IsLocked = _gizmoClient.IsInputLocked;
+            ViewState.IsInGracePeriod = _gizmoClient.IsInputLocked;
             DebounceViewStateChanged();
 
-            _gizmoClient.LockStateChange += OnLockStateChange;
+            _gizmoClient.GracePeriodChange += OnGracePeriodChange;
             return base.OnInitializing(ct);
         }
 
         protected override void OnDisposing(bool isDisposing)
         {
-            _gizmoClient.LockStateChange -= OnLockStateChange;
+            _gizmoClient.GracePeriodChange -= OnGracePeriodChange;
             base.OnDisposing(isDisposing);
         }
 
-        private void OnLockStateChange(object? sender, LockStateEventArgs e)
+        private void OnGracePeriodChange(object? sender, GracePeriodChangeEventArgs e)
         {
-            ViewState.IsLocked = e.IsLocked;
+            ViewState.IsInGracePeriod = e.IsInGracePeriod;
             DebounceViewStateChanged();
         }
     }

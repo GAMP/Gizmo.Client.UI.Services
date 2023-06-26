@@ -101,8 +101,7 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.AppCategories = allCategories.OrderBy(c => c.Name).ToList();
             }
 
-            if (navigationParameters.IsInitial)
-                await RefilterRequest(cToken);
+            await RefilterRequest(cToken);
         }
 
         #endregion

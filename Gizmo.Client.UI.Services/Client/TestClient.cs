@@ -55,6 +55,7 @@ namespace Gizmo.Client
         public event EventHandler<AppLinkChangeEventArgs>? AppLinkChange;
         public event EventHandler<ConnectionStateEventArgs>? ConnectionStateChange;
         public event EventHandler<LockStateEventArgs>? LockStateChange;
+        public event EventHandler<GracePeriodChangeEventArgs>? GracePeriodChange;
         public event EventHandler<OutOfOrderStateEventArgs>? OutOfOrderStateChange;
         public event EventHandler<ReservationChangeEventArgs>? ReservationChange;
         public event EventHandler<UsageSessionChangeEventArgs> UsageSessionChange;

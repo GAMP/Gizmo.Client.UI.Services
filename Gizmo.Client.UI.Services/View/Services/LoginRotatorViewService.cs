@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,6 +53,7 @@ namespace Gizmo.Client.UI.View.Services
         private List<LoginRotatorItemViewState> _items = new();
         private int _index = 0;
         private readonly object _itemsLock = new object();
+        private bool _paused = false;
         #endregion
 
         #region FUNCTIONS
@@ -99,6 +101,9 @@ namespace Gizmo.Client.UI.View.Services
 
         public bool PlayNext()
         {
+            if (_paused)
+                return false;
+
             if (_items.Count <= 1)
                 return false;
 
@@ -134,12 +139,29 @@ namespace Gizmo.Client.UI.View.Services
             return true;
         }
 
+        private void OnSystemUserIdleChange(object? sender, UserIdleEventArgs e)
+        {
+            if (e.IsIdle)
+            {
+                _paused = false;
+                PlayNext();
+            }
+            else
+            {
+                _paused = true;
+                _rotatateTimer?.Dispose();
+            }
+        }
+
         #region OVERRIDES
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
         {
             if (_loginRotatorOptions.Value.Enabled)
             {
+                var userIdleViewState = ServiceProvider.GetRequiredService<UserIdleViewState>();
+                _paused = !userIdleViewState.IsIdle;
+
                 //get current rotator folder
                 var rotateFolder = _gizmoClient.GetCurrentRotatorPath();
 
@@ -211,8 +233,15 @@ namespace Gizmo.Client.UI.View.Services
             return Task.CompletedTask;
         }
 
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            _gizmoClient.UserIdleChange += OnSystemUserIdleChange;
+            return base.OnInitializing(ct);
+        }
+
         protected override void OnDisposing(bool isDisposing)
         {
+            _gizmoClient.UserIdleChange -= OnSystemUserIdleChange;
             _rotatateTimer?.Dispose();
             base.OnDisposing(isDisposing);
         }
