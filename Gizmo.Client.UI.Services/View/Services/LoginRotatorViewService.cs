@@ -1,5 +1,4 @@
-﻿using System;
-using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
@@ -159,8 +158,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (_loginRotatorOptions.Value.Enabled)
             {
-                var userIdleViewState = ServiceProvider.GetRequiredService<UserIdleViewState>();
-                _paused = !userIdleViewState.IsIdle;
+                _paused = !_gizmoClient.IsUserIdle;
 
                 //get current rotator folder
                 var rotateFolder = _gizmoClient.GetCurrentRotatorPath();

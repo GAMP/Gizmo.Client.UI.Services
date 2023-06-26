@@ -40,6 +40,8 @@ namespace Gizmo.Client
 
         public bool IsInputLocked => false;
 
+        public bool IsUserIdle => false;
+
         public event EventHandler<ClientExecutionContextStateArgs>? ExecutionContextStateChange;
         public event EventHandler<UserLoginStateChangeEventArgs>? LoginStateChange;
         public event EventHandler<UserBalanceEventArgs>? UserBalanceChange;
