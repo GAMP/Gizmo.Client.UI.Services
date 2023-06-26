@@ -36,6 +36,11 @@ namespace Gizmo.Client.UI.View.Services
             DebounceViewStateChanged();
         }
 
+        public Task<bool> SetInputPasswordCharacterIsValid(char value)
+        {
+            return Task.FromResult(char.IsNumber(value) && ViewState.InputPassword.Length < 4);
+        }
+
         public async Task LockAsync()
         {
             //go into full screen mode

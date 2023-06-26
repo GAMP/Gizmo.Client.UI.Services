@@ -9,24 +9,9 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
-        public RegistrationVerificationMethod ConfirmationMethod { get; internal set; } = RegistrationVerificationMethod.MobilePhone; //TODO: A DEMO
+        public RegistrationVerificationMethod ConfirmationMethod { get; internal set; } = RegistrationVerificationMethod.None;
 
-        public UserModelRequiredInfo DefaultUserGroupRequiredInfo { get; internal set; } = new UserModelRequiredInfo()
-        {
-            FirstName = true,
-            LastName = true,
-            BirthDate = true,
-            Address = true,
-            City = true,
-            PostCode = true,
-            State = true,
-            Country = true,
-            Email = true,
-            Phone = true,
-            Mobile = true,
-            Sex = true,
-            Password = true
-        };
+        public UserModelRequiredInfo DefaultUserGroupRequiredInfo { get; internal set; } = new UserModelRequiredInfo();
 
         #endregion
     }

@@ -981,7 +981,7 @@ namespace Gizmo.Client
 
         public Task<RegistrationVerificationMethod> RegistrationVerificationMethodGetAsync(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(RegistrationVerificationMethod.MobilePhone);
+            return Task.FromResult(RegistrationVerificationMethod.Email);
         }
 
         public Task<UserRecoveryMethod> PasswordRecoveryMethodGetAsync(CancellationToken cancellationToken = default)
