@@ -10,6 +10,8 @@ namespace Gizmo.Client.UI.View.States
 
         public bool IsInGracePeriod { get; internal set; }
 
+        public TimeSpan Time { get; internal set; }
+
         #endregion
     }
 }
