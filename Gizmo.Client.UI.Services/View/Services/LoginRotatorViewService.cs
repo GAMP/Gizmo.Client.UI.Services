@@ -221,7 +221,7 @@ namespace Gizmo.Client.UI.View.Services
                         ViewState.IsEnabled = _loginRotatorOptions.Value.Enabled;
                         ViewState.CurrentItem = _items[_index];
 
-                        if (ViewState.CurrentItem?.IsVideo == false && _items.Count > 1)
+                        if (!_paused && ViewState.CurrentItem?.IsVideo == false && _items.Count > 1)
                         {
                             _rotatateTimer?.Dispose();
                             _rotatateTimer = new Timer(OnTimerCallback, null, GetRotateMills(), GetRotateMills());
