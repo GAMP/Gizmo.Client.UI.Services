@@ -55,6 +55,8 @@ namespace Gizmo.Client.UI.View.States
 
         public string ErrorMessage { get; internal set; } = string.Empty;
 
+        public PasswordTooltipViewState PasswordTooltip { get; internal set; } = new PasswordTooltipViewState();
+
         #endregion
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -20,16 +22,19 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserRegistrationBasicFieldsViewService> logger,
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
-            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IGizmoClient gizmoClient,
+            IOptions<PasswordValidationOptions> passwordValidationOptions) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _gizmoClient = gizmoClient;
+            _passwordValidationOptions = passwordValidationOptions;
         }
         #endregion
 
         #region FIELDS
         private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
+        private readonly IOptions<PasswordValidationOptions> _passwordValidationOptions;
         #endregion
 
         #region FUNCTIONS
@@ -43,6 +48,7 @@ namespace Gizmo.Client.UI.View.Services
         public void SetPassword(string value)
         {
             ViewState.Password = value;
+            CheckPasswordRules(ViewState.Password);
             ValidateProperty(() => ViewState.Password);
         }
 
@@ -207,14 +213,133 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
+        private void CheckPasswordRules(string password)
+        {
+            ViewState.PasswordTooltip.PassedRules = 0;
+            ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_SHORT");
+
+            ViewState.PasswordTooltip.LengthRulePassed = false;
+            ViewState.PasswordTooltip.LowerCaseCharactersRulePassed = false;
+            ViewState.PasswordTooltip.UpperCaseCharactersRulePassed = false;
+            ViewState.PasswordTooltip.NumbersRulePassed = false;
+
+            if (string.IsNullOrEmpty(password))
+                return;
+
+            if (ViewState.PasswordTooltip.MinimumLengthRule > 0 || ViewState.PasswordTooltip.MaximumLengthRule > 0)
+            {
+                if (password.Length >= ViewState.PasswordTooltip.MinimumLengthRule && password.Length <= ViewState.PasswordTooltip.MaximumLengthRule)
+                {
+                    ViewState.PasswordTooltip.PassedRules += 1;
+                    ViewState.PasswordTooltip.LengthRulePassed = true;
+                }
+                else
+                {
+                    if (password.Length >= ViewState.PasswordTooltip.MinimumLengthRule)
+                    {
+                        ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_LONG");
+                    }
+                    else
+                    {
+                        ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_SHORT");
+                    }
+                }
+            }
+
+            Regex lowerRulePassedRegex = new Regex("[A-Z]");
+            Regex upperRuleRegex = new Regex("[a-z]");
+            Regex numberRuleRegex = new Regex("[0-9]");
+
+            if (ViewState.PasswordTooltip.HasLowerCaseCharactersRule)
+            {
+                if (lowerRulePassedRegex.Matches(password).Count > 0)
+                {
+                    ViewState.PasswordTooltip.PassedRules += 1;
+                    ViewState.PasswordTooltip.LowerCaseCharactersRulePassed = true;
+                }
+                else
+                {
+                    ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_EASY");
+                }
+            }
+
+            if (ViewState.PasswordTooltip.HasUpperCaseCharactersRule)
+            {
+                if (upperRuleRegex.Matches(password).Count > 0)
+                {
+                    ViewState.PasswordTooltip.PassedRules += 1;
+                    ViewState.PasswordTooltip.UpperCaseCharactersRulePassed = true;
+                }
+                else
+                {
+                    ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_EASY");
+                }
+            }
+
+            if (ViewState.PasswordTooltip.HasNumbersRule)
+            {
+                if (numberRuleRegex.Matches(password).Count > 0)
+                {
+                    ViewState.PasswordTooltip.PassedRules += 1;
+                    ViewState.PasswordTooltip.NumbersRulePassed = true;
+                }
+                else
+                {
+                    ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_EASY");
+                }
+            }
+
+            if (ViewState.PasswordTooltip.PassedRules == ViewState.PasswordTooltip.TotalRules)
+            {
+                ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_SECURE");
+            }
+        }
+
         #endregion
 
         #region OVERRIDES
+
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            ViewState.PasswordTooltip.MinimumLengthRule = _passwordValidationOptions.Value.MinimumLength;
+            ViewState.PasswordTooltip.MaximumLengthRule = _passwordValidationOptions.Value.MaximumLength;
+            ViewState.PasswordTooltip.HasLowerCaseCharactersRule = _passwordValidationOptions.Value.LowerCaseCharactersRequired;
+            ViewState.PasswordTooltip.HasUpperCaseCharactersRule = _passwordValidationOptions.Value.UpperCaseCharactersRequired;
+            ViewState.PasswordTooltip.HasNumbersRule = _passwordValidationOptions.Value.NumbersRequired;
+
+            ViewState.PasswordTooltip.TotalRules = 0;
+
+            if (ViewState.PasswordTooltip.MinimumLengthRule > 0 || ViewState.PasswordTooltip.MaximumLengthRule > 0)
+                ViewState.PasswordTooltip.TotalRules += 1;
+
+            if (ViewState.PasswordTooltip.HasLowerCaseCharactersRule)
+                ViewState.PasswordTooltip.TotalRules += 1;
+
+            if (ViewState.PasswordTooltip.HasUpperCaseCharactersRule)
+                ViewState.PasswordTooltip.TotalRules += 1;
+
+            if (ViewState.PasswordTooltip.HasNumbersRule)
+                ViewState.PasswordTooltip.TotalRules += 1;
+
+            CheckPasswordRules(ViewState.Password);
+
+            ViewState.PasswordTooltip.RaiseChanged();
+
+            return base.OnInitializing(ct);
+        }
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
             if (fieldIdentifier.FieldEquals(() => ViewState.Password) || fieldIdentifier.FieldEquals(() => ViewState.RepeatPassword))
             {
+                if (fieldIdentifier.FieldEquals(() => ViewState.Password))
+                {
+                    if (ViewState.PasswordTooltip.PassedRules < ViewState.PasswordTooltip.TotalRules)
+                    {
+                        AddError(() => ViewState.Password, ViewState.PasswordTooltip.ErrorMessage);
+                    }
+                }
+
                 ClearError(() => ViewState.RepeatPassword);
                 if (!string.IsNullOrEmpty(ViewState.Password) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.Password, ViewState.RepeatPassword) != 0)
                 {
