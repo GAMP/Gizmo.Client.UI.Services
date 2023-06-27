@@ -50,7 +50,7 @@ namespace Gizmo.Client.UI.Services
             services.AddOptions<DialogOptions>().Bind(configuration.GetSection("Dialog"));
             services.AddOptions<LoginRotatorOptions>().Bind(configuration.GetSection("LoginRotator"));
             services.AddOptions<ClientShopOptions>().Bind(configuration.GetSection("Shop"));
-            services.AddOptions<PasswordValidationOptions>().Bind(configuration.GetSection("PasswordValidation"));
+            services.AddOptions<PasswordValidationOptions>().Bind(configuration.GetSection("Validation:Password"));
             return services;
         } 
 
