@@ -10,7 +10,7 @@ namespace Gizmo.Client.UI.View.Services
     {
         public HostOutOfOrderViewService(HostOutOfOrderViewState viewState,
             IGizmoClient gizmoClient,
-            ILogger<HostOutOfOrderViewState> logger,
+            ILogger<HostOutOfOrderViewService> logger,
             IServiceProvider serviceProvider)
             :base(viewState, logger, serviceProvider)
         {
