@@ -148,14 +148,15 @@ namespace Gizmo.Client.UI.View.Services
 
             if (ViewState.PasswordTooltip.MinimumLengthRule > 0 || ViewState.PasswordTooltip.MaximumLengthRule > 0)
             {
-                if (password.Length >= ViewState.PasswordTooltip.MinimumLengthRule && password.Length <= ViewState.PasswordTooltip.MaximumLengthRule)
+                if ((!ViewState.PasswordTooltip.MinimumLengthRule.HasValue || password.Length >= ViewState.PasswordTooltip.MinimumLengthRule) &&
+                    (!ViewState.PasswordTooltip.MaximumLengthRule.HasValue || password.Length <= ViewState.PasswordTooltip.MaximumLengthRule))
                 {
                     ViewState.PasswordTooltip.PassedRules += 1;
                     ViewState.PasswordTooltip.LengthRulePassed = true;
                 }
                 else
                 {
-                    if (password.Length >= ViewState.PasswordTooltip.MinimumLengthRule)
+                    if (ViewState.PasswordTooltip.MaximumLengthRule.HasValue && password.Length >= ViewState.PasswordTooltip.MaximumLengthRule)
                     {
                         ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_LONG");
                     }

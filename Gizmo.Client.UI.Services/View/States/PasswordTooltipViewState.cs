@@ -8,9 +8,9 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
-        public int MinimumLengthRule { get; internal set; }
+        public int? MinimumLengthRule { get; internal set; }
 
-        public int MaximumLengthRule { get; internal set; }
+        public int? MaximumLengthRule { get; internal set; }
 
         public bool HasLowerCaseCharactersRule { get; internal set; }
 
