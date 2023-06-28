@@ -28,7 +28,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         #endregion
 
-        public async Task LogoutAsync()
+        public async Task LogoutWithConfirmationAsync()
         {
             try
             {
@@ -40,6 +40,18 @@ namespace Gizmo.Client.UI.View.Services
                     if (s.Result == AddComponentResultCode.Ok && result!.Button == AlertDialogResultButton.Yes)
                         await _gizmoClient.UserLogoutAsync();
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "User initiated logout failed.");
+            }
+        }
+
+        public async Task LogoutAsync()
+        {
+            try
+            {
+                await _gizmoClient.UserLogoutAsync();
             }
             catch (Exception ex)
             {
