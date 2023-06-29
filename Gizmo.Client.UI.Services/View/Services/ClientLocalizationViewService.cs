@@ -16,12 +16,14 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public ClientLocalizationViewService(
             ClientLocalizationViewState viewState,
+            NavigationService navigationService,
             IOptionsMonitor<ClientInterfaceOptions> clientInterfaceOptions,
             ILocalizationService localizationService,
             ILogger<ClientLocalizationViewService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
+            _navigationService = navigationService;
             _clientInterfaceOptions = clientInterfaceOptions;
             _localizationService.LocalizationOptionsChanged += OnLocalizationOptionsChanged;
             _logger = logger;
@@ -32,6 +34,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         private readonly ILogger<ClientLocalizationViewService> _logger;
         private readonly IOptionsMonitor<ClientInterfaceOptions> _clientInterfaceOptions;
+        private readonly NavigationService _navigationService;
 
         #endregion
 
@@ -77,6 +80,9 @@ namespace Gizmo.Client.UI.View.Services
             await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
             ViewState.RaiseChanged();
+
+            //TODO need to find a better way to do this
+            _navigationService.NavigateTo("/", new Microsoft.AspNetCore.Components.NavigationOptions() { ForceLoad = true });
         }
 
         #endregion
