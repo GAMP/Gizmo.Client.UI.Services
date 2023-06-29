@@ -247,8 +247,8 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            Regex lowerRulePassedRegex = new Regex("[A-Z]");
-            Regex upperRuleRegex = new Regex("[a-z]");
+            Regex lowerRulePassedRegex = new Regex("\\p{Ll}");
+            Regex upperRuleRegex = new Regex("\\p{Lu}");
             Regex numberRuleRegex = new Regex("[0-9]");
 
             if (ViewState.PasswordTooltip.HasLowerCaseCharactersRule)
