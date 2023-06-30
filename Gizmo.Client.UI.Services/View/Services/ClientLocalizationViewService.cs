@@ -50,7 +50,7 @@ namespace Gizmo.Client.UI.View.Services
             if (!string.IsNullOrWhiteSpace(preferedLanguage))
                 preferedCulture = GetViewStatesCulture(preferedLanguage);
 
-            preferedCulture ??= GetViewStatesCulture("en");         
+            preferedCulture ??= GetViewStatesCulture("en");
 
             ViewState.CurrentCulture = preferedCulture;
 
@@ -82,7 +82,8 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
 
             //TODO need to find a better way to do this
-            _navigationService.NavigateTo("/", new Microsoft.AspNetCore.Components.NavigationOptions() { ForceLoad = true });
+            var currentUri = _navigationService.GetUri();
+            _navigationService.NavigateTo(currentUri ?? "/", new Microsoft.AspNetCore.Components.NavigationOptions() { ForceLoad = true });
         }
 
         #endregion

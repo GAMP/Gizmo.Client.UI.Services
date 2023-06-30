@@ -26,5 +26,13 @@ namespace Gizmo.Client.UI.Services
                 CultureInfo.CurrentUICulture = culture;
             }));
         }
+
+        public override string GetString(string key, params object[] arguments)
+        {
+            return DispatcherHelper.Invoke(()=>
+            { 
+                return base.GetString(key, arguments);
+            })!;
+        }
     }
 }

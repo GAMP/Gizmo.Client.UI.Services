@@ -11,7 +11,7 @@ namespace Gizmo.Client.UI.View.States
         #region PROPERTIES
 
         [ValidatingProperty(IsAsync = true)]
-        [EmailNullEmptyValidation()]
+        [EmailNullEmptyValidation(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_REGISTRATION_VE_EMAIL_INVALID")]
         public string? Email { get; internal set; }
 
         [ValidatingProperty()]
@@ -20,7 +20,7 @@ namespace Gizmo.Client.UI.View.States
         public string? Prefix { get; internal set; }
 
         [ValidatingProperty(IsAsync = true)]
-        [PhoneNullEmptyValidation()]
+        [PhoneNullEmptyValidation(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_REGISTRATION_VE_MOBILE_PHONE_INVALID")]
         public string? MobilePhone { get; internal set; }
 
         public string Destination { get; internal set; } = string.Empty;
