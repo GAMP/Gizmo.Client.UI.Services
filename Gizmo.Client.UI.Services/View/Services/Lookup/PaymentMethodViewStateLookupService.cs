@@ -1,31 +1,39 @@
 ﻿using System.Reflection;
 using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
     [Register]
     public sealed class PaymentMethodViewStateLookupService : ViewStateLookupServiceBase<int, PaymentMethodViewState>
     {
-        private readonly IGizmoClient _gizmoClient;
         public PaymentMethodViewStateLookupService(
             IGizmoClient gizmoClient,
             ILogger<PaymentMethodViewStateLookupService> logger,
-            IServiceProvider serviceProvider) : base(logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            ILocalizationService localizationService) : base(logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
+            _localizationService = localizationService;
         }
+
+        #region FIELDS
+        private readonly IGizmoClient _gizmoClient;
+        private readonly ILocalizationService _localizationService;
+        #endregion
 
         #region OVERRIDED FUNCTIONS
         protected override async Task<IDictionary<int, PaymentMethodViewState>> DataInitializeAsync(CancellationToken cToken)
         {
             var clientResult = await _gizmoClient.UserPaymentMethodsGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
 
-           return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
+            return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
         }
         protected override async ValueTask<PaymentMethodViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
         {
@@ -57,7 +65,29 @@ namespace Gizmo.Client.UI.View.Services
         {
             var result = viewState ?? CreateDefaultViewState(model.Id);
 
-            result.Name = model.Name;
+            switch (model.Id)
+            {
+                case -4: //Points
+                    result.Name = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_POINTS");
+                    break;
+
+                case -3: //Deposit
+                    result.Name = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_DEPOSIT");
+                    break;
+
+                case -2: //Credit Card
+                    result.Name = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_CREDIT_CARD");
+                    break;
+
+                case -1: //Cash
+                    result.Name = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_CASH");
+                    break;
+
+                default:
+                    result.Name = model.Name;
+                    break;
+            }
+
             result.IsOnline = model.IsOnline;
 
             return result;
