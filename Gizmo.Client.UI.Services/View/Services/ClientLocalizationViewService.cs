@@ -6,6 +6,7 @@ using Gizmo.UI.View.Services;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -15,11 +16,15 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public ClientLocalizationViewService(
             ClientLocalizationViewState viewState,
+            NavigationService navigationService,
+            IOptionsMonitor<ClientInterfaceOptions> clientInterfaceOptions,
             ILocalizationService localizationService,
             ILogger<ClientLocalizationViewService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
+            _navigationService = navigationService;
+            _clientInterfaceOptions = clientInterfaceOptions;
             _localizationService.LocalizationOptionsChanged += OnLocalizationOptionsChanged;
             _logger = logger;
         }
@@ -28,6 +33,8 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly ILocalizationService _localizationService;
         private readonly ILogger<ClientLocalizationViewService> _logger;
+        private readonly IOptionsMonitor<ClientInterfaceOptions> _clientInterfaceOptions;
+        private readonly NavigationService _navigationService;
 
         #endregion
 
@@ -37,7 +44,15 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.AvailableCultures = await _localizationService.GetSupportedCulturesAsync(cToken);
 
-            ViewState.CurrentCulture = GetViewStatesCulture("el");
+            var preferedLanguage = _clientInterfaceOptions.CurrentValue.PreferedLanguage;
+            CultureInfo? preferedCulture = null;
+
+            if (!string.IsNullOrWhiteSpace(preferedLanguage))
+                preferedCulture = GetViewStatesCulture(preferedLanguage);
+
+            preferedCulture ??= GetViewStatesCulture("en");         
+
+            ViewState.CurrentCulture = preferedCulture;
 
             await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
@@ -65,6 +80,9 @@ namespace Gizmo.Client.UI.View.Services
             await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
             ViewState.RaiseChanged();
+
+            //TODO need to find a better way to do this
+            _navigationService.NavigateTo("/", new Microsoft.AspNetCore.Components.NavigationOptions() { ForceLoad = true });
         }
 
         #endregion
@@ -91,9 +109,7 @@ namespace Gizmo.Client.UI.View.Services
         private async void OnLocalizationOptionsChanged(object? _, EventArgs __)
         {
             ViewState.AvailableCultures = await _localizationService.GetSupportedCulturesAsync(default);
-
             ViewState.CurrentCulture = GetViewStatesCulture(ViewState.CurrentCulture.TwoLetterISOLanguageName);
-
             await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
             ViewState.RaiseChanged();
