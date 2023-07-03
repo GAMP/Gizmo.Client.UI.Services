@@ -69,14 +69,28 @@ namespace Gizmo.Client.UI.View.Services
                     break;
             }
 
-            if (e.State == LoginState.LoginCompleted && e.IsUserPasswordRequired)
+            try
             {
-                await _userChangePasswordViewService.StartAsync(false);
+                if (e.State == LoginState.LoginCompleted && e.IsUserPasswordRequired)
+                {
+                    await _userChangePasswordViewService.StartAsync(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "User password update failed during login process.");
             }
 
-            if (e.State == LoginState.LoginCompleted && e.IsUserInfoRequired)
+            try
             {
-                await _userChangeProfileViewService.StartAsync();
+                if (e.State == LoginState.LoginCompleted && e.IsUserInfoRequired)
+                {
+                    await _userChangeProfileViewService.StartAsync();
+                }
+            }
+            catch(Exception ex)
+            {
+                Logger.LogError(ex, "User profile update failed during login process.");
             }
         }
     }
