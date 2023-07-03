@@ -510,6 +510,37 @@ namespace Gizmo.Client.UI.View.Services
 
         #endregion
 
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            _gizmoClient.LoginStateChange += OnUserLoginStateChange;
+            return base.OnInitializing(ct);
+        }
+
+        private async void OnUserLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
+        {
+            try
+            {
+                switch (e.State)
+                {
+                    case LoginState.LoggingOut:
+                        await ClearProductsAsync();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error handling login state change.");
+            }
+        }
+
+        protected override void OnDisposing(bool dis)
+        {
+            _gizmoClient.LoginStateChange -= OnUserLoginStateChange;
+            base.OnDisposing(dis);
+        }
+
         public override async Task ExecuteCommandAsync<TCommand>(TCommand command, CancellationToken cToken = default)
         {
             if (command.Params?.Any() != true)
