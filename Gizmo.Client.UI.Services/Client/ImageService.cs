@@ -102,9 +102,9 @@ namespace Gizmo.Client.UI.Services
         private string ImageUrlGet(ImageType imageType) => IsWebBrowser
             ? _navigationManager.GetBaseUri() + imageType switch
             {
-                ImageType.Application => "_content/Gizmo.Client.UI/img/DemoApex.png",
-                ImageType.ProductDefault => "_content/Gizmo.Client.UI/img/DemoCola2.png",
-                _ => "_content/Gizmo.Client.UI/img/DemoChrome-icon_1.png"
+                ImageType.Application => "static/img/DemoApex.png",
+                ImageType.ProductDefault => "static/img/DemoCola2.png",
+                _ => "static/img/DemoChrome-icon_1.png"
             }
             : imageType switch
             {
