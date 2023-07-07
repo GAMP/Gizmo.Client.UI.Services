@@ -73,9 +73,9 @@ namespace Gizmo.Client.UI.View.Services
 
         #region PUBLIC FUNCTIONS
 
-        public async void SetCurrentCultureAsync(string twoLetterISOLanguageName)
+        public async void SetCurrentCultureAsync(string cultureName)
         {
-            ViewState.CurrentCulture = GetViewStatesCulture(twoLetterISOLanguageName);
+            ViewState.CurrentCulture = GetViewStatesCulture(cultureName);
 
             await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
@@ -90,18 +90,18 @@ namespace Gizmo.Client.UI.View.Services
 
         #region PRIVATE FUNCTIONS
 
-        private CultureInfo GetViewStatesCulture(string twoLetterISOLanguageName)
+        private CultureInfo GetViewStatesCulture(string cultureName)
         {
-            var culture = ViewState.AvailableCultures.FirstOrDefault(x => x.TwoLetterISOLanguageName == twoLetterISOLanguageName);
+            var culture = ViewState.AvailableCultures.FirstOrDefault(x => string.Compare(x.Name,cultureName,true) == 0);
 
             if (culture == null)
             {
-                _logger.LogWarning("Culture '{twoLetterName}' was not found. Using default culture 'en'.", twoLetterISOLanguageName);
+                _logger.LogWarning("Culture '{twoLetterName}' was not found. Using default culture 'en-us'.", cultureName);
 
-                culture = ViewState.AvailableCultures.FirstOrDefault(x => x.TwoLetterISOLanguageName == "en");
+                culture = ViewState.AvailableCultures.FirstOrDefault(x => string.Compare(x.Name, "en-us", true) == 0);
 
                 if (culture == null)
-                    throw new CultureNotFoundException($"Culture {twoLetterISOLanguageName} not found.");
+                    throw new CultureNotFoundException($"Culture {cultureName} not found.");
             }
 
             return culture;
@@ -110,7 +110,7 @@ namespace Gizmo.Client.UI.View.Services
         private async void OnLocalizationOptionsChanged(object? _, EventArgs __)
         {
             ViewState.AvailableCultures = await _localizationService.GetSupportedCulturesAsync(default);
-            ViewState.CurrentCulture = GetViewStatesCulture(ViewState.CurrentCulture.TwoLetterISOLanguageName);
+            ViewState.CurrentCulture = GetViewStatesCulture(ViewState.CurrentCulture.Name);
             await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
             ViewState.RaiseChanged();
