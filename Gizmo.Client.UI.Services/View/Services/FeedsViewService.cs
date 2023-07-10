@@ -1,7 +1,9 @@
-﻿using System.ServiceModel.Syndication;
+﻿using System.Runtime.InteropServices;
+using System.ServiceModel.Syndication;
 using System.Xml;
 using System.Xml.Linq;
 using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,11 +23,13 @@ namespace Gizmo.Client.UI.View.Services
             IOptionsMonitor<FeedsOptions> feedOptions,
             IHttpClientFactory httpClientFactory,
             ILogger<FeedsViewService> logger,
-            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            NavigationService navigationService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _httpClientFactory = httpClientFactory;
             _feedOptions = feedOptions;
+            _navigationService = navigationService;
         }
 
         private const string HTTP_CLIENT_NAME = "FeedHttpClient";
@@ -38,6 +42,7 @@ namespace Gizmo.Client.UI.View.Services
         private int _currentFeedIndex = 0;
         private bool _isPaused = false;
         private readonly IOptionsMonitor<FeedsOptions> _feedOptions;
+        private readonly NavigationService _navigationService;
 
         /// <summary>
         /// Gets if rotation is currently paused.
@@ -100,28 +105,62 @@ namespace Gizmo.Client.UI.View.Services
                             if (string.IsNullOrEmpty(feed.Url))
                                 continue;
 
-                            //try parse
-                            if (!Uri.TryCreate(feed.Url, UriKind.Absolute, out Uri? uri))
-                                continue;
-
-                            try
+                            if (RuntimeInformation.IsOSPlatform(OSPlatform.Create("browser")))
                             {
-                                var (Channel, Items) = await CreateAsync(uri, cancellationToken);
+                                string fileName = "static/feedburner.xml";
 
-                                //create maximum of feeds
-                                var maxFeeds = feed.Maximum <= 0 ? int.MaxValue : feed.Maximum;
+                                if (feed.Url.Contains("gameworld"))
+                                    fileName = "static/gameworld.xml";
 
-                                //create items query
-                                var itemsQuery = Items.Take(maxFeeds).OrderBy(item => item.PublishDate);
+                                //try parse
+                                if (!Uri.TryCreate(fileName, UriKind.Relative, out Uri? uri))
+                                    continue;
 
-                                foreach (var item in itemsQuery)
+                                try
                                 {
-                                    _feedLookup.Add(item, Channel);
+                                    var (Channel, Items) = await CreateAsync(uri, cancellationToken);
+
+                                    //create maximum of feeds
+                                    var maxFeeds = feed.Maximum <= 0 ? int.MaxValue : feed.Maximum;
+
+                                    //create items query
+                                    var itemsQuery = Items.Take(maxFeeds).OrderBy(item => item.PublishDate);
+
+                                    foreach (var item in itemsQuery)
+                                    {
+                                        _feedLookup.Add(item, Channel);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Logger.LogError(ex, "Feed creation failed for {feedUrl}", uri);
                                 }
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                Logger.LogError(ex, "Feed creation failed for {feedUrl}", uri);
+                                //try parse
+                                if (!Uri.TryCreate(feed.Url, UriKind.Absolute, out Uri? uri))
+                                    continue;
+
+                                try
+                                {
+                                    var (Channel, Items) = await CreateAsync(uri, cancellationToken);
+
+                                    //create maximum of feeds
+                                    var maxFeeds = feed.Maximum <= 0 ? int.MaxValue : feed.Maximum;
+
+                                    //create items query
+                                    var itemsQuery = Items.Take(maxFeeds).OrderBy(item => item.PublishDate);
+
+                                    foreach (var item in itemsQuery)
+                                    {
+                                        _feedLookup.Add(item, Channel);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Logger.LogError(ex, "Feed creation failed for {feedUrl}", uri);
+                                }
                             }
                         }
 
@@ -131,7 +170,7 @@ namespace Gizmo.Client.UI.View.Services
 
                         _rotatateTimer?.Change(0, GetRotateMills());
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         throw;
                     }
@@ -155,6 +194,9 @@ namespace Gizmo.Client.UI.View.Services
         {
             //create http client
             var httpClient = _httpClientFactory.CreateClient(HTTP_CLIENT_NAME);
+
+            if (!uri.IsAbsoluteUri)
+                httpClient.BaseAddress = new Uri(_navigationService.GetBaseUri());
 
             //get response
             var response = await httpClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);

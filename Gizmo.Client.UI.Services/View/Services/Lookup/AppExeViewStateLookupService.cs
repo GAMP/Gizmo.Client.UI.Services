@@ -99,7 +99,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             var viewStates = await GetStatesAsync(cancellationToken);
 
-            viewStates = viewStates.Where(state=>state.ApplicationId == appId)                
+            viewStates = viewStates.Where(state => state.ApplicationId == appId)                
                 .Where(state => state.Accessible)
                 .Where(state => _gizmoClient.AppCurrentProfilePass(state.ApplicationId));
 
