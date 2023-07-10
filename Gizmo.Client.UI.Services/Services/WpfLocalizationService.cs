@@ -20,11 +20,17 @@ namespace Gizmo.Client.UI.Services
 
         public override async Task SetCurrentCultureAsync(CultureInfo culture)
         {
+            //not sure why but culture changes needs to be made on both dispatcher
+            //and calling thread, if not done then in some cases localization service will use previous culture
+
             await DispatcherHelper.InvokeAsync(new Action(() =>
             {
                 CultureInfo.CurrentCulture = culture;
                 CultureInfo.CurrentUICulture = culture;
             }));
+
+            CultureInfo.CurrentCulture = culture;
+            CultureInfo.CurrentUICulture = culture;
 
             await base.SetCurrentCultureAsync(culture);
         }
