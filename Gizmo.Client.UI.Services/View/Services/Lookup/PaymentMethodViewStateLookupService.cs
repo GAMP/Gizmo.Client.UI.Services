@@ -28,6 +28,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IGizmoClient _gizmoClient;
         private readonly ILocalizationService _localizationService;
         #endregion
+
         private async void OnLanguageChanged(object? sender, EventArgs e)
         {
             try
