@@ -13,7 +13,7 @@ namespace Gizmo.Client.UI.View.States
         [ValidatingProperty()]
         public string? Country { get; internal set; }
 
-        public string? Prefix { get; internal set; }
+        //public string? Prefix { get; internal set; }
 
         /// <summary>
         /// Gets or sets mobile phone.

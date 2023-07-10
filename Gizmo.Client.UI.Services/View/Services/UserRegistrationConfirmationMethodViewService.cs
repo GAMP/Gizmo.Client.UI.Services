@@ -52,11 +52,11 @@ namespace Gizmo.Client.UI.View.Services
             ValidateProperty(() => ViewState.Country);
         }
 
-        public void SetPrefix(string value)
-        {
-            ViewState.Prefix = value;
-            DebounceViewStateChanged();
-        }
+        //public void SetPrefix(string value)
+        //{
+        //    ViewState.Prefix = value;
+        //    DebounceViewStateChanged();
+        //}
 
         public void SetMobilePhone(string value)
         {
@@ -68,7 +68,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.Email = string.Empty;
             ViewState.Country = string.Empty;
-            ViewState.Prefix = string.Empty;
+            //ViewState.Prefix = string.Empty;
             ViewState.MobilePhone = string.Empty;
 
             ViewState.IsLoading = false;
@@ -282,7 +282,8 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     try
                     {
-                        var tmp = ViewState.Prefix + ViewState.MobilePhone;
+                        //var tmp = ViewState.Prefix + ViewState.MobilePhone;
+                        var tmp = ViewState.MobilePhone;
                         if (tmp.StartsWith("+"))
                         {
                             tmp = tmp.Substring(1);
