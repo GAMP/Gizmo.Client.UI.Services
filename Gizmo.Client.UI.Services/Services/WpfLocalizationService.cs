@@ -25,6 +25,8 @@ namespace Gizmo.Client.UI.Services
                 CultureInfo.CurrentCulture = culture;
                 CultureInfo.CurrentUICulture = culture;
             }));
+
+            await base.SetCurrentCultureAsync(culture);
         }
 
         public override string GetString(string key, params object[] arguments)

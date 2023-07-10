@@ -42,7 +42,7 @@ namespace Gizmo.Client.UI.Services
         {
             CultureInfo.DefaultThreadCurrentCulture = culture;
             CultureInfo.DefaultThreadCurrentUICulture = culture;
-            return Task.CompletedTask;
+            return base.SetCurrentCultureAsync(culture);
         }
     }
 }

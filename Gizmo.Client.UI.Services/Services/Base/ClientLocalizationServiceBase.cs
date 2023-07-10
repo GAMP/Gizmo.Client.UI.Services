@@ -27,6 +27,8 @@ namespace Gizmo.Client.UI.Services
 
         public override event EventHandler<EventArgs>? LocalizationOptionsChanged;
 
+        public override event EventHandler<EventArgs>? LanguageChanged;
+
         /// <summary>
         /// Sets currency options  from the configuration for the <paramref name="cultures"/>.
         /// </summary>
@@ -72,6 +74,12 @@ namespace Gizmo.Client.UI.Services
                 else
                     culture.NumberFormat.CurrencyPositivePattern = _defaultCulture.NumberFormat.CurrencyPositivePattern;
             }
+        }
+
+        public override Task SetCurrentCultureAsync(CultureInfo culture)
+        {
+            LanguageChanged?.Invoke(this,EventArgs.Empty);
+            return Task.CompletedTask;
         }
     }
 }
