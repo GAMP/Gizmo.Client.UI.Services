@@ -2,6 +2,7 @@
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -27,8 +28,56 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IGizmoClient _gizmoClient;
         private readonly ILocalizationService _localizationService;
         #endregion
+        private async void OnLanguageChanged(object? sender, EventArgs e)
+        {
+            try
+            {
+                var states = await GetStatesAsync();
+
+                foreach (var state in states.Where(a => a.Id < 0))
+                {
+                    switch (state.Id)
+                    {
+                        case -4: //Points
+                            state.Name = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_POINTS");
+                            break;
+
+                        case -3: //Deposit
+                            state.Name = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_DEPOSIT");
+                            break;
+
+                        case -2: //Credit Card
+                            state.Name = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_CREDIT_CARD");
+                            break;
+
+                        case -1: //Cash
+                            state.Name = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_CASH");
+                            break;
+
+                        default:
+                            state.Name = state.Name;
+                            break;
+                    }
+                    state.RaiseChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to translate payment methods.");
+            }
+        }
 
         #region OVERRIDED FUNCTIONS
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            _localizationService.LanguageChanged += OnLanguageChanged;
+            return base.OnInitializing(ct);
+        }
+        protected override void OnDisposing(bool isDisposing)
+        {
+            _localizationService.LanguageChanged -= OnLanguageChanged;
+            base.OnDisposing(isDisposing);
+        }
         protected override async Task<IDictionary<int, PaymentMethodViewState>> DataInitializeAsync(CancellationToken cToken)
         {
             var clientResult = await _gizmoClient.UserPaymentMethodsGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
