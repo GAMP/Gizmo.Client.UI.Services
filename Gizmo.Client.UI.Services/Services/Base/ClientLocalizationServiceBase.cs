@@ -97,6 +97,10 @@ namespace Gizmo.Client.UI.Services
                 if (preferedCulture != null)
                 {
                     SetCurrentCultureAsync(preferedCulture)
+                        .ContinueWith((t) =>
+                        {
+                            Logger.LogError(t.Exception, "Failed to set prefered culture on client interface options change.");
+                        }, TaskContinuationOptions.OnlyOnFaulted)
                         .ConfigureAwait(false);
                 }
                 else
