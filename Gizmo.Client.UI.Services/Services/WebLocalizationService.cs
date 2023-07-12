@@ -20,7 +20,8 @@ namespace Gizmo.Client.UI.Services
         public WebLocalizationService(
             ILogger<WebLocalizationService> logger,
             IStringLocalizer localizer,
-            IOptionsMonitor<CurrencyOptions> options) : base(logger, localizer, options) { }
+            IOptionsMonitor<CurrencyOptions> options,
+            IOptionsMonitor<ClientInterfaceOptions> interfaceOptions) : base(logger, localizer, options, interfaceOptions) { }
         #endregion
 
         // TODO: FOR EXAMPLE ONLY, REMOVE THIS

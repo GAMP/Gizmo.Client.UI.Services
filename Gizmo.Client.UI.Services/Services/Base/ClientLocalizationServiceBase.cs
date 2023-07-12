@@ -12,11 +12,18 @@ namespace Gizmo.Client.UI.Services
     public abstract class ClientLocalizationServiceBase : LocalizationServiceBase
     {
         private CurrencyOptions _currencyOptions;
+        private readonly IOptionsMonitor<ClientInterfaceOptions> _interfaceOptions;
         private readonly CultureInfo _defaultCulture = CultureInfo.CurrentCulture;
 
-        protected ClientLocalizationServiceBase(ILogger logger, IStringLocalizer localizer, IOptionsMonitor<CurrencyOptions> options) : base(logger, localizer)
+        protected ClientLocalizationServiceBase(ILogger logger,
+            IStringLocalizer localizer,
+            IOptionsMonitor<CurrencyOptions> options,
+            IOptionsMonitor<ClientInterfaceOptions> interfaceOptions) : base(logger, localizer)
         {
+            _interfaceOptions = interfaceOptions;
             _currencyOptions = options.CurrentValue;
+
+            _interfaceOptions.OnChange(OnIntefaceOptionsChange);
 
             options.OnChange(currencyOptions =>
             {
@@ -78,8 +85,29 @@ namespace Gizmo.Client.UI.Services
 
         public override Task SetCurrentCultureAsync(CultureInfo culture)
         {
-            LanguageChanged?.Invoke(this,EventArgs.Empty);
+            LanguageChanged?.Invoke(this, EventArgs.Empty);
             return Task.CompletedTask;
+        }
+
+        private void OnIntefaceOptionsChange(ClientInterfaceOptions clientInterfaceOptions)
+        {
+            if (!string.IsNullOrWhiteSpace(clientInterfaceOptions.PreferedLanguage))
+            {
+                var preferedCulture = CultureInfo.CreateSpecificCulture(clientInterfaceOptions.PreferedLanguage);
+                if (preferedCulture != null)
+                {
+                    SetCurrentCultureAsync(preferedCulture)
+                        .ContinueWith((t) =>
+                        {
+                            Logger.LogError(t.Exception, "Failed to set prefered culture on client interface options change.");
+                        }, TaskContinuationOptions.OnlyOnFaulted)
+                        .ConfigureAwait(false);
+                }
+                else
+                {
+                    Logger.LogWarning("Invalid prefered culture [{culture}] found in client interface options.", clientInterfaceOptions.PreferedLanguage);
+                }
+            }
         }
     }
 }
