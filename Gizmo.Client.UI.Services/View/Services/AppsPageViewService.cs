@@ -46,12 +46,8 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IOptions<PopularItemsOptions> _popularItemsOptions;
         #endregion
 
-        #region OVERRIDES
-
-        protected override async Task OnInitializing(CancellationToken ct)
+        private void CreateFilters()
         {
-            await base.OnInitializing(ct);
-
             List<EnumFilterViewState<ApplicationSortingOption>> sortingOptions = new List<EnumFilterViewState<ApplicationSortingOption>>();
 
             sortingOptions.Add(new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Popularity, DisplayName = _localizationService.GetString("GIZ_APP_SORTING_OPTION_POPULARITY") });
@@ -83,8 +79,12 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.ExecutableModes = executableModes;
         }
 
+        #region OVERRIDES
+
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
         {
+            CreateFilters();
+
             if (Uri.TryCreate(NavigationService.GetUri(), UriKind.Absolute, out var uri))
             {
                 string? searchPattern = HttpUtility.ParseQueryString(uri.Query).Get("SearchPattern");
