@@ -51,7 +51,7 @@ namespace Gizmo.Client.UI.View.States
         /// Gets or sets username,email or mobile phone used for login.
         /// </summary>
         [ValidatingProperty()]
-        [Required()]
+        [Required(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_REQUIRED_FIELD")]
         public string? LoginName
         {
             get { return _loginName; }

@@ -597,7 +597,7 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     if (!ViewState.PaymentMethodId.HasValue)
                     {
-                        AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD", nameof(ViewState.PaymentMethodId)));
+                        AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_NAMED_FIELD", nameof(ViewState.PaymentMethodId)));
                     }
                     else if (ViewState.PaymentMethodId.Value == -3 && ViewState.Total > _userBalanceViewState.Balance)
                     {

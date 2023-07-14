@@ -13,11 +13,11 @@ namespace Gizmo.Client.UI.View.States
         public UserRecoveryMethod SelectedRecoveryMethod { get; internal set; }
 
         [ValidatingProperty()]
-        [PhoneNullEmptyValidation()]
+        [PhoneNullEmptyValidation(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_INVALID_FIELD")]
         public string MobilePhone { get; internal set; } = string.Empty;
 
         [ValidatingProperty()]
-        [EmailNullEmptyValidation()]
+        [EmailNullEmptyValidation(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_INVALID_FIELD")]
         public string Email { get; internal set; } = string.Empty;
 
         public string Destination { get; internal set; } = string.Empty;

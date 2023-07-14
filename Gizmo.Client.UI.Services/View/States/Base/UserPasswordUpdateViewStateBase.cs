@@ -16,7 +16,8 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets or sets password.
         /// </summary>
-        [Required()]
+        [Required(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_REQUIRED_FIELD")]
+        [StringLength(24, ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_MAX_LENGTH")]
         [DefaultValue("")]
         public string Password
         {
@@ -27,7 +28,8 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets or sets confirm password.
         /// </summary>
-        [Required()]
+        [Required(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_REQUIRED_FIELD")]
+        [StringLength(24, ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_MAX_LENGTH")]
         [DefaultValue("")]
         public string ConfirmPassword
         {

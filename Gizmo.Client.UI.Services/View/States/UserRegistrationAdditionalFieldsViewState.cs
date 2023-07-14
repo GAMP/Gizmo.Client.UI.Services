@@ -19,7 +19,7 @@ namespace Gizmo.Client.UI.View.States
         /// Gets or sets mobile phone.
         /// </summary>
         [ValidatingProperty()]
-        [PhoneNullEmptyValidation()]
+        [PhoneNullEmptyValidation(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_INVALID_FIELD")]
         public string? MobilePhone { get; internal set; }
 
         /// <summary>

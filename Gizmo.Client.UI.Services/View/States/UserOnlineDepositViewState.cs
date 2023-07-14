@@ -22,11 +22,11 @@ namespace Gizmo.Client.UI.View.States
         public decimal MinimumAmount { get; internal set; }
 
         [ValidatingProperty()]
-        [Required]
+        [Required(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_REQUIRED_FIELD")]
         public decimal? Amount { get; internal set; }
 
         [ValidatingProperty()]
-        [Required]
+        [Required(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_REQUIRED_FIELD")]
         public int? SelectedPaymentMethodId { get; internal set; }
 
         public string PaymentUrl { get; internal set; } = string.Empty;

@@ -14,23 +14,23 @@ namespace Gizmo.Client.UI.View.States
         /// Gets or sets username.
         /// </summary>
         [ValidatingProperty(IsAsync = true)]
-        [Required()]
+        [Required(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_REQUIRED_FIELD")]
         public string Username { get; internal set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets new password.
         /// </summary>
         [ValidatingProperty()]
-        [Required()]
-        [StringLength(24)]
+        [Required(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_REQUIRED_FIELD")]
+        [StringLength(24, ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_MAX_LENGTH")]
         public string Password { get; internal set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets repeat password.
         /// </summary>
         [ValidatingProperty()]
-        [Required()]
-        [StringLength(24)]
+        [Required(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_REQUIRED_FIELD")]
+        [StringLength(24, ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_MAX_LENGTH")]
         public string RepeatPassword { get; internal set; } = string.Empty;
 
         [ValidatingProperty()]
@@ -46,7 +46,7 @@ namespace Gizmo.Client.UI.View.States
         public Sex Sex { get; internal set; }
 
         [ValidatingProperty()]
-        [EmailNullEmptyValidation()]
+        [EmailNullEmptyValidation(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_INVALID_FIELD")]
         public string? Email { get; internal set; }
 
         public bool IsLoading { get; internal set; }

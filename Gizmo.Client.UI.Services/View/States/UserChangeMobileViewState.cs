@@ -32,7 +32,7 @@ namespace Gizmo.Client.UI.View.States
         public string? Prefix { get; internal set; }
 
         [ValidatingProperty()]
-        [Required()]
+        [Required(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_REQUIRED_FIELD")]
         public string MobilePhone
         {
             get { return _mobilePhone; }
