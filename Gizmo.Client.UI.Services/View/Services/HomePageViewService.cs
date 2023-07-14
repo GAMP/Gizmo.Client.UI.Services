@@ -58,7 +58,7 @@ namespace Gizmo.Client.UI.View.Services
 
                     var productIds = popularProducts.Select(a => a.Id).ToList();
 
-                    var products = await _userProductViewStateLookupService.GetStatesAsync(cancellationToken);
+                    var products = await _userProductViewStateLookupService.GetFilteredStatesAsync(null, cancellationToken);
 
                     //filter products
                     products = products.Where(a => productIds.Contains(a.Id)).

@@ -216,11 +216,11 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     if (!searchResultTypes.HasValue || searchResultTypes.Value == SearchResultTypes.Products)
                     {
-                        var productStates = await _userProductStateLookupService.GetStatesAsync();
+                        var productStates = await _userProductStateLookupService.GetFilteredStatesAsync(ViewState.SearchPattern);
 
                         var tmp = new List<GlobalSearchResultViewState>();
 
-                        foreach (var product in productStates.Where(a => a.Name.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)))
+                        foreach (var product in productStates)
                         {
                             tmp.Add(new GlobalSearchResultViewState()
                             {
