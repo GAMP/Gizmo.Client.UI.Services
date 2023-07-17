@@ -99,12 +99,12 @@ namespace Gizmo.Client.UI.Services
 
             return result.ToString();
         }
-        private string ImageUrlGet(ImageType imageType) => IsWebBrowser
+        private string ImageUrlGet(ImageType imageType, int imageId) => IsWebBrowser
             ? _navigationManager.GetBaseUri() + imageType switch
             {
-                ImageType.Application => "static/img/DemoApex.png",
+                ImageType.Application => $"static/img/apps/{imageId}.jpg",
                 ImageType.ProductDefault => "static/img/DemoCola2.png",
-                _ => "static/img/DemoChrome-icon_1.png"
+                _ => $"static/img/exes/{imageId}.png"
             }
             : imageType switch
             {
@@ -118,7 +118,7 @@ namespace Gizmo.Client.UI.Services
 
             var httpClient = _httpClientFactory.CreateClient(nameof(ImageService));
 
-            var imageUrl = ImageUrlGet(imageType);
+            var imageUrl = ImageUrlGet(imageType, imageId);
 
             try
             {
