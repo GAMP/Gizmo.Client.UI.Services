@@ -1,5 +1,7 @@
-﻿using Gizmo.UI.Services;
+﻿using Gizmo.UI;
+using Gizmo.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Gizmo.Client.UI.Services
 {
@@ -30,10 +32,16 @@ namespace Gizmo.Client.UI.Services
         /// <returns>Associated task.</returns>
         private static async Task InitializeClientUIServices(this IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
         {
+            //create logger
+            var logger = serviceProvider.GetRequiredService<ILogger<UIServiceProviderExtensions>>();
+
             var services = serviceProvider.GetServices<IUICompositionService>();
+
             foreach (var service in services)
             {
+                logger.LogTrace("Initializing client service {s}.", service);
                 await service.InitializeAsync(cancellationToken);
+                logger.LogTrace("Initialization of client service {s} completed.", service);
             }
         }
 
