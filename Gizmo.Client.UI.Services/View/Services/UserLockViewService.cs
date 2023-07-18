@@ -106,8 +106,6 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.IsLocked = false;
                 ViewState.InputPassword = string.Empty;
                 ViewState.LockPassword = string.Empty;
-
-               
             }
             else
             {
@@ -142,6 +140,40 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
+
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            _gizmoClient.LoginStateChange += OnLoginStateChange;
+            return base.OnInitializing(ct);
+        }
+
+        protected override void OnDisposing(bool isDisposing)
+        {
+            _gizmoClient.LoginStateChange -= OnLoginStateChange;
+            base.OnDisposing(isDisposing);
+        }
+
+        private async void OnLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
+        {
+            if (e.State == LoginState.LoggingOut)
+            {
+                try
+                {
+                    //exit user lock mode
+                    await _gizmoClient.UserLockExitAsync();
+
+                    ViewState.IsLocked = false;
+                    ViewState.InputPassword = string.Empty;
+                    ViewState.LockPassword = string.Empty;
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Failed to reset user lock.");
+                }
+            }
+
+            DebounceViewStateChanged();
+        }
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
