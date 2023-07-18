@@ -62,7 +62,7 @@ namespace Gizmo.Client
         public event EventHandler<GracePeriodChangeEventArgs>? GracePeriodChange;
         public event EventHandler<OutOfOrderStateEventArgs>? OutOfOrderStateChange;
         public event EventHandler<ReservationChangeEventArgs>? ReservationChange;
-        public event EventHandler<UsageSessionChangeEventArgs> UsageSessionChange;
+        public event EventHandler<UsageSessionChangeEventArgs>? UsageSessionChange;
 
         public DemoClient(IClientNotificationService notificationsService)
         {
