@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.Services;
+﻿using System.Xml;
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
@@ -17,17 +18,18 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserLoginViewService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient,
-            IClientNotificationService notificationsService,
-            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
+            ILocalizationService localizationService,
+            NavigationService navigationService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
-            _notificationsService = notificationsService;
             _localizationService = localizationService;
+            _navigationService = navigationService;
         }
 
         private readonly IGizmoClient _gizmoClient;
-        private readonly IClientNotificationService _notificationsService;
         private readonly ILocalizationService _localizationService;
+        private readonly NavigationService _navigationService;
+        private bool _isLoggedIn = false;
 
         public void SetLoginMethod(UserLoginType userLoginType)
         {
@@ -111,6 +113,16 @@ namespace Gizmo.Client.UI.View.Services
             //whenever we move away from login page we should make full view state reset
             Reset();
             return base.OnNavigatedOut(navigationParameters, cancellationToken);
+        }
+
+        protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        {
+            //TODO temprary fix, we need to fix the mouse buttons probelem
+            if (_isLoggedIn)
+            {
+                _navigationService.NavigateTo(ClientRoutes.HomeRoute);
+            }
+            return base.OnNavigatedIn(navigationParameters, cancellationToken);
         }
 
         protected override Task OnInitializing(CancellationToken ct)
@@ -229,6 +241,19 @@ namespace Gizmo.Client.UI.View.Services
                     break;
                 default:
                     break;
+            }
+
+            switch (e.State)
+            {
+                case LoginState.LoggingIn:
+                case LoginState.LoggedIn:
+                    _isLoggedIn = true;
+                    break;
+                case LoginState.LoggingOut:
+                case LoginState.LoggedOut:
+                    _isLoggedIn = false;
+                    break;
+                default: break;
             }
 
             DebounceViewStateChanged();
