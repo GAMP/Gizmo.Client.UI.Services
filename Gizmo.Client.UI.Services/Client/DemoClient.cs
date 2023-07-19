@@ -983,7 +983,7 @@ namespace Gizmo.Client
         {
             return Task.FromResult(new UserBalanceModel()
             {
-                AvailableCreditedTime = 90061
+                AvailableCreditedTime = 3540
             });
         }
 
