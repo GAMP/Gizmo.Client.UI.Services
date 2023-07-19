@@ -2,6 +2,7 @@
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -28,6 +29,10 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IClientDialogService _dialogService;
         private readonly UserChangePasswordViewService _userChangePasswordViewService;
         private readonly UserChangeProfileViewService _userChangeProfileViewService;
+        
+        private const string LOGIN_ROUTE_URL = "https://0.0.0.0/";
+
+        private bool _isLoggedIn = false;
 
         protected override Task OnInitializing(CancellationToken ct)
         {
@@ -55,6 +60,19 @@ namespace Gizmo.Client.UI.View.Services
                     ViewState.IsLoggedIn = false;
                     ViewState.Username = null;
                     break;
+            }
+
+            switch (e.State)
+            {
+                case LoginState.LoggingIn:
+                case LoginState.LoggedIn:
+                    _isLoggedIn = true;
+                    break;
+                case LoginState.LoggingOut:
+                case LoginState.LoggedOut:
+                    _isLoggedIn = false;
+                    break;
+                default: break;
             }
 
             switch (e.State)
@@ -91,7 +109,29 @@ namespace Gizmo.Client.UI.View.Services
             catch(Exception ex)
             {
                 Logger.LogError(ex, "User profile update failed during login process.");
+            }           
+        }
+
+        protected override Task OnLocationChanged(object? sender, LocationChangedEventArgs e)
+        {
+            try
+            {
+                //TODO temprary fix, we need to fix the mouse buttons probelem
+                if (_isLoggedIn && e.Location == LOGIN_ROUTE_URL)
+                {
+                    NavigationService.NavigateTo(ClientRoutes.HomeRoute);
+                }
+                else if (!_isLoggedIn && e.Location != LOGIN_ROUTE_URL)
+                {
+                    NavigationService.NavigateTo(ClientRoutes.LoginRoute);
+                }                
             }
+            catch (Exception ex)
+            {
+                Logger.LogCritical(ex, "Error handling location change.");
+            }
+
+            return base.OnLocationChanged(sender, e);
         }
     }
 }

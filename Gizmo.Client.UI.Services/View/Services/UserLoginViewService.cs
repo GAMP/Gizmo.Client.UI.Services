@@ -1,5 +1,4 @@
-﻿using Gizmo.Client.UI.Services;
-using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
@@ -17,17 +16,14 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserLoginViewService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient,
-            IClientNotificationService notificationsService,
             ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
-            _notificationsService = notificationsService;
             _localizationService = localizationService;
         }
 
         private readonly IGizmoClient _gizmoClient;
-        private readonly IClientNotificationService _notificationsService;
-        private readonly ILocalizationService _localizationService;
+        private readonly ILocalizationService _localizationService;        
 
         public void SetLoginMethod(UserLoginType userLoginType)
         {
@@ -111,6 +107,11 @@ namespace Gizmo.Client.UI.View.Services
             //whenever we move away from login page we should make full view state reset
             Reset();
             return base.OnNavigatedOut(navigationParameters, cancellationToken);
+        }
+
+        protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        {
+            return base.OnNavigatedIn(navigationParameters, cancellationToken);
         }
 
         protected override Task OnInitializing(CancellationToken ct)
@@ -232,7 +233,6 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             DebounceViewStateChanged();
-        }
-
+        }      
     }
 }
