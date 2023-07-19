@@ -1,6 +1,4 @@
-﻿using System.Xml;
-using Gizmo.Client.UI.Services;
-using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
@@ -18,18 +16,14 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserLoginViewService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient,
-            ILocalizationService localizationService,
-            NavigationService navigationService) : base(viewState, logger, serviceProvider)
+            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _localizationService = localizationService;
-            _navigationService = navigationService;
         }
 
         private readonly IGizmoClient _gizmoClient;
-        private readonly ILocalizationService _localizationService;
-        private readonly NavigationService _navigationService;
-        private bool _isLoggedIn = false;
+        private readonly ILocalizationService _localizationService;        
 
         public void SetLoginMethod(UserLoginType userLoginType)
         {
@@ -117,11 +111,6 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            //TODO temprary fix, we need to fix the mouse buttons probelem
-            if (_isLoggedIn)
-            {
-                _navigationService.NavigateTo(ClientRoutes.HomeRoute);
-            }
             return base.OnNavigatedIn(navigationParameters, cancellationToken);
         }
 
@@ -243,21 +232,7 @@ namespace Gizmo.Client.UI.View.Services
                     break;
             }
 
-            switch (e.State)
-            {
-                case LoginState.LoggingIn:
-                case LoginState.LoggedIn:
-                    _isLoggedIn = true;
-                    break;
-                case LoginState.LoggingOut:
-                case LoginState.LoggedOut:
-                    _isLoggedIn = false;
-                    break;
-                default: break;
-            }
-
             DebounceViewStateChanged();
-        }
-
+        }      
     }
 }
