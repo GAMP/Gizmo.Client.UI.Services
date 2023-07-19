@@ -112,7 +112,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             try
             {
-                //TODO temprary fix, we need to fix the mouse buttons probelem
+                //TODO temprary fix, we need to fix the mouse buttons problem
                 if (_isLoggedIn && e.Location == LOGIN_ROUTE_URL)
                 {
                     NavigationService.NavigateTo(ClientRoutes.HomeRoute);
