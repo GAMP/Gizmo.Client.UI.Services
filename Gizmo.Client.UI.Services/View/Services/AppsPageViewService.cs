@@ -2,6 +2,7 @@
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Gizmo.UI.View.States;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -23,7 +24,8 @@ namespace Gizmo.Client.UI.View.Services
             AppCategoryViewStateLookupService categoryViewStateLookupService,
             AppViewStateLookupService appViewStateLookupService,
             AppExeViewStateLookupService appExeViewStateLookupService,
-            IOptions<PopularItemsOptions> popularItemsOptions) : base(viewState, logger, serviceProvider)
+            IOptions<PopularItemsOptions> popularItemsOptions,
+            IOptions<ClientAppsOptions> clientAppsOptions) : base(viewState, logger, serviceProvider)
         {
             _debounceActionService = debounceActionService;
             _debounceActionService.DebounceBufferTime = 500;
@@ -33,6 +35,7 @@ namespace Gizmo.Client.UI.View.Services
             _appViewStateLookupService = appViewStateLookupService;
             _appExeViewStateLookupService = appExeViewStateLookupService;
             _popularItemsOptions = popularItemsOptions;
+            _clientAppsOptions = clientAppsOptions;
         }
         #endregion
 
@@ -44,6 +47,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly DebounceActionAsyncService _debounceActionService;
         private readonly IGizmoClient _gizmoClient;
         private readonly IOptions<PopularItemsOptions> _popularItemsOptions;
+        private readonly IOptions<ClientAppsOptions> _clientAppsOptions;
         #endregion
 
         private void CreateFilters()
@@ -85,6 +89,10 @@ namespace Gizmo.Client.UI.View.Services
         {
             CreateFilters();
 
+            ViewState.DefaultSortingOption = _clientAppsOptions.Value.DefaultSortingOption;
+
+            await SetSelectedSortingOption(ViewState.DefaultSortingOption);
+
             if (Uri.TryCreate(NavigationService.GetUri(), UriKind.Absolute, out var uri))
             {
                 string? searchPattern = HttpUtility.ParseQueryString(uri.Query).Get("SearchPattern");
@@ -118,7 +126,7 @@ namespace Gizmo.Client.UI.View.Services
                 //filter out any applications that passes current app profile
                 var filteredApplications = allApplications.Where(app => _gizmoClient.AppCurrentProfilePass(app.ApplicationId));
 
-                if (ViewState.SelectedSortingOption != ApplicationSortingOption.Popularity)
+                if (ViewState.SelectedSortingOption != ViewState.DefaultSortingOption)
                 {
                     ViewState.TotalFilters += 1;
                 }
@@ -257,7 +265,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.SearchPattern = string.Empty;
 
-            ViewState.SelectedSortingOption = ApplicationSortingOption.Popularity;
+            ViewState.SelectedSortingOption = ViewState.DefaultSortingOption;
             ViewState.SelectedCategoryId = null;
             ViewState.SelectedExecutableModes = Enumerable.Empty<ApplicationModes>();
 

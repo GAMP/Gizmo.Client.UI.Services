@@ -52,6 +52,7 @@ namespace Gizmo.Client.UI.Services
             services.AddOptions<ClientShopOptions>().Bind(configuration.GetSection("Shop"));
             services.AddOptions<PasswordValidationOptions>().Bind(configuration.GetSection("Validation:Password"));
             services.AddOptions<IntegrationOptions>().Bind(configuration.GetSection("Integration"));
+            services.AddOptions<ClientAppsOptions>().Bind(configuration.GetSection("Apps"));
             return services;
         } 
 

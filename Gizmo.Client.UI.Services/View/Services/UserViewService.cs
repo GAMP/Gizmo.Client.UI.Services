@@ -4,6 +4,7 @@ using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -15,17 +16,20 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserViewService> logger,
             IServiceProvider serviceProvider,
             IClientDialogService dialogService,
-            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
+            ILocalizationService localizationService,
+            IOptions<ClientInterfaceOptions> clientInterfaceOptions) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _dialogService = dialogService;
             _localizationService = localizationService;
+            _clientInterfaceOptions = clientInterfaceOptions;
         }
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
         private readonly IClientDialogService _dialogService;
         private readonly ILocalizationService _localizationService;
+        private readonly IOptions<ClientInterfaceOptions> _clientInterfaceOptions;
         #endregion
 
         public async Task LogoutWithConfirmationAsync()
@@ -78,12 +82,14 @@ namespace Gizmo.Client.UI.View.Services
             if (e.State == LoginState.LoginCompleted)
             {
                 ViewState.IsUserLogoutEnabled = _gizmoClient.IsUserLogoutEnabled;
+                ViewState.IsUserLockDisabled = _clientInterfaceOptions.Value.DisableUserLock;
 
                 DebounceViewStateChanged();
             }
             else if (e.State == LoginState.LoggingOut)
             {
                 ViewState.IsUserLogoutEnabled = false;
+                ViewState.IsUserLockDisabled = true;
 
                 DebounceViewStateChanged();
             }

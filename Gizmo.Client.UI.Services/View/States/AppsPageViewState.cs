@@ -32,6 +32,8 @@ namespace Gizmo.Client.UI.View.States
 
         public int TotalFilters { get; internal set; }
 
+        public ApplicationSortingOption DefaultSortingOption { get; internal set; } = ApplicationSortingOption.Popularity;
+
         #endregion
     }
 }
