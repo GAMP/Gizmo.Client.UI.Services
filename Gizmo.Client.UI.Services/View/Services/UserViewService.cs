@@ -58,5 +58,35 @@ namespace Gizmo.Client.UI.View.Services
                 Logger.LogError(ex, "User initiated logout failed.");
             }
         }
+
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            _gizmoClient.LoginStateChange += OnUserLoginStateChange;
+
+            return base.OnInitializing(ct);
+        }
+
+        protected override void OnDisposing(bool isDisposing)
+        {
+            base.OnDisposing(isDisposing);
+
+            _gizmoClient.LoginStateChange += OnUserLoginStateChange;
+        }
+
+        private void OnUserLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
+        {
+            if (e.State == LoginState.LoginCompleted)
+            {
+                ViewState.IsUserLogoutEnabled = _gizmoClient.IsUserLogoutEnabled;
+
+                DebounceViewStateChanged();
+            }
+            else if (e.State == LoginState.LoggingOut)
+            {
+                ViewState.IsUserLogoutEnabled = false;
+
+                DebounceViewStateChanged();
+            }
+        }
     }
 }

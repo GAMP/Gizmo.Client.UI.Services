@@ -30,7 +30,7 @@ namespace Gizmo.Client.UI.View.Services
                 try
                 {
                     //generate host qr code
-                    var generateResult = await _gizmoClient.HostQRCodeGeneratAsync(ct);
+                    var generateResult = await _gizmoClient.HostQRCodeGenerateAsync(ct);
 
                     //use with view state
                     ViewState.HostQRCode = generateResult.QRCode;

@@ -34,6 +34,8 @@ namespace Gizmo.Client.UI.View.States
 
         public string? Picture { get; internal set; }
 
+        public bool IsUserLogoutEnabled { get; internal set; }
+
         #endregion
     }
 }
