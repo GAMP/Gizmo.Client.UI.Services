@@ -1,5 +1,4 @@
-﻿using Gizmo.Client.UI.Services;
-using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Routing;
@@ -13,20 +12,17 @@ namespace Gizmo.Client.UI.View.Services
     {
         public UserLoginStatusViewService(UserLoginStatusViewState viewState,
             IGizmoClient gizmoClient,
-            IClientDialogService dialogService,
             ILogger<UserLoginStatusViewService> logger,
             IServiceProvider serviceProvider,
             UserChangePasswordViewService userChangePasswordViewService,
             UserChangeProfileViewService userChangeProfileViewService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
-            _dialogService = dialogService;
             _userChangePasswordViewService = userChangePasswordViewService;
             _userChangeProfileViewService = userChangeProfileViewService;
         }
 
         private readonly IGizmoClient _gizmoClient;
-        private readonly IClientDialogService _dialogService;
         private readonly UserChangePasswordViewService _userChangePasswordViewService;
         private readonly UserChangeProfileViewService _userChangeProfileViewService;
         
