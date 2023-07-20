@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System.Runtime.CompilerServices;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Routing;
@@ -26,7 +27,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly UserChangePasswordViewService _userChangePasswordViewService;
         private readonly UserChangeProfileViewService _userChangeProfileViewService;
         
-        private const string LOGIN_ROUTE_URL = "https://0.0.0.0/";
+        private const string BASE_ROUTE_URL = "https://0.0.0.0/";
 
         private bool _isLoggedIn = false;
 
@@ -113,11 +114,11 @@ namespace Gizmo.Client.UI.View.Services
             try
             {
                 //TODO temprary fix, we need to fix the mouse buttons problem
-                if (_isLoggedIn && e.Location == LOGIN_ROUTE_URL)
+                if (_isLoggedIn && e.Location == BASE_ROUTE_URL)
                 {
                     NavigationService.NavigateTo(ClientRoutes.HomeRoute);
                 }
-                else if (!_isLoggedIn && e.Location != LOGIN_ROUTE_URL)
+                else if (!_isLoggedIn && IsLoggedInRoute(e.Location))
                 {
                     NavigationService.NavigateTo(ClientRoutes.LoginRoute);
                 }                
@@ -128,6 +129,29 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             return base.OnLocationChanged(sender, e);
+        }
+
+        private static bool IsLoggedInRoute(string routeName)
+        {
+            if(!Uri.TryCreate(routeName, UriKind.Absolute, out var uri))
+                return false;          
+
+            if (string.IsNullOrWhiteSpace(uri.AbsolutePath))
+                return false;
+
+            if(uri.AbsolutePath == ClientRoutes.HomeRoute ||
+                uri.AbsolutePath == ClientRoutes.ApplicationsRoute ||
+                uri.AbsolutePath == ClientRoutes.ApplicationDetailsRoute ||
+                uri.AbsolutePath == ClientRoutes.ShopRoute ||
+                uri.AbsolutePath == ClientRoutes.ProductDetailsRoute ||
+                uri.AbsolutePath == ClientRoutes.UserProfileRoute ||
+                uri.AbsolutePath == ClientRoutes.UserDepositsRoute ||
+                uri.AbsolutePath == ClientRoutes.UserProductsRoute ||
+                uri.AbsolutePath == ClientRoutes.UserPurchasesRoute ||
+                uri.AbsolutePath == ClientRoutes.UserSettingsRoute)
+                return true;
+
+            return false;
         }
     }
 }
