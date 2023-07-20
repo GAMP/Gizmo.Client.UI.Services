@@ -9,5 +9,7 @@ namespace Gizmo.Client.UI.View.States
         public int Id { get; internal set; }
         public string Name { get; internal set; } = null!;
         public bool IsOnline { get; internal set; }
+        public bool IsEnabled { get; internal set; }
+        public bool IsDeleted { get; internal set; }
     }
 }

@@ -64,7 +64,7 @@ namespace Gizmo.Client.UI.View.Services
 
                     List<string> paymentMethodNames = new List<string>();
 
-                    foreach (var payment in order.Invoice.InvoicePayments)
+                    foreach (var payment in order.Invoice.InvoicePayments.Where(a => a.PaymentMethodId != -4))
                     {
                         var paymentMethod = await _paymentMethodViewStateLookupService.GetStateAsync(payment.PaymentMethodId, false, cToken);
                         paymentMethodNames.Add(paymentMethod.Name);
@@ -74,7 +74,14 @@ namespace Gizmo.Client.UI.View.Services
 
                     if (userOrderViewState.TotalPointsPrice > 0)
                     {
-                        userOrderViewState.Invoice.PaymentMethodNames += " & " + _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_POINTS");
+                        if (string.IsNullOrEmpty(userOrderViewState.Invoice.PaymentMethodNames))
+                        {
+                            userOrderViewState.Invoice.PaymentMethodNames = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_POINTS");
+                        }
+                        else
+                        {
+                            userOrderViewState.Invoice.PaymentMethodNames += " & " + _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_POINTS");
+                        }
                     }
                 }
 

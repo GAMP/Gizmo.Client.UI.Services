@@ -139,6 +139,8 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             result.IsOnline = model.IsOnline;
+            result.IsEnabled = model.IsEnabled;
+            result.IsDeleted = model.IsDeleted;
 
             return result;
         }
