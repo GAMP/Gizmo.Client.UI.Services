@@ -51,14 +51,15 @@ namespace Gizmo.Client.UI.View.Services
 
         private void OnUsageSessionChange(object? sender, UsageSessionChangeEventArgs e)
         {
-            switch(e.CurrentUsageType)
+            ViewState.CurrentTimeProductType = e.CurrentUsageType;
+            switch (e.CurrentUsageType)
             {
                 case UsageType.Rate:
-                    ViewState.CurrentTimeProduct = _localizationService.GetString("GIZ_USAGE_TYPE_RATE");
+                    ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_RATE");
                     break;
                 case UsageType.TimeFixed:
                 case UsageType.TimeOffer:
-                    ViewState.CurrentTimeProduct = e.CurrentTimeProduct;
+                    ViewState.CurrentTimeProductName = e.CurrentTimeProduct;
                     break;
             }
             

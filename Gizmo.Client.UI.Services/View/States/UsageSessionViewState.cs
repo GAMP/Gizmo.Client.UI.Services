@@ -8,7 +8,9 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
-        public string CurrentTimeProduct { get; internal set; } = string.Empty;
+        public UsageType CurrentTimeProductType { get; internal set; } = UsageType.None;
+
+        public string CurrentTimeProductName { get; internal set; } = string.Empty;
 
         #endregion
     }
