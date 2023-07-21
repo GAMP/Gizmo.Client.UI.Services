@@ -26,7 +26,25 @@ namespace Gizmo.Client.UI.View.Services
             _hostGroupViewState = hostGroupViewState;
         }
 
+        private async void OnUserLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
+        {
+            if (e.State == LoginState.LoggedOut)
+            {
+                await ResetInitialization(default);
+            }
+        }
+
         #region OVERRIDED FUNCTIONS
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            _gizmoClient.LoginStateChange += OnUserLoginStateChange;
+            return base.OnInitializing(ct);
+        }
+        protected override void OnDisposing(bool isDisposing)
+        {
+            _gizmoClient.LoginStateChange += OnUserLoginStateChange;
+            base.OnDisposing(isDisposing);
+        }
         protected override async Task<IDictionary<int, UserProductViewState>> DataInitializeAsync(CancellationToken cToken)
         {
             var clientResult = await _gizmoClient.UserProductsGetAsync(new() { Pagination = new() { Limit = -1 } }, cToken);
