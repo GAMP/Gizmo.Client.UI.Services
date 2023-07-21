@@ -103,7 +103,7 @@ namespace Gizmo.Client.UI.Services
             ? _navigationManager.GetBaseUri() + imageType switch
             {
                 ImageType.Application => $"static/img/apps/{imageId}.jpg",
-                ImageType.ProductDefault => "static/img/DemoCola2.png",
+                ImageType.ProductDefault => $"static/img/products/{imageId}.jpg",
                 _ => $"static/img/exes/{imageId}.png"
             }
             : imageType switch

@@ -4,6 +4,7 @@
     {
         private readonly DemoClient _gizmoClient;
         private int _appExeId;
+        private ContextExecutionState _currentState = ContextExecutionState.Initial;
 
         public DemoAppExeExecutionContext(DemoClient gizmoClient, int appExeId)
         {
@@ -32,11 +33,25 @@
             return Task.CompletedTask;
         }
 
+        private void SetState(ContextExecutionState newState)
+        {
+            var oldState = _currentState;
+            _currentState = newState;
+
+            _gizmoClient.RaiseContextStateChanged(this, new ClientExecutionContextStateArgs(_appExeId, _currentState, oldState));
+        }
+
         public async Task ExecuteAsync(bool reprocess, CancellationToken cancellationToken = default)
         {
             IsExecuting = true;
 
-            _gizmoClient.RaiseContextStateChanged(this, new ClientExecutionContextStateArgs(_appExeId, ContextExecutionState.Starting, ContextExecutionState.Initial));
+            SetState(ContextExecutionState.Processing);
+            SetState(ContextExecutionState.Validating);
+            SetState(ContextExecutionState.ChekingAvailableSpace);
+            SetState(ContextExecutionState.Deploying);
+
+            //SetState(ContextExecutionState.Aborting);
+            //SetState(ContextExecutionState.Aborted);
 
             // Simulate task.
             await Task.Delay(3000);
@@ -45,16 +60,21 @@
             IsAlive = true;
             HasCompleted = true;
 
-            _gizmoClient.RaiseContextStateChanged(this, new ClientExecutionContextStateArgs(_appExeId, ContextExecutionState.Started, ContextExecutionState.Starting));
+            SetState(ContextExecutionState.Starting);
+            SetState(ContextExecutionState.ProcessCreated);
+            SetState(ContextExecutionState.Completed);
         }
 
-        public Task TerminateAsync(CancellationToken cancellationToken = default)
+        public async Task TerminateAsync(CancellationToken cancellationToken = default)
         {
+            // Simulate task.
+            await Task.Delay(3000);
+
             IsExecuting = false;
             IsAlive = false;
             HasCompleted = false;
 
-            return Task.CompletedTask;
+            SetState(ContextExecutionState.ProcessExited);
         }
 
         public Task<bool> TryActivateAsync(CancellationToken cancellationToken = default)
