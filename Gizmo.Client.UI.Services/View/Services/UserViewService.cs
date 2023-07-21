@@ -83,6 +83,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 ViewState.IsUserLogoutEnabled = _gizmoClient.IsUserLogoutEnabled;
                 ViewState.IsUserLockDisabled = _clientInterfaceOptions.Value.DisableUserLock;
+                ViewState.IsGuest = e.UserProfile.IsGuest;
 
                 DebounceViewStateChanged();
             }
@@ -90,6 +91,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 ViewState.IsUserLogoutEnabled = false;
                 ViewState.IsUserLockDisabled = true;
+                ViewState.IsGuest = false;
 
                 DebounceViewStateChanged();
             }

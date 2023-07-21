@@ -38,6 +38,8 @@ namespace Gizmo.Client.UI.View.States
 
         public bool IsUserLockDisabled { get; internal set; }
 
+        public bool IsGuest { get; internal set; }
+
         #endregion
     }
 }
