@@ -61,12 +61,10 @@ namespace Gizmo.Client.UI.View.Services
 
             switch (e.State)
             {
-                case LoginState.LoggingIn:
-                case LoginState.LoggedIn:
+                case LoginState.LoginCompleted:
                     _isLoggedIn = true;
                     break;
                 case LoginState.LoggingOut:
-                case LoginState.LoggedOut:
                     _isLoggedIn = false;
                     break;
                 default: break;
