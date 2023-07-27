@@ -46,6 +46,8 @@ namespace Gizmo.Client
 
         public bool IsUserIdle => false;
 
+        public bool IsUserLoggedIn { get; set; }
+
         public event EventHandler<ClientExecutionContextStateArgs>? ExecutionContextStateChange;
         public event EventHandler<UserLoginStateChangeEventArgs>? LoginStateChange;
         public event EventHandler<UserBalanceEventArgs>? UserBalanceChange;
@@ -886,6 +888,9 @@ namespace Gizmo.Client
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggedIn));
 
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoginCompleted));
+
+            IsUserLoggedIn = true;
+
             return LoginResult.Sucess;
         }
 
@@ -893,6 +898,9 @@ namespace Gizmo.Client
         {
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggingOut));
             await Task.Delay(3000, cancellationToken);
+
+            IsUserLoggedIn = false;
+
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggedOut));
         }
 
