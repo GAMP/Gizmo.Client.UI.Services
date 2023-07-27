@@ -29,6 +29,7 @@ namespace Gizmo.Client
         private readonly List<DemoAppExecutionContextResult> _demoAppExecutionContextResults = new List<DemoAppExecutionContextResult>();
 
         private UserProfileModel _userProfile;
+        private IUserProfile _iUserProfile;
 
         public bool IsConnected => true;
 
@@ -86,6 +87,20 @@ namespace Gizmo.Client
                 Email = "test@test.test",
                 Phone = "0123456789",
                 MobilePhone = "1234567890"
+            };
+
+            _iUserProfile = new DemoUserProfile()
+            {
+                UserName = _userProfile.Username,
+                FirstName = _userProfile.FirstName,
+                LastName = _userProfile.LastName,
+                BirthDate = _userProfile.BirthDate.Value,
+                Sex = _userProfile.Sex,
+                Country = _userProfile.Country,
+                Address = _userProfile.Address,
+                Email = _userProfile.Email,
+                Phone = _userProfile.Phone,
+                MobilePhone = _userProfile.MobilePhone
             };
 
             _personalFiles = Enumerable.Range(1, 5).Select(i => new UserPersonalFileModel()
@@ -445,329 +460,635 @@ namespace Gizmo.Client
             //    }
             //};
 
-            _userProducts = Enumerable.Range(1, 50).Select(x => new UserProductModel()
-            {
-                Id = x,
-                ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
-                Name = $"#Coca Cola {x} 500ml",
-                Description = "#Iced coffee is a coffee beverage served cold. It may be prepared either by brewing coffee in the normal way and then serving it over ice.",
-                Price = random.Next(1, 5),
-                PointsPrice = random.Next(0, 100),
-                PointsAward = random.Next(1, 500),
-                ProductType = (ProductType)random.Next(0, 3),
-                PurchaseOptions = (PurchaseOptionType)random.Next(0, 2),
-                DefaultImageId = random.Next(0, 2) == 1 ? x : null,
-                //PurchaseAvailability = productPurchaseAvailabilityModel
-            }).ToList();
+            //_userProducts = Enumerable.Range(1, 50).Select(x => new UserProductModel()
+            //{
+            //    Id = x,
+            //    ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
+            //    Name = $"#Coca Cola {x} 500ml",
+            //    Description = "#Iced coffee is a coffee beverage served cold. It may be prepared either by brewing coffee in the normal way and then serving it over ice.",
+            //    Price = random.Next(1, 5),
+            //    PointsPrice = random.Next(0, 100),
+            //    PointsAward = random.Next(1, 500),
+            //    ProductType = (ProductType)random.Next(0, 3),
+            //    PurchaseOptions = (PurchaseOptionType)random.Next(0, 2),
+            //    DefaultImageId = random.Next(0, 2) == 1 ? x : null,
+            //    //PurchaseAvailability = productPurchaseAvailabilityModel
+            //}).ToList();
 
             _userProducts = new List<UserProductModel>();
 
-            ProductPurchaseAvailabilityModel invalidAvailabilityModel = new ProductPurchaseAvailabilityModel()
+            _userProducts.Add(new UserProductModel()
             {
-                DateRange = true,
-                EndDate = DateTime.Now.AddDays(8),
-                TimeRange = true,
-            };
+                Id = 1,
+                ProductGroupId = 1,
+                ProductType = ProductType.Product,
+                Name = "Mars Bar",
+                DefaultImageId = 1,
+                Price = 1.50m,
+                //PointsPrice = random.Next(0, 100),
+                //PointsAward = random.Next(1, 500),
+            });
 
             _userProducts.Add(new UserProductModel()
             {
-                Id = 2000,
-                ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
-                ProductType = ProductType.ProductTime,
-                Name = "Invalid TimeRange",
-                DefaultImageId = 1
-                //PurchaseAvailability = invalidAvailabilityModel
+                Id = 2,
+                ProductGroupId = 1,
+                ProductType = ProductType.Product,
+                Name = "Snickers Bar",
+                DefaultImageId = 2,
+                Price = 1.80m,
+                //PointsPrice = random.Next(0, 100),
+                //PointsAward = random.Next(1, 500),
             });
-
-            ProductPurchaseAvailabilityModel untilAvailabilityModel = new ProductPurchaseAvailabilityModel()
-            {
-                DateRange = true,
-                EndDate = DateTime.Now.AddDays(8)
-            };
 
             _userProducts.Add(new UserProductModel()
             {
-                Id = 1000,
-                ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
-                ProductType = ProductType.ProductTime,
-                Name = "Until with DateRange",
-                PurchaseAvailability = untilAvailabilityModel
+                Id = 3,
+                ProductGroupId = 2,
+                ProductType = ProductType.Product,
+                Name = "Pizza (Small)",
+                DefaultImageId = 3,
+                Price = 6.00m,
+                //PointsPrice = random.Next(0, 100),
+                //PointsAward = random.Next(1, 500),
             });
 
-            ProductPurchaseAvailabilityModel untilWithTimeAvailabilityModel = new ProductPurchaseAvailabilityModel()
+            _userProducts.Add(new UserProductModel()
             {
-                DateRange = true,
-                EndDate = DateTime.Now.AddDays(8),
-                TimeRange = true,
-                DaysAvailable = new List<ProductModelAvailabilityDay>()
+                Id = 4,
+                ProductGroupId = 2,
+                ProductType = ProductType.ProductBundle,
+                Name = "Pizza and Cola",
+                DefaultImageId = 4,
+                Price = 12.00m,
+                //PointsPrice = random.Next(0, 100),
+                //PointsAward = random.Next(1, 500),
+                Bundle = new UserProductBundleModel()
                 {
+                    BundledProducts = new List<UserProductBundledModel>()
                     {
-                        new ProductModelAvailabilityDay()
+                        new UserProductBundledModel() { ProductId = 3, Quantity = 2 },
+                        new UserProductBundledModel() { ProductId = 5, Quantity = 1 }
+                    }
+                }
+            });
+
+            _userProducts.Add(new UserProductModel()
+            {
+                Id = 5,
+                ProductGroupId = 3,
+                ProductType = ProductType.Product,
+                Name = "Coca Cola (Can)",
+                DefaultImageId = 5,
+                Price = 2.00m,
+                //PointsPrice = random.Next(0, 100),
+                //PointsAward = random.Next(1, 500),
+            });
+
+            _userProducts.Add(new UserProductModel()
+            {
+                Id = 6,
+                ProductGroupId = 4,
+                ProductType = ProductType.ProductTime,
+                Name = "Six Hours (6)",
+                //DefaultImageId = 6,
+                Price = 12.00m,
+                //PointsPrice = random.Next(0, 100),
+                PointsAward = 200,
+                PurchaseAvailability = new ProductPurchaseAvailabilityModel()
+                {
+                    TimeRange = true,
+                    DaysAvailable = new List<ProductModelAvailabilityDay>()
+                                    {
+                                        new ProductModelAvailabilityDay()
+                                        {
+                                            Day = DayOfWeek.Monday,
+                                            DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+                                            {
+                                                new ProductModelAvailabilityDayTime()
+                                                {
+                                                    StartSecond = 0,
+                                                    EndSecond = 86400
+                                                }
+                                            }
+                                        },
+                                        new ProductModelAvailabilityDay()
+                                        {
+                                            Day = DayOfWeek.Tuesday,
+                                            DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+                                            {
+                                                new ProductModelAvailabilityDayTime()
+                                                {
+                                                    StartSecond = 0,
+                                                    EndSecond = 86400
+                                                }
+                                            }
+                                        },
+                                        new ProductModelAvailabilityDay()
+                                        {
+                                            Day = DayOfWeek.Wednesday,
+                                            DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+                                            {
+                                                new ProductModelAvailabilityDayTime()
+                                                {
+                                                    StartSecond = 0,
+                                                    EndSecond = 86400
+                                                }
+                                            }
+                                        },
+                                        new ProductModelAvailabilityDay()
+                                        {
+                                            Day = DayOfWeek.Thursday,
+                                            DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+                                            {
+                                                new ProductModelAvailabilityDayTime()
+                                                {
+                                                    StartSecond = 0,
+                                                    EndSecond = 86400
+                                                }
+                                            }
+                                        },
+                                        new ProductModelAvailabilityDay()
+                                        {
+                                            Day = DayOfWeek.Friday,
+                                            DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+                                            {
+                                                new ProductModelAvailabilityDayTime()
+                                                {
+                                                    StartSecond = 0,
+                                                    EndSecond = 86400
+                                                }
+                                            }
+                                        }
+                                    }
+                },
+                TimeProduct = new UserProductTimeModel()
+                {
+                    Minutes = 360,
+                    ExpiresAfter = 90,
+                    ExpirationOptions = ProductTimeExpirationOptionType.ExpiresAtLogout | ProductTimeExpirationOptionType.ExpireAfterTime | ProductTimeExpirationOptionType.ExpireAtDayTime,
+                    ExpireFromOptions = ExpireFromOptionType.Use,
+                    ExpireAfterType = ExpireAfterType.Minute,
+                    ExpireAtDayTimeMinute = 90,
+                    UsageAvailability = new ProductTimeUsageAvailabilityModel()
+                    {
+                        TimeRange = true,
+                        DaysAvailable = new List<ProductModelAvailabilityDay>()
                         {
-                            Day = DateTime.Now.DayOfWeek,
-                            DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+                            new ProductModelAvailabilityDay()
                             {
+                                Day = DayOfWeek.Monday,
+                                DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
                                 {
                                     new ProductModelAvailabilityDayTime()
                                     {
                                         StartSecond = 0,
-                                        EndSecond = 1800
+                                        EndSecond = 86400
+                                    }
+                                }
+                            },
+                            new ProductModelAvailabilityDay()
+                            {
+                                Day = DayOfWeek.Tuesday,
+                                DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+                                {
+                                    new ProductModelAvailabilityDayTime()
+                                    {
+                                        StartSecond = 0,
+                                        EndSecond = 86400
+                                    }
+                                }
+                            },
+                            new ProductModelAvailabilityDay()
+                            {
+                                Day = DayOfWeek.Wednesday,
+                                DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+                                {
+                                    new ProductModelAvailabilityDayTime()
+                                    {
+                                        StartSecond = 0,
+                                        EndSecond = 86400
+                                    }
+                                }
+                            },
+                            new ProductModelAvailabilityDay()
+                            {
+                                Day = DayOfWeek.Thursday,
+                                DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+                                {
+                                    new ProductModelAvailabilityDayTime()
+                                    {
+                                        StartSecond = 0,
+                                        EndSecond = 86400
+                                    }
+                                }
+                            },
+                            new ProductModelAvailabilityDay()
+                            {
+                                Day = DayOfWeek.Friday,
+                                DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+                                {
+                                    new ProductModelAvailabilityDayTime()
+                                    {
+                                        StartSecond = 0,
+                                        EndSecond = 86400
                                     }
                                 }
                             }
                         }
                     }
                 }
-            };
+            });
 
             _userProducts.Add(new UserProductModel()
             {
-                Id = 1001,
-                ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
+                Id = 7,
+                ProductGroupId = 4,
                 ProductType = ProductType.ProductTime,
-                Name = "Until with DateRange and TimeRange",
-                PurchaseAvailability = untilWithTimeAvailabilityModel
-            });
-
-            ProductPurchaseAvailabilityModel sometimeAvailabilityModel = new ProductPurchaseAvailabilityModel()
-            {
-                DateRange = true,
-                StartDate = DateTime.Now.AddDays(8)
-            };
-
-            _userProducts.Add(new UserProductModel()
-            {
-                Id = 1002,
-                ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
-                ProductType = ProductType.ProductTime,
-                Name = "Sometime with DateRange",
-                PurchaseAvailability = sometimeAvailabilityModel
-            });
-
-            ProductPurchaseAvailabilityModel sometimeWithTimeAvailabilityModel = new ProductPurchaseAvailabilityModel()
-            {
-                DateRange = true,
-                StartDate = DateTime.Now.AddDays(8),
-                TimeRange = true,
-                DaysAvailable = new List<ProductModelAvailabilityDay>()
+                Name = "Six Hours (6 Weekends)",
+                //DefaultImageId = 7,
+                Price = 16.00m,
+                //PointsPrice = random.Next(0, 100),
+                PointsAward = 300,
+                PurchaseAvailability = new ProductPurchaseAvailabilityModel()
                 {
+                    TimeRange = true,
+                    DaysAvailable = new List<ProductModelAvailabilityDay>()
+                                    {
+                                        new ProductModelAvailabilityDay()
+                                        {
+                                            Day = DayOfWeek.Saturday,
+                                            DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+                                            {
+                                                new ProductModelAvailabilityDayTime()
+                                                {
+                                                    StartSecond = 0,
+                                                    EndSecond = 86400
+                                                }
+                                            }
+                                        },
+                                        new ProductModelAvailabilityDay()
+                                        {
+                                            Day = DayOfWeek.Sunday,
+                                            DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+                                            {
+                                                new ProductModelAvailabilityDayTime()
+                                                {
+                                                    StartSecond = 0,
+                                                    EndSecond = 86400
+                                                }
+                                            }
+                                        }
+                                    }
+                },
+                TimeProduct = new UserProductTimeModel()
+                {
+                    Minutes = 360,
+                    ExpiresAfter = 90,
+                    ExpirationOptions = ProductTimeExpirationOptionType.ExpiresAtLogout | ProductTimeExpirationOptionType.ExpireAfterTime | ProductTimeExpirationOptionType.ExpireAtDayTime,
+                    ExpireFromOptions = ExpireFromOptionType.Purchase,
+                    ExpireAfterType = ExpireAfterType.Minute,
+                    ExpireAtDayTimeMinute = 90,
+                    UsageAvailability = new ProductTimeUsageAvailabilityModel()
                     {
-                        new ProductModelAvailabilityDay()
+                        TimeRange = true,
+                        DaysAvailable = new List<ProductModelAvailabilityDay>()
                         {
-                            Day = DateTime.Now.DayOfWeek,
-                            DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+                            new ProductModelAvailabilityDay()
                             {
+                                Day = DayOfWeek.Saturday,
+                                DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
                                 {
                                     new ProductModelAvailabilityDayTime()
                                     {
                                         StartSecond = 0,
-                                        EndSecond = 1800
+                                        EndSecond = 86400
+                                    }
+                                }
+                            },
+                            new ProductModelAvailabilityDay()
+                            {
+                                Day = DayOfWeek.Sunday,
+                                DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+                                {
+                                    new ProductModelAvailabilityDayTime()
+                                    {
+                                        StartSecond = 0,
+                                        EndSecond = 86400
                                     }
                                 }
                             }
                         }
                     }
                 }
-            };
-
-            _userProducts.Add(new UserProductModel()
-            {
-                Id = 1003,
-                ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
-                ProductType = ProductType.ProductTime,
-                Name = "Sometime with DateRange and TimeRange",
-                PurchaseAvailability = sometimeWithTimeAvailabilityModel
             });
 
-            ProductPurchaseAvailabilityModel expiredAvailabilityModel = new ProductPurchaseAvailabilityModel()
-            {
-                DateRange = true,
-                EndDate = DateTime.Now.AddDays(-1)
-            };
+            //ProductPurchaseAvailabilityModel invalidAvailabilityModel = new ProductPurchaseAvailabilityModel()
+            //{
+            //    DateRange = true,
+            //    EndDate = DateTime.Now.AddDays(8),
+            //    TimeRange = true,
+            //};
 
-            _userProducts.Add(new UserProductModel()
-            {
-                Id = 1004,
-                ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
-                ProductType = ProductType.ProductTime,
-                Name = "Expired",
-                PurchaseAvailability = expiredAvailabilityModel
-            });
+            //_userProducts.Add(new UserProductModel()
+            //{
+            //    Id = 2000,
+            //    ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
+            //    ProductType = ProductType.ProductTime,
+            //    Name = "Invalid TimeRange",
+            //    DefaultImageId = 1
+            //    //PurchaseAvailability = invalidAvailabilityModel
+            //});
 
-            ProductPurchaseAvailabilityModel almostExpiredAvailabilityModel = new ProductPurchaseAvailabilityModel()
-            {
-                DateRange = true,
-                EndDate = DateTime.Now.AddDays(1),
-                TimeRange = true,
-                DaysAvailable = new List<ProductModelAvailabilityDay>()
-                {
-                    {
-                        new ProductModelAvailabilityDay()
-                        {
-                            Day = DateTime.Now.DayOfWeek,
-                            DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
-                            {
-                                {
-                                    new ProductModelAvailabilityDayTime()
-                                    {
-                                        StartSecond = 0,
-                                        EndSecond = 1800
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            };
+            //ProductPurchaseAvailabilityModel untilAvailabilityModel = new ProductPurchaseAvailabilityModel()
+            //{
+            //    DateRange = true,
+            //    EndDate = DateTime.Now.AddDays(8)
+            //};
 
-            _userProducts.Add(new UserProductModel()
-            {
-                Id = 1005,
-                ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
-                ProductType = ProductType.ProductTime,
-                Name = "Almost Expired",
-                PurchaseAvailability = almostExpiredAvailabilityModel
-            });
+            //_userProducts.Add(new UserProductModel()
+            //{
+            //    Id = 1000,
+            //    ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
+            //    ProductType = ProductType.ProductTime,
+            //    Name = "Until with DateRange",
+            //    PurchaseAvailability = untilAvailabilityModel
+            //});
 
-            ProductPurchaseAvailabilityModel soonAvailabilityModel = new ProductPurchaseAvailabilityModel()
-            {
-                DateRange = true,
-                StartDate = DateTime.Now.AddDays(2)
-            };
+            //ProductPurchaseAvailabilityModel untilWithTimeAvailabilityModel = new ProductPurchaseAvailabilityModel()
+            //{
+            //    DateRange = true,
+            //    EndDate = DateTime.Now.AddDays(8),
+            //    TimeRange = true,
+            //    DaysAvailable = new List<ProductModelAvailabilityDay>()
+            //    {
+            //        {
+            //            new ProductModelAvailabilityDay()
+            //            {
+            //                Day = DateTime.Now.DayOfWeek,
+            //                DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+            //                {
+            //                    {
+            //                        new ProductModelAvailabilityDayTime()
+            //                        {
+            //                            StartSecond = 0,
+            //                            EndSecond = 1800
+            //                        }
+            //                    }
+            //                }
+            //            }
+            //        }
+            //    }
+            //};
 
-            _userProducts.Add(new UserProductModel()
-            {
-                Id = 1006,
-                ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
-                ProductType = ProductType.ProductTime,
-                Name = "Soon with DateRange",
-                PurchaseAvailability = soonAvailabilityModel
-            });
+            //_userProducts.Add(new UserProductModel()
+            //{
+            //    Id = 1001,
+            //    ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
+            //    ProductType = ProductType.ProductTime,
+            //    Name = "Until with DateRange and TimeRange",
+            //    PurchaseAvailability = untilWithTimeAvailabilityModel
+            //});
+
+            //ProductPurchaseAvailabilityModel sometimeAvailabilityModel = new ProductPurchaseAvailabilityModel()
+            //{
+            //    DateRange = true,
+            //    StartDate = DateTime.Now.AddDays(8)
+            //};
+
+            //_userProducts.Add(new UserProductModel()
+            //{
+            //    Id = 1002,
+            //    ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
+            //    ProductType = ProductType.ProductTime,
+            //    Name = "Sometime with DateRange",
+            //    PurchaseAvailability = sometimeAvailabilityModel
+            //});
+
+            //ProductPurchaseAvailabilityModel sometimeWithTimeAvailabilityModel = new ProductPurchaseAvailabilityModel()
+            //{
+            //    DateRange = true,
+            //    StartDate = DateTime.Now.AddDays(8),
+            //    TimeRange = true,
+            //    DaysAvailable = new List<ProductModelAvailabilityDay>()
+            //    {
+            //        {
+            //            new ProductModelAvailabilityDay()
+            //            {
+            //                Day = DateTime.Now.DayOfWeek,
+            //                DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+            //                {
+            //                    {
+            //                        new ProductModelAvailabilityDayTime()
+            //                        {
+            //                            StartSecond = 0,
+            //                            EndSecond = 1800
+            //                        }
+            //                    }
+            //                }
+            //            }
+            //        }
+            //    }
+            //};
+
+            //_userProducts.Add(new UserProductModel()
+            //{
+            //    Id = 1003,
+            //    ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
+            //    ProductType = ProductType.ProductTime,
+            //    Name = "Sometime with DateRange and TimeRange",
+            //    PurchaseAvailability = sometimeWithTimeAvailabilityModel
+            //});
+
+            //ProductPurchaseAvailabilityModel expiredAvailabilityModel = new ProductPurchaseAvailabilityModel()
+            //{
+            //    DateRange = true,
+            //    EndDate = DateTime.Now.AddDays(-1)
+            //};
+
+            //_userProducts.Add(new UserProductModel()
+            //{
+            //    Id = 1004,
+            //    ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
+            //    ProductType = ProductType.ProductTime,
+            //    Name = "Expired",
+            //    PurchaseAvailability = expiredAvailabilityModel
+            //});
+
+            //ProductPurchaseAvailabilityModel almostExpiredAvailabilityModel = new ProductPurchaseAvailabilityModel()
+            //{
+            //    DateRange = true,
+            //    EndDate = DateTime.Now.AddDays(1),
+            //    TimeRange = true,
+            //    DaysAvailable = new List<ProductModelAvailabilityDay>()
+            //    {
+            //        {
+            //            new ProductModelAvailabilityDay()
+            //            {
+            //                Day = DateTime.Now.DayOfWeek,
+            //                DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+            //                {
+            //                    {
+            //                        new ProductModelAvailabilityDayTime()
+            //                        {
+            //                            StartSecond = 0,
+            //                            EndSecond = 1800
+            //                        }
+            //                    }
+            //                }
+            //            }
+            //        }
+            //    }
+            //};
+
+            //_userProducts.Add(new UserProductModel()
+            //{
+            //    Id = 1005,
+            //    ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
+            //    ProductType = ProductType.ProductTime,
+            //    Name = "Almost Expired",
+            //    PurchaseAvailability = almostExpiredAvailabilityModel
+            //});
+
+            //ProductPurchaseAvailabilityModel soonAvailabilityModel = new ProductPurchaseAvailabilityModel()
+            //{
+            //    DateRange = true,
+            //    StartDate = DateTime.Now.AddDays(2)
+            //};
+
+            //_userProducts.Add(new UserProductModel()
+            //{
+            //    Id = 1006,
+            //    ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
+            //    ProductType = ProductType.ProductTime,
+            //    Name = "Soon with DateRange",
+            //    PurchaseAvailability = soonAvailabilityModel
+            //});
 
 
-            ProductPurchaseAvailabilityModel soonWithTimeAvailabilityModel = new ProductPurchaseAvailabilityModel()
-            {
-                DateRange = true,
-                StartDate = DateTime.Now.AddDays(2),
-                TimeRange = true,
-                DaysAvailable = new List<ProductModelAvailabilityDay>()
-                {
-                    {
-                        new ProductModelAvailabilityDay()
-                        {
-                            Day = DateTime.Now.DayOfWeek,
-                            DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
-                            {
-                                {
-                                    new ProductModelAvailabilityDayTime()
-                                    {
-                                        StartSecond = 0,
-                                        EndSecond = 1800
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            };
+            //ProductPurchaseAvailabilityModel soonWithTimeAvailabilityModel = new ProductPurchaseAvailabilityModel()
+            //{
+            //    DateRange = true,
+            //    StartDate = DateTime.Now.AddDays(2),
+            //    TimeRange = true,
+            //    DaysAvailable = new List<ProductModelAvailabilityDay>()
+            //    {
+            //        {
+            //            new ProductModelAvailabilityDay()
+            //            {
+            //                Day = DateTime.Now.DayOfWeek,
+            //                DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+            //                {
+            //                    {
+            //                        new ProductModelAvailabilityDayTime()
+            //                        {
+            //                            StartSecond = 0,
+            //                            EndSecond = 1800
+            //                        }
+            //                    }
+            //                }
+            //            }
+            //        }
+            //    }
+            //};
 
-            _userProducts.Add(new UserProductModel()
-            {
-                Id = 1007,
-                ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
-                ProductType = ProductType.ProductTime,
-                Name = "Soon with DateRange and TimeRange",
-                PurchaseAvailability = soonWithTimeAvailabilityModel
-            });
-
-
+            //_userProducts.Add(new UserProductModel()
+            //{
+            //    Id = 1007,
+            //    ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
+            //    ProductType = ProductType.ProductTime,
+            //    Name = "Soon with DateRange and TimeRange",
+            //    PurchaseAvailability = soonWithTimeAvailabilityModel
+            //});
 
 
 
 
-            ProductPurchaseAvailabilityModel notAll = new ProductPurchaseAvailabilityModel()
-            {
-                DateRange = true,
-                EndDate = DateTime.Now.AddDays(2),
-                TimeRange = true
-            };
 
-            notAll.DaysAvailable = Enumerable.Range(0, 6).Select(i => new ProductModelAvailabilityDay()
-            {
-                Day = (DayOfWeek)i,
-                DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
-                {
-                    {
-                        new ProductModelAvailabilityDayTime()
-                        {
-                            StartSecond = 0,
-                            EndSecond = 1800
-                        }
-                    }
-                }
-            }).ToList();
 
-            _userProducts.Add(new UserProductModel()
-            {
-                Id = 1008,
-                ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
-                ProductType = ProductType.ProductTime,
-                Name = "Not all days",
-                PurchaseAvailability = notAll
-            });
+            //ProductPurchaseAvailabilityModel notAll = new ProductPurchaseAvailabilityModel()
+            //{
+            //    DateRange = true,
+            //    EndDate = DateTime.Now.AddDays(2),
+            //    TimeRange = true
+            //};
 
-            ProductTimeUsageAvailabilityModel productTimeUsageAvailabilityModel = new ProductTimeUsageAvailabilityModel()
-            {
-            };
+            //notAll.DaysAvailable = Enumerable.Range(0, 6).Select(i => new ProductModelAvailabilityDay()
+            //{
+            //    Day = (DayOfWeek)i,
+            //    DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+            //    {
+            //        {
+            //            new ProductModelAvailabilityDayTime()
+            //            {
+            //                StartSecond = 0,
+            //                EndSecond = 1800
+            //            }
+            //        }
+            //    }
+            //}).ToList();
 
-            productTimeUsageAvailabilityModel.DaysAvailable = new List<ProductModelAvailabilityDay>()
-            {
-                {
-                    new ProductModelAvailabilityDay()
-                    {
-                        Day = DayOfWeek.Wednesday,
-                        DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
-                        {
-                            {
-                                new ProductModelAvailabilityDayTime()
-                                {
-                                    StartSecond = 1200,
-                                    EndSecond = 3600
-                                }
-                            }
-                        }
-                    }
-                }
-            };
+            //_userProducts.Add(new UserProductModel()
+            //{
+            //    Id = 1008,
+            //    ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
+            //    ProductType = ProductType.ProductTime,
+            //    Name = "Not all days",
+            //    PurchaseAvailability = notAll
+            //});
 
-            _userProducts.Where(product => product.ProductType == ProductType.ProductTime)
-                .ToList()
-                .ForEach(product =>
-                {
-                    product.TimeProduct = new UserProductTimeModel()
-                    {
-                        Minutes = random.Next(30, 180),
-                        ExpiresAfter = 90,
-                        ExpirationOptions = ProductTimeExpirationOptionType.ExpiresAtLogout | ProductTimeExpirationOptionType.ExpireAfterTime | ProductTimeExpirationOptionType.ExpireAtDayTime,
-                        ExpireFromOptions = ExpireFromOptionType.Use,
-                        ExpireAfterType = ExpireAfterType.Minute,
-                        ExpireAtDayTimeMinute = 90,
-                        //DisallowedHostGroups = new List<int>() { 1, 2 },
-                        //UsageAvailability = productTimeUsageAvailabilityModel
-                    };
-                });
+            //ProductTimeUsageAvailabilityModel productTimeUsageAvailabilityModel = new ProductTimeUsageAvailabilityModel()
+            //{
+            //};
 
-            _userProducts.Where(product => product.ProductType == ProductType.ProductBundle)
-               .ToList()
-               .ForEach(product =>
-               {
-                   product.Bundle = new UserProductBundleModel()
-                   {
-                       BundledProducts = Enumerable.Range(1, 20)
-                        .Take(random.Next(1, 15))
-                        .Select(x => new UserProductBundledModel() { ProductId = x, Quantity = random.Next(1, 3) })
-                   };
-               });
+            //productTimeUsageAvailabilityModel.DaysAvailable = new List<ProductModelAvailabilityDay>()
+            //{
+            //    {
+            //        new ProductModelAvailabilityDay()
+            //        {
+            //            Day = DayOfWeek.Wednesday,
+            //            DayTimesAvailable = new List<ProductModelAvailabilityDayTime>()
+            //            {
+            //                {
+            //                    new ProductModelAvailabilityDayTime()
+            //                    {
+            //                        StartSecond = 1200,
+            //                        EndSecond = 3600
+            //                    }
+            //                }
+            //            }
+            //        }
+            //    }
+            //};
+
+            //_userProducts.Where(product => product.ProductType == ProductType.ProductTime)
+            //    .ToList()
+            //    .ForEach(product =>
+            //    {
+            //        product.TimeProduct = new UserProductTimeModel()
+            //        {
+            //            Minutes = random.Next(30, 180),
+            //            ExpiresAfter = 90,
+            //            ExpirationOptions = ProductTimeExpirationOptionType.ExpiresAtLogout | ProductTimeExpirationOptionType.ExpireAfterTime | ProductTimeExpirationOptionType.ExpireAtDayTime,
+            //            ExpireFromOptions = ExpireFromOptionType.Use,
+            //            ExpireAfterType = ExpireAfterType.Minute,
+            //            ExpireAtDayTimeMinute = 90,
+            //            //DisallowedHostGroups = new List<int>() { 1, 2 },
+            //            //UsageAvailability = productTimeUsageAvailabilityModel
+            //        };
+            //    });
+
+            //_userProducts.Where(product => product.ProductType == ProductType.ProductBundle)
+            //   .ToList()
+            //   .ForEach(product =>
+            //   {
+            //       product.Bundle = new UserProductBundleModel()
+            //       {
+            //           BundledProducts = Enumerable.Range(1, 20)
+            //            .Take(random.Next(1, 15))
+            //            .Select(x => new UserProductBundledModel() { ProductId = x, Quantity = random.Next(1, 3) })
+            //       };
+            //   });
 
             #endregion
 
@@ -859,7 +1180,7 @@ namespace Gizmo.Client
                     new FeedModel()
                     {
                         Id = 1,
-                        Title = "Test 1",
+                        Title = "Feed 1",
                         Url = "http://www.gameworld.gr/rss3ds/rss.php?content=all"
                     }
                 },
@@ -867,7 +1188,7 @@ namespace Gizmo.Client
                     new FeedModel()
                     {
                         Id = 2,
-                        Title = "Test 2",
+                        Title = "Feed 2",
                         Url = "http://feeds.feedburner.com/ign/all"
                     }
                 }
@@ -876,31 +1197,25 @@ namespace Gizmo.Client
             _userHostGroups = Enumerable.Range(1, 10).Select(i => new UserHostGroupModel()
             {
                 Id = i,
-                Name = $"#Test ({i})"
+                Name = $"Host Group {i}"
             }).ToList();
         }
 
         public async Task<LoginResult> UserLoginAsync(string loginName, string? password, CancellationToken cancellationToken)
         {
-            LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggingIn));
+            LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(_iUserProfile, LoginState.LoggingIn));
             await Task.Delay(new Random().Next(100, 1000), cancellationToken);
 
-            LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggedIn));
+            LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(_iUserProfile, LoginState.LoggedIn));
 
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoginCompleted));
-
-            IsUserLoggedIn = true;
-
             return LoginResult.Sucess;
         }
 
         public async Task UserLogoutAsync(CancellationToken cancellationToken)
         {
-            LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggingOut));
+            LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(_iUserProfile, LoginState.LoggingOut));
             await Task.Delay(3000, cancellationToken);
-
-            IsUserLoggedIn = false;
-
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggedOut));
         }
 
@@ -1020,7 +1335,7 @@ namespace Gizmo.Client
 
             //TODO: AAA EVENT?
 
-            await _notificationsService.ShowAlertNotification(AlertTypes.Danger, "st", "fasf");
+            await _notificationsService.ShowAlertNotification(AlertTypes.Success, "Success", "Success");
 
             return new UpdateResult();
         }
