@@ -1209,6 +1209,9 @@ namespace Gizmo.Client
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(_iUserProfile, LoginState.LoggedIn));
 
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoginCompleted));
+
+            IsUserLoggedIn = true;
+
             return LoginResult.Sucess;
         }
 
@@ -1216,6 +1219,9 @@ namespace Gizmo.Client
         {
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(_iUserProfile, LoginState.LoggingOut));
             await Task.Delay(3000, cancellationToken);
+
+            IsUserLoggedIn = false;
+
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoggedOut));
         }
 
