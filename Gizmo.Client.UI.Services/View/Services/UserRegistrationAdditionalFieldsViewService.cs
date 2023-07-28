@@ -49,12 +49,6 @@ namespace Gizmo.Client.UI.View.Services
             ValidateProperty(() => ViewState.Country);
         }
 
-        //public void SetPrefix(string value)
-        //{
-        //    ViewState.Prefix = value;
-        //    DebounceViewStateChanged();
-        //}
-
         public void SetMobilePhone(string value)
         {
             ViewState.MobilePhone = value;
@@ -97,7 +91,7 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                var profile = new Web.Api.Models.UserProfileModelCreate()
+                var profile = new UserProfileModelCreate()
                 {
                     Username = userRegistrationBasicFieldsViewState.Username,
                     FirstName = userRegistrationBasicFieldsViewState.FirstName,
@@ -113,34 +107,34 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     profile.Country = userRegistrationConfirmationMethodViewState.Country;
 
-                    //var tmp = userRegistrationConfirmationMethodViewState.Prefix + userRegistrationConfirmationMethodViewState.MobilePhone;
-                    var tmp = userRegistrationConfirmationMethodViewState.MobilePhone;
-                    if (tmp.StartsWith("+"))
+                    var mobilePhone = userRegistrationConfirmationMethodViewState.MobilePhone;
+                    if (mobilePhone?.StartsWith("+") == true)
                     {
-                        tmp = tmp.Substring(1);
+                        mobilePhone = mobilePhone.Substring(1);
                     }
 
-                    profile.MobilePhone = tmp;
+                    profile.MobilePhone = mobilePhone;
                 }
                 else
                 {
                     profile.Country = ViewState.Country;
 
-                    //var tmp = ViewState.Prefix + ViewState.MobilePhone;
-                    var tmp = ViewState.MobilePhone;
-                    if (tmp.StartsWith("+"))
+                    var mobilePhone = ViewState.MobilePhone;
+                    if (mobilePhone?.StartsWith("+") == true)
                     {
-                        tmp = tmp.Substring(1);
+                        mobilePhone = mobilePhone.Substring(1);
                     }
 
-                    profile.MobilePhone = tmp;
+                    profile.MobilePhone = mobilePhone;
                 }
 
-                var userAgreements = userRegistrationIndexViewState.UserAgreementStates.Select(a => new UserAgreementModelState()
-                {
-                    UserAgreementId = a.Id,
-                    AcceptState = a.AcceptState
-                }).ToList();
+                //get all user agreements states
+                var userAgreements = userRegistrationIndexViewState.UserAgreementStates
+                    .Select(a => new UserAgreementModelState()
+                    {
+                        UserAgreementId = a.Id,
+                        AcceptState = a.AcceptState
+                    }).ToList();
 
                 if (!confirmationRequired)
                 {
@@ -189,12 +183,12 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        #endregion
-
         public void Reset()
         {
             ViewState.HasError = false;
             ViewState.ErrorMessage = string.Empty;
         }
+
+        #endregion
     }
 }
