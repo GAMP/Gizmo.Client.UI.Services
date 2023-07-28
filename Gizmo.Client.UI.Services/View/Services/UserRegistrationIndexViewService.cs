@@ -46,16 +46,17 @@ namespace Gizmo.Client.UI.View.Services
 
             foreach (var userAgreement in userAgreementStates)
             {
-                var s = await _dialogService.ShowUserAgreementDialogAsync(new UserAgreementDialogParameters()
+                var addDialogResult = await _dialogService.ShowUserAgreementDialogAsync(new UserAgreementDialogParameters()
                 {
                     Name = userAgreement.Name,
                     Agreement = userAgreement.Agreement,
                     IsRejectable = userAgreement.IsRejectable
                 }, cancellationToken);
-                if (s.Result == AddComponentResultCode.Opened)
+
+                if (addDialogResult.Result == AddComponentResultCode.Opened)
                 {
-                    var dialogResult = await s.WaitForResultAsync(cancellationToken);
-                    if (s.Result == AddComponentResultCode.Ok)
+                    var dialogResult = await addDialogResult.WaitForResultAsync(cancellationToken);
+                    if (addDialogResult.Result == AddComponentResultCode.Ok)
                     {
                         if (dialogResult!.Accepted)
                         {
@@ -66,7 +67,7 @@ namespace Gizmo.Client.UI.View.Services
                             userAgreement.AcceptState = UserAgreementAcceptState.Rejected;
                         }
                     }
-                    else if (s.Result == AddComponentResultCode.Canceled)
+                    else if (addDialogResult.Result == AddComponentResultCode.Dismissed)
                     {
                         if (userAgreement.IsRejectable)
                         {
@@ -76,6 +77,12 @@ namespace Gizmo.Client.UI.View.Services
                         {
                             return false;
                         }
+                    }
+                    else if (addDialogResult.Result == AddComponentResultCode.Canceled)
+                    {
+                        //dialog was canceled, this will only happen if function caller have cancelled
+                        //or a global cancellation happened
+                        return false;
                     }
                 }
             }
@@ -107,31 +114,38 @@ namespace Gizmo.Client.UI.View.Services
         {
             ClearAll();
 
-            var agreementStatus = await ProcessUserAgreements(cancellationToken);
-
-            if (agreementStatus)
+            try
             {
-                var userRegistrationService = ServiceProvider.GetRequiredService<UserRegistrationViewService>();
-                var userRegistrationViewState = ServiceProvider.GetRequiredService<UserRegistrationViewState>();
+                var agreementStatus = await ProcessUserAgreements(cancellationToken);
 
-                var registrationVerificationMethod = await _gizmoClient.RegistrationVerificationMethodGetAsync();
-                var userGroupDefaultRequiredInfo = await _gizmoClient.UserGroupDefaultRequiredInfoGetAsync();
-
-                userRegistrationService.SetConfirmationMethod(registrationVerificationMethod);
-                userRegistrationService.SetUserGroupDefaultRequiredInfo(userGroupDefaultRequiredInfo);
-
-                if (userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.None)
+                if (agreementStatus)
                 {
-                    NavigationService.NavigateTo(ClientRoutes.RegistrationBasicFieldsRoute);
+                    var userRegistrationService = ServiceProvider.GetRequiredService<UserRegistrationViewService>();
+                    var userRegistrationViewState = ServiceProvider.GetRequiredService<UserRegistrationViewState>();
+
+                    var registrationVerificationMethod = await _gizmoClient.RegistrationVerificationMethodGetAsync();
+                    var userGroupDefaultRequiredInfo = await _gizmoClient.UserGroupDefaultRequiredInfoGetAsync();
+
+                    userRegistrationService.SetConfirmationMethod(registrationVerificationMethod);
+                    userRegistrationService.SetUserGroupDefaultRequiredInfo(userGroupDefaultRequiredInfo);
+
+                    if (userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.None)
+                    {
+                        NavigationService.NavigateTo(ClientRoutes.RegistrationBasicFieldsRoute);
+                    }
+                    else
+                    {
+                        NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationMethodRoute);
+                    }
                 }
                 else
                 {
-                    NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationMethodRoute);
+                    NavigationService.NavigateTo(ClientRoutes.LoginRoute);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                NavigationService.NavigateTo(ClientRoutes.LoginRoute);
+                Logger.LogError(ex, "Registration service error.");
             }
         }
 
