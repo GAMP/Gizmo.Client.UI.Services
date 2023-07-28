@@ -53,7 +53,7 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     var popularProducts = await _gizmoClient.UserPopularProductsGetAsync(new Web.Api.Models.UserPopularProductsFilter()
                     {
-                        Limit = _popularItemsOptions.Value.MaxPopularProducts
+                        Limit = -1
                     }, cancellationToken);
 
                     var productIds = popularProducts.Select(a => a.Id).ToList();
@@ -81,8 +81,8 @@ namespace Gizmo.Client.UI.View.Services
             {
                 var popularApplications = await _gizmoClient.UserPopularApplicationsGetAsync(new Web.Api.Models.UserPopularApplicationsFilter()
                 {
-                    Limit = _popularItemsOptions.Value.MaxPopularApplications
-                });
+                    Limit = -1
+                }, cancellationToken);
 
                 var applicationIds = popularApplications.Select(a => a.Id).ToList();
 
