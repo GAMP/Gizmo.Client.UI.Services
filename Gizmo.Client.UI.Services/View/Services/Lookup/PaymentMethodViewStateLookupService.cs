@@ -31,6 +31,11 @@ namespace Gizmo.Client.UI.View.Services
 
         private async void OnLanguageChanged(object? sender, EventArgs e)
         {
+            //we should only try to obtain user payment methods while the user is logged in
+            //in other cases access denied will be thrown since the function requires an logged on user server side
+            if (!_gizmoClient.IsUserLoggedIn)
+                return;
+
             try
             {
                 var states = await GetStatesAsync();
