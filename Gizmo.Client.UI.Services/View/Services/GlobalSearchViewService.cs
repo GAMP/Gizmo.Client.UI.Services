@@ -17,6 +17,8 @@ namespace Gizmo.Client.UI.View.Services
         public GlobalSearchViewService(GlobalSearchViewState viewState,
             IOptionsMonitor<ClientShopOptions> shopOptions,
             ILocalizationService localizationService,
+            AppsPageViewService appsPageViewService,
+            ProductsPageViewService productsPageViewService,
             AppViewStateLookupService appViewStateLookupService,
             AppExeViewStateLookupService appExeViewStateLookupService,
             UserProductViewStateLookupService userProductStateLookupService,
@@ -25,6 +27,8 @@ namespace Gizmo.Client.UI.View.Services
         {
             _shopOptions = shopOptions;
             _localizationService = localizationService;
+            _appsPageViewService = appsPageViewService;
+            _productsPageViewService = productsPageViewService;
             _appViewStateLookupService = appViewStateLookupService;
             _appExeViewStateLookupService = appExeViewStateLookupService;
             _userProductStateLookupService = userProductStateLookupService;
@@ -34,6 +38,8 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly IOptionsMonitor<ClientShopOptions> _shopOptions;
         private readonly ILocalizationService _localizationService;
+        private readonly AppsPageViewService _appsPageViewService;
+        private readonly ProductsPageViewService _productsPageViewService;
         private readonly AppViewStateLookupService _appViewStateLookupService;
         private readonly AppExeViewStateLookupService _appExeViewStateLookupService;
         private readonly UserProductViewStateLookupService _userProductStateLookupService;
@@ -71,13 +77,14 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (searchResultTypes == SearchResultTypes.Executables)
             {
-                NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute + $"?SearchPattern={ViewState.SearchPattern}");
+                await _appsPageViewService.NavigateWithSearchAsync(ViewState.SearchPattern);
             }
             else
             {
-                NavigationService.NavigateTo(ClientRoutes.ShopRoute + $"?SearchPattern={ViewState.SearchPattern}");
+                await _productsPageViewService.NavigateWithSearchAsync(ViewState.SearchPattern);
             }
 
+            //TODO: Pestunov: Why is this here?
             ViewState.RaiseChanged();
 
             await CloseSearchAsync();

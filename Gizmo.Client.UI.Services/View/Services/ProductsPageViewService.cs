@@ -83,15 +83,6 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
         {
-            if (Uri.TryCreate(NavigationService.GetUri(), UriKind.Absolute, out var uri))
-            {
-                string? searchPattern = HttpUtility.ParseQueryString(uri.Query).Get("SearchPattern");
-                if (!string.IsNullOrEmpty(searchPattern))
-                {
-                    ViewState.SearchPattern = searchPattern;
-                }
-            }
-
             _userProductService.Changed += UpdateUserGroupedProductsOnChangeAsync;
             _userProductGroupService.Changed += UpdateUserProductGroupsOnChangeAsync;
 
@@ -109,7 +100,7 @@ namespace Gizmo.Client.UI.View.Services
             _userProductService.Changed -= UpdateUserGroupedProductsOnChangeAsync;
             _userProductGroupService.Changed -= UpdateUserProductGroupsOnChangeAsync;
 
-            return base.OnNavigatedOut(navigationParameters, cancellationToken);
+            return ClearSearchPattern();
         }
 
         public async Task ClearSearchPattern()
@@ -119,6 +110,14 @@ namespace Gizmo.Client.UI.View.Services
             await RefilterRequest(default);
 
             DebounceViewStateChanged();
+        }
+
+        public async Task NavigateWithSearchAsync(string searchPattern)
+        {
+            await ClearSearchPattern();
+
+            ViewState.SearchPattern = searchPattern;
+            NavigationService.NavigateTo(ClientRoutes.ShopRoute);
         }
     }
 }

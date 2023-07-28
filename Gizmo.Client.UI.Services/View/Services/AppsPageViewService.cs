@@ -83,6 +83,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.ExecutableModes = executableModes;
         }
 
+
         #region OVERRIDES
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
@@ -93,15 +94,6 @@ namespace Gizmo.Client.UI.View.Services
 
             await SetSelectedSortingOption(ViewState.DefaultSortingOption);
 
-            if (Uri.TryCreate(NavigationService.GetUri(), UriKind.Absolute, out var uri))
-            {
-                string? searchPattern = HttpUtility.ParseQueryString(uri.Query).Get("SearchPattern");
-                if (!string.IsNullOrEmpty(searchPattern))
-                {
-                    ViewState.SearchPattern = searchPattern;
-                }
-            }
-
             if (navigationParameters.IsInitial)
             {
                 var allCategories = await _categoryViewStateLookupService.GetStatesAsync(cToken);
@@ -110,6 +102,11 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             await RefilterRequest(cToken);
+        }
+
+        protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        {
+            return ClearSearchPattern();
         }
 
         #endregion
@@ -272,6 +269,13 @@ namespace Gizmo.Client.UI.View.Services
             _debounceActionService.Debounce(RefilterRequest);
 
             return Task.CompletedTask;
+        }
+        public async Task NavigateWithSearchAsync(string searchPattern)
+        {
+            await ClearSearchPattern();
+
+            ViewState.SearchPattern = searchPattern;
+            NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute);
         }
     }
 }
