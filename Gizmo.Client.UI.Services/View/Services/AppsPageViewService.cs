@@ -2,7 +2,6 @@
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
-using Gizmo.UI.View.States;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -24,7 +23,6 @@ namespace Gizmo.Client.UI.View.Services
             AppCategoryViewStateLookupService categoryViewStateLookupService,
             AppViewStateLookupService appViewStateLookupService,
             AppExeViewStateLookupService appExeViewStateLookupService,
-            IOptions<PopularItemsOptions> popularItemsOptions,
             IOptions<ClientAppsOptions> clientAppsOptions) : base(viewState, logger, serviceProvider)
         {
             _debounceActionService = debounceActionService;
@@ -34,8 +32,7 @@ namespace Gizmo.Client.UI.View.Services
             _categoryViewStateLookupService = categoryViewStateLookupService;
             _appViewStateLookupService = appViewStateLookupService;
             _appExeViewStateLookupService = appExeViewStateLookupService;
-            _popularItemsOptions = popularItemsOptions;
-            _clientAppsOptions = clientAppsOptions;
+            _clientAppsOptions = clientAppsOptions;      
         }
         #endregion
 
@@ -46,7 +43,6 @@ namespace Gizmo.Client.UI.View.Services
         private readonly AppCategoryViewStateLookupService _categoryViewStateLookupService;
         private readonly DebounceActionAsyncService _debounceActionService;
         private readonly IGizmoClient _gizmoClient;
-        private readonly IOptions<PopularItemsOptions> _popularItemsOptions;
         private readonly IOptions<ClientAppsOptions> _clientAppsOptions;
         #endregion
 
@@ -89,30 +85,29 @@ namespace Gizmo.Client.UI.View.Services
         {
             CreateFilters();
 
-            ViewState.DefaultSortingOption = _clientAppsOptions.Value.DefaultSortingOption;
-
-            await SetSelectedSortingOption(ViewState.DefaultSortingOption);
-
             if (Uri.TryCreate(NavigationService.GetUri(), UriKind.Absolute, out var uri))
             {
                 string? searchPattern = HttpUtility.ParseQueryString(uri.Query).Get("SearchPattern");
                 if (!string.IsNullOrEmpty(searchPattern))
                 {
                     ViewState.SearchPattern = searchPattern;
+
+                    ViewState.SelectedCategoryId = null; //TODO fix this
                 }
-            }
-
-            if (navigationParameters.IsInitial)
-            {
-                var allCategories = await _categoryViewStateLookupService.GetStatesAsync(cToken);
-
-                ViewState.AppCategories = allCategories.OrderBy(c => c.Name).ToList();
             }
 
             await RefilterRequest(cToken);
         }
 
         #endregion
+
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            ViewState.DefaultSortingOption = _clientAppsOptions.Value.DefaultSortingOption;
+            ViewState.SelectedSortingOption = _clientAppsOptions.Value.DefaultSortingOption;
+
+            return base.OnInitializing(ct);
+        }
 
         private async Task RefilterRequest(CancellationToken cancellationToken)
         {
@@ -124,35 +119,23 @@ namespace Gizmo.Client.UI.View.Services
                 var allApplications = await _appViewStateLookupService.GetStatesAsync(cancellationToken);
 
                 //filter out any applications that passes current app profile
-                var filteredApplications = allApplications.Where(app => _gizmoClient.AppCurrentProfilePass(app.ApplicationId));
-
-                if (ViewState.SelectedSortingOption != ViewState.DefaultSortingOption)
-                {
-                    ViewState.TotalFilters += 1;
-                }
-
-                if (ViewState.SelectedCategoryId.HasValue)
-                {
-                    filteredApplications = filteredApplications.Where(app => app.ApplicationCategoryId == ViewState.SelectedCategoryId);
-                    ViewState.TotalFilters += 1;
-                }
+                var filteredApplications = allApplications.Where(app => _gizmoClient.AppCurrentProfilePass(app.ApplicationId));         
 
                 IEnumerable<AppExeViewState>? allExecutables = null;
                 IEnumerable<AppExeViewState>? filteredExecutables = null;
 
                 if (!string.IsNullOrEmpty(ViewState.SearchPattern))
                 {
-                    filteredApplications = filteredApplications.Where(app => app.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase));
                     ViewState.TotalFilters += 1;
+                    filteredApplications = filteredApplications.Where(app => app.Title.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase));          
 
                     allExecutables = await _appExeViewStateLookupService.GetFilteredStatesAsync(cancellationToken);
                     filteredExecutables = allExecutables.Where(a => a.Caption.Contains(ViewState.SearchPattern, StringComparison.InvariantCultureIgnoreCase)).ToList();
                 }
 
-                if (ViewState.SelectedExecutableModes.Count() > 0)
+                if (ViewState.SelectedExecutableModes.Any())
                 {
-                    if (allExecutables == null)
-                        allExecutables = await _appExeViewStateLookupService.GetFilteredStatesAsync(cancellationToken);
+                    allExecutables ??= await _appExeViewStateLookupService.GetFilteredStatesAsync(cancellationToken);
 
                     ExecutableOptionType mode = ExecutableOptionType.None;
 
@@ -169,6 +152,20 @@ namespace Gizmo.Client.UI.View.Services
                         filteredExecutables = filteredExecutables.Where(a => ((int)a.Modes & (int)mode) > 0);
 
                     ViewState.TotalFilters += 1;
+                }      
+
+                var filteredResult = filteredApplications.ToList();
+
+                if (filteredExecutables != null)
+                {
+                    var alreadyIncludedIds = filteredResult.Select(a => a.ApplicationId).ToList();
+                    var additionalIds = filteredExecutables.Where(a => !alreadyIncludedIds.Contains(a.ApplicationId)).Select(a => a.ApplicationId).Distinct();
+                    filteredResult.AddRange(allApplications.Where(a => additionalIds.Contains(a.ApplicationId)));
+                }
+
+                if (ViewState.SelectedSortingOption != ViewState.DefaultSortingOption)
+                {
+                    ViewState.TotalFilters += 1;
                 }
 
                 switch (ViewState.SelectedSortingOption)
@@ -183,39 +180,59 @@ namespace Gizmo.Client.UI.View.Services
                         var applicationIds = popularApplications.Select(a => a.Id).Reverse().ToList();
 
                         //Apps that are not included in popular have index -1 so we have to reverse the order and sort descending.
-                        filteredApplications = filteredApplications.OrderByDescending(a => applicationIds.IndexOf(a.ApplicationId)).ToList();
+                        filteredResult = filteredResult.OrderByDescending(a => applicationIds.IndexOf(a.ApplicationId)).ToList();
 
                         break;
 
                     case ApplicationSortingOption.Title:
 
-                        filteredApplications = filteredApplications.OrderBy(a => a.Title);
+                        filteredResult = filteredResult.OrderBy(a => a.Title).ToList();
 
                         break;
 
                     case ApplicationSortingOption.AddDate:
 
-                        filteredApplications = filteredApplications.OrderByDescending(a => a.AddDate);
+                        filteredResult = filteredResult.OrderByDescending(a => a.AddDate).ToList();
 
                         break;
 
                     case ApplicationSortingOption.ReleaseDate:
 
-                        filteredApplications = filteredApplications.OrderByDescending(a => a.ReleaseDate);
+                        filteredResult = filteredResult.OrderByDescending(a => a.ReleaseDate).ToList();
 
                         break;
                 }
 
-                var tmp = filteredApplications.ToList();
+                //create a list of applications that is not filtered by category
+                var nonCategoryFilteredApps = filteredResult.ToList();
 
-                if (filteredExecutables != null)
+                //filter out any applications that dont belong to filtered app group
+                if (ViewState.SelectedCategoryId.HasValue)
                 {
-                    var alreadyIncludedIds = tmp.Select(a => a.ApplicationId).ToList();
-                    var additionalIds = filteredExecutables.Where(a => !alreadyIncludedIds.Contains(a.ApplicationId)).Select(a => a.ApplicationId).Distinct();
-                    tmp.AddRange(allApplications.Where(a => additionalIds.Contains(a.ApplicationId)));
+                    filteredResult = filteredResult.Where(app => app.ApplicationCategoryId == ViewState.SelectedCategoryId).ToList();
+                    ViewState.TotalFilters += 1;
                 }
 
-                ViewState.Applications = tmp;
+                //get all app categoreis
+                var allCategories = await _categoryViewStateLookupService.GetStatesAsync(cancellationToken);
+
+                //filter out any app category that does not contain any application passing current filter or app profile
+                allCategories = allCategories
+                    .Where(c => nonCategoryFilteredApps.Where(a => a.ApplicationCategoryId == c.AppCategoryId).Any())
+                    .OrderBy(c => c.Name).ToList()
+                    .ToList();
+
+                //reset selected category
+                var selectedCategory = ViewState.SelectedCategoryId;
+                if (selectedCategory.HasValue && !allCategories.Where(c=>c.AppCategoryId == selectedCategory.Value).Any())
+                {
+                    //it makes more sense to set to null and allow user to see all the filtered results
+                    //and then filter them out by category instead of selecting first found category
+                    ViewState.SelectedCategoryId = null;
+                }
+
+                ViewState.AppCategories = allCategories;
+                ViewState.Applications = filteredResult;
 
                 DebounceViewStateChanged();
             }
