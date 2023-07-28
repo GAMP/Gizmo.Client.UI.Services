@@ -143,7 +143,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.EmptyResultTitle = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_TITLE");
             ViewState.EmptyResultMessage = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_MESSAGE", GLOBAL_SEARCH_MINIMUM_CHARACTERS);
 
-            ViewState.RaiseChanged();
+            DebounceViewStateChanged();
 
             return Task.CompletedTask;
         }
@@ -244,16 +244,10 @@ namespace Gizmo.Client.UI.View.Services
 
         #endregion
 
-        protected override async Task OnInitializing(CancellationToken ct)
+        protected override async Task OnLocationChanged(object? sender, LocationChangedEventArgs e)
         {
-            await base.OnInitializing(ct);
-
-            NavigationService.LocationChanged += OnNavigationServiceLocationChanged;
-        }
-
-        //TODO cant we use the base method?
-        private async void OnNavigationServiceLocationChanged(object? sender, LocationChangedEventArgs e)
-        {
+            //TODO we dont constantly need to raise view state change, its not a peformance problem but some
+            //cleaner approach should be used
             await ClearResultsAsync();
             await CloseSearchAsync();
         }
