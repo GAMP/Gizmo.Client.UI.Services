@@ -98,7 +98,7 @@ namespace Gizmo.Client.UI.View.Services
             _userProductService.Changed -= UpdateUserGroupedProductsOnChangeAsync;
             _userProductGroupService.Changed -= UpdateUserProductGroupsOnChangeAsync;
 
-            return ClearSearchPattern();
+            return base.OnNavigatedOut(navigationParameters, cancellationToken);
         }
 
         public async Task ClearSearchPattern()
