@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Web;
-using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 
 using Microsoft.AspNetCore.Components;
@@ -52,7 +50,7 @@ namespace Gizmo.Client.UI.View.Services
                 ? ViewState.UserGroupedProducts = sortedProducts.Where(x => x.ProductGroupId == ViewState.SelectedUserProductGroupId).GroupBy(x => x.ProductGroupId)
                 : ViewState.UserGroupedProducts = sortedProducts.GroupBy(x => x.ProductGroupId);
 
-            ViewState.RaiseChanged();
+            DebounceViewStateChanged();
         }
 
         public async Task UpdateUserGroupedProductsAsync(int? selectedProductGroupId, CancellationToken cToken = default)
@@ -73,7 +71,7 @@ namespace Gizmo.Client.UI.View.Services
                 .OrderBy(a => a.DisplayOrder)
                 .ToList();
 
-            ViewState.RaiseChanged();
+            DebounceViewStateChanged();
         }
 
         private async void UpdateUserGroupedProductsOnChangeAsync(object? _, EventArgs __) =>
@@ -106,18 +104,16 @@ namespace Gizmo.Client.UI.View.Services
         public async Task ClearSearchPattern()
         {
             ViewState.SearchPattern = string.Empty;
-
             await RefilterRequest(default);
-
-            DebounceViewStateChanged();
         }
 
-        public async Task NavigateWithSearchAsync(string searchPattern)
+        public Task NavigateWithSearchAsync(string searchPattern)
         {
-            await ClearSearchPattern();
-
+            ViewState.SelectedUserProductGroupId = null;
             ViewState.SearchPattern = searchPattern;
+
             NavigationService.NavigateTo(ClientRoutes.ShopRoute);
+            return Task.CompletedTask;
         }
     }
 }
