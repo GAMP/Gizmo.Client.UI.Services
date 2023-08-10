@@ -13,6 +13,9 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IGizmoClient _gizmoClient;
         private readonly ILocalizationService _localizationService;
         private readonly HostGroupViewState _hostGroupViewState;
+        private readonly SemaphoreSlim _disallowedRefreshLock = new(1);
+        private Timer? _disallowedRefreshTimer;
+        private const int PRODUCT_DISALLOWED_REFFRESH_INTERVAL = 1000;
 
         public UserProductViewStateLookupService(
             IGizmoClient gizmoClient,
@@ -28,9 +31,22 @@ namespace Gizmo.Client.UI.View.Services
 
         private async void OnUserLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
         {
-            if (e.State == LoginState.LoggedOut)
+            try
             {
-                await ResetInitialization(default);
+                if (e.State == LoginState.LoggedOut)
+                {
+                    await ResetInitialization(default);
+                    _disallowedRefreshTimer?.Change(Timeout.Infinite,Timeout.Infinite);
+                }
+                else if (e.State == LoginState.LoginCompleted)
+                {
+                    _disallowedRefreshTimer ??= new Timer(ProductDisallowedRefreshCallback);
+                    _disallowedRefreshTimer.Change(PRODUCT_DISALLOWED_REFFRESH_INTERVAL, PRODUCT_DISALLOWED_REFFRESH_INTERVAL);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error handling user state change.");
             }
         }
 
@@ -425,6 +441,32 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             return states.ToList();
+        }
+
+        private async void ProductDisallowedRefreshCallback(object? state)
+        {
+            if(await _disallowedRefreshLock.WaitAsync(TimeSpan.Zero))
+            {
+                try
+                {
+                    var products = await GetFilteredStatesAsync(null,default);
+                    foreach (var product in products)
+                    {
+                        var wasDissallowed = product.DisallowPurchase;
+                        RefreshProductAvailability(product);
+                        if (wasDissallowed != product.DisallowPurchase)
+                            DebounceViewStateChange(product);                    
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Logger.LogError(ex, "Failed to refresh dissalowed purchase.");
+                }
+                finally 
+                {
+                    _disallowedRefreshLock.Release(); 
+                }
+            }
         }
     }
 }
