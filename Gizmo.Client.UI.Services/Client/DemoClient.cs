@@ -1095,11 +1095,11 @@ namespace Gizmo.Client
             #region PAYMENT METHODS
             _userPaymentMethods = new List<UserPaymentMethodModel>()
             {
-                new UserPaymentMethodModel() { Id = -4, Name= "Points", DisplayOrder = 0 },
-                new UserPaymentMethodModel() { Id = -3, Name= "Deposit", DisplayOrder = 0 },
-                new UserPaymentMethodModel() { Id = -2, Name= "Credit Card", DisplayOrder = 0 },
-                new UserPaymentMethodModel() { Id = -1, Name= "Cash", DisplayOrder = 0 },
-                new UserPaymentMethodModel() { Id = 1, Name= "Online", DisplayOrder = 0, IsOnline = true },
+                new UserPaymentMethodModel() { Id = -4, Name= "Points", DisplayOrder = 0, IsEnabled = true },
+                new UserPaymentMethodModel() { Id = -3, Name= "Deposit", DisplayOrder = 0, IsEnabled = true },
+                new UserPaymentMethodModel() { Id = -2, Name= "Credit Card", DisplayOrder = 0, IsEnabled = true },
+                new UserPaymentMethodModel() { Id = -1, Name= "Cash", DisplayOrder = 0, IsEnabled = true },
+                new UserPaymentMethodModel() { Id = 1, Name= "Online", DisplayOrder = 0, IsEnabled = true, IsOnline = true },
             };
             #endregion
 
@@ -1208,9 +1208,11 @@ namespace Gizmo.Client
 
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(_iUserProfile, LoginState.LoggedIn));
 
-            LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(null, LoginState.LoginCompleted));
+            LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(_iUserProfile, LoginState.LoginCompleted));
 
             IsUserLoggedIn = true;
+
+            UsageSessionChange?.Invoke(this, new UsageSessionChangeEventArgs(_iUserProfile.Id, UsageType.Rate, string.Empty));
 
             return LoginResult.Sucess;
         }
@@ -1592,7 +1594,7 @@ namespace Gizmo.Client
 
         public Task<UserRecoveryMethod> PasswordRecoveryMethodGetAsync(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(UserRecoveryMethod.Email);
+            return Task.FromResult(UserRecoveryMethod.Mobile);
         }
 
         public bool AppCurrentProfilePass(int appId)
@@ -1797,9 +1799,16 @@ namespace Gizmo.Client
             return Task.FromResult<UserProductAvailabilityCheckResult>(UserProductAvailabilityCheckResult.Success);
         }
 
-        public Task<UserOrderCreateResultModel> UserOrderCreateAsync(UserOrderModelCreate userOrderModelCreate, CancellationToken cancellationToken = default)
+        public async Task<UserOrderCreateResultModel> UserOrderCreateAsync(UserOrderModelCreate userOrderModelCreate, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            await _notificationsService.ShowAlertNotification(AlertTypes.Success, "Success", "Success");
+
+            return new UserOrderCreateResultModel()
+            {
+                Id = 1,
+                Result = OrderResult.OnHold,
+                FailReason = OrderFailReason.None
+            };
         }
 
         public Task<bool> IsClientRegistrationEnabledGetAsync(CancellationToken cancellationToken = default)
