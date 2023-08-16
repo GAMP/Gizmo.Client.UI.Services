@@ -71,5 +71,10 @@ namespace Gizmo.Client.UI.View.States
         /// Gets created time.
         /// </summary>
         public DateTime CreatedTime { get; internal set; }
+
+        /// <summary>
+        /// Whether the product is deleted.
+        /// </summary>
+        public bool IsDeleted { get; internal set; }
     }
 }

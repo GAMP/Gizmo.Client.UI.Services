@@ -36,7 +36,7 @@ namespace Gizmo.Client.UI.View.Services
                 if (e.State == LoginState.LoggedOut)
                 {
                     await ResetInitialization(default);
-                    _disallowedRefreshTimer?.Change(Timeout.Infinite,Timeout.Infinite);
+                    _disallowedRefreshTimer?.Change(Timeout.Infinite, Timeout.Infinite);
                 }
                 else if (e.State == LoginState.LoginCompleted)
                 {
@@ -94,6 +94,29 @@ namespace Gizmo.Client.UI.View.Services
         #region PRIVATE FUNCTIONS
         private void RefreshProductAvailability(UserProductViewState product)
         {
+            if (product.IsDeleted ||
+                product.OrderOptions.HasFlag(OrderOptionType.DisallowAllowOrder) ||
+                product.IsRestrictedForGuest ||
+                product.OrderOptions.HasFlag(OrderOptionType.RestrictSale) ||
+                product.IsRestrictedForUserGroup)
+            {
+                product.DisallowPurchase = true;
+                product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_NOT_AVAILABLE");
+
+                return;
+            }
+
+            if (_hostGroupViewState.HostGroupId.HasValue)
+            {
+                if (product.HiddenHostGroups.Contains(_hostGroupViewState.HostGroupId.Value))
+                {
+                    product.DisallowPurchase = true;
+                    product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_NOT_AVAILABLE_ON_THIS_HOST");
+
+                    return;
+                }
+            }
+
             if (product.PurchaseAvailability != null)
             {
                 DateTime? lastTimeRangeEnd = null;
@@ -244,6 +267,7 @@ namespace Gizmo.Client.UI.View.Services
             result.OrderOptions = model.OrderOptions;
             result.DisplayOrder = model.DisplayOrder;
             result.CreatedTime = model.CreatedTime;
+            result.IsDeleted = model.IsDeleted;
             if (model.PurchaseAvailability != null)
             {
                 var hasDateRange = model.PurchaseAvailability.DateRange && (model.PurchaseAvailability.StartDate.HasValue || model.PurchaseAvailability.EndDate.HasValue);
@@ -395,6 +419,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
+            //TODO: AAA REFRESH TIMER?
             RefreshProductAvailability(result);
 
             return result;
@@ -412,6 +437,9 @@ namespace Gizmo.Client.UI.View.Services
         public async Task<IEnumerable<UserProductViewState>> GetFilteredStatesAsync(string? searchPattern, CancellationToken cancellationToken = default)
         {
             var states = await GetStatesAsync(cancellationToken);
+
+            //only non deleted products
+            states = states.Where(product => !product.IsDeleted);
 
             //only include products allowing client order
             states = states.Where(product => !product.OrderOptions.HasFlag(OrderOptionType.DisallowAllowOrder));
@@ -444,26 +472,26 @@ namespace Gizmo.Client.UI.View.Services
 
         private async void ProductDisallowedRefreshCallback(object? state)
         {
-            if(await _disallowedRefreshLock.WaitAsync(TimeSpan.Zero))
+            if (await _disallowedRefreshLock.WaitAsync(TimeSpan.Zero))
             {
                 try
                 {
-                    var products = await GetFilteredStatesAsync(null,default);
+                    var products = await GetFilteredStatesAsync(null, default);
                     foreach (var product in products)
                     {
                         var wasDissallowed = product.DisallowPurchase;
                         RefreshProductAvailability(product);
                         if (wasDissallowed != product.DisallowPurchase)
-                            DebounceViewStateChange(product);                    
+                            DebounceViewStateChange(product);
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Logger.LogError(ex, "Failed to refresh dissalowed purchase.");
                 }
-                finally 
+                finally
                 {
-                    _disallowedRefreshLock.Release(); 
+                    _disallowedRefreshLock.Release();
                 }
             }
         }
