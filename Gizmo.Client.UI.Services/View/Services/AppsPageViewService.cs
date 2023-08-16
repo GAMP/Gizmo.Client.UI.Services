@@ -105,10 +105,9 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.TotalFilters = 0;
 
                 //get all app view states
-                var allApplications = await _appViewStateLookupService.GetStatesAsync(cancellationToken);
+                var allApplications = await _appViewStateLookupService.GetFilteredStatesAsync(cancellationToken);
 
-                //filter out any applications that passes current app profile
-                var filteredApplications = allApplications.Where(app => _gizmoClient.AppCurrentProfilePass(app.ApplicationId));
+                var filteredApplications = allApplications.AsQueryable();
 
                 IEnumerable<AppExeViewState>? allExecutables = null;
                 IEnumerable<AppExeViewState>? filteredExecutables = null;

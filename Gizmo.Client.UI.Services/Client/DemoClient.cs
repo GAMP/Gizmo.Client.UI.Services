@@ -1341,7 +1341,7 @@ namespace Gizmo.Client
             //_userProfile.Phone = user.Phone;
             //_userProfile.MobilePhone = user.MobilePhone;
 
-            //TODO: AAA EVENT?
+            //TODO: A EVENT?
 
             await _notificationsService.ShowAlertNotification(AlertTypes.Success, "Success", "Success");
 

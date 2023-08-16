@@ -1,5 +1,7 @@
-﻿using Gizmo.Client.UI.Services;
+﻿using System;
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
+using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 
@@ -91,7 +93,14 @@ namespace Gizmo.Client.UI.View.Services
         public async Task<IEnumerable<AppViewState>> GetFilteredStatesAsync(CancellationToken cancellationToken = default)
         {
             var states = await GetStatesAsync(cancellationToken);
-            return states.Where(state => _gizmoClient.AppCurrentProfilePass(state.ApplicationId)).ToList();
+
+            var appExeViewStateLookupService = ServiceProvider.GetRequiredService<AppExeViewStateLookupService>();
+
+            var appExeViewStates = await appExeViewStateLookupService.GetFilteredStatesAsync(cancellationToken);
+
+            return states.Where(state => _gizmoClient.AppCurrentProfilePass(state.ApplicationId))
+                         .Where(state => appExeViewStates.Where(a => a.ApplicationId == state.ApplicationId).Count() > 0)
+                         .ToList();
         }
     }
 }

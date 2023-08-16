@@ -18,9 +18,9 @@ namespace Gizmo.Client.UI.View.States
 
         public int DisplayOrder { get; internal set; }
 
-        public bool AutoLaunch { get;internal set; }
+        public bool AutoLaunch { get; internal set; }
 
-        public bool Accessible { get;internal set; }
+        public bool Accessible { get; internal set; }
 
         public IEnumerable<AppExePersonalFileViewState> PersonalFiles { get; internal set; } = Enumerable.Empty<AppExePersonalFileViewState>();
 
@@ -29,6 +29,12 @@ namespace Gizmo.Client.UI.View.States
         public ExecutableOptionType Options { get; internal set; }
 
         public ApplicationModes Modes { get; internal set; }
+
+        public string ExecutablePath { get; internal set; } = null!;
+
+        public IEnumerable<AppExeDeploymentProfileViewState> DeploymentProfiles { get; internal set; } = Enumerable.Empty<AppExeDeploymentProfileViewState>();
+
+        public bool IsFileAccessible { get; internal set; }
 
         #endregion
     }
