@@ -90,12 +90,6 @@ namespace Gizmo.Client.UI.View.Services
             return Task.CompletedTask;
         }
 
-        public Task LogoutAsync()
-        {
-            NavigationService.NavigateTo(ClientRoutes.HomeRoute);
-            return Task.CompletedTask;
-        }
-
         public void Reset()
         {
             ViewState.SetDefaults();

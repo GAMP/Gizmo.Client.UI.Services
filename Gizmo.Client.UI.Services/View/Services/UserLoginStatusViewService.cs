@@ -7,6 +7,7 @@ using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -17,20 +18,23 @@ namespace Gizmo.Client.UI.View.Services
             IGizmoClient gizmoClient,
             ILogger<UserLoginStatusViewService> logger,
             IServiceProvider serviceProvider,
-             IClientDialogService dialogService,
+            IClientDialogService dialogService,
             UserChangePasswordViewService userChangePasswordViewService,
-            UserChangeProfileViewService userChangeProfileViewService) : base(viewState, logger, serviceProvider)
+            UserChangeProfileViewService userChangeProfileViewService,
+            IOptions<ClientHomeOptions> clientHomeOptions) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _userChangePasswordViewService = userChangePasswordViewService;
             _userChangeProfileViewService = userChangeProfileViewService;
             _dialogService = dialogService;
+            _clientHomeOptions = clientHomeOptions;
         }
 
         private readonly IGizmoClient _gizmoClient;
         private readonly UserChangePasswordViewService _userChangePasswordViewService;
         private readonly UserChangeProfileViewService _userChangeProfileViewService;
         private readonly IClientDialogService _dialogService;
+        private readonly IOptions<ClientHomeOptions> _clientHomeOptions;
 
         private const string BASE_ROUTE_URL = "https://0.0.0.0/";
 
@@ -78,7 +82,16 @@ namespace Gizmo.Client.UI.View.Services
             switch (e.State)
             {
                 case LoginState.LoginCompleted:
-                    NavigationService.NavigateTo(ClientRoutes.HomeRoute);
+
+                    if (!_clientHomeOptions.Value.Disabled)
+                    {
+                        NavigationService.NavigateTo(ClientRoutes.HomeRoute);
+                    }
+                    else
+                    {
+                        NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute);
+                    }
+
                     break;
                 case LoginState.LoggingOut:
                     NavigationService.NavigateTo(ClientRoutes.LoginRoute);
@@ -200,7 +213,14 @@ namespace Gizmo.Client.UI.View.Services
                 //TODO temprary fix, we need to fix the mouse buttons problem
                 if (_isLoggedIn && e.Location == BASE_ROUTE_URL)
                 {
-                    NavigationService.NavigateTo(ClientRoutes.HomeRoute);
+                    if (!_clientHomeOptions.Value.Disabled)
+                    {
+                        NavigationService.NavigateTo(ClientRoutes.HomeRoute);
+                    }
+                    else
+                    {
+                        NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute);
+                    }
                 }
                 else if (!_isLoggedIn && IsLoggedInRoute(e.Location))
                 {

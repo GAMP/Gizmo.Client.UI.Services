@@ -38,7 +38,8 @@ namespace Gizmo.Client.UI.View.Services
             ".MP4",
             ".WMV",
             ".AVI",
-            ".WEBM"
+            ".WEBM",
+            ".MKV"
         };
 
         private static readonly string[] ALL_EXTENSIONS = IMAGE_EXTENSIONS.Union(VIDEO_EXTENSIONS).ToArray();

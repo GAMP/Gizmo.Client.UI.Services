@@ -12,21 +12,29 @@ namespace Gizmo.Client.UI.View.Services
     {
         public PageModuleViewService(PageModulesViewState viewState, 
             IUICompositionService uICompositionService,
+            IOptionsMonitor<ClientHomeOptions> homeOptions,
             IOptionsMonitor<ClientShopOptions> shopOptions,
             IServiceProvider serviceProvider, 
             ILogger<PageModuleViewService> logger)
-            :base(viewState,logger,serviceProvider) 
+            :base(viewState,logger,serviceProvider)
         {
+            _homeOptions = homeOptions;
             _shopOptions = shopOptions;
             _uICompositionService = uICompositionService;
         }
 
-        readonly IUICompositionService _uICompositionService;
-        readonly IOptionsMonitor<ClientShopOptions> _shopOptions;
+        private readonly IUICompositionService _uICompositionService;
+        private readonly IOptionsMonitor<ClientHomeOptions> _homeOptions;
+        private readonly IOptionsMonitor<ClientShopOptions> _shopOptions;
 
         protected override Task OnInitializing(CancellationToken ct)
         {
             var metadata = _uICompositionService.PageModules;
+
+            if (_homeOptions.CurrentValue.Disabled)
+            {
+                metadata = metadata.Where(md => md.Guid != KnownModules.MODULE_HOME);
+            }
 
             if (_shopOptions.CurrentValue.Disabled)
             {

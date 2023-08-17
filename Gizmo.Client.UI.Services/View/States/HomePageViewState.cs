@@ -18,7 +18,7 @@ namespace Gizmo.Client.UI.View.States
             get { return _popularProducts; }
             internal set { _popularProducts = value; }
         }
-        
+
         public IEnumerable<AppViewState> PopularApplications
         {
             get { return _popularApplications; }
@@ -27,7 +27,7 @@ namespace Gizmo.Client.UI.View.States
 
         public bool IsShopEnabled
         {
-            get;internal set;
+            get; internal set;
         }
 
         #endregion
