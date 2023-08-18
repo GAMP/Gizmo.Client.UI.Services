@@ -1,4 +1,6 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System.Security.Cryptography;
+using System.Text;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -25,7 +27,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.IsEnabled = _hostQRCodeOptions.CurrentValue.Enabled;
 
-            if(_hostQRCodeOptions.CurrentValue.Enabled)
+            if (_hostQRCodeOptions.CurrentValue.Enabled)
             {
                 try
                 {
@@ -33,7 +35,15 @@ namespace Gizmo.Client.UI.View.Services
                     var generateResult = await _gizmoClient.HostQRCodeGenerateAsync(ct);
 
                     //use with view state
-                    ViewState.HostQRCode = generateResult.QRCode;
+                    if (_hostQRCodeOptions.CurrentValue.IsBase64)
+                    {
+                        byte[] binaryQrImage = Convert.FromBase64String(generateResult.QRCode);
+                        ViewState.HostQRCode = System.Text.Encoding.ASCII.GetString(binaryQrImage);
+                    }
+                    else
+                    {
+                        ViewState.HostQRCode = generateResult.QRCode;
+                    }
 
                     DebounceViewStateChanged();
                 }
