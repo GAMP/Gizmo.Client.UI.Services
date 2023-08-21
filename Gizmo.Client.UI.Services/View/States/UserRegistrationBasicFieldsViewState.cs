@@ -15,6 +15,7 @@ namespace Gizmo.Client.UI.View.States
         /// </summary>
         [ValidatingProperty(IsAsync = true)]
         [Required(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_REQUIRED_FIELD")]
+        [FileInvalidCharactersValidation]
         public string Username { get; internal set; } = string.Empty;
 
         /// <summary>

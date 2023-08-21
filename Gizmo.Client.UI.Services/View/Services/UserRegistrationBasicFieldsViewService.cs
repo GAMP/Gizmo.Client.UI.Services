@@ -330,7 +330,15 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
-            if (fieldIdentifier.FieldEquals(() => ViewState.Password) || fieldIdentifier.FieldEquals(() => ViewState.RepeatPassword))
+            if (fieldIdentifier.FieldEquals(() => ViewState.Username))
+            {
+                if (!string.IsNullOrEmpty(ViewState.Username) && ViewState.Username.ToString().Any(c => char.IsWhiteSpace(c)))
+                {
+                    ClearError(() => ViewState.Username);
+                    AddError(() => ViewState.Username, _localizationService.GetString("GIZ_REGISTRATION_VE_WHITE_SPACE_NOT_ALLOWED"));
+                }
+            }
+            else if (fieldIdentifier.FieldEquals(() => ViewState.Password) || fieldIdentifier.FieldEquals(() => ViewState.RepeatPassword))
             {
                 if (fieldIdentifier.FieldEquals(() => ViewState.Password))
                 {
