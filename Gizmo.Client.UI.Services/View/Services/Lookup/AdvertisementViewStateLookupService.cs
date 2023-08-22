@@ -1,4 +1,5 @@
-﻿using System.Reactive.Linq;
+﻿using System;
+using System.Reactive.Linq;
 using System.Web;
 
 using Gizmo.Client.UI.Services;
@@ -22,7 +23,10 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
         IServiceProvider serviceProvider) : base(logger, serviceProvider)
     {
         _gizmoClient = gizmoClient;
+        _serviceProvider = serviceProvider;
     }
+
+    private readonly IServiceProvider _serviceProvider;
 
     #region OVERRIDED FUNCTIONS
     protected override Task OnInitializing(CancellationToken ct)
@@ -136,7 +140,7 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
                 return null;
         }
     }
-    private static (string? Url, ViewServiceCommand? Command) ParseUrl(string? url)
+    private (string? Url, ViewServiceCommand? Command) ParseUrl(string? url)
     {
         if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
             return (null, null);
@@ -153,10 +157,9 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
 
         ViewServiceCommandType? commandType = commandName switch
         {
-            "add" => ViewServiceCommandType.Add,
-            "delete" => ViewServiceCommandType.Delete,
-            "launch" => ViewServiceCommandType.Launch,
             "navigate" => ViewServiceCommandType.Navigate,
+            "add" => ViewServiceCommandType.Add,
+            "launch" => ViewServiceCommandType.Launch,
             _ => null
         };
 
@@ -194,6 +197,10 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
             Type = commandType.Value,
             Params = commandParams
         };
+
+        var commandProviderService = _serviceProvider.GetRequiredService<CommandProviderService>();
+        if (!commandProviderService.ValidateCommand(command))
+            return (null, null);
 
         return (null, command);
     }

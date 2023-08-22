@@ -20,11 +20,13 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<ProductDetailsPageViewService> logger,
             IServiceProvider serviceProvider,
             UserProductViewStateLookupService productLookupService,
-            IOptions<ClientInterfaceOptions> clientUIOptions) : base(viewState, logger, serviceProvider)
+            IOptions<ClientInterfaceOptions> clientUIOptions,
+            IOptions<ClientShopOptions> shopOptions) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _productLookupService = productLookupService;
             _clientUIOptions = clientUIOptions;
+            _shopOptions = shopOptions;
         }
         #endregion
 
@@ -32,6 +34,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IGizmoClient _gizmoClient;
         private readonly UserProductViewStateLookupService _productLookupService;
         private readonly IOptions<ClientInterfaceOptions> _clientUIOptions;
+        private readonly IOptions<ClientShopOptions> _shopOptions;
         #endregion
 
         #region OVERRIDES
@@ -62,8 +65,30 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
+        public override bool ValidateCommand<TCommand>(TCommand command)
+        {
+            if (_shopOptions.Value.Disabled || _clientUIOptions.Value.DisableProductDetails)
+                return false;
+
+            if (command.Type != ViewServiceCommandType.Navigate)
+                return false;
+
+            if (command.Params?.Any() != true)
+                return false;
+
+            var paramProductId = command.Params.GetValueOrDefault("productId")?.ToString();
+
+            if (paramProductId is null)
+                return false;
+
+            return true;
+        }
+
         public override Task ExecuteCommandAsync<TCommand>(TCommand command, CancellationToken cToken = default)
         {
+            if (_shopOptions.Value.Disabled || _clientUIOptions.Value.DisableProductDetails)
+                return Task.CompletedTask;
+
             if (command.Params?.Any() != true)
                 return Task.CompletedTask;
 
