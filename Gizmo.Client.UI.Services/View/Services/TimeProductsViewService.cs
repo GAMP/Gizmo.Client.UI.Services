@@ -31,7 +31,7 @@ namespace Gizmo.Client.UI.View.Services
             var timeProducts = Enumerable.Range(1, 18).Select(i => new TimeProductViewState()
             {
                 PurchaseDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, random.Next(1, 28)),
-                Title = $"Test {i}",
+                Source = $"Test {i}",
                 Time = TimeSpan.FromMinutes(random.Next(3, 180))
             }).ToList();
 

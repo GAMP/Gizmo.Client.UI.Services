@@ -6,31 +6,19 @@ namespace Gizmo.Client.UI.View.States
     [Register(Scope = RegisterScope.Transient)]
     public sealed class TimeProductViewState : ViewStateBase
     {
-        #region FIELDS
-        private DateTime _purchaseDate;
-        private string _title = string.Empty;
-        private TimeSpan _time;
-        #endregion
-
         #region PROPERTIES
 
-        public DateTime PurchaseDate
-        {
-            get { return _purchaseDate; }
-            internal set { _purchaseDate = value; }
-        }
+        public int? UseOrder { get; internal set; }
 
-        public string Title
-        {
-            get { return _title; }
-            internal set { _title = value; }
-        }
+        public UsageType UsageType { get; internal set; }
 
-        public TimeSpan Time
-        {
-            get { return _time; }
-            internal set { _time = value; }
-        }
+        public string Source { get; internal set; } = null!;
+
+        public TimeSpan? Time { get; internal set; }
+
+        public DateTime PurchaseDate { get; internal set; }
+
+        public IEnumerable<int> HostGroups { get; internal set; } = Enumerable.Empty<int>();
 
         #endregion
     }
