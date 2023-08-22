@@ -42,7 +42,12 @@ namespace Gizmo.Client.UI.View.Services
 
             foreach (var item in states)
             {
-                string path = Environment.ExpandEnvironmentVariables(item.Value.ExecutablePath); //TODO: AAA EXPAND OTHER VARIABLES?
+                string path = item.Value.ExecutablePath;
+
+                if (!string.IsNullOrEmpty(path))
+                {
+                    path = Environment.ExpandEnvironmentVariables(path); //TODO: AAA EXPAND OTHER VARIABLES?
+                }
 
                 if (item.Value.DeploymentProfiles.Count() > 0)
                 {
