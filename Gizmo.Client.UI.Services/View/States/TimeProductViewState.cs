@@ -18,7 +18,7 @@ namespace Gizmo.Client.UI.View.States
 
         public DateTime PurchaseDate { get; internal set; }
 
-        public IEnumerable<int> HostGroups { get; internal set; } = Enumerable.Empty<int>();
+        public IEnumerable<int> AvailableHostGroups { get; internal set; } = Enumerable.Empty<int>();
 
         #endregion
     }
