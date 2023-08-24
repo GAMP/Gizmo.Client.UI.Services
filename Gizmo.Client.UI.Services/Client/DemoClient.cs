@@ -1857,7 +1857,8 @@ namespace Gizmo.Client
             return Task.FromResult<NextHostReservationModel?>(new NextHostReservationModel()
             {
                 NextReservationId = 1,
-                NextReservationTime = DateTime.Now
+                NextReservationTime = DateTime.Now,
+                NextReservationDuration = 30
             });
         }
 
