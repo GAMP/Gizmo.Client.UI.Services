@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -28,7 +29,8 @@ namespace Gizmo.Client.UI.View.Services
             IClientNotificationService notificationService,
             IGizmoClient gizmoClient,
             ILocalizationService localizationService,
-            UserBalanceViewState userBalanceViewState) : base(viewState, logger, serviceProvider)
+            UserBalanceViewState userBalanceViewState,
+            IOptions<ClientShopOptions> shopOptions) : base(viewState, logger, serviceProvider)
         {
             _userProductViewStateLookupService = userProductViewStateLookupService;
             _userCartProductItemLookupService = userCartProductItemLookupService;
@@ -37,6 +39,7 @@ namespace Gizmo.Client.UI.View.Services
             _gizmoClient = gizmoClient;
             _localizationService = localizationService;
             _userBalanceViewState = userBalanceViewState;
+            _shopOptions = shopOptions;
         }
         #endregion
 
@@ -48,6 +51,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IGizmoClient _gizmoClient;
         private readonly ILocalizationService _localizationService;
         private readonly UserBalanceViewState _userBalanceViewState;
+        private readonly IOptions<ClientShopOptions> _shopOptions;
         #endregion
 
         #region FUNCTIONS
@@ -541,8 +545,30 @@ namespace Gizmo.Client.UI.View.Services
             base.OnDisposing(dis);
         }
 
+        public override bool ValidateCommand<TCommand>(TCommand command)
+        {
+            if (_shopOptions.Value.Disabled)
+                return false;
+
+            if (command.Type != ViewServiceCommandType.Add)
+                return false;
+
+            if (command.Params?.Any() != true)
+                return false;
+
+            var paramProductId = command.Params.GetValueOrDefault("productId")?.ToString();
+
+            if (paramProductId is null)
+                return false;
+
+            return true;
+        }
+
         public override async Task ExecuteCommandAsync<TCommand>(TCommand command, CancellationToken cToken = default)
         {
+            if (_shopOptions.Value.Disabled)
+                return;
+
             if (command.Params?.Any() != true)
                 return;
 
@@ -553,23 +579,19 @@ namespace Gizmo.Client.UI.View.Services
 
             var productId = int.Parse(paramProductId, NumberStyles.Number);
 
-            var paramSize = command.Params.GetValueOrDefault("size")?.ToString();
+            var paramQuantity = command.Params.GetValueOrDefault("quantity")?.ToString();
 
-            var size = 1;
-            if (paramSize is not null)
-                size = int.Parse(paramSize, NumberStyles.Number);
+            var quantity = 1;
+            if (paramQuantity is not null)
+                quantity = int.Parse(paramQuantity, NumberStyles.Number);
 
             switch (command.Type)
             {
                 case ViewServiceCommandType.Add:
-                    await AddUserCartProductAsync(productId, size);
-                    break;
-                case ViewServiceCommandType.Delete:
-                    await RemoveUserCartProductAsync(productId, size);
+                    await AddUserCartProductAsync(productId, quantity);
+                    NavigationService.NavigateTo(ClientRoutes.ShopRoute);
                     break;
             }
-
-            NavigationService.NavigateTo(ClientRoutes.ShopRoute);
         }
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)

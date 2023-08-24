@@ -16,7 +16,8 @@ public sealed class CommandProviderService : ViewServiceBase
         _services = new(StringComparer.OrdinalIgnoreCase)
         {
             {"products/cart", () => serviceProvider.GetRequiredService<UserCartViewService>() },
-            {"products/details", () => serviceProvider.GetRequiredService<ProductDetailsPageViewService>() }
+            {"products/details", () => serviceProvider.GetRequiredService<ProductDetailsPageViewService>() },
+            {"apps/details", () => serviceProvider.GetRequiredService<AppDetailsPageViewService>() }
         };
     }
 
@@ -28,8 +29,36 @@ public sealed class CommandProviderService : ViewServiceBase
     /// <param name="cToken">CancellationToken.</param>
     /// <returns>Task of the command.</returns>
     /// <exception cref="NotSupportedException">If the command isn't supported.</exeption>
-    public override Task ExecuteCommandAsync<TCommand>(TCommand command, CancellationToken cToken = default) =>
-        _services.ContainsKey(command.Key)
-            ? _services[command.Key]().ExecuteCommandAsync(command, cToken)
-            : throw new NotSupportedException(JsonSerializer.Serialize(command));
+    public override Task ExecuteCommandAsync<TCommand>(TCommand command, CancellationToken cToken = default)
+    {
+        if (_services.ContainsKey(command.Key))
+        {
+            return _services[command.Key]().ExecuteCommandAsync(command, cToken);
+        }
+        else
+        {
+            throw new NotSupportedException(JsonSerializer.Serialize(command));
+        }
+    }
+
+    public override bool ValidateCommand<TCommand>(TCommand command)
+    {
+        if (_services.ContainsKey(command.Key))
+        {
+            if (_services[command.Key]().ValidateCommand(command))
+            {
+                return true;
+            }
+            else
+            {
+                Logger.LogWarning($"Invalid command: {JsonSerializer.Serialize(command)}");
+                return false;
+            }
+        }
+        else
+        {
+            Logger.LogWarning($"Invalid command: {JsonSerializer.Serialize(command)}");
+            return false;
+        }
+    }
 }

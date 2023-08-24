@@ -56,6 +56,47 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
         }
+        public override bool ValidateCommand<TCommand>(TCommand command)
+        {
+            if (_clientUIOptions.Value.DisableAppDetails)
+                return false;
+
+            if (command.Type != ViewServiceCommandType.Navigate)
+                return false;
+
+            if (command.Params?.Any() != true)
+                return false;
+
+            var paramAppId = command.Params.GetValueOrDefault("appId")?.ToString();
+
+            if (paramAppId is null)
+                return false;
+
+            return true;
+        }
+
+        public override Task ExecuteCommandAsync<TCommand>(TCommand command, CancellationToken cToken = default)
+        {
+            if (_clientUIOptions.Value.DisableAppDetails)
+                return Task.CompletedTask;
+
+            if (command.Params?.Any() != true)
+                return Task.CompletedTask;
+
+            var paramAppId = command.Params.GetValueOrDefault("appId")?.ToString();
+
+            if (paramAppId is null)
+                return Task.CompletedTask;
+
+            switch (command.Type)
+            {
+                case ViewServiceCommandType.Navigate:
+                    NavigationService.NavigateTo(ClientRoutes.ApplicationDetailsRoute + "?ApplicationId=" + paramAppId);
+                    break;
+            }
+
+            return Task.CompletedTask;
+        }
 
         #endregion
     }
