@@ -78,25 +78,22 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnInitializing(CancellationToken ct)
         {
-            await LoadNextHostReservation();
-
-            _gizmoClient.ConnectionStateChange += OnConnectionStateChange;
+            _gizmoClient.StartUp += OnStartUp;
             _gizmoClient.ReservationChange += OnReservationChange;
             await base.OnInitializing(ct);
         }
 
         protected override void OnDisposing(bool isDisposing)
         {
-            _gizmoClient.ConnectionStateChange -= OnConnectionStateChange;
+            _gizmoClient.StartUp -= OnStartUp;
             _gizmoClient.ReservationChange -= OnReservationChange;
 
             base.OnDisposing(isDisposing);
         }
 
-        private async void OnConnectionStateChange(object? sender, ConnectionStateEventArgs e)
+        private async void OnStartUp(object? sender, StartUpEventArgs e)
         {
-            if (e.IsConnected)
-                await LoadNextHostReservation();
+            await LoadNextHostReservation();
         }
 
         private async void OnReservationChange(object? sender, ReservationChangeEventArgs e)
