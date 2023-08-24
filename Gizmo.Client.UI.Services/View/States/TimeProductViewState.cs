@@ -10,7 +10,9 @@ namespace Gizmo.Client.UI.View.States
 
         public int? UseOrder { get; internal set; }
 
-        public UsageType UsageType { get; internal set; }
+        public UsageType TimeProductType { get; internal set; }
+
+        public string TimeProductName { get; internal set; } = null!;
 
         public string Source { get; internal set; } = null!;
 
