@@ -85,7 +85,7 @@ namespace Gizmo.Client.UI.View.Services
 
             defaultState.Id = lookUpkey;
 
-            defaultState.Name = "Default namer";
+            defaultState.Name = "Default name";
 
             return defaultState;
         }

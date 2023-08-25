@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.Globalization;
+using System.Web;
 
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
@@ -19,12 +20,12 @@ namespace Gizmo.Client.UI.View.Services
             IGizmoClient gizmoClient,
             ILogger<ProductDetailsPageViewService> logger,
             IServiceProvider serviceProvider,
-            UserProductViewStateLookupService productLookupService,
+            UserProductViewStateLookupService userProductViewStateLookupService,
             IOptions<ClientInterfaceOptions> clientUIOptions,
             IOptions<ClientShopOptions> shopOptions) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
-            _productLookupService = productLookupService;
+            _userProductViewStateLookupService = userProductViewStateLookupService;
             _clientUIOptions = clientUIOptions;
             _shopOptions = shopOptions;
         }
@@ -32,7 +33,7 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
-        private readonly UserProductViewStateLookupService _productLookupService;
+        private readonly UserProductViewStateLookupService _userProductViewStateLookupService;
         private readonly IOptions<ClientInterfaceOptions> _clientUIOptions;
         private readonly IOptions<ClientShopOptions> _shopOptions;
         #endregion
@@ -54,11 +55,11 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     if (int.TryParse(productId, out int id))
                     {
-                        var productViewState = await _productLookupService.GetStateAsync(id, false, cancellationToken);
+                        var productViewState = await _userProductViewStateLookupService.GetStateAsync(id, false, cancellationToken);
                         ViewState.Product = productViewState;
 
                         //TODO: A DEMO
-                        var products = await _productLookupService.GetFilteredStatesAsync(null, cancellationToken);
+                        var products = await _userProductViewStateLookupService.GetFilteredStatesAsync(null, cancellationToken);
                         ViewState.RelatedProducts = products.Take(2);
                     }
                 }
@@ -84,18 +85,27 @@ namespace Gizmo.Client.UI.View.Services
             return true;
         }
 
-        public override Task ExecuteCommandAsync<TCommand>(TCommand command, CancellationToken cToken = default)
+        public override async Task ExecuteCommandAsync<TCommand>(TCommand command, CancellationToken cToken = default)
         {
             if (_shopOptions.Value.Disabled || _clientUIOptions.Value.DisableProductDetails)
-                return Task.CompletedTask;
+                return;
 
             if (command.Params?.Any() != true)
-                return Task.CompletedTask;
+                return;
 
             var paramProductId = command.Params.GetValueOrDefault("productId")?.ToString();
 
             if (paramProductId is null)
-                return Task.CompletedTask;
+                return;
+
+            var productId = int.Parse(paramProductId, NumberStyles.Number);
+
+            var products = await _userProductViewStateLookupService.GetStatesAsync();
+            if (!products.Where(a => a.Id == productId).Any())
+            {
+                NavigationService.NavigateTo(ClientRoutes.NotFoundRoute);
+                return;
+            }
 
             switch (command.Type)
             {
@@ -103,8 +113,6 @@ namespace Gizmo.Client.UI.View.Services
                     NavigationService.NavigateTo(ClientRoutes.ProductDetailsRoute + "?ProductId=" + paramProductId);
                     break;
             }
-
-            return Task.CompletedTask;
         }
 
         #endregion
