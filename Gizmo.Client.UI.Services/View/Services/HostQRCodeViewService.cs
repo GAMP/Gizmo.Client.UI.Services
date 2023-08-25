@@ -35,15 +35,7 @@ namespace Gizmo.Client.UI.View.Services
                     var generateResult = await _gizmoClient.HostQRCodeGenerateAsync(ct);
 
                     //use with view state
-                    if (_hostQRCodeOptions.CurrentValue.IsBase64)
-                    {
-                        byte[] binaryQrImage = Convert.FromBase64String(generateResult.QRCode);
-                        ViewState.HostQRCode = System.Text.Encoding.ASCII.GetString(binaryQrImage);
-                    }
-                    else
-                    {
-                        ViewState.HostQRCode = generateResult.QRCode;
-                    }
+                    ViewState.HostQRCode = generateResult.QRCode;
 
                     DebounceViewStateChanged();
                 }
