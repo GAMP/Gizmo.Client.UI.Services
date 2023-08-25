@@ -419,7 +419,6 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            //TODO: AAA REFRESH TIMER?
             RefreshProductAvailability(result);
 
             return result;

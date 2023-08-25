@@ -49,20 +49,9 @@ namespace Gizmo.Client.UI.View.Services
 
         private async void OnLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
         {
-            //we only interested in user login/logout states
-            switch (e.State)
-            {
-                case LoginState.LoggedIn:
-                case LoginState.LoggedOut:
-                    break;
-                default:
-                    return;
-            }
-
             //we only need to update user balance
             if (e.State == LoginState.LoggedIn)
             {
-
                 try
                 {
                     //get current user balance

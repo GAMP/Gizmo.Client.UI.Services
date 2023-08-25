@@ -30,15 +30,39 @@ namespace Gizmo.Client.UI.View.Services
             return base.OnInitializing(ct);
         }
 
-        private void OnLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
+        private async void OnLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
         {
-            switch(e.State)
+            //we only need to update user session
+            if (e.State == LoginState.LoggedIn)
             {
-                case LoginState.LoggedOut:
-                    break;
-                default:
-                    break;
+                try
+                {
+                    //get current user balance
+                    var currentUserSession = await _gizmoClient.UserUsageSessionGetAsync();
+
+                    ViewState.CurrentTimeProductType = currentUserSession.CurrentUsageType;
+                    switch (currentUserSession.CurrentUsageType)
+                    {
+                        case UsageType.Rate:
+                            ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_RATE");
+                            break;
+                        case UsageType.TimeFixed:
+                        case UsageType.TimeOffer:
+                            ViewState.CurrentTimeProductName = currentUserSession.TimePorduct;
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Failed obtaining user session.");
+                }
             }
+            else if (e.State == LoginState.LoggedOut)
+            {
+                ViewState.SetDefaults();
+            }
+
+            DebounceViewStateChanged();
         }
 
         protected override void OnDisposing(bool isDisposing)
