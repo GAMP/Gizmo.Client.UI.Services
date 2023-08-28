@@ -8,7 +8,7 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
-        public int? UseOrder { get; internal set; }
+        public int? ActivationOrder { get; internal set; } = null!;
 
         public UsageType TimeProductType { get; internal set; }
 

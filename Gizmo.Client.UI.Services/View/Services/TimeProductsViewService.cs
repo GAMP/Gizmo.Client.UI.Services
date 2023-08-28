@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
@@ -31,20 +32,33 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        private async Task<List<TimeProductViewState>> TransformResults(PagedList<UserOrderModel> ordersList, CancellationToken cToken = default)
+        private async Task<List<TimeProductViewState>> TransformResults(PagedList<UserUsageTimeLevelModel> timeProducts, CancellationToken cToken = default)
         {
-            var userOrderViewStates = new List<TimeProductViewState>();
+            var timeProductsViewStates = new List<TimeProductViewState>();
 
-            foreach (var order in ordersList.Data)
+            foreach (var timeProduct in timeProducts.Data)
             {
-                var userTimeProductViewState = new TimeProductViewState();
+                var timeProductViewState = new TimeProductViewState();
+
+                timeProductViewState.TimeProductType = timeProduct.UsageType;
+                timeProductViewState.TimeProductName = ""; //TODO: AAA NOT EXISTS IN MODEL; ProductId
+                timeProductViewState.ActivationOrder = timeProduct.ActivationOrder;
+                timeProductViewState.PurchaseDate = DateTime.Now; //TODO: AAA NOT EXISTS IN MODEL; InvoiceLineId
+                timeProductViewState.Source = $"Test"; //TODO: AAA NOT EXISTS IN MODEL; InvoiceLineId
+
+                if (timeProduct.AvailableMinutes.HasValue)
+                {
+                    timeProductViewState.Time = TimeSpan.FromMinutes(timeProduct.AvailableMinutes.Value); //TODO: AAA VERIFY
+                }
+
+                timeProductViewState.AvailableHostGroups = Enumerable.Range(1, 10).Select(i => i); //TODO: AAA NOT EXISTS IN MODEL; ProductId
 
                 //TODO: AAA
 
-                userOrderViewStates.Add(userTimeProductViewState);
+                timeProductsViewStates.Add(timeProductViewState);
             }
 
-            return userOrderViewStates;
+            return timeProductsViewStates;
         }
 
         public async Task LoadPrevious()
@@ -69,13 +83,13 @@ namespace Gizmo.Client.UI.View.Services
 
             filters.Pagination.Cursor = cursor;
 
-            var ordersList = await _gizmoClient.UserOrdersGetAsync(filters, cToken);
-            var userTimeProductsViewStates = await TransformResults(ordersList);
+            PagedList<UserUsageTimeLevelModel> timeProductsList = null;// = await _gizmoClient.UserOrdersGetAsync(filters, cToken);
+            var userTimeProductsViewStates = await TransformResults(timeProductsList);
 
             ViewState.TimeProducts = userTimeProductsViewStates;
 
-            ViewState.PrevCursor = ordersList.PrevCursor;
-            ViewState.NextCursor = ordersList.NextCursor;
+            ViewState.PrevCursor = timeProductsList.PrevCursor;
+            ViewState.NextCursor = timeProductsList.NextCursor;
 
             ViewState.RaiseChanged();
         }
@@ -90,7 +104,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 TimeProductType = UsageType.Rate,
                 TimeProductName = "Rate",
-                UseOrder = i,
+                ActivationOrder = i,
                 PurchaseDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, random.Next(1, 28)),
                 Source = $"Test {i}",
                 Time = TimeSpan.FromMinutes(random.Next(3, 180)),
