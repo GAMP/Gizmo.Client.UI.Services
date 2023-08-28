@@ -32,11 +32,11 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        private async Task<List<TimeProductViewState>> TransformResults(PagedList<UserUsageTimeLevelModel> timeProducts, CancellationToken cToken = default)
+        private async Task<List<TimeProductViewState>> TransformResults(List<UserUsageTimeLevelModel> timeProducts, CancellationToken cToken = default)
         {
             var timeProductsViewStates = new List<TimeProductViewState>();
 
-            foreach (var timeProduct in timeProducts.Data)
+            foreach (var timeProduct in timeProducts)
             {
                 var timeProductViewState = new TimeProductViewState();
 
@@ -61,41 +61,15 @@ namespace Gizmo.Client.UI.View.Services
             return timeProductsViewStates;
         }
 
-        public async Task LoadPrevious()
+        public async Task LoadAsync(CancellationToken cToken = default)
         {
-            //if (ViewState.PrevCursor != null)
-            //    await LoadCursor(ViewState.PrevCursor, true);
-        }
-
-        public async Task LoadNext()
-        {
-            //if (ViewState.NextCursor != null)
-            //    await LoadCursor(ViewState.NextCursor, false);
-        }
-
-        public async Task LoadCursor(PaginationCursor? cursor, bool prev, CancellationToken cToken = default)
-        {
-            var filters = new Web.Api.Models.UserOrdersFilter();
-
-            filters.Pagination.Limit = 8;
-            filters.Pagination.SortBy = nameof(Web.Api.Models.UserOrderModel.Date);
-            filters.Pagination.IsAsc = false;
-
-            filters.Pagination.Cursor = cursor;
-
-            PagedList<UserUsageTimeLevelModel> timeProductsList = null;// = await _gizmoClient.UserOrdersGetAsync(filters, cToken);
+            List<UserUsageTimeLevelModel> timeProductsList = await _gizmoClient.UserUsageTimeLevelsGetAsync(cToken);
             var userTimeProductsViewStates = await TransformResults(timeProductsList);
 
             ViewState.TimeProducts = userTimeProductsViewStates;
 
-            ViewState.PrevCursor = timeProductsList.PrevCursor;
-            ViewState.NextCursor = timeProductsList.NextCursor;
-
             ViewState.RaiseChanged();
-        }
 
-        public async Task LoadAsync(CancellationToken cToken = default)
-        {
             //TODO: AAA
             //Test
             Random random = new Random();

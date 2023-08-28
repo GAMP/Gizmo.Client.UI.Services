@@ -1912,5 +1912,10 @@ namespace Gizmo.Client
         {
             ExecutionContextStateChange?.Invoke(sender, e);
         }
+
+        public Task<List<UserUsageTimeLevelModel>> UserUsageTimeLevelsGetAsync(CancellationToken cToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
