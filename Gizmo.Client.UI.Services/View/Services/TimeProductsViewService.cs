@@ -69,26 +69,6 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.TimeProducts = userTimeProductsViewStates;
 
             ViewState.RaiseChanged();
-
-            //TODO: AAA
-            //Test
-            Random random = new Random();
-
-            var timeProducts = Enumerable.Range(1, 18).Select(i => new TimeProductViewState()
-            {
-                TimeProductType = UsageType.Rate,
-                TimeProductName = "Rate",
-                ActivationOrder = i,
-                PurchaseDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, random.Next(1, 28)),
-                Source = $"Test {i}",
-                Time = TimeSpan.FromMinutes(random.Next(3, 180)),
-                AvailableHostGroups = Enumerable.Range(1, 10).Select(i => i)
-            }).ToList();
-
-            ViewState.TimeProducts = timeProducts;
-            //End Test
-
-            ViewState.RaiseChanged();
         }
 
         #endregion
