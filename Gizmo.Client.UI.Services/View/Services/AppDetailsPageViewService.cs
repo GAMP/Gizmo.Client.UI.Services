@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Globalization;
 using System.Web;
 
 namespace Gizmo.Client.UI.View.Services
@@ -75,18 +76,27 @@ namespace Gizmo.Client.UI.View.Services
             return true;
         }
 
-        public override Task ExecuteCommandAsync<TCommand>(TCommand command, CancellationToken cToken = default)
+        public override async Task ExecuteCommandAsync<TCommand>(TCommand command, CancellationToken cToken = default)
         {
             if (_clientUIOptions.Value.DisableAppDetails)
-                return Task.CompletedTask;
+                return;
 
             if (command.Params?.Any() != true)
-                return Task.CompletedTask;
+                return;
 
             var paramAppId = command.Params.GetValueOrDefault("appId")?.ToString();
 
             if (paramAppId is null)
-                return Task.CompletedTask;
+                return;
+
+            var appId = int.Parse(paramAppId, NumberStyles.Number);
+
+            var apps = await _appLookupService.GetStatesAsync();
+            if (!apps.Where(a => a.ApplicationId == appId).Any())
+            {
+                NavigationService.NavigateTo(ClientRoutes.NotFoundRoute);
+                return;
+            }
 
             switch (command.Type)
             {
@@ -94,8 +104,6 @@ namespace Gizmo.Client.UI.View.Services
                     NavigationService.NavigateTo(ClientRoutes.ApplicationDetailsRoute + "?ApplicationId=" + paramAppId);
                     break;
             }
-
-            return Task.CompletedTask;
         }
 
         #endregion

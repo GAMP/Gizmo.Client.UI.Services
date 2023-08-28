@@ -85,7 +85,7 @@ namespace Gizmo.Client.UI.View.Services
 
             defaultState.Id = lookUpkey;
 
-            defaultState.Name = "Default namer";
+            defaultState.Name = "Default name";
 
             return defaultState;
         }
@@ -419,7 +419,6 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            //TODO: AAA REFRESH TIMER?
             RefreshProductAvailability(result);
 
             return result;

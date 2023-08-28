@@ -579,6 +579,13 @@ namespace Gizmo.Client.UI.View.Services
 
             var productId = int.Parse(paramProductId, NumberStyles.Number);
 
+            var products = await _userProductViewStateLookupService.GetStatesAsync();
+            if (!products.Where(a => a.Id == productId).Any())
+            {
+                NavigationService.NavigateTo(ClientRoutes.NotFoundRoute);
+                return;
+            }
+
             var paramQuantity = command.Params.GetValueOrDefault("quantity")?.ToString();
 
             var quantity = 1;

@@ -68,6 +68,7 @@ namespace Gizmo.Client
         public event EventHandler<OutOfOrderStateEventArgs>? OutOfOrderStateChange;
         public event EventHandler<ReservationChangeEventArgs>? ReservationChange;
         public event EventHandler<UsageSessionChangeEventArgs>? UsageSessionChange;
+        public event EventHandler<StartUpEventArgs>? StartUp;
 
         public DemoClient(IClientNotificationService notificationsService)
         {
@@ -1866,7 +1867,8 @@ namespace Gizmo.Client
             return Task.FromResult<NextHostReservationModel?>(new NextHostReservationModel()
             {
                 NextReservationId = 1,
-                NextReservationTime = DateTime.Now
+                NextReservationTime = DateTime.Now,
+                NextReservationDuration = 30
             });
         }
 
