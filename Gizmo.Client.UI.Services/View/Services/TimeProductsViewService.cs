@@ -18,16 +18,22 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<TimeProductsViewService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient,
-            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
+            ILocalizationService localizationService,
+            UserProductViewStateLookupService userProductStateLookupService,
+            UserHostGroupViewStateLookupService userHostGroupViewStateLookupService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _localizationService = localizationService;
+            _userProductStateLookupService = userProductStateLookupService;
+            _userHostGroupViewStateLookupService = userHostGroupViewStateLookupService;
         }
         #endregion
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
         private readonly ILocalizationService _localizationService;
+        private readonly UserProductViewStateLookupService _userProductStateLookupService;
+        private readonly UserHostGroupViewStateLookupService _userHostGroupViewStateLookupService;
         #endregion
 
         #region FUNCTIONS
@@ -41,19 +47,50 @@ namespace Gizmo.Client.UI.View.Services
                 var timeProductViewState = new TimeProductViewState();
 
                 timeProductViewState.TimeProductType = timeProduct.UsageType;
-                timeProductViewState.TimeProductName = ""; //TODO: AAA NOT EXISTS IN MODEL; ProductId
+
+                switch (timeProductViewState.TimeProductType)
+                {
+                    case UsageType.Rate:
+
+                        if (timeProduct.Rate != null)
+                        {
+                            timeProductViewState.TimeProductName = $"{_localizationService.GetString("GIZ_USAGE_TYPE_RATE")} {timeProduct.Rate.HourlyRate.ToString("C")}/hour";
+                        }
+                        else
+                        {
+                            timeProductViewState.TimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_RATE");
+                        }
+                        break;
+
+                    case UsageType.TimeFixed:
+
+                        timeProductViewState.TimeProductName = "Time Fixed"; //TODO: AAA NOT EXISTS IN MODEL; ProductId
+                        break;
+
+                    case UsageType.TimeOffer:
+
+                        if (timeProduct.TimeOffer != null)
+                        {
+                            var product = await _userProductStateLookupService.GetStateAsync(timeProduct.TimeOffer.ProductId, false, cToken);
+
+                            timeProductViewState.TimeProductName = product.Name;
+
+                            var hostGroups = await _userHostGroupViewStateLookupService.GetStatesAsync(cToken);
+
+                            timeProductViewState.AvailableHostGroups = hostGroups.Where(a => !product.TimeProduct.DisallowedHostGroups.Contains(a.Id)).Select(a => a.Id);
+                        }
+
+                        break;
+                }
+
                 timeProductViewState.ActivationOrder = timeProduct.ActivationOrder;
                 timeProductViewState.PurchaseDate = DateTime.Now; //TODO: AAA NOT EXISTS IN MODEL; InvoiceLineId
                 timeProductViewState.Source = $"Test"; //TODO: AAA NOT EXISTS IN MODEL; InvoiceLineId
 
                 if (timeProduct.AvailableMinutes.HasValue)
                 {
-                    timeProductViewState.Time = TimeSpan.FromMinutes(timeProduct.AvailableMinutes.Value); //TODO: AAA VERIFY
+                    timeProductViewState.Time = TimeSpan.FromMinutes(timeProduct.AvailableMinutes.Value);
                 }
-
-                timeProductViewState.AvailableHostGroups = Enumerable.Range(1, 10).Select(i => i); //TODO: AAA NOT EXISTS IN MODEL; ProductId
-
-                //TODO: AAA
 
                 timeProductsViewStates.Add(timeProductViewState);
             }
