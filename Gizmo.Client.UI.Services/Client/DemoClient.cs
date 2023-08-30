@@ -1915,7 +1915,17 @@ namespace Gizmo.Client
 
         public Task<List<UserUsageTimeLevelModel>> UserUsageTimeLevelsGetAsync(CancellationToken cToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(new List<UserUsageTimeLevelModel>()
+            {
+                new UserUsageTimeLevelModel()
+                {
+                    UsageType = UsageType.Rate,
+                    Rate = new UserUsageRateModel()
+                    {
+                        HourlyRate = 2
+                    }
+                }
+            });
         }
     }
 }
