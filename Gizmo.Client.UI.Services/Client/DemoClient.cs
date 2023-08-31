@@ -1919,10 +1919,30 @@ namespace Gizmo.Client
             {
                 new UserUsageTimeLevelModel()
                 {
+                    ActivationOrder = 1,
                     UsageType = UsageType.Rate,
                     Rate = new UserUsageRateModel()
                     {
                         HourlyRate = 2
+                    }
+                },
+                new UserUsageTimeLevelModel()
+                {
+                    ActivationOrder = 2,
+                    UsageType = UsageType.Rate,
+                    Rate = new UserUsageRateModel()
+                    {
+                        HourlyRate = 1,
+                        InCredit = true
+                    }
+                },
+                new UserUsageTimeLevelModel()
+                {
+                    ActivationOrder = null,
+                    UsageType = UsageType.TimeOffer,
+                    TimeOffer = new UserUsageTimeOfferModel()
+                    {
+                        ProductId = 1
                     }
                 }
             });
