@@ -325,7 +325,8 @@ namespace Gizmo.Client
                         }),
                         Options = ExecutableOptionType.QuickLaunch, //(ExecutableOptionType)3,
                         Accessible = true,
-                        ImageId = 557
+                        ImageId = 557,
+                        ExecutablePath = "C:\\Windows\\System32\\notepad.exe"
                     },
                     new UserExecutableModel() {
                         Id = 558,
@@ -1921,6 +1922,7 @@ namespace Gizmo.Client
                 {
                     ActivationOrder = 1,
                     UsageType = UsageType.Rate,
+                    AvailableMinutes = 50,
                     Rate = new UserUsageRateModel()
                     {
                         HourlyRate = 2
