@@ -55,16 +55,30 @@ namespace Gizmo.Client.UI.View.Services
                         if (timeProduct.Rate != null)
                         {
                             timeProductViewState.TimeProductName = $"{_localizationService.GetString("GIZ_USAGE_TYPE_RATE")} {timeProduct.Rate.HourlyRate.ToString("C")}/hour";
+                            timeProductViewState.Source = timeProduct.Rate.InCredit ? "Credit" : "Deposits";
+                            timeProductViewState.InCredit = timeProduct.Rate.InCredit;
                         }
                         else
                         {
                             timeProductViewState.TimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_RATE");
                         }
+
                         break;
 
                     case UsageType.TimeFixed:
 
-                        timeProductViewState.TimeProductName = "Time Fixed"; //TODO: AAA NOT EXISTS IN MODEL; ProductId
+                        if (timeProduct.TimeFixed != null)
+                        {
+                            timeProductViewState.TimeProductName = timeProduct.TimeFixed.AvailableMinutes.ToString() + " Minutes"; //TODO: AAA WE NEED TOTAL MINUTES.
+
+                            var availableMinutesTimeSpan = TimeSpan.FromMinutes(timeProduct.TimeFixed.AvailableMinutes);
+                            timeProductViewState.Source = $"{((int)availableMinutesTimeSpan.TotalHours)} h {availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0')} min";
+                        }
+                        else
+                        {
+                            timeProductViewState.TimeProductName = "Fixed Time"; //TODO: AAA
+                        }
+
                         break;
 
                     case UsageType.TimeOffer:
@@ -77,7 +91,16 @@ namespace Gizmo.Client.UI.View.Services
 
                             var hostGroups = await _userHostGroupViewStateLookupService.GetStatesAsync(cToken);
 
-                            timeProductViewState.AvailableHostGroups = hostGroups.Where(a => !product.TimeProduct.DisallowedHostGroups.Contains(a.Id)).Select(a => a.Id);
+                            if (product.ProductType == ProductType.ProductTime && product.TimeProduct.DisallowedHostGroups != null)
+                            {
+                                timeProductViewState.AvailableHostGroups = hostGroups.Where(a => !product.TimeProduct.DisallowedHostGroups.Contains(a.Id)).Select(a => a.Id);
+                            }
+
+                            timeProductViewState.ExpirationDate = timeProduct.TimeOffer.ExpirationTime;
+                            timeProductViewState.ProductId = timeProduct.TimeOffer.ProductId;
+
+                            var availableMinutesTimeSpan = TimeSpan.FromMinutes(timeProduct.TimeOffer.AvailableMinutes);
+                            timeProductViewState.Source = $"{((int)availableMinutesTimeSpan.TotalHours)} h {availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0')} min";
                         }
 
                         break;
@@ -85,11 +108,11 @@ namespace Gizmo.Client.UI.View.Services
 
                 timeProductViewState.ActivationOrder = timeProduct.ActivationOrder;
                 timeProductViewState.PurchaseDate = DateTime.Now; //TODO: AAA NOT EXISTS IN MODEL; InvoiceLineId
-                timeProductViewState.Source = $"Test"; //TODO: AAA NOT EXISTS IN MODEL; InvoiceLineId
 
                 if (timeProduct.AvailableMinutes.HasValue)
                 {
-                    timeProductViewState.Time = TimeSpan.FromMinutes(timeProduct.AvailableMinutes.Value);
+                    var availableMinutesTimeSpan = TimeSpan.FromMinutes(timeProduct.AvailableMinutes.Value);
+                    timeProductViewState.Time = $"{((int)availableMinutesTimeSpan.TotalHours)} h {availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0')} min";
                 }
 
                 timeProductsViewStates.Add(timeProductViewState);
