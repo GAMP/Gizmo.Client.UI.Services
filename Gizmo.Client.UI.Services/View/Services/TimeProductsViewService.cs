@@ -69,10 +69,12 @@ namespace Gizmo.Client.UI.View.Services
 
                         if (timeProduct.TimeFixed != null)
                         {
-                            timeProductViewState.TimeProductName = timeProduct.TimeFixed.AvailableMinutes.ToString() + " Minutes"; //TODO: AAA WE NEED TOTAL MINUTES.
+                            timeProductViewState.TimeProductName = timeProduct.TimeFixed.TotalMinutes.ToString() + " Minutes"; //TODO: AAA TRANSLATE
 
                             var availableMinutesTimeSpan = TimeSpan.FromMinutes(timeProduct.TimeFixed.AvailableMinutes);
                             timeProductViewState.Source = $"{((int)availableMinutesTimeSpan.TotalHours)} h {availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0')} min";
+
+                            timeProductViewState.PurchaseDate = timeProduct.TimeFixed.PurchaseDate;
                         }
                         else
                         {
@@ -101,13 +103,14 @@ namespace Gizmo.Client.UI.View.Services
 
                             var availableMinutesTimeSpan = TimeSpan.FromMinutes(timeProduct.TimeOffer.AvailableMinutes);
                             timeProductViewState.Source = $"{((int)availableMinutesTimeSpan.TotalHours)} h {availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0')} min";
+
+                            timeProductViewState.PurchaseDate = timeProduct.TimeOffer.PurchaseDate;
                         }
 
                         break;
                 }
 
                 timeProductViewState.ActivationOrder = timeProduct.ActivationOrder;
-                timeProductViewState.PurchaseDate = DateTime.Now; //TODO: AAA NOT EXISTS IN MODEL; InvoiceLineId
 
                 if (timeProduct.AvailableMinutes.HasValue)
                 {
