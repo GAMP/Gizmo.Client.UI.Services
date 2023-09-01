@@ -1,5 +1,4 @@
-﻿using System;
-using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
@@ -54,8 +53,8 @@ namespace Gizmo.Client.UI.View.Services
 
                         if (timeProduct.Rate != null)
                         {
-                            timeProductViewState.TimeProductName = $"{_localizationService.GetString("GIZ_USAGE_TYPE_RATE")} {timeProduct.Rate.HourlyRate.ToString("C")}/hour";
-                            timeProductViewState.Source = timeProduct.Rate.InCredit ? "Credit" : "Deposits";
+                            timeProductViewState.TimeProductName = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_RATE_PER_HOUR", timeProduct.Rate.HourlyRate.ToString("C"));
+                            timeProductViewState.Source = timeProduct.Rate.InCredit ? _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_CREDIT") : _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_DEPOSIT");
                             timeProductViewState.InCredit = timeProduct.Rate.InCredit;
                         }
                         else
@@ -69,16 +68,16 @@ namespace Gizmo.Client.UI.View.Services
 
                         if (timeProduct.TimeFixed != null)
                         {
-                            timeProductViewState.TimeProductName = timeProduct.TimeFixed.TotalMinutes.ToString() + " Minutes"; //TODO: AAA TRANSLATE
+                            timeProductViewState.TimeProductName = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_PRODUCT_MINUTES", timeProduct.TimeFixed.TotalMinutes.ToString());
 
                             var availableMinutesTimeSpan = TimeSpan.FromMinutes(timeProduct.TimeFixed.AvailableMinutes);
-                            timeProductViewState.Source = $"{((int)availableMinutesTimeSpan.TotalHours)} h {availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0')} min";
+                            timeProductViewState.Source = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_PRODUCT_HOURS_MINUTES", ((int)availableMinutesTimeSpan.TotalHours), availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0'));
 
                             timeProductViewState.PurchaseDate = timeProduct.TimeFixed.PurchaseDate;
                         }
                         else
                         {
-                            timeProductViewState.TimeProductName = "Fixed Time"; //TODO: AAA
+                            timeProductViewState.TimeProductName = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_FIXED_TIME");
                         }
 
                         break;
@@ -102,7 +101,7 @@ namespace Gizmo.Client.UI.View.Services
                             timeProductViewState.ProductId = timeProduct.TimeOffer.ProductId;
 
                             var availableMinutesTimeSpan = TimeSpan.FromMinutes(timeProduct.TimeOffer.AvailableMinutes);
-                            timeProductViewState.Source = $"{((int)availableMinutesTimeSpan.TotalHours)} h {availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0')} min";
+                            timeProductViewState.Source = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_PRODUCT_HOURS_MINUTES", ((int)availableMinutesTimeSpan.TotalHours), availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0'));
 
                             timeProductViewState.PurchaseDate = timeProduct.TimeOffer.PurchaseDate;
                         }
@@ -115,7 +114,7 @@ namespace Gizmo.Client.UI.View.Services
                 if (timeProduct.AvailableMinutes.HasValue)
                 {
                     var availableMinutesTimeSpan = TimeSpan.FromMinutes(timeProduct.AvailableMinutes.Value);
-                    timeProductViewState.Time = $"{((int)availableMinutesTimeSpan.TotalHours)} h {availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0')} min";
+                    timeProductViewState.Time = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_PRODUCT_HOURS_MINUTES", ((int)availableMinutesTimeSpan.TotalHours), availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0'));
                 }
 
                 timeProductsViewStates.Add(timeProductViewState);
