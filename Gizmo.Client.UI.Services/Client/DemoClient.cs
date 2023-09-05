@@ -462,22 +462,22 @@ namespace Gizmo.Client
             //    }
             //};
 
-            //_userProducts = Enumerable.Range(1, 50).Select(x => new UserProductModel()
-            //{
-            //    Id = x,
-            //    ProductGroupId = random.Next(1, _userProductGroups.Count + 1),
-            //    Name = $"#Coca Cola {x} 500ml",
-            //    Description = "#Iced coffee is a coffee beverage served cold. It may be prepared either by brewing coffee in the normal way and then serving it over ice.",
-            //    Price = random.Next(1, 5),
-            //    PointsPrice = random.Next(0, 100),
-            //    PointsAward = random.Next(1, 500),
-            //    ProductType = (ProductType)random.Next(0, 3),
-            //    PurchaseOptions = (PurchaseOptionType)random.Next(0, 2),
-            //    DefaultImageId = random.Next(0, 2) == 1 ? x : null,
-            //    //PurchaseAvailability = productPurchaseAvailabilityModel
-            //}).ToList();
+            _userProducts = Enumerable.Range(1, 50).Select(x => new UserProductModel()
+            {
+                Id = x * 1000,
+                ProductGroupId = 1, //random.Next(1, _userProductGroups.Count + 1),
+                Name = $"#Coca Cola {x} 500ml#Coca Cola {x} 500ml",
+                Description = "#Iced coffee is a coffee beverage served cold. It may be prepared either by brewing coffee in the normal way and then serving it over ice.",
+                Price = random.Next(1, 5),
+                PointsPrice = random.Next(0, 100),
+                PointsAward = random.Next(1, 500),
+                ProductType = ProductType.Product, //(ProductType)random.Next(0, 3),
+                PurchaseOptions = (PurchaseOptionType)random.Next(0, 2),
+                DefaultImageId = random.Next(0, 2) == 1 ? x : null,
+                //PurchaseAvailability = productPurchaseAvailabilityModel
+            }).ToList();
 
-            _userProducts = new List<UserProductModel>();
+            //_userProducts = new List<UserProductModel>();
 
             _userProducts.Add(new UserProductModel()
             {
@@ -1723,7 +1723,7 @@ namespace Gizmo.Client
 
             var popular = Enumerable.Range(1, 100).Select(i => new PopularProductModel()
             {
-                Id = i,
+                Id = i * 1000,
                 TotalPurchases = random.Next(0, 100)
             }).AsEnumerable();
 

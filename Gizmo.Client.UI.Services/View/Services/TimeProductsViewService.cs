@@ -2,14 +2,12 @@
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
-using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    [Route(ClientRoutes.UserProductsRoute)]
     public sealed class TimeProductsViewService : ViewStateServiceBase<TimeProductsViewState>
     {
         #region CONSTRUCTOR
@@ -152,11 +150,6 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
-
-        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
-        {
-            await LoadAsync(cToken);
-        }
 
         protected override Task OnInitializing(CancellationToken ct)
         {
