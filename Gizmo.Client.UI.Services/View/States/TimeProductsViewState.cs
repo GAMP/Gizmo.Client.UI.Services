@@ -11,5 +11,10 @@ namespace Gizmo.Client.UI.View.States
         public IEnumerable<TimeProductViewState> TimeProducts { get; internal set; } = Enumerable.Empty<TimeProductViewState>();
 
         #endregion
+
+        public override void SetDefaults()
+        {
+            TimeProducts = Enumerable.Empty<TimeProductViewState>();
+        }
     }
 }

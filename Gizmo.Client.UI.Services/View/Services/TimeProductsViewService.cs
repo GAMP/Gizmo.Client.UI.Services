@@ -33,6 +33,9 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         private readonly UserProductViewStateLookupService _userProductStateLookupService;
         private readonly UserHostGroupViewStateLookupService _userHostGroupViewStateLookupService;
+
+        private bool _initialized = false;
+        private bool _changed = false;
         #endregion
 
         #region FUNCTIONS
@@ -125,12 +128,27 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task LoadAsync(CancellationToken cToken = default)
         {
-            List<UserUsageTimeLevelModel> timeProductsList = await _gizmoClient.UserUsageTimeLevelsGetAsync(cToken);
-            var userTimeProductsViewStates = await TransformResults(timeProductsList);
+            if (!_initialized || _changed)
+            {
+                try
+                {
+                    List<UserUsageTimeLevelModel> timeProductsList = await _gizmoClient.UserUsageTimeLevelsGetAsync(cToken);
+                    var userTimeProductsViewStates = await TransformResults(timeProductsList);
 
-            ViewState.TimeProducts = userTimeProductsViewStates;
+                    ViewState.TimeProducts = userTimeProductsViewStates;
 
-            ViewState.RaiseChanged();
+                    _initialized = true;
+                    _changed = false;
+
+                    DebounceViewStateChanged();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Failed to obtain user time products.");
+
+                    ViewState.SetDefaults();
+                }
+            }
         }
 
         #endregion
@@ -138,6 +156,43 @@ namespace Gizmo.Client.UI.View.Services
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
         {
             await LoadAsync(cToken);
+        }
+
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            _gizmoClient.LoginStateChange += OnLoginStateChange;
+            _gizmoClient.UserBalanceChange += OnUserBalanceChange;
+            _gizmoClient.UsageSessionChange += OnUsageSessionChange;
+            return base.OnInitializing(ct);
+        }
+
+        protected override void OnDisposing(bool isDisposing)
+        {
+            _gizmoClient.UsageSessionChange -= OnUsageSessionChange;
+            _gizmoClient.UserBalanceChange -= OnUserBalanceChange;
+            _gizmoClient.LoginStateChange -= OnLoginStateChange;
+            base.OnDisposing(isDisposing);
+        }
+
+        private void OnUsageSessionChange(object? sender, UsageSessionChangeEventArgs e)
+        {
+            _changed = true;
+        }
+
+        private void OnUserBalanceChange(object? sender, UserBalanceEventArgs e)
+        {
+            _changed = true;
+        }
+
+        private void OnLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
+        {
+            if (e.State == LoginState.LoggedOut)
+            {
+                _initialized = false;
+                ViewState.SetDefaults();
+            }
+
+            DebounceViewStateChanged();
         }
     }
 }
