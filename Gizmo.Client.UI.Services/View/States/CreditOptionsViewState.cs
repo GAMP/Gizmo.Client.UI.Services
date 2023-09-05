@@ -8,9 +8,9 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
-        public CreditOption SalesCreditOption { get; internal set; }
+        public CreditType SalesCreditType { get; internal set; }
 
-        public CreditOption TimeCreditOption { get; internal set; }
+        public CreditType TimeCreditType { get; internal set; }
 
         public decimal CreditLimit { get; internal set; }
 

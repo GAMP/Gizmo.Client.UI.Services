@@ -1949,5 +1949,10 @@ namespace Gizmo.Client
                 }
             });
         }
+
+        public Task<UserCreditLimitModel> UserCreditLimitGetAsync(CancellationToken cToken = default)
+        {
+            return Task.FromResult<UserCreditLimitModel>(new UserCreditLimitModel());
+        }
     }
 }
