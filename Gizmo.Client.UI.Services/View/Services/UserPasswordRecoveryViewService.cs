@@ -66,163 +66,157 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task SubmitAsync(bool fallback = false)
         {
-            try
+            if (await _userVerificationService.LockAsync())
             {
-                await _userVerificationService.LockAsync();
-            }
-            catch
-            {
-                return;
-            }
-
-            ViewState.IsLoading = true;
-            ViewState.RaiseChanged();
-
-            Validate();
-
-            if (ViewState.IsValid != true)
-            {
-                ViewState.IsLoading = false;
+                ViewState.IsLoading = true;
                 ViewState.RaiseChanged();
 
-                _userVerificationService.Unlock();
+                Validate();
 
-                return;
-            }
-
-            bool wasSuccessful = false;
-
-            try
-            {
-                if (ViewState.SelectedRecoveryMethod == UserRecoveryMethod.Email)
+                if (ViewState.IsValid != true)
                 {
-                    var result = await _gizmoClient.UserPasswordRecoveryByEmailStartAsync(ViewState.Email);
+                    ViewState.IsLoading = false;
+                    ViewState.RaiseChanged();
 
-                    switch (result.Result)
+                    await _userVerificationService.Unlock();
+
+                    return;
+                }
+
+                bool wasSuccessful = false;
+
+                try
+                {
+                    if (ViewState.SelectedRecoveryMethod == UserRecoveryMethod.Email)
                     {
-                        case PasswordRecoveryStartResultCode.Success:
+                        var result = await _gizmoClient.UserPasswordRecoveryByEmailStartAsync(ViewState.Email);
 
-                            string email = "";
+                        switch (result.Result)
+                        {
+                            case PasswordRecoveryStartResultCode.Success:
 
-                            if (!string.IsNullOrEmpty(result.Email))
-                            {
-                                int atIndex = result.Email.IndexOf('@');
-                                if (atIndex != -1 && atIndex > 1)
-                                    email = result.Email.Substring(atIndex - 2).PadLeft(result.Email.Length, '*');
+                                string email = "";
+
+                                if (!string.IsNullOrEmpty(result.Email))
+                                {
+                                    int atIndex = result.Email.IndexOf('@');
+                                    if (atIndex != -1 && atIndex > 1)
+                                        email = result.Email.Substring(atIndex - 2).PadLeft(result.Email.Length, '*');
+                                    else
+                                        email = result.Email;
+                                }
+
+                                ViewState.Token = result.Token;
+                                ViewState.Destination = email;
+                                ViewState.CodeLength = result.CodeLength;
+
+                                wasSuccessful = true;
+
+                                NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryConfirmationRoute);
+
+                                break;
+
+                            case PasswordRecoveryStartResultCode.NoRouteForDelivery:
+                                ViewState.HasError = true;
+                                ViewState.ErrorMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY");
+
+                                break;
+
+                            default:
+
+                                ViewState.HasError = true;
+                                ViewState.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_RECOVERY_PASSWORD_RESET_FAILED_MESSAGE");
+
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        //TODO: AAA 9digit phones?
+                        var result = await _gizmoClient.UserPasswordRecoveryByMobileStartAsync(ViewState.MobilePhone, !fallback ? Gizmo.ConfirmationCodeDeliveryMethod.Undetermined : Gizmo.ConfirmationCodeDeliveryMethod.SMS);
+
+                        switch (result.Result)
+                        {
+                            case PasswordRecoveryStartResultCode.Success:
+
+                                string mobile = result.MobilePhone;
+
+                                if (mobile.Length > 4)
+                                    mobile = result.MobilePhone.Substring(result.MobilePhone.Length - 4).PadLeft(10, '*');
+
+                                bool isFlashCall = result.DeliveryMethod == ConfirmationCodeDeliveryMethod.FlashCall;
+                                if (isFlashCall)
+                                {
+                                    _userVerificationFallbackService.SetSMSFallbackAvailability(true);
+                                    _userVerificationFallbackService.Lock();
+                                    _userVerificationFallbackService.StartUnlockTimer();
+                                }
                                 else
-                                    email = result.Email;
-                            }
+                                {
+                                    _userVerificationFallbackService.SetSMSFallbackAvailability(false);
+                                }
 
-                            ViewState.Token = result.Token;
-                            ViewState.Destination = email;
-                            ViewState.CodeLength = result.CodeLength;
+                                ViewState.Token = result.Token;
+                                ViewState.Destination = mobile;
+                                ViewState.CodeLength = result.CodeLength;
+                                ViewState.DeliveryMethod = result.DeliveryMethod;
 
-                            wasSuccessful = true;
+                                wasSuccessful = true;
 
-                            NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryConfirmationRoute);
+                                NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryConfirmationRoute);
 
-                            break;
+                                break;
 
-                        case PasswordRecoveryStartResultCode.NoRouteForDelivery:
-                            ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY");
+                            case PasswordRecoveryStartResultCode.NoRouteForDelivery:
 
-                            break;
+                                ViewState.HasError = true;
+                                ViewState.ErrorMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY");
 
-                        default:
+                                break;
 
-                            ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_RECOVERY_PASSWORD_RESET_FAILED_MESSAGE");
+                            case PasswordRecoveryStartResultCode.Failed:
+                            case PasswordRecoveryStartResultCode.DeliveryFailed:
 
-                            break;
+                                ViewState.HasError = true;
+                                ViewState.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_RECOVERY_PASSWORD_RESET_FAILED_MESSAGE");
+
+                                break;
+
+                            case PasswordRecoveryStartResultCode.InvalidInput:
+
+                                ViewState.HasError = true;
+                                ViewState.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_RECOVERY_PASSWORD_RESET_FAILED_MESSAGE");
+                                ViewState.ErrorMessage += " " + _localizationService.GetString("GIZ_PASSWORD_RECOVERY_NO_VALID_MOBILE");
+
+                                break;
+
+                            default:
+
+                                ViewState.HasError = true;
+                                ViewState.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_RECOVERY_PASSWORD_RESET_FAILED_MESSAGE");
+
+                                break;
+                        }
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    //TODO: AAA 9digit phones?
-                    var result = await _gizmoClient.UserPasswordRecoveryByMobileStartAsync(ViewState.MobilePhone, !fallback ? Gizmo.ConfirmationCodeDeliveryMethod.Undetermined : Gizmo.ConfirmationCodeDeliveryMethod.SMS);
+                    Logger.LogError(ex, "Password recovery start error.");
 
-                    switch (result.Result)
-                    {
-                        case PasswordRecoveryStartResultCode.Success:
-
-                            string mobile = result.MobilePhone;
-
-                            if (mobile.Length > 4)
-                                mobile = result.MobilePhone.Substring(result.MobilePhone.Length - 4).PadLeft(10, '*');
-
-                            bool isFlashCall = result.DeliveryMethod == ConfirmationCodeDeliveryMethod.FlashCall;
-                            if (isFlashCall)
-                            {
-                                _userVerificationFallbackService.SetSMSFallbackAvailability(true);
-                                _userVerificationFallbackService.Lock();
-                                _userVerificationFallbackService.StartUnlockTimer();
-                            }
-                            else
-                            {
-                                _userVerificationFallbackService.SetSMSFallbackAvailability(false);
-                            }
-
-                            ViewState.Token = result.Token;
-                            ViewState.Destination = mobile;
-                            ViewState.CodeLength = result.CodeLength;
-                            ViewState.DeliveryMethod = result.DeliveryMethod;
-
-                            wasSuccessful = true;
-
-                            NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryConfirmationRoute);
-
-                            break;
-
-                        case PasswordRecoveryStartResultCode.NoRouteForDelivery:
-
-                            ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY");
-
-                            break;
-
-                        case PasswordRecoveryStartResultCode.Failed:
-                        case PasswordRecoveryStartResultCode.DeliveryFailed:
-
-                            ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_RECOVERY_PASSWORD_RESET_FAILED_MESSAGE");
-
-                            break;
-
-                        case PasswordRecoveryStartResultCode.InvalidInput:
-
-                            ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_RECOVERY_PASSWORD_RESET_FAILED_MESSAGE");
-                            ViewState.ErrorMessage += " " + _localizationService.GetString("GIZ_PASSWORD_RECOVERY_NO_VALID_MOBILE");
-
-                            break;
-
-                        default:
-
-                            ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_RECOVERY_PASSWORD_RESET_FAILED_MESSAGE");
-
-                            break;
-                    }
+                    ViewState.HasError = true;
+                    ViewState.ErrorMessage = ex.ToString(); //TODO: AAA TRANSLATE
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Password recovery start error.");
+                finally
+                {
+                    ViewState.IsLoading = false;
 
-                ViewState.HasError = true;
-                ViewState.ErrorMessage = ex.ToString(); //TODO: AAA TRANSLATE
-            }
-            finally
-            {
-                ViewState.IsLoading = false;
+                    if (wasSuccessful)
+                        _userVerificationService.StartUnlockTimer();
+                    else
+                        await _userVerificationService.Unlock();
 
-                if (wasSuccessful)
-                    _userVerificationService.StartUnlockTimer();
-                else
-                    _userVerificationService.Unlock();
-
-                ViewState.RaiseChanged();
+                    ViewState.RaiseChanged();
+                }
             }
         }
 
