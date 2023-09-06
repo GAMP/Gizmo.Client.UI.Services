@@ -29,19 +29,50 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        internal async Task LockAsync()
+        internal async Task<bool> LockAsync()
         {
-            ViewState.IsVerificationLocked = true;
-            await verificationLock.WaitAsync(0);
-            ViewState.RaiseChanged();
+            if (await verificationLock.WaitAsync(-1))
+            {
+                var previouslyLocked = ViewState.IsVerificationLocked;
+
+                if (!previouslyLocked)
+                {
+                    ViewState.IsVerificationLocked = true;
+                    try
+                    {
+                        ViewState.RaiseChanged();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "Failed to raise changed on UserVerificationViewState.");
+                    }
+                }
+
+                verificationLock.Release();
+                return !previouslyLocked;
+            }
+
+            return false;
         }
 
-        internal void Unlock()
+        internal async Task Unlock()
         {
             _timer.Stop();
-            ViewState.IsVerificationLocked = false;
-            verificationLock.Release();
-            ViewState.RaiseChanged();
+
+            if (await verificationLock.WaitAsync(-1))
+            {
+                ViewState.IsVerificationLocked = false;
+                try
+                {
+                    ViewState.RaiseChanged();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Failed to raise changed on UserVerificationViewState.");
+                }
+
+                verificationLock.Release();
+            }
         }
 
         internal void StartUnlockTimer()
@@ -53,14 +84,14 @@ namespace Gizmo.Client.UI.View.Services
 
         #endregion
 
-        private void timer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
+        private async void timer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
         {
             ViewState.Countdown = ViewState.Countdown.Subtract(TimeSpan.FromSeconds(1));
 
             if (ViewState.Countdown.TotalSeconds <= 0)
             {
                 ViewState.Countdown = TimeSpan.FromSeconds(0);
-                Unlock();
+                await Unlock();
             }
 
             ViewState.RaiseChanged();
