@@ -55,7 +55,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task<bool> UsernameCharacterIsValid(char value)
         {
-            return Task.FromResult(value != '!');
+            return Task.FromResult(true);
         }
 
         public async Task LoginAsync()
