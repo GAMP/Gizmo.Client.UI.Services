@@ -16,16 +16,19 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserChangeProfileViewService> logger,
             IServiceProvider serviceProvider,
             IClientDialogService dialogService,
-            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IGizmoClient gizmoClient,
+            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
         {
             _dialogService = dialogService;
             _gizmoClient = gizmoClient;
+            _localizationService = localizationService;
         }
         #endregion
 
         #region FIELDS
         private readonly IClientDialogService _dialogService;
         private readonly IGizmoClient _gizmoClient;
+        private readonly ILocalizationService _localizationService;
         #endregion
 
         #region FUNCTIONS
@@ -93,7 +96,7 @@ namespace Gizmo.Client.UI.View.Services
                     Logger.LogError(ex, "User profile get error.");
 
                     ViewState.HasError = true;
-                    ViewState.ErrorMessage = ex.ToString(); //TODO: AAA TRANSLATE
+                    ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED");
 
                     ViewState.IsComplete = true;
 
@@ -138,7 +141,7 @@ namespace Gizmo.Client.UI.View.Services
                 Logger.LogError(ex, "User profile update error.");
 
                 ViewState.HasError = true;
-                ViewState.ErrorMessage = ex.ToString(); //TODO: AAA TRANSLATE
+                ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED");
             }
             finally
             {
