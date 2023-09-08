@@ -1914,9 +1914,12 @@ namespace Gizmo.Client
             ExecutionContextStateChange?.Invoke(sender, e);
         }
 
-        public Task<List<UserUsageTimeLevelModel>> UserUsageTimeLevelsGetAsync(CancellationToken cToken)
+        public async Task<List<UserUsageTimeLevelModel>> UserUsageTimeLevelsGetAsync(CancellationToken cToken)
         {
-            return Task.FromResult(new List<UserUsageTimeLevelModel>()
+            // Simulate task.
+            await Task.Delay(3000);
+
+            return new List<UserUsageTimeLevelModel>()
             {
                 new UserUsageTimeLevelModel()
                 {
@@ -1944,15 +1947,22 @@ namespace Gizmo.Client
                     UsageType = UsageType.TimeOffer,
                     TimeOffer = new UserUsageTimeOfferModel()
                     {
-                        ProductId = 1
+                        ProductId = 6 //7
                     }
                 }
-            });
+            };
         }
 
         public Task<UserCreditLimitModel> UserCreditLimitGetAsync(CancellationToken cToken = default)
         {
-            return Task.FromResult<UserCreditLimitModel>(new UserCreditLimitModel());
+            return Task.FromResult(new UserCreditLimitModel()
+            {
+                SalesCreditType = CreditType.NoCredit,
+                TimeCreditType = CreditType.Unlimited,
+                CreditLimit = 4,
+                IsTimeCreditEnabledByDefault = true,
+                IsUserTimeCreditEnabled = true
+            });
         }
     }
 }

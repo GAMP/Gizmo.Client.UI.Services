@@ -1,6 +1,7 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -42,7 +43,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             var timeProductsViewStates = new List<TimeProductViewState>();
 
-            foreach (var timeProduct in timeProducts)
+            foreach (var timeProduct in timeProducts.OrderByDescending(a => a.ActivationOrder.HasValue).ThenBy(a => a.ActivationOrder))
             {
                 var timeProductViewState = new TimeProductViewState();
 
@@ -130,6 +131,10 @@ namespace Gizmo.Client.UI.View.Services
             {
                 try
                 {
+                    ViewState.IsInitializing = true;
+                    ViewState.IsInitialized = null;
+                    DebounceViewStateChanged();
+
                     List<UserUsageTimeLevelModel> timeProductsList = await _gizmoClient.UserUsageTimeLevelsGetAsync(cToken);
                     var userTimeProductsViewStates = await TransformResults(timeProductsList);
 
@@ -138,13 +143,21 @@ namespace Gizmo.Client.UI.View.Services
                     _initialized = true;
                     _changed = false;
 
-                    DebounceViewStateChanged();
+                    ViewState.IsInitialized = true;
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError(ex, "Failed to obtain user time products.");
 
                     ViewState.SetDefaults();
+
+                    ViewState.IsInitialized = false;
+                }
+                finally
+                {
+                    ViewState.IsInitializing = false;
+
+                    DebounceViewStateChanged();
                 }
             }
         }
