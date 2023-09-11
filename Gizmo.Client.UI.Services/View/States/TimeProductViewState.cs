@@ -18,7 +18,7 @@ namespace Gizmo.Client.UI.View.States
 
         public string Time { get; internal set; } = null!;
 
-        public DateTime? PurchaseDate { get; internal set; }
+        public DateTime? PurchaseTime { get; internal set; }
 
         public DateTime? ExpirationDate { get; internal set; }
 
@@ -27,6 +27,8 @@ namespace Gizmo.Client.UI.View.States
         public int? ProductId { get; internal set; }
 
         public bool InCredit { get; internal set; }
+
+        public DateTime? FirstUsageTime { get; internal set; }
 
         #endregion
     }

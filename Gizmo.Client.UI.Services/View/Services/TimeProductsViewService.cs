@@ -75,7 +75,7 @@ namespace Gizmo.Client.UI.View.Services
                             var availableMinutesTimeSpan = TimeSpan.FromMinutes(timeProduct.TimeFixed.AvailableMinutes);
                             timeProductViewState.Source = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_PRODUCT_HOURS_MINUTES", ((int)availableMinutesTimeSpan.TotalHours), availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0'));
 
-                            timeProductViewState.PurchaseDate = timeProduct.TimeFixed.PurchaseDate;
+                            timeProductViewState.PurchaseTime = timeProduct.TimeFixed.PurchaseTime;
                         }
                         else
                         {
@@ -105,7 +105,9 @@ namespace Gizmo.Client.UI.View.Services
                             var availableMinutesTimeSpan = TimeSpan.FromMinutes(timeProduct.TimeOffer.AvailableMinutes);
                             timeProductViewState.Source = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_PRODUCT_HOURS_MINUTES", ((int)availableMinutesTimeSpan.TotalHours), availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0'));
 
-                            timeProductViewState.PurchaseDate = timeProduct.TimeOffer.PurchaseDate;
+                            timeProductViewState.PurchaseTime = timeProduct.TimeOffer.PurchaseTime;
+
+                            timeProductViewState.FirstUsageTime = timeProduct.TimeOffer.FirstUsageTime;
                         }
 
                         break;
