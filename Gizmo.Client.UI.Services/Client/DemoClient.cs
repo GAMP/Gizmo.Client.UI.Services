@@ -26,6 +26,8 @@ namespace Gizmo.Client
         private readonly List<FeedModel> _feeds;
         private readonly List<UserHostGroupModel> _userHostGroups;
 
+        private bool _assistanceRequest;
+
         private readonly List<DemoAppExecutionContextResult> _demoAppExecutionContextResults = new List<DemoAppExecutionContextResult>();
 
         private UserProfileModel _userProfile;
@@ -1901,6 +1903,61 @@ namespace Gizmo.Client
         public void RaiseContextStateChanged(DemoAppExeExecutionContext sender, ClientExecutionContextStateArgs e)
         {
             ExecutionContextStateChange?.Invoke(sender, e);
+        }
+
+        public async Task<PagedList<AssistanceRequestTypeModel>> AssistanceRequestTypesGetAsync(AssistanceRequestTypeFilter filter, CancellationToken cancellationToken = default)
+        {
+            await Task.Delay(3000);
+
+            var assistanceRequestTypes = Enumerable.Range(1, 3).Select(i => new AssistanceRequestTypeModel()
+            {
+                Id = i,
+                Title = $"Test {i}",
+                DisplayOrder = i,
+                IsDeleted = false
+            }).ToList();
+
+            var pagedList = new PagedList<AssistanceRequestTypeModel>(assistanceRequestTypes);
+
+            return pagedList;
+        }
+
+        public async Task<AssistanceRequestTypeModel?> AssistanceRequestTypeGetAsync(int id, CancellationToken cToken = default)
+        {
+            await Task.Delay(3000);
+
+            return new AssistanceRequestTypeModel()
+            {
+                Id = id,
+                Title = $"Test {id}",
+                DisplayOrder = id,
+                IsDeleted = false
+            };
+        }
+
+        public async Task<CreateResult> AssistanceRequestCreateAsync(AssistanceRequestModelUserCreate assistanceRequestModelUserCreate, CancellationToken cancellationToken = default)
+        {
+            await Task.Delay(3000);
+
+            _assistanceRequest = true;
+
+            return new CreateResult();
+        }
+
+        public async Task<bool> AssistanceRequestAnyPendingGetAsync(CancellationToken cancellationToken = default)
+        {
+            await Task.Delay(3000);
+
+            return _assistanceRequest;
+        }
+
+        public async Task<UpdateResult> AssistanceRequestPendingCancelAsync(CancellationToken cancellationToken = default)
+        {
+            await Task.Delay(3000);
+
+            _assistanceRequest = false;
+
+            return new UpdateResult();
         }
     }
 }
