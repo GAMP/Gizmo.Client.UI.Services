@@ -1922,7 +1922,7 @@ namespace Gizmo.Client
             return pagedList;
         }
 
-        public async Task<AssistanceRequestTypeModel?> AssistanceRequestTypeGetAsync(int id, CancellationToken cToken = default)
+        public async Task<AssistanceRequestTypeModel?> AssistanceRequestTypeGetAsync(int id, CancellationToken cancellationToken = default)
         {
             await Task.Delay(3000);
 
