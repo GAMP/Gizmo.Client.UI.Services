@@ -443,6 +443,9 @@ namespace Gizmo.Client.UI.View.Services
             //only include products allowing client order
             states = states.Where(product => !product.OrderOptions.HasFlag(OrderOptionType.DisallowAllowOrder));
 
+            //only include non marked products, they can only be purchased directly at counter
+            states = states.Where(product => !product.OrderOptions.HasFlag(OrderOptionType.IsMarkedProduct));
+
             //Only include products that is allowed for guests.
             states = states.Where(a => !a.IsRestrictedForGuest);
 
