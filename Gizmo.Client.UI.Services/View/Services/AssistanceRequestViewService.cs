@@ -3,6 +3,7 @@ using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -39,6 +40,11 @@ namespace Gizmo.Client.UI.View.Services
             ValidateProperty(() => ViewState.SelectedAssistanceRequestType);
         }
 
+        public void SetNote(string value)
+        {
+            ViewState.Note = value;
+        }
+
         public async Task SubmitAsync()
         {
             Validate();
@@ -56,6 +62,8 @@ namespace Gizmo.Client.UI.View.Services
                     AssistanceRequestTypeId = ViewState.SelectedAssistanceRequestType.Value,
                     Note = ViewState.Note
                 });
+
+                ViewState.AnyPending = await _gizmoClient.AssistanceRequestAnyPendingGetAsync();
 
                 ViewState.IsLoading = false;
                 ViewState.RaiseChanged();
@@ -82,6 +90,7 @@ namespace Gizmo.Client.UI.View.Services
             try
             {
                 var result = await _gizmoClient.AssistanceRequestPendingCancelAsync();
+                ViewState.AnyPending = await _gizmoClient.AssistanceRequestAnyPendingGetAsync();
 
                 ViewState.IsLoading = false;
                 ViewState.RaiseChanged();
@@ -111,6 +120,17 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
+        protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
+        {
+            if (fieldIdentifier.FieldEquals(() => ViewState.SelectedAssistanceRequestType))
+            {
+                if (!ViewState.SelectedAssistanceRequestType.HasValue)
+                {
+                    AddError(() => ViewState.SelectedAssistanceRequestType, _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_VE_TYPE_IS_REQUIRED"));
+                }
+            }
+        }
+
         protected override Task OnInitializing(CancellationToken ct)
         {
             _gizmoClient.LoginStateChange += OnLoginStateChange;
@@ -131,6 +151,9 @@ namespace Gizmo.Client.UI.View.Services
             {
                 try
                 {
+                    ViewState.SelectedAssistanceRequestType = null;
+                    ViewState.Note = null;
+
                     ViewState.IsInitializing = true;
                     ViewState.IsInitialized = null;
                     DebounceViewStateChanged();
@@ -153,6 +176,10 @@ namespace Gizmo.Client.UI.View.Services
                     ViewState.IsInitializing = false;
                     DebounceViewStateChanged();
                 }
+            }
+            else if (e.State == LoginState.LoggedOut)
+            {
+                Clear();
             }
         }
     }
