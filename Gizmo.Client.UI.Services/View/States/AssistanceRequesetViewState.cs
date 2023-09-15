@@ -23,9 +23,5 @@ namespace Gizmo.Client.UI.View.States
         public bool AnyPending { get; internal set; }
 
         public bool IsLoading { get; internal set; }
-
-        public bool HasError { get; internal set; }
-
-        public string ErrorMessage { get; internal set; } = string.Empty;
     }
 }

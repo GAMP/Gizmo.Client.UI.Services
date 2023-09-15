@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
@@ -18,11 +19,13 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient,
             ILocalizationService localizationService,
-            AssistanceRequestTypesViewStateLookupService assistanceRequestTypesViewStateLookupService) : base(viewState, logger, serviceProvider)
+            AssistanceRequestTypesViewStateLookupService assistanceRequestTypesViewStateLookupService,
+            IClientNotificationService notificationService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _localizationService = localizationService;
             _assistanceRequestTypesViewStateLookupService = assistanceRequestTypesViewStateLookupService;
+            _notificationService = notificationService;
         }
         #endregion
 
@@ -30,6 +33,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IGizmoClient _gizmoClient;
         private readonly ILocalizationService _localizationService;
         private readonly AssistanceRequestTypesViewStateLookupService _assistanceRequestTypesViewStateLookupService;
+        private readonly IClientNotificationService _notificationService;
         #endregion
 
         #region FUNCTIONS
@@ -70,15 +74,12 @@ namespace Gizmo.Client.UI.View.Services
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Assistance request create error.");
-
-                ViewState.HasError = true;
-                ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED");
-            }
-            finally
-            {
                 ViewState.IsLoading = false;
                 ViewState.RaiseChanged();
+
+                Logger.LogError(ex, "Assistance request create error.");
+
+                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_FAILED_TO_PROCESS"));
             }
         }
 
@@ -97,15 +98,12 @@ namespace Gizmo.Client.UI.View.Services
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Assistance request cancel error.");
-
-                ViewState.HasError = true;
-                ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED");
-            }
-            finally
-            {
                 ViewState.IsLoading = false;
                 ViewState.RaiseChanged();
+
+                Logger.LogError(ex, "Assistance request cancel error.");
+
+                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_FAILED_TO_PROCESS"));
             }
         }
 
