@@ -3,6 +3,7 @@ using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Messaging;
 using Gizmo.Web.Api.Models;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -132,16 +133,32 @@ namespace Gizmo.Client.UI.View.Services
         protected override Task OnInitializing(CancellationToken ct)
         {
             _gizmoClient.LoginStateChange += OnLoginStateChange;
+            _gizmoClient.OnAPIEventMessage += OnAPIEventMessage;
             return base.OnInitializing(ct);
         }
 
         protected override void OnDisposing(bool isDisposing)
         {
+            _gizmoClient.OnAPIEventMessage -= OnAPIEventMessage;
             _gizmoClient.LoginStateChange -= OnLoginStateChange;
             base.OnDisposing(isDisposing);
         }
 
         #endregion
+        
+        private void OnAPIEventMessage(object? sender, IAPIEventMessage e)
+        {
+            if (e is AssistanceRequestStatusChangeEventMessage assistanceRequestStatusChangeEventMessage)
+            {
+                //TODO: AAA Don't we need to verify we have the same id?
+                if (assistanceRequestStatusChangeEventMessage.Status != AssistanceRequestStatus.Pending)
+                {
+                    ViewState.AnyPending = false;
+
+                    DebounceViewStateChanged();
+                }
+            }
+        }
 
         private async void OnLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
         {

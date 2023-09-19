@@ -2,7 +2,7 @@
 using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.Services.Client;
 using Gizmo.UI;
-
+using Gizmo.Web.Api.Messaging;
 using Gizmo.Web.Api.Models;
 
 namespace Gizmo.Client
@@ -71,6 +71,7 @@ namespace Gizmo.Client
         public event EventHandler<ReservationChangeEventArgs>? ReservationChange;
         public event EventHandler<UsageSessionChangeEventArgs>? UsageSessionChange;
         public event EventHandler<StartUpEventArgs>? StartUp;
+        public event EventHandler<IAPIEventMessage> OnAPIEventMessage;
 
         public DemoClient(IClientNotificationService notificationsService)
         {
