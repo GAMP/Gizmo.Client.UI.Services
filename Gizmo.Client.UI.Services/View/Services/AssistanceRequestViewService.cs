@@ -68,6 +68,9 @@ namespace Gizmo.Client.UI.View.Services
                     Note = ViewState.Note
                 });
 
+                ViewState.SelectedAssistanceRequestType = null;
+                ViewState.Note = null;
+
                 ViewState.AnyPending = await _gizmoClient.AssistanceRequestAnyPendingGetAsync();
 
                 ViewState.IsLoading = false;
