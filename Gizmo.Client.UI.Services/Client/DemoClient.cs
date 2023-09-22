@@ -1353,8 +1353,6 @@ namespace Gizmo.Client
             //_userProfile.Phone = user.Phone;
             //_userProfile.MobilePhone = user.MobilePhone;
 
-            //TODO: A EVENT?
-
             await _notificationsService.ShowAlertNotification(AlertTypes.Success, "Success", "Success");
 
             return new UpdateResult();
@@ -1931,25 +1929,25 @@ namespace Gizmo.Client
                         HourlyRate = 2
                     }
                 },
-                new UserUsageTimeLevelModel()
-                {
-                    ActivationOrder = 2,
-                    UsageType = UsageType.Rate,
-                    Rate = new UserUsageRateModel()
-                    {
-                        HourlyRate = 1,
-                        InCredit = true
-                    }
-                },
-                new UserUsageTimeLevelModel()
-                {
-                    ActivationOrder = null,
-                    UsageType = UsageType.TimeOffer,
-                    TimeOffer = new UserUsageTimeOfferModel()
-                    {
-                        ProductId = 6 //7
-                    }
-                }
+                //new UserUsageTimeLevelModel()
+                //{
+                //    ActivationOrder = 2,
+                //    UsageType = UsageType.Rate,
+                //    Rate = new UserUsageRateModel()
+                //    {
+                //        HourlyRate = 1,
+                //        InCredit = true
+                //    }
+                //},
+                //new UserUsageTimeLevelModel()
+                //{
+                //    ActivationOrder = null,
+                //    UsageType = UsageType.TimeOffer,
+                //    TimeOffer = new UserUsageTimeOfferModel()
+                //    {
+                //        ProductId = 6 //7
+                //    }
+                //}
             };
         }
 
