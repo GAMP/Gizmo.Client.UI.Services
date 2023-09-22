@@ -133,7 +133,7 @@ namespace Gizmo.Client.UI.View.Services
                         else
                         {
                             ViewState.HasError = true;
-                            ViewState.ErrorMessage = result.Result.ToString(); //TODO: AAA TRANSLATE
+                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED") + $" {result.Result.ToString()}"; //TODO: AAA TRANSLATE?
                         }
                     }
                     else if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
@@ -188,7 +188,7 @@ namespace Gizmo.Client.UI.View.Services
                             default:
 
                                 ViewState.HasError = true;
-                                ViewState.ErrorMessage = result.Result.ToString(); //TODO: AAA TRANSLATE
+                                ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED") + $" {result.Result.ToString()}"; //TODO: AAA TRANSLATE?
 
                                 break;
                         }
@@ -199,7 +199,7 @@ namespace Gizmo.Client.UI.View.Services
                     Logger.LogError(ex, "User create start error.");
 
                     ViewState.HasError = true;
-                    ViewState.ErrorMessage = ex.ToString(); //TODO: AAA TRANSLATE
+                    ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED");
                 }
                 finally
                 {

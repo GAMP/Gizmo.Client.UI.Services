@@ -32,7 +32,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task<bool> ProcessUserAgreements(CancellationToken cancellationToken = default)
         {
-            var userAgreements = await _gizmoClient.UserAgreementsGetAsync(new UserAgreementsFilter(), cancellationToken);
+            var userAgreements = await _gizmoClient.UserAgreementsGetAsync(new UserAgreementsFilter() { IsEnabled = true }, cancellationToken);
 
             var userAgreementStates = userAgreements.Data.Select(a => new UserAgreementViewState()
             {

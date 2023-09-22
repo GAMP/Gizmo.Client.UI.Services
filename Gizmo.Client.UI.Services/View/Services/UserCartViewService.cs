@@ -431,7 +431,7 @@ namespace Gizmo.Client.UI.View.Services
                 else
                 {
                     ViewState.HasError = true;
-                    ViewState.ErrorMessage = result.Result.ToString(); //TODO: AAA TRANSLATE
+                    ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED") + $" {result.FailReason.ToString()}"; //TODO: AAA TRANSLATE?
 
                     if (result.OrderLines != null)
                     {
@@ -481,7 +481,7 @@ namespace Gizmo.Client.UI.View.Services
                 Logger.LogError(ex, "User order create error.");
 
                 ViewState.HasError = true;
-                ViewState.ErrorMessage = ex.ToString(); //TODO: AAA TRANSLATE
+                ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED");
             }
             finally
             {
