@@ -26,6 +26,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 ViewState.ActiveAppsIsVisible = false;
                 ViewState.NotificationsIsVisible = false;
+                ViewState.AssistanceRequestsIsVisible = false;
                 ViewState.UserLinksIsVisible = false;
             }
 
@@ -36,12 +37,10 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.UserOnlineDepositIsVisible = true;
 
-            if (ViewState.UserOnlineDepositIsVisible)
-            {
-                ViewState.ActiveAppsIsVisible = false;
-                ViewState.NotificationsIsVisible = false;
-                ViewState.UserLinksIsVisible = false;
-            }
+            ViewState.ActiveAppsIsVisible = false;
+            ViewState.NotificationsIsVisible = false;
+            ViewState.AssistanceRequestsIsVisible = false;
+            ViewState.UserLinksIsVisible = false;
 
             ViewState.RaiseChanged();
         }
@@ -61,6 +60,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 ViewState.UserOnlineDepositIsVisible = false;
                 ViewState.NotificationsIsVisible = false;
+                ViewState.AssistanceRequestsIsVisible = false;
                 ViewState.UserLinksIsVisible = false;
             }
 
@@ -82,6 +82,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 ViewState.UserOnlineDepositIsVisible = false;
                 ViewState.ActiveAppsIsVisible = false;
+                ViewState.AssistanceRequestsIsVisible = false;
                 ViewState.UserLinksIsVisible = false;
             }
 
@@ -95,6 +96,27 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
+        public void ToggleAssistanceRequests()
+        {
+            ViewState.AssistanceRequestsIsVisible = !ViewState.AssistanceRequestsIsVisible;
+
+            if (ViewState.AssistanceRequestsIsVisible)
+            {
+                ViewState.UserOnlineDepositIsVisible = false;
+                ViewState.ActiveAppsIsVisible = false;
+                ViewState.NotificationsIsVisible = false;
+            }
+
+            ViewState.RaiseChanged();
+        }
+
+        public void CloseAssistanceRequests()
+        {
+            ViewState.AssistanceRequestsIsVisible = false;
+
+            ViewState.RaiseChanged();
+        }
+
         public void ToggleUserLinks()
         {
             ViewState.UserLinksIsVisible = !ViewState.UserLinksIsVisible;
@@ -104,6 +126,7 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.UserOnlineDepositIsVisible = false;
                 ViewState.ActiveAppsIsVisible = false;
                 ViewState.NotificationsIsVisible = false;
+                ViewState.AssistanceRequestsIsVisible = false;
             }
 
             ViewState.RaiseChanged();

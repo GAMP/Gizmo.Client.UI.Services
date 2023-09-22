@@ -12,6 +12,7 @@ namespace Gizmo.Client.UI.View.States
         public bool UserOnlineDepositIsVisible { get; internal set; }
         public bool ActiveAppsIsVisible { get; internal set; }
         public bool NotificationsIsVisible { get; internal set; }
+        public bool AssistanceRequestsIsVisible { get; internal set; }
         public bool UserLinksIsVisible { get; internal set; }
     }
 }
