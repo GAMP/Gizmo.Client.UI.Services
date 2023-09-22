@@ -55,7 +55,14 @@ namespace Gizmo.Client.UI.View.Services
 
                         if (timeProduct.Rate != null)
                         {
-                            timeProductViewState.TimeProductName = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_RATE_PER_HOUR", timeProduct.Rate.HourlyRate.ToString("C"));
+                            if (!timeProduct.Rate.AvailableMinutes.HasValue && timeProduct.Rate.InCredit)
+                            {
+                                timeProductViewState.TimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_RATE");
+                            }
+                            else
+                            {
+                                timeProductViewState.TimeProductName = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_RATE_PER_HOUR", timeProduct.Rate.HourlyRate.ToString("C"));
+                            }
                             timeProductViewState.Source = timeProduct.Rate.InCredit ? _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_CREDIT") : _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_DEPOSIT");
                             timeProductViewState.InCredit = timeProduct.Rate.InCredit;
                         }
