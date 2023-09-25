@@ -15,14 +15,14 @@ namespace Gizmo.Client.UI.View.Services
         public LoginWallpaperViewService(LoginWallpaperViewState viewState,
             ILogger<LoginWallpaperViewService> logger,
             IServiceProvider serviceProvider,
-            IOptions<ClientInterfaceOptions> clientUIOptions) : base(viewState, logger, serviceProvider)
+            IOptionsMonitor<ClientInterfaceOptions> clientUIOptions) : base(viewState, logger, serviceProvider)
         {
             _clientUIOptions = clientUIOptions;
         }
         #endregion
 
         #region FIELDS
-        private readonly IOptions<ClientInterfaceOptions> _clientUIOptions;
+        private readonly IOptionsMonitor<ClientInterfaceOptions> _clientUIOptions;
         #endregion
 
         #region FUNCTIONS
@@ -33,9 +33,9 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
         {
-            if (!string.IsNullOrEmpty(_clientUIOptions.Value.LoginBackground))
+            if (!string.IsNullOrEmpty(_clientUIOptions.CurrentValue.LoginBackground))
             {
-                ViewState.Wallpaper = Path.Combine("https://", "static", Environment.ExpandEnvironmentVariables(_clientUIOptions.Value.LoginBackground))
+                ViewState.Wallpaper = Path.Combine("https://", "static", Environment.ExpandEnvironmentVariables(_clientUIOptions.CurrentValue.LoginBackground))
                     .Replace('\\', '/');
             }
             else
