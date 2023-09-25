@@ -68,6 +68,11 @@ namespace Gizmo.Client.UI.View.Services
                 var product = await _userProductViewStateLookupService.GetStateAsync(productId);
                 var productItem = await _userCartProductItemLookupService.GetStateAsync(productId);
 
+                if (product.ProductType == ProductType.ProductTime && productItem.Quantity >= 1)
+                {
+                    return;
+                }
+
                 //If PurchaseOptions is And then we cannot set PayType other than Mixed.
                 if (product.PurchaseOptions == PurchaseOptionType.And)
                 {
