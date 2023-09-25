@@ -15,8 +15,8 @@ namespace Gizmo.Client.UI.View.Services
         public LoginRotatorViewService(LoginRotatorViewState viewState,
             IGizmoClient gizmoClient,
             ILogger<LoginRotatorViewService> logger,
-            IServiceProvider serviceProvider,         
-            IOptions<LoginRotatorOptions> loginRotatorOptions) : base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider,
+            IOptionsMonitor<LoginRotatorOptions> loginRotatorOptions) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _loginRotatorOptions = loginRotatorOptions;
@@ -48,7 +48,7 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
-        private readonly IOptions<LoginRotatorOptions> _loginRotatorOptions;
+        private readonly IOptionsMonitor<LoginRotatorOptions> _loginRotatorOptions;
         private Timer? _rotatateTimer;
         private List<LoginRotatorItemViewState> _items = new();
         private int _index = 0;
@@ -60,10 +60,10 @@ namespace Gizmo.Client.UI.View.Services
 
         private int GetRotateMills()
         {
-            if (_loginRotatorOptions.Value.RotateEvery <= 0)
+            if (_loginRotatorOptions.CurrentValue.RotateEvery <= 0)
                 return 6000; //just in case check that correct value is set and provide default value if not
 
-            return (int)TimeSpan.FromSeconds(_loginRotatorOptions.Value.RotateEvery).TotalMilliseconds;
+            return (int)TimeSpan.FromSeconds(_loginRotatorOptions.CurrentValue.RotateEvery).TotalMilliseconds;
         }
 
         #endregion
@@ -157,7 +157,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
         {
-            if (_loginRotatorOptions.Value.Enabled)
+            if (_loginRotatorOptions.CurrentValue.Enabled)
             {
                 _paused = !_gizmoClient.IsUserIdle;
 
@@ -217,7 +217,7 @@ namespace Gizmo.Client.UI.View.Services
 
                     if (_items.Any())
                     {
-                        ViewState.IsEnabled = _loginRotatorOptions.Value.Enabled;
+                        ViewState.IsEnabled = _loginRotatorOptions.CurrentValue.Enabled;
                         ViewState.CurrentItem = _items[_index];
 
                         if (!_paused && ViewState.CurrentItem?.IsVideo == false && _items.Count > 1)
