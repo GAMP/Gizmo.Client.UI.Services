@@ -105,6 +105,7 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.UserOnlineDepositIsVisible = false;
                 ViewState.ActiveAppsIsVisible = false;
                 ViewState.NotificationsIsVisible = false;
+                ViewState.UserLinksIsVisible = false;
             }
 
             ViewState.RaiseChanged();
