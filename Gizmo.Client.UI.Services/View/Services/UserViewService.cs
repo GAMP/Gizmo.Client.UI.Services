@@ -81,6 +81,15 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (e.State == LoginState.LoginCompleted)
             {
+                ViewState.Id = e.UserProfile.Id;
+                if (e.UserProfile.IsGuest)
+                {
+                    ViewState.Username = _localizationService.GetString("GIZ_GEN_GUEST");
+                }
+                else
+                {
+                    ViewState.Username = e.UserProfile.UserName;
+                }
                 ViewState.IsUserLogoutEnabled = _gizmoClient.IsUserLogoutEnabled;
                 ViewState.IsUserLockDisabled = _clientInterfaceOptions.Value.DisableUserLock;
                 ViewState.IsGuest = e.UserProfile.IsGuest;
@@ -89,6 +98,8 @@ namespace Gizmo.Client.UI.View.Services
             }
             else if (e.State == LoginState.LoggingOut)
             {
+                ViewState.Id = 0;
+                ViewState.Username = null;
                 ViewState.IsUserLogoutEnabled = false;
                 ViewState.IsUserLockDisabled = true;
                 ViewState.IsGuest = false;

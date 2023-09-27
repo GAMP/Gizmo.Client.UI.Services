@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.Services;
+﻿using System.Threading;
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
@@ -148,14 +149,30 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
-        
-        private void OnAPIEventMessage(object? sender, IAPIEventMessage e)
+
+        private async void OnAPIEventMessage(object? sender, IAPIEventMessage e)
         {
             if (e is AssistanceRequestStatusChangeEventMessage assistanceRequestStatusChangeEventMessage)
             {
                 //TODO: AAA Don't we need to verify we have the same id?
                 if (assistanceRequestStatusChangeEventMessage.Status != AssistanceRequestStatus.Pending)
                 {
+                    try
+                    {
+                        if (assistanceRequestStatusChangeEventMessage.Status == AssistanceRequestStatus.Accepted)
+                        {
+                            _ = await _notificationService.ShowAlertNotification(Gizmo.UI.AlertTypes.Info, _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_RESPONSE_TITLE"), _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_RESPONSE_ACCEPTED"));
+                        }
+                        else if (assistanceRequestStatusChangeEventMessage.Status == AssistanceRequestStatus.Rejected)
+                        {
+                            _ = await _notificationService.ShowAlertNotification(Gizmo.UI.AlertTypes.Warning, _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_RESPONSE_TITLE"), _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_RESPONSE_REJECTED"));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "Failed to inform user about assistance request status.");
+                    }
+
                     ViewState.AnyPending = false;
 
                     DebounceViewStateChanged();
