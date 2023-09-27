@@ -1926,10 +1926,11 @@ namespace Gizmo.Client
                 {
                     ActivationOrder = 1,
                     UsageType = UsageType.Rate,
-                    AvailableMinutes = 50,
+                    //AvailableMinutes = 50,
                     Rate = new UserUsageRateModel()
                     {
-                        HourlyRate = 2
+                        HourlyRate = 2,
+                        InCredit = true
                     }
                 },
                 //new UserUsageTimeLevelModel()
@@ -1958,7 +1959,7 @@ namespace Gizmo.Client
         {
             return Task.FromResult(new UserCreditLimitModel()
             {
-                SalesCreditType = CreditType.NoCredit,
+                SalesCreditType = CreditType.Limited,
                 TimeCreditType = CreditType.Unlimited,
                 CreditLimit = 4,
                 IsTimeCreditEnabledByDefault = true,
