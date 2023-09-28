@@ -10,8 +10,6 @@ namespace Gizmo.Client.UI.View.States
 
         public bool DisableShop { get; internal set; }
 
-        public bool DisableOnlineDeposits { get; internal set; }
-
         #endregion
     }
 }

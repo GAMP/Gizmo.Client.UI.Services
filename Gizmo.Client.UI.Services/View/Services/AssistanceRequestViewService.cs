@@ -22,12 +22,14 @@ namespace Gizmo.Client.UI.View.Services
             IGizmoClient gizmoClient,
             ILocalizationService localizationService,
             AssistanceRequestTypesViewStateLookupService assistanceRequestTypesViewStateLookupService,
-            IClientNotificationService notificationService) : base(viewState, logger, serviceProvider)
+            IClientNotificationService notificationService,
+            IClientDialogService dialogService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _localizationService = localizationService;
             _assistanceRequestTypesViewStateLookupService = assistanceRequestTypesViewStateLookupService;
             _notificationService = notificationService;
+            _dialogService = dialogService;
         }
         #endregion
 
@@ -36,6 +38,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         private readonly AssistanceRequestTypesViewStateLookupService _assistanceRequestTypesViewStateLookupService;
         private readonly IClientNotificationService _notificationService;
+        private readonly IClientDialogService _dialogService;
         #endregion
 
         #region FUNCTIONS
@@ -76,6 +79,12 @@ namespace Gizmo.Client.UI.View.Services
 
                 ViewState.IsLoading = false;
                 ViewState.RaiseChanged();
+
+                var userMenuViewService = ServiceProvider.GetRequiredService<UserMenuViewService>();
+                userMenuViewService.CloseAssistanceRequests();
+
+                var dialogResult = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_ASSISTANCE_REQUEST_SENT_TITLE"), _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_SENT_MESSAGE"), AlertDialogButtons.OK, AlertTypes.Success);
+                _ = await dialogResult.WaitForResultAsync();
             }
             catch (Exception ex)
             {

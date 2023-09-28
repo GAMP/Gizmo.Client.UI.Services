@@ -18,20 +18,16 @@ namespace Gizmo.Client.UI.View.Services
         public UserBalanceTooltipViewService(UserBalanceTooltipViewState viewState,
             ILogger<UserBalanceViewService> logger,
             IServiceProvider serviceProvider,
-            IOptions<ClientShopOptions> shopOptions,
-            IOptions<UserOnlineDepositOptions> userOnlineDepositOptions) : base(viewState, logger, serviceProvider)
+            IOptions<ClientShopOptions> shopOptions) : base(viewState, logger, serviceProvider)
         {
             _shopOptions = shopOptions;
-            _userOnlineDepositOptions = userOnlineDepositOptions;
         }
 
         private readonly IOptions<ClientShopOptions> _shopOptions;
-        private readonly IOptions<UserOnlineDepositOptions> _userOnlineDepositOptions;
 
         protected override Task OnInitializing(CancellationToken ct)
         {
             ViewState.DisableShop = _shopOptions.Value.Disabled;
-            ViewState.DisableOnlineDeposits = _userOnlineDepositOptions.Value.Disabled;
             return base.OnInitializing(ct);
         }
     }
