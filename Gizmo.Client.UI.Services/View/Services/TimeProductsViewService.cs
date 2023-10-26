@@ -49,6 +49,8 @@ namespace Gizmo.Client.UI.View.Services
 
                 timeProductViewState.TimeProductType = timeProduct.UsageType;
 
+                bool sameTime = false;
+
                 switch (timeProductViewState.TimeProductType)
                 {
                     case UsageType.Rate:
@@ -63,7 +65,17 @@ namespace Gizmo.Client.UI.View.Services
                             {
                                 timeProductViewState.TimeProductName = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_RATE_PER_HOUR", timeProduct.Rate.HourlyRate.ToString("C"));
                             }
-                            timeProductViewState.Source = timeProduct.Rate.InCredit ? _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_CREDIT") : _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_DEPOSIT");
+
+                            //timeProductViewState.RemainingTime = timeProduct.Rate.InCredit ? _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_CREDIT") : _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_DEPOSIT");
+
+                            sameTime = timeProduct.UsableMinutes == timeProduct.Rate.RemainingMinutes;
+
+                            if (timeProduct.Rate.RemainingMinutes.HasValue)
+                            {
+                                var remainingMinutesTimeSpan = TimeSpan.FromMinutes(timeProduct.Rate.RemainingMinutes.Value);
+                                timeProductViewState.RemainingTime = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_PRODUCT_HOURS_MINUTES", ((int)remainingMinutesTimeSpan.TotalHours), remainingMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0'));
+                            }
+
                             timeProductViewState.InCredit = timeProduct.Rate.InCredit;
                         }
                         else
@@ -79,8 +91,10 @@ namespace Gizmo.Client.UI.View.Services
                         {
                             timeProductViewState.TimeProductName = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_PRODUCT_MINUTES", timeProduct.TimeFixed.TotalMinutes.ToString());
 
+                            sameTime = timeProduct.UsableMinutes == timeProduct.TimeFixed.RemainingMinutes;
+
                             var availableMinutesTimeSpan = TimeSpan.FromMinutes(timeProduct.TimeFixed.RemainingMinutes);
-                            timeProductViewState.Source = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_PRODUCT_HOURS_MINUTES", ((int)availableMinutesTimeSpan.TotalHours), availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0'));
+                            timeProductViewState.RemainingTime = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_PRODUCT_HOURS_MINUTES", ((int)availableMinutesTimeSpan.TotalHours), availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0'));
 
                             timeProductViewState.PurchaseTime = timeProduct.TimeFixed.PurchaseTime;
                         }
@@ -109,8 +123,10 @@ namespace Gizmo.Client.UI.View.Services
                             timeProductViewState.ExpirationDate = timeProduct.TimeOffer.ExpirationTime;
                             timeProductViewState.ProductId = timeProduct.TimeOffer.ProductId;
 
+                            sameTime = timeProduct.UsableMinutes == timeProduct.TimeOffer.RemainingMinutes;
+
                             var availableMinutesTimeSpan = TimeSpan.FromMinutes(timeProduct.TimeOffer.RemainingMinutes);
-                            timeProductViewState.Source = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_PRODUCT_HOURS_MINUTES", ((int)availableMinutesTimeSpan.TotalHours), availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0'));
+                            timeProductViewState.RemainingTime = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_PRODUCT_HOURS_MINUTES", ((int)availableMinutesTimeSpan.TotalHours), availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0'));
 
                             timeProductViewState.PurchaseTime = timeProduct.TimeOffer.PurchaseTime;
 
@@ -122,10 +138,17 @@ namespace Gizmo.Client.UI.View.Services
 
                 timeProductViewState.ActivationOrder = timeProduct.ActivationOrder;
 
-                if (timeProduct.UsableMinutes.HasValue)
+                if (sameTime)
                 {
-                    var availableMinutesTimeSpan = TimeSpan.FromMinutes(timeProduct.UsableMinutes.Value);
-                    timeProductViewState.Time = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_PRODUCT_HOURS_MINUTES", ((int)availableMinutesTimeSpan.TotalHours), availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0'));
+                    timeProductViewState.UsableTime = "-";
+                }
+                else
+                {
+                    if (timeProduct.UsableMinutes.HasValue)
+                    {
+                        var availableMinutesTimeSpan = TimeSpan.FromMinutes(timeProduct.UsableMinutes.Value);
+                        timeProductViewState.UsableTime = _localizationService.GetString("GIZ_USER_TIME_PRODUCTS_PRODUCT_HOURS_MINUTES", ((int)availableMinutesTimeSpan.TotalHours), availableMinutesTimeSpan.Minutes.ToString().PadLeft(2, '0'));
+                    }
                 }
 
                 timeProductsViewStates.Add(timeProductViewState);

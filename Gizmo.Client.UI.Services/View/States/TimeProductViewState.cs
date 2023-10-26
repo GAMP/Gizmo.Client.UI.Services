@@ -14,9 +14,9 @@ namespace Gizmo.Client.UI.View.States
 
         public string TimeProductName { get; internal set; } = null!;
 
-        public string Source { get; internal set; } = null!;
+        public string RemainingTime { get; internal set; } = null!;
 
-        public string Time { get; internal set; } = null!;
+        public string UsableTime { get; internal set; } = null!;
 
         public DateTime? PurchaseTime { get; internal set; }
 
