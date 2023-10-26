@@ -17,7 +17,7 @@ namespace Gizmo.Client.UI.View.Services
         public UserBalanceViewService(UserBalanceViewState viewState,
             IGizmoClient gizmoClient,
             ILogger<UserBalanceViewService> logger,
-            IServiceProvider serviceProvider):base(viewState, logger, serviceProvider)
+            IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
         }
@@ -43,7 +43,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Balance = e.Balance.Balance;
             ViewState.PointsBalance = e.Balance.Points;
             ViewState.Outstanding = e.Balance.TotalOutstanding;
-            ViewState.Time = TimeSpan.FromSeconds(e.Balance.AvailableCreditedTime ?? 0);
+            ViewState.Time = e.Balance.AvailableCreditedTime.HasValue ? TimeSpan.FromSeconds(e.Balance.AvailableCreditedTime.Value) : null;
             DebounceViewStateChanged();
         }
 
@@ -61,7 +61,7 @@ namespace Gizmo.Client.UI.View.Services
                     ViewState.Balance = currentUserBalance.Balance;
                     ViewState.PointsBalance = currentUserBalance.Points;
                     ViewState.Outstanding = currentUserBalance.TotalOutstanding;
-                    ViewState.Time = TimeSpan.FromSeconds(currentUserBalance.AvailableCreditedTime ?? 0);
+                    ViewState.Time = currentUserBalance.AvailableCreditedTime.HasValue ? TimeSpan.FromSeconds(currentUserBalance.AvailableCreditedTime.Value) : null;
                 }
                 catch (Exception ex)
                 {

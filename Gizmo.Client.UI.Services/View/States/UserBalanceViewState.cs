@@ -7,41 +7,18 @@ namespace Gizmo.Client.UI.View.States
     [Register()]
     public sealed class UserBalanceViewState : ViewStateBase
     {
-        #region FIELDS
-        private decimal _balance;
-        private int _pointsBalance;
-        private decimal _outstanding;
-        private TimeSpan _time;
-        #endregion
-
         #region PROPERTIES
 
         [DefaultValue(0)]
-        public decimal Balance
-        {
-            get { return _balance; }
-            internal set { _balance = value; }
-        }
+        public decimal Balance { get; internal set; }
 
         [DefaultValue(0)]
-        public int PointsBalance
-        {
-            get { return _pointsBalance; }
-            internal set { _pointsBalance = value; }
-        }
+        public int PointsBalance { get; internal set; }
 
         [DefaultValue(0)]
-        public decimal Outstanding
-        {
-            get { return _outstanding; }
-            internal set { _outstanding = value; }
-        }
+        public decimal Outstanding { get; internal set; }
 
-        public TimeSpan Time
-        {
-            get { return _time; }
-            internal set { _time = value; }
-        }
+        public TimeSpan? Time { get; internal set; }
 
         #endregion
     }
