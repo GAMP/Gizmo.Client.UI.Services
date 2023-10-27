@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Gizmo.UI;
+﻿using Gizmo.UI;
 using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,8 +8,10 @@ namespace Gizmo.Client.UI.View.States
     /// Assistance request view state.
     /// </summary>
     [Register()]
-    public sealed class AssistanceRequesetViewState : ValidatingViewStateBase
+    public sealed class AssistanceRequestViewState : ValidatingViewStateBase
     {
+        public bool IsEnabled { get; internal set; }
+
         public IEnumerable<AssistanceRequestTypeViewState> AssistanceRequestTypes { get; internal set; } = Enumerable.Empty<AssistanceRequestTypeViewState>();
 
         public int NoteLimit { get; internal set; } = 200;

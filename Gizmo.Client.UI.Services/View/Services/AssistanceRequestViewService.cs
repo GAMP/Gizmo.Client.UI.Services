@@ -4,32 +4,36 @@ using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Messaging;
 using Gizmo.Web.Api.Models;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    public sealed class AssistanceRequestViewService : ValidatingViewStateServiceBase<AssistanceRequesetViewState>
+    public sealed class AssistanceRequestViewService : ValidatingViewStateServiceBase<AssistanceRequestViewState>
     {
         #region CONSTRUCTOR
-        public AssistanceRequestViewService(AssistanceRequesetViewState viewState,
+        public AssistanceRequestViewService(AssistanceRequestViewState viewState,
             ILogger<AssistanceRequestViewService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient,
             ILocalizationService localizationService,
             AssistanceRequestTypesViewStateLookupService assistanceRequestTypesViewStateLookupService,
             IClientNotificationService notificationService,
-            IClientDialogService dialogService) : base(viewState, logger, serviceProvider)
+            IClientDialogService dialogService,
+            IOptions<AssistanceRequestOptions> assistanceRequestOptions) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _localizationService = localizationService;
             _assistanceRequestTypesViewStateLookupService = assistanceRequestTypesViewStateLookupService;
             _notificationService = notificationService;
             _dialogService = dialogService;
+            _assistanceRequestOptions = assistanceRequestOptions;
         }
         #endregion
 
@@ -39,6 +43,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly AssistanceRequestTypesViewStateLookupService _assistanceRequestTypesViewStateLookupService;
         private readonly IClientNotificationService _notificationService;
         private readonly IClientDialogService _dialogService;
+        private readonly IOptions<AssistanceRequestOptions> _assistanceRequestOptions;
         #endregion
 
         #region FUNCTIONS
@@ -195,6 +200,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 try
                 {
+                    ViewState.IsEnabled = false;
                     ViewState.SelectedAssistanceRequestType = null;
                     ViewState.Note = null;
 
@@ -202,12 +208,15 @@ namespace Gizmo.Client.UI.View.Services
                     ViewState.IsInitialized = null;
                     DebounceViewStateChanged();
 
-                    ViewState.AssistanceRequestTypes = await _assistanceRequestTypesViewStateLookupService.GetStatesAsync();
+                    if (!_assistanceRequestOptions.Value.Disabled)
+                    {
+                        ViewState.AssistanceRequestTypes = await _assistanceRequestTypesViewStateLookupService.GetStatesAsync();
+                        ViewState.AnyPending = await _gizmoClient.AssistanceRequestAnyPendingGetAsync();
 
-                    ViewState.AnyPending = await _gizmoClient.AssistanceRequestAnyPendingGetAsync();
+                        ViewState.IsEnabled = true;
+                    }
 
                     ViewState.IsInitialized = true;
-
                 }
                 catch (Exception ex)
                 {
