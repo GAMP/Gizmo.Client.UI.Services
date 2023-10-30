@@ -49,7 +49,10 @@ namespace Gizmo.Client.UI.Services
             }
             catch (OperationCanceledException)
             {
-                throw;
+                //since if http client timeout happens we will have this exception we need to log it and allow cached countries to be returend
+                //except if the task was cancelled by the caller
+                if (cancellationToken.IsCancellationRequested)
+                    throw;
             }
             catch (Exception ex)
             {
