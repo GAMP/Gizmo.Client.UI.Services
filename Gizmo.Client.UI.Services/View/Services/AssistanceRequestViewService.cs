@@ -210,7 +210,8 @@ namespace Gizmo.Client.UI.View.Services
 
                     if (!_assistanceRequestOptions.Value.Disabled)
                     {
-                        ViewState.AssistanceRequestTypes = await _assistanceRequestTypesViewStateLookupService.GetStatesAsync();
+                        var states = await _assistanceRequestTypesViewStateLookupService.GetStatesAsync();
+                        ViewState.AssistanceRequestTypes = states.Where(a => !a.IsDeleted);
                         ViewState.AnyPending = await _gizmoClient.AssistanceRequestAnyPendingGetAsync();
 
                         ViewState.IsEnabled = true;
