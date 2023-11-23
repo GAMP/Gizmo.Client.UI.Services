@@ -1,5 +1,6 @@
 ﻿using Gizmo.UI;
 using Gizmo.UI.View.States;
+using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel.DataAnnotations;
 
@@ -31,7 +32,7 @@ namespace Gizmo.Client.UI.View.States
 
         public string? Picture { get; internal set; }
 
-        public UserInfoTypes? RequiredUserInformation { get; internal set; }
+        public UserModelRequiredInfo? RequiredUserInformation { get; internal set; }
 
         public bool IsComplete { get; internal set; }
 

@@ -74,6 +74,8 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.IsInitializing = true;
                 ViewState.IsInitialized = false;
 
+                ViewState.RequiredUserInformation = await _gizmoClient.UserGroupCurrentRequiredInfoGetAsync(cToken);
+
                 var s = await _dialogService.ShowChangeProfileDialogAsync();
                 if (s.Result == AddComponentResultCode.Opened)
                 {
@@ -178,47 +180,47 @@ namespace Gizmo.Client.UI.View.Services
 
         #endregion
 
-        //protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
-        //{
-        //    if (ViewState.RequiredUserInformation?.HasFlag(UserInfoTypes.FirstName) == true)
-        //    {
-        //        if (fieldIdentifier.FieldEquals(() => ViewState.FirstName) && string.IsNullOrEmpty(ViewState.FirstName))
-        //        {
-        //            AddError(() => ViewState.FirstName, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
-        //        }
-        //    }
+        protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
+        {
+            if (ViewState.RequiredUserInformation?.FirstName == true)
+            {
+                if (fieldIdentifier.FieldEquals(() => ViewState.FirstName) && string.IsNullOrEmpty(ViewState.FirstName))
+                {
+                    AddError(() => ViewState.FirstName, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                }
+            }
 
-        //    if (ViewState.RequiredUserInformation?.HasFlag(UserInfoTypes.LastName) == true)
-        //    {
-        //        if (fieldIdentifier.FieldEquals(() => ViewState.LastName) && string.IsNullOrEmpty(ViewState.LastName))
-        //        {
-        //            AddError(() => ViewState.LastName, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
-        //        }
-        //    }
+            if (ViewState.RequiredUserInformation?.LastName == true)
+            {
+                if (fieldIdentifier.FieldEquals(() => ViewState.LastName) && string.IsNullOrEmpty(ViewState.LastName))
+                {
+                    AddError(() => ViewState.LastName, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                }
+            }
 
-        //    if (ViewState.RequiredUserInformation?.HasFlag(UserInfoTypes.BirthDate) == true)
-        //    {
-        //        if (fieldIdentifier.FieldEquals(() => ViewState.BirthDate) && !ViewState.BirthDate.HasValue)
-        //        {
-        //            AddError(() => ViewState.BirthDate, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
-        //        }
-        //    }
+            if (ViewState.RequiredUserInformation?.BirthDate == true)
+            {
+                if (fieldIdentifier.FieldEquals(() => ViewState.BirthDate) && !ViewState.BirthDate.HasValue)
+                {
+                    AddError(() => ViewState.BirthDate, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                }
+            }
 
-        //    if (ViewState.RequiredUserInformation?.HasFlag(UserInfoTypes.Country) == true)
-        //    {
-        //        if (fieldIdentifier.FieldEquals(() => ViewState.Country) && string.IsNullOrEmpty(ViewState.Country))
-        //        {
-        //            AddError(() => ViewState.Country, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
-        //        }
-        //    }
+            if (ViewState.RequiredUserInformation?.Country == true)
+            {
+                if (fieldIdentifier.FieldEquals(() => ViewState.Country) && string.IsNullOrEmpty(ViewState.Country))
+                {
+                    AddError(() => ViewState.Country, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                }
+            }
 
-        //    if (ViewState.RequiredUserInformation?.HasFlag(UserInfoTypes.Sex) == true)
-        //    {
-        //        if (fieldIdentifier.FieldEquals(() => ViewState.Sex) && ViewState.Sex == Sex.Unspecified)
-        //        {
-        //            AddError(() => ViewState.Sex, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
-        //        }
-        //    }
-        //}
+            if (ViewState.RequiredUserInformation?.Sex == true)
+            {
+                if (fieldIdentifier.FieldEquals(() => ViewState.Sex) && ViewState.Sex == Sex.Unspecified)
+                {
+                    AddError(() => ViewState.Sex, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                }
+            }
+        }
     }
 }

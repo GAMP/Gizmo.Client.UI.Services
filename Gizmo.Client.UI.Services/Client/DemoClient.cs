@@ -1307,6 +1307,11 @@ namespace Gizmo.Client
             return Task.FromResult((UserModelRequiredInfo?)new UserModelRequiredInfo());
         }
 
+        public Task<UserModelRequiredInfo?> UserGroupCurrentRequiredInfoGetAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult((UserModelRequiredInfo?)new UserModelRequiredInfo());
+        }
+
         public async Task<AccountCreationCompleteResultModel> UserCreateCompleteAsync(UserProfileModelCreate user, string password, List<UserAgreementModelState> agreementStates, CancellationToken cancellationToken = default)
         {
             // Simulate task.
