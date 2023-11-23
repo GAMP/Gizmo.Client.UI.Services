@@ -31,6 +31,8 @@ namespace Gizmo.Client.UI.View.States
 
         public string? Picture { get; internal set; }
 
+        public UserInfoTypes? RequiredUserInformation { get; internal set; }
+
         public bool IsComplete { get; internal set; }
 
         public bool IsLoading { get; internal set; }
