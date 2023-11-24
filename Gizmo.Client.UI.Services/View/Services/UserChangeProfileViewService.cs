@@ -76,45 +76,58 @@ namespace Gizmo.Client.UI.View.Services
 
                 ViewState.RequiredUserInformation = await _gizmoClient.UserGroupCurrentRequiredInfoGetAsync(cToken);
 
-                var s = await _dialogService.ShowChangeProfileDialogAsync();
-                if (s.Result == AddComponentResultCode.Opened)
+                if ((ViewState.RequiredUserInformation?.FirstName == true) ||
+                    (ViewState.RequiredUserInformation?.LastName == true) ||
+                    (ViewState.RequiredUserInformation?.BirthDate == true) ||
+                    (ViewState.RequiredUserInformation?.Sex == true) ||
+                    (ViewState.RequiredUserInformation?.Country == true))
                 {
-                    //_ = await s.WaitForDialogResultAsync();
+                    var s = await _dialogService.ShowChangeProfileDialogAsync();
+                    if (s.Result == AddComponentResultCode.Opened)
+                    {
+                        //_ = await s.WaitForDialogResultAsync();
+                    }
+
+                    try
+                    {
+                        var profile = await _gizmoClient.UserProfileGetAsync(cToken);
+
+                        ViewState.Username = profile.Username;
+                        ViewState.FirstName = profile.FirstName;
+                        ViewState.LastName = profile.LastName;
+                        ViewState.BirthDate = profile.BirthDate;
+                        ViewState.Sex = profile.Sex;
+                        ViewState.Country = profile.Country;
+
+                        //Validate();
+
+                        ValidateProperty(() => ViewState.FirstName);
+                        ValidateProperty(() => ViewState.LastName);
+                        ValidateProperty(() => ViewState.BirthDate);
+                        ValidateProperty(() => ViewState.Sex);
+                        ValidateProperty(() => ViewState.Country);
+
+                        ViewState.IsInitialized = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "User profile get error.");
+
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED");
+
+                        ViewState.IsComplete = true;
+
+                        throw;
+                    }
+                    finally
+                    {
+                        ViewState.IsInitializing = false;
+
+                        ViewState.RaiseChanged();
+                    }
                 }
-
-                try
-                {
-                    var profile = await _gizmoClient.UserProfileGetAsync(cToken);
-
-                    ViewState.Username = profile.Username;
-                    ViewState.FirstName = profile.FirstName;
-                    ViewState.LastName = profile.LastName;
-                    ViewState.BirthDate = profile.BirthDate;
-                    ViewState.Sex = profile.Sex;
-                    ViewState.Country = profile.Country;
-
-                    //Validate();
-
-                    ValidateProperty(() => ViewState.FirstName);
-                    ValidateProperty(() => ViewState.LastName);
-                    ValidateProperty(() => ViewState.BirthDate);
-                    ValidateProperty(() => ViewState.Sex);
-                    ValidateProperty(() => ViewState.Country);
-
-                    ViewState.IsInitialized = true;
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "User profile get error.");
-
-                    ViewState.HasError = true;
-                    ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED");
-
-                    ViewState.IsComplete = true;
-
-                    throw;
-                }
-                finally
+                else
                 {
                     ViewState.IsInitializing = false;
 

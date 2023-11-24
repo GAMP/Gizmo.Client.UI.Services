@@ -83,10 +83,10 @@ namespace Gizmo.Client
             {
                 Username = "Username",
                 FirstName = "First Name",
-                LastName = "Last Name",
-                BirthDate = new DateTime(1950, 1, 2),
-                Sex = Sex.Male,
-                Country = "Samoa",
+                //LastName = "Last Name",
+                //BirthDate = new DateTime(1950, 1, 2),
+                Sex = Sex.Unspecified,
+                //Country = "Samoa",
                 Address = "Address 123",
                 Email = "test@test.test",
                 Phone = "0123456789",
@@ -98,7 +98,7 @@ namespace Gizmo.Client
                 UserName = _userProfile.Username,
                 FirstName = _userProfile.FirstName,
                 LastName = _userProfile.LastName,
-                BirthDate = _userProfile.BirthDate.Value,
+                //BirthDate = _userProfile.BirthDate.Value,
                 Sex = _userProfile.Sex,
                 Country = _userProfile.Country,
                 Address = _userProfile.Address,
@@ -1117,7 +1117,7 @@ namespace Gizmo.Client
                         Id = 100,
                         Title = "DEFAULT VIDEO",
                         Data = "app",
-                        MediaUrl = "https://media.geeksforgeeks.org/wp-content/uploads/20210314115545/sample-video.mp4",
+                        MediaUrl = "https://www.youtube.com/watch?v=0P3d7-mHCbg",
                         Url = "gizmo://apps/details/navigate?appId=1"
                     }
                 },
@@ -1127,7 +1127,7 @@ namespace Gizmo.Client
                         Id = 1,
                         Title = "DEFAULT VIDEO",
                         Data = "product",
-                        MediaUrl = "https://media.geeksforgeeks.org/wp-content/uploads/20210314115545/sample-video.mp4",
+                        MediaUrl = "https://www.youtube.com/watch?v=lv6op2HHIuM",
                         Url = "gizmo://products/details/navigate?productId=1"
                     }
                 },
@@ -1136,9 +1136,10 @@ namespace Gizmo.Client
                     {
                         Id = 2,
                         Title = "DEFAULT VIDEO",
-                        Data = "cart",
-                        ThumbnailUrl = "https://i3.ytimg.com/vi/Ce1eUo0K3VE/maxresdefault.jpg",
-                        Url = "gizmo://products/cart/add?productId=1&quantity=2"
+                        //Data = "cart",
+                        //ThumbnailUrl = "https://i3.ytimg.com/vi/Ce1eUo0K3VE/maxresdefault.jpg",
+                        //Url = "gizmo://products/cart/add?productId=1&quantity=2",
+                        IsCustomTemplate = true
                     }
                 },
                 //{
@@ -1223,7 +1224,7 @@ namespace Gizmo.Client
 
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(_iUserProfile, LoginState.LoggedIn));
 
-            LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(_iUserProfile, LoginState.LoginCompleted));
+            LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(_iUserProfile, LoginState.LoginCompleted) { RequiredUserInformation = UserInfoTypes.Country });
 
             IsUserLoggedIn = true;
 
@@ -1304,12 +1305,40 @@ namespace Gizmo.Client
 
         public Task<UserModelRequiredInfo?> UserGroupDefaultRequiredInfoGetAsync(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult((UserModelRequiredInfo?)new UserModelRequiredInfo());
+            return Task.FromResult((UserModelRequiredInfo?)new UserModelRequiredInfo()
+            {
+                FirstName = true,
+                LastName = true,
+                BirthDate = true,
+                Address = true,
+                City = true,
+                PostCode = true,
+                State = true,
+                Country = true,
+                Email = true,
+                Phone = true,
+                Mobile = true,
+                Sex = true
+            });
         }
 
         public Task<UserModelRequiredInfo?> UserGroupCurrentRequiredInfoGetAsync(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult((UserModelRequiredInfo?)new UserModelRequiredInfo());
+            return Task.FromResult((UserModelRequiredInfo?)new UserModelRequiredInfo()
+            {
+                //FirstName = true,
+                //LastName = true,
+                //BirthDate = true,
+                //Address = true,
+                //City = true,
+                //PostCode = true,
+                //State = true,
+                //Country = true,
+                //Email = true,
+                //Phone = true,
+                //Mobile = true,
+                //Sex = true
+            });
         }
 
         public async Task<AccountCreationCompleteResultModel> UserCreateCompleteAsync(UserProfileModelCreate user, string password, List<UserAgreementModelState> agreementStates, CancellationToken cancellationToken = default)
