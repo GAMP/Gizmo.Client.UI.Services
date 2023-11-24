@@ -22,11 +22,13 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
             IGizmoClient gizmoClient,
-            IOptions<PasswordValidationOptions> passwordValidationOptions) : base(viewState, logger, serviceProvider)
+            IOptions<PasswordValidationOptions> passwordValidationOptions,
+            UserRegistrationViewState userRegistrationViewState) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _gizmoClient = gizmoClient;
             _passwordValidationOptions = passwordValidationOptions;
+            _userRegistrationViewState = userRegistrationViewState;
         }
         #endregion
 
@@ -34,6 +36,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
         private readonly IOptions<PasswordValidationOptions> _passwordValidationOptions;
+        private readonly UserRegistrationViewState _userRegistrationViewState;
         #endregion
 
         #region FUNCTIONS
@@ -111,6 +114,11 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 
+            ValidateProperty(() => ViewState.FirstName);
+            ValidateProperty(() => ViewState.LastName);
+            ValidateProperty(() => ViewState.BirthDate);
+            ValidateProperty(() => ViewState.Sex);
+            ValidateProperty(() => ViewState.Email);
             Validate();
 
             if (ViewState.IsValid != true)
@@ -123,16 +131,14 @@ namespace Gizmo.Client.UI.View.Services
 
             var userRegistrationIndexViewState = ServiceProvider.GetRequiredService<UserRegistrationIndexViewState>();
 
-            var userRegistrationViewState = ServiceProvider.GetRequiredService<UserRegistrationViewState>();
             var userRegistrationConfirmationMethodViewState = ServiceProvider.GetRequiredService<UserRegistrationConfirmationMethodViewState>();
 
-            bool confirmationRequired = userRegistrationViewState.ConfirmationMethod != RegistrationVerificationMethod.None;
-            bool confirmationWithMobilePhone = userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone; //TODO: A If both methods are available then get user selection.
+            bool confirmationRequired = _userRegistrationViewState.ConfirmationMethod != RegistrationVerificationMethod.None;
+            bool confirmationWithMobilePhone = _userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone; //TODO: A If both methods are available then get user selection.
 
-            if (userRegistrationViewState.DefaultUserGroupRequiredInfo.Country ||
-                userRegistrationViewState.DefaultUserGroupRequiredInfo.Address ||
-                userRegistrationViewState.DefaultUserGroupRequiredInfo.PostCode ||
-                (userRegistrationViewState.DefaultUserGroupRequiredInfo.Mobile && !confirmationWithMobilePhone))
+            if (_userRegistrationViewState.DefaultUserGroupRequiredInfo.Address ||
+                _userRegistrationViewState.DefaultUserGroupRequiredInfo.PostCode ||
+                ((_userRegistrationViewState.DefaultUserGroupRequiredInfo.Country || _userRegistrationViewState.DefaultUserGroupRequiredInfo.Mobile) && !confirmationWithMobilePhone))
             {
                 ViewState.IsLoading = false;
                 ViewState.RaiseChanged();
@@ -155,7 +161,7 @@ namespace Gizmo.Client.UI.View.Services
                         Sex = ViewState.Sex
                     };
 
-                    if (userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email)
+                    if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email)
                     {
                         profile.Email = userRegistrationConfirmationMethodViewState.Email;
                     }
@@ -299,6 +305,23 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
+        //protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        //{
+        //    ValidateProperty(() => ViewState.Username);
+        //    CheckPasswordRules(ViewState.Password);
+        //    ValidateProperty(() => ViewState.Password);
+        //    ValidateProperty(() => ViewState.RepeatPassword);
+        //    ValidateProperty(() => ViewState.FirstName);
+        //    ValidateProperty(() => ViewState.LastName);
+        //    ValidateProperty(() => ViewState.BirthDate);
+        //    ValidateProperty(() => ViewState.Sex);
+        //    ValidateProperty(() => ViewState.Email);
+
+        //    ViewState.RaiseChanged();
+
+        //    return Task.CompletedTask;
+        //}
+
         protected override Task OnInitializing(CancellationToken ct)
         {
             ViewState.PasswordTooltip.MinimumLengthRule = _passwordValidationOptions.Value.MinimumLength;
@@ -352,6 +375,50 @@ namespace Gizmo.Client.UI.View.Services
                 if (!string.IsNullOrEmpty(ViewState.Password) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.Password, ViewState.RepeatPassword) != 0)
                 {
                     AddError(() => ViewState.RepeatPassword, _localizationService.GetString("GIZ_GEN_PASSWORDS_DO_NOT_MATCH"));
+                }
+            }
+
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.FirstName))
+            {
+                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.FirstName == true && string.IsNullOrEmpty(ViewState.FirstName))
+                {
+                    AddError(() => ViewState.FirstName, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                }
+            }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.LastName))
+            {
+                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.LastName == true && string.IsNullOrEmpty(ViewState.LastName))
+                {
+                    AddError(() => ViewState.LastName, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                }
+            }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.BirthDate))
+            {
+                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.BirthDate == true && !ViewState.BirthDate.HasValue)
+                {
+                    AddError(() => ViewState.BirthDate, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                }
+            }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.Sex))
+            {
+                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.Sex == true && ViewState.Sex == Sex.Unspecified)
+                {
+                    AddError(() => ViewState.Sex, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                }
+            }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.Email))
+            {
+                if (_userRegistrationViewState.ConfirmationMethod != RegistrationVerificationMethod.Email)
+                {
+                    if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.Email == true && string.IsNullOrEmpty(ViewState.Email))
+                    {
+                        AddError(() => ViewState.Email, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                    }
                 }
             }
         }

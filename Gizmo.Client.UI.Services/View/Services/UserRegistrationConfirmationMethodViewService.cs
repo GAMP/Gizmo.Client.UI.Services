@@ -237,12 +237,26 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone &&
-                fieldIdentifier.FieldEquals(() => ViewState.MobilePhone))
+            if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
             {
-                if (string.IsNullOrEmpty(ViewState.MobilePhone))
+                if (fieldIdentifier.FieldEquals(() => ViewState.Country))
                 {
-                    AddError(() => ViewState.MobilePhone, _localizationService.GetString("GIZ_USER_CONFIRMATION_VE_PHONE_IS_REQUIRED"));
+                    if (string.IsNullOrEmpty(ViewState.Country))
+                    {
+                        AddError(() => ViewState.Country, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                    }
+                    else
+                    {
+                        ClearError(() => ViewState.Country);
+                    }
+                }
+
+                if (fieldIdentifier.FieldEquals(() => ViewState.MobilePhone))
+                {
+                    if (string.IsNullOrEmpty(ViewState.MobilePhone))
+                    {
+                        AddError(() => ViewState.MobilePhone, _localizationService.GetString("GIZ_USER_CONFIRMATION_VE_PHONE_IS_REQUIRED"));
+                    }
                 }
             }
         }

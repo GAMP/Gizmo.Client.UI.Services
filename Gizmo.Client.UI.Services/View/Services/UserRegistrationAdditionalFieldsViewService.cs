@@ -1,8 +1,10 @@
 ﻿using Gizmo.Client.UI.View.States;
+using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -17,16 +19,19 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserRegistrationAdditionalFieldsViewService> logger,
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
-            IGizmoClient gizmoClient) : base(viewState, logger, serviceProvider)
+            IGizmoClient gizmoClient,
+            UserRegistrationViewState userRegistrationViewState) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _gizmoClient = gizmoClient;
+            _userRegistrationViewState = userRegistrationViewState;
         }
         #endregion
 
         #region FIELDS
         private readonly ILocalizationService _localizationService;
         private readonly IGizmoClient _gizmoClient;
+        private readonly UserRegistrationViewState _userRegistrationViewState;
         #endregion
 
         #region FUNCTIONS
@@ -190,5 +195,48 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
+
+        #region OVERRIDES
+
+        protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
+        {
+            if (fieldIdentifier.FieldEquals(() => ViewState.Country))
+            {
+                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.Country == true && string.IsNullOrEmpty(ViewState.Country))
+                {
+                    AddError(() => ViewState.Country, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                }
+            }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.Address))
+            {
+                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.FirstName == true && string.IsNullOrEmpty(ViewState.Address))
+                {
+                    AddError(() => ViewState.Address, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                }
+            }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.PostCode))
+            {
+                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.LastName == true && string.IsNullOrEmpty(ViewState.PostCode))
+                {
+                    AddError(() => ViewState.PostCode, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                }
+            }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.MobilePhone))
+            {
+                if (_userRegistrationViewState.ConfirmationMethod != RegistrationVerificationMethod.MobilePhone)
+                {
+                    if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.Mobile == true && string.IsNullOrEmpty(ViewState.MobilePhone))
+                    {
+                        AddError(() => ViewState.MobilePhone, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                    }
+                }
+            }
+        }
+
+        #endregion
+
     }
 }
