@@ -12,13 +12,16 @@ namespace Gizmo.Client.UI.View.Services
         public UserBanViewService(UserBanViewState viewState,
             IGizmoClient gizmoClient,
             ILogger<UserBanViewService> logger,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            UserViewService userViewService)
             : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
+            _userViewService = userViewService;
         }
 
         private readonly IGizmoClient _gizmoClient;
+        private readonly UserViewService _userViewService;
         private System.Threading.Timer? _timer;
 
         protected override Task OnInitializing(CancellationToken ct)
@@ -46,7 +49,7 @@ namespace Gizmo.Client.UI.View.Services
                     ViewState.DisabledDate = userEnabledChangedEventMessage.DisabledDate;
                     ViewState.Reason = userEnabledChangedEventMessage.Reason;
 
-                    ViewState.Time = TimeSpan.FromMinutes(1);
+                    ViewState.Time = TimeSpan.FromSeconds(10);
 
                     _timer?.Dispose();
                     _timer = new System.Threading.Timer(OnTimerCallback, null, 0, 1000);
@@ -72,7 +75,7 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        private void OnTimerCallback(object? state)
+        private async void OnTimerCallback(object? state)
         {
             ViewState.Time = TimeSpan.FromSeconds(ViewState.Time.TotalSeconds - 1);
 
@@ -84,6 +87,15 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     _timer.Dispose();
                     _timer = null;
+                }
+
+                try
+                {
+                    await _userViewService.LogoutAsync();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Error while logging out banned user.");
                 }
             }
 
