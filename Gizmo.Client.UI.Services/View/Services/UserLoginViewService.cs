@@ -192,6 +192,9 @@ namespace Gizmo.Client.UI.View.Services
                         case LoginResult.Sucess:
                             ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_SUCESS");
                             break;
+                        case LoginResult.RestrictedByAge:
+                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_RESTRICTED_BY_AGE");
+                            break;
                         default:
                             ERROR_MESSAGE = e.FailReason.ToString();
                             break;
