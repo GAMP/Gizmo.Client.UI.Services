@@ -150,7 +150,8 @@ namespace Gizmo.Client.UI.View.Services
                 if (ViewState.Amount < ViewState.MinimumAmount)
                 {
                     AddError(() => ViewState.Amount, _localizationService.GetString("GIZ_ONLINE_DEPOSIT_MINIMUM_AMOUNT_IS", ViewState.MinimumAmount));
-                } else if (ViewState.Amount > _userOnlineDepositOptions.Value.MaximumAmount)
+                }
+                else if (ViewState.Amount > _userOnlineDepositOptions.Value.MaximumAmount)
                 {
                     AddError(() => ViewState.Amount, _localizationService.GetString("GIZ_ONLINE_DEPOSIT_MAXIMUM_AMOUNT_IS", _userOnlineDepositOptions.Value.MaximumAmount));
                 }
@@ -171,7 +172,11 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         var paymentMethods = await _paymentMethodViewStateLookupService.GetStatesAsync();
 
-                        ViewState.SelectedPaymentMethodId = paymentMethods.Where(a => a.IsOnline).Select(a => (int?)a.Id).FirstOrDefault();
+                        ViewState.SelectedPaymentMethodId = paymentMethods
+                            .Where(a => a.IsEnabled)
+                            .Where(a => a.IsOnline)
+                            .Select(a => (int?)a.Id)
+                            .FirstOrDefault();
 
                         if (ViewState.SelectedPaymentMethodId.HasValue)
                         {
