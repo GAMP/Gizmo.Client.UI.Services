@@ -210,7 +210,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.Address))
             {
-                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.FirstName == true && string.IsNullOrEmpty(ViewState.Address))
+                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.Address == true && string.IsNullOrEmpty(ViewState.Address))
                 {
                     AddError(() => ViewState.Address, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
                 }
@@ -218,7 +218,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.PostCode))
             {
-                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.LastName == true && string.IsNullOrEmpty(ViewState.PostCode))
+                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.PostCode == true && string.IsNullOrEmpty(ViewState.PostCode))
                 {
                     AddError(() => ViewState.PostCode, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
                 }
