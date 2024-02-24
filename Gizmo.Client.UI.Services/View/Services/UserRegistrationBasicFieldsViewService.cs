@@ -119,7 +119,6 @@ namespace Gizmo.Client.UI.View.Services
             ValidateProperty(() => ViewState.BirthDate);
             ValidateProperty(() => ViewState.Sex);
             ValidateProperty(() => ViewState.Email);
-            ValidateProperty(() => ViewState.RepeatPassword);
 
             Validate();
 
