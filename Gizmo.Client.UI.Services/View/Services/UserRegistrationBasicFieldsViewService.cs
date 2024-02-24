@@ -119,6 +119,8 @@ namespace Gizmo.Client.UI.View.Services
             ValidateProperty(() => ViewState.BirthDate);
             ValidateProperty(() => ViewState.Sex);
             ValidateProperty(() => ViewState.Email);
+            ValidateProperty(() => ViewState.RepeatPassword);
+
             Validate();
 
             if (ViewState.IsValid != true)
@@ -369,13 +371,17 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         AddError(() => ViewState.Password, ViewState.PasswordTooltip.ErrorMessage);
                     }
-                }
+                }   
 
-                ClearError(() => ViewState.RepeatPassword);
-                if (!string.IsNullOrEmpty(ViewState.Password) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.Password, ViewState.RepeatPassword) != 0)
+                if(validationTrigger == ValidationTrigger.Input)
                 {
-                    AddError(() => ViewState.RepeatPassword, _localizationService.GetString("GIZ_GEN_PASSWORDS_DO_NOT_MATCH"));
-                }
+                    //only clear reeat password errors on input
+                    ClearError(() => ViewState.RepeatPassword);
+                    if (!string.IsNullOrEmpty(ViewState.Password) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.Password, ViewState.RepeatPassword) != 0)
+                    {
+                        AddError(() => ViewState.RepeatPassword, _localizationService.GetString("GIZ_GEN_PASSWORDS_DO_NOT_MATCH"));
+                    }
+                }               
             }
 
 
