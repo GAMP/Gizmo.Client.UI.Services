@@ -46,7 +46,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task SMSFallbackAsync()
         {
-            NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryRoute);
+            NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryRoute + $"?Fallback=true");
 
             return _userPasswordRecoveryService.SubmitAsync(true);
         }

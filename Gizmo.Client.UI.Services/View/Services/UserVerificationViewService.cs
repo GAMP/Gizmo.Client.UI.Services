@@ -57,10 +57,9 @@ namespace Gizmo.Client.UI.View.Services
 
         internal async Task Unlock()
         {
-            _timer.Stop();
-
             if (await verificationLock.WaitAsync(-1))
             {
+                _timer.Stop();
                 ViewState.IsVerificationLocked = false;
                 try
                 {

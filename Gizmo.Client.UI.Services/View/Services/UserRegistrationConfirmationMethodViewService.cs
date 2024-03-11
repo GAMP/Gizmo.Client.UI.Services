@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System.Net.Http.Headers;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
@@ -81,6 +82,14 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task SubmitAsync(bool fallback = false)
         {
+            if (fallback)
+            {
+                if (!_userVerificationFallbackService.ViewState.IsVerificationFallbackLocked)
+                {
+                    await _userVerificationService.Unlock();
+                }
+            }
+
             if (await _userVerificationService.LockAsync())
             {
                 ViewState.IsLoading = true;
@@ -106,38 +115,48 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         var result = await _gizmoClient.UserCreateByEmailStartAsync(ViewState.Email);
 
-                        if (result.Result == Gizmo.VerificationStartResultCode.Success)
+                        switch (result.Result)
                         {
-                            string email = "";
+                            case Gizmo.VerificationStartResultCode.Success:
 
-                            if (!string.IsNullOrEmpty(result.Email))
-                            {
-                                int atIndex = result.Email.IndexOf('@');
-                                if (atIndex != -1 && atIndex > 1)
-                                    email = result.Email.Substring(atIndex - 2).PadLeft(result.Email.Length, '*');
-                                else
-                                    email = result.Email;
-                            }
+                                string email = "";
 
-                            ViewState.Token = result.Token;
-                            ViewState.Destination = email;
-                            ViewState.CodeLength = result.CodeLength;
+                                if (!string.IsNullOrEmpty(result.Email))
+                                {
+                                    int atIndex = result.Email.IndexOf('@');
+                                    if (atIndex != -1 && atIndex > 1)
+                                        email = result.Email.Substring(atIndex - 2).PadLeft(result.Email.Length, '*');
+                                    else
+                                        email = result.Email;
+                                }
 
-                            NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationRoute);
-                        }
-                        else if (result.Result == Gizmo.VerificationStartResultCode.NoRouteForDelivery)
-                        {
-                            ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY");
-                        }
-                        else
-                        {
-                            ViewState.HasError = true;
-                            ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED") + $" {result.Result.ToString()}"; //TODO: AAA TRANSLATE?
+                                ViewState.Token = result.Token;
+                                ViewState.Destination = email;
+                                ViewState.CodeLength = result.CodeLength;
+
+                                wasSuccessful = true;
+
+                                NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationRoute);
+
+                                break;
+
+                            case Gizmo.VerificationStartResultCode.NoRouteForDelivery:
+                                ViewState.HasError = true;
+                                ViewState.ErrorMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY");
+
+                                break;
+
+                            default:
+
+                                ViewState.HasError = true;
+                                ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED") + $" {result.Result.ToString()}"; //TODO: AAA TRANSLATE?
+
+                                break;
                         }
                     }
                     else if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
                     {
+                        //TODO: AAA 9digit phones?
                         var result = await _gizmoClient.UserCreateByMobileStartAsync(ViewState.MobilePhone, !fallback ? Gizmo.ConfirmationCodeDeliveryMethod.Undetermined : Gizmo.ConfirmationCodeDeliveryMethod.SMS);
 
                         switch (result.Result)
@@ -166,6 +185,8 @@ namespace Gizmo.Client.UI.View.Services
                                 ViewState.Destination = mobile;
                                 ViewState.CodeLength = result.CodeLength;
                                 ViewState.DeliveryMethod = result.DeliveryMethod;
+
+                                wasSuccessful = true;
 
                                 NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationRoute);
 

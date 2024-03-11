@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System.Web;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
@@ -66,6 +67,14 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task SubmitAsync(bool fallback = false)
         {
+            if (fallback)
+            {
+                if (!_userVerificationFallbackService.ViewState.IsVerificationFallbackLocked)
+                {
+                    await _userVerificationService.Unlock();
+                }
+            }
+
             if (await _userVerificationService.LockAsync())
             {
                 ViewState.IsLoading = true;
@@ -145,6 +154,7 @@ namespace Gizmo.Client.UI.View.Services
                                     mobile = result.MobilePhone.Substring(result.MobilePhone.Length - 4).PadLeft(10, '*');
 
                                 bool isFlashCall = result.DeliveryMethod == ConfirmationCodeDeliveryMethod.FlashCall;
+                                
                                 if (isFlashCall)
                                 {
                                     _userVerificationFallbackService.SetSMSFallbackAvailability(true);
@@ -250,12 +260,32 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            ClearAll();
+            bool clear = true;
 
-            if (_userPasswordRecoveryMethodServiceViewState.AvailabledRecoveryMethod.HasFlag(UserRecoveryMethod.Mobile) && _userPasswordRecoveryMethodServiceViewState.AvailabledRecoveryMethod.HasFlag(UserRecoveryMethod.Email))
-                ViewState.SelectedRecoveryMethod = UserRecoveryMethod.Mobile;
-            else
-                ViewState.SelectedRecoveryMethod = _userPasswordRecoveryMethodServiceViewState.AvailabledRecoveryMethod;
+            if (Uri.TryCreate(NavigationService.GetUri(), UriKind.Absolute, out var uri))
+            {
+                string? fallbackValue = HttpUtility.ParseQueryString(uri.Query).Get("Fallback");
+                if (!string.IsNullOrEmpty(fallbackValue))
+                {
+                    if (bool.TryParse(fallbackValue, out bool fallback))
+                    {
+                        if (fallback)
+                        {
+                            clear = false;
+                        }
+                    }
+                }
+            }
+
+            if (clear)
+            {
+                ClearAll();
+
+                if (_userPasswordRecoveryMethodServiceViewState.AvailabledRecoveryMethod.HasFlag(UserRecoveryMethod.Mobile) && _userPasswordRecoveryMethodServiceViewState.AvailabledRecoveryMethod.HasFlag(UserRecoveryMethod.Email))
+                    ViewState.SelectedRecoveryMethod = UserRecoveryMethod.Mobile;
+                else
+                    ViewState.SelectedRecoveryMethod = _userPasswordRecoveryMethodServiceViewState.AvailabledRecoveryMethod;
+            }
 
             return Task.CompletedTask;
         }

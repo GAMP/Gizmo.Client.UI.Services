@@ -1636,7 +1636,7 @@ namespace Gizmo.Client
 
         public Task<RegistrationVerificationMethod> RegistrationVerificationMethodGetAsync(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(RegistrationVerificationMethod.None);
+            return Task.FromResult(RegistrationVerificationMethod.MobilePhone);
         }
 
         public Task<UserRecoveryMethod> PasswordRecoveryMethodGetAsync(CancellationToken cancellationToken = default)
@@ -1683,7 +1683,7 @@ namespace Gizmo.Client
                 Token = "123",
                 MobilePhone = mobilePhone,
                 CodeLength = 5,
-                DeliveryMethod = ConfirmationCodeDeliveryMethod.FlashCall
+                DeliveryMethod = confirmationCodeDeliveryMethod == ConfirmationCodeDeliveryMethod.SMS ? ConfirmationCodeDeliveryMethod.SMS : ConfirmationCodeDeliveryMethod.FlashCall
             };
 
             return result;

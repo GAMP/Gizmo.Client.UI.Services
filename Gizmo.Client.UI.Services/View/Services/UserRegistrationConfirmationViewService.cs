@@ -62,7 +62,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task SMSFallbackAsync()
         {
-            NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationMethodRoute);
+            NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationMethodRoute + $"?Fallback=true");
 
             return _userRegistrationConfirmationMethodService.SubmitAsync(true);
         }
