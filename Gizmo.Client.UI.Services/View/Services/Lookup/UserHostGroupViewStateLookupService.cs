@@ -37,23 +37,23 @@ namespace Gizmo.Client.UI.View.Services
 
             return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
         }
-        protected override async ValueTask<UserHostGroupViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
+        protected override async ValueTask<UserHostGroupViewState> CreateViewStateAsync(int key, CancellationToken cToken = default)
         {
-            var clientResult = await _gizmoClient.UserHostGroupGetAsync(lookUpkey, cToken);
+            var clientResult = await _gizmoClient.UserHostGroupGetAsync(key, cToken);
 
-           return clientResult is null ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+            return clientResult is null ? CreateDefaultViewState(key) : Map(clientResult);
         }
-        protected override async ValueTask<UserHostGroupViewState> UpdateViewStateAsync(UserHostGroupViewState viewState, CancellationToken cToken = default)
+        protected override async ValueTask<UserHostGroupViewState> UpdateViewStateAsync(int key, UserHostGroupViewState viewState, CancellationToken cToken = default)
         {
             var clientResult = await _gizmoClient.UserHostGroupGetAsync(viewState.Id, cToken);
 
             return clientResult is null ? viewState : Map(clientResult, viewState);
         }
-        protected override UserHostGroupViewState CreateDefaultViewState(int lookUpkey)
+        protected override UserHostGroupViewState CreateDefaultViewState(int key)
         {
             var defaultState = ServiceProvider.GetRequiredService<UserHostGroupViewState>();
 
-            defaultState.Id = lookUpkey;
+            defaultState.Id = key;
 
             defaultState.Name = "Default name";
 
@@ -62,12 +62,12 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region PRIVATE FUNCTIONS
-        private UserHostGroupViewState Map (UserHostGroupModel model, UserHostGroupViewState? viewState = null)
+        private UserHostGroupViewState Map(UserHostGroupModel model, UserHostGroupViewState? viewState = null)
         {
             var result = viewState ?? CreateDefaultViewState(model.Id);
 
             result.Name = model.Name;
-            
+
             return result;
         }
 

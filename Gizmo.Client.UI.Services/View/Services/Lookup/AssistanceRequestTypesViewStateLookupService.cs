@@ -26,23 +26,23 @@ namespace Gizmo.Client.UI.View.Services
 
             return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
         }
-        protected override async ValueTask<AssistanceRequestTypeViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
+        protected override async ValueTask<AssistanceRequestTypeViewState> CreateViewStateAsync(int key, CancellationToken cToken = default)
         {
-            var clientResult = await _gizmoClient.AssistanceRequestTypeGetAsync(lookUpkey, cToken);
+            var clientResult = await _gizmoClient.AssistanceRequestTypeGetAsync(key, cToken);
 
-            return clientResult is null ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+            return clientResult is null ? CreateDefaultViewState(key) : Map(clientResult);
         }
-        protected override async ValueTask<AssistanceRequestTypeViewState> UpdateViewStateAsync(AssistanceRequestTypeViewState viewState, CancellationToken cToken = default)
+        protected override async ValueTask<AssistanceRequestTypeViewState> UpdateViewStateAsync(int key, AssistanceRequestTypeViewState viewState, CancellationToken cToken = default)
         {
             var clientResult = await _gizmoClient.AssistanceRequestTypeGetAsync(viewState.Id, cToken);
 
             return clientResult is null ? CreateDefaultViewState(viewState.Id) : Map(clientResult, viewState);
         }
-        protected override AssistanceRequestTypeViewState CreateDefaultViewState(int lookUpkey)
+        protected override AssistanceRequestTypeViewState CreateDefaultViewState(int key)
         {
             var defaultState = ServiceProvider.GetRequiredService<AssistanceRequestTypeViewState>();
 
-            defaultState.Id = lookUpkey;
+            defaultState.Id = key;
 
             return defaultState;
         }

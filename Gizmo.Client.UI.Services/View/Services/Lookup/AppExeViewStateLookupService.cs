@@ -65,23 +65,23 @@ namespace Gizmo.Client.UI.View.Services
 
             return result;
         }
-        protected override async ValueTask<AppExeViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
+        protected override async ValueTask<AppExeViewState> CreateViewStateAsync(int key, CancellationToken cToken = default)
         {
-            var clientResult = await _gizmoClient.UserExecutableGetAsync(lookUpkey, cToken);
+            var clientResult = await _gizmoClient.UserExecutableGetAsync(key, cToken);
 
-            return clientResult is null  ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+            return clientResult is null ? CreateDefaultViewState(key) : Map(clientResult);
         }
-        protected override async ValueTask<AppExeViewState> UpdateViewStateAsync(AppExeViewState viewState, CancellationToken cToken = default)
+        protected override async ValueTask<AppExeViewState> UpdateViewStateAsync(int key, AppExeViewState viewState, CancellationToken cToken = default)
         {
             var clientResult = await _gizmoClient.UserExecutableGetAsync(viewState.ExecutableId, cToken);
-            
-            return clientResult is null  ? CreateDefaultViewState(viewState.ExecutableId) : Map(clientResult, viewState);
+
+            return clientResult is null ? CreateDefaultViewState(viewState.ExecutableId) : Map(clientResult, viewState);
         }
-        protected override AppExeViewState CreateDefaultViewState(int lookUpkey)
+        protected override AppExeViewState CreateDefaultViewState(int key)
         {
             var defaultState = ServiceProvider.GetRequiredService<AppExeViewState>();
 
-            defaultState.ExecutableId = lookUpkey;
+            defaultState.ExecutableId = key;
 
             defaultState.Caption = "Default name";
 

@@ -37,23 +37,23 @@ namespace Gizmo.Client.UI.View.Services
 
             return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
         }
-        protected override async ValueTask<AppEnterpriseViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
+        protected override async ValueTask<AppEnterpriseViewState> CreateViewStateAsync(int key, CancellationToken cToken = default)
         {
-            var clientResult = await _gizmoClient.UserApplicationEnterpriseGetAsync(lookUpkey, cToken);
-             
-            return clientResult is null ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+            var clientResult = await _gizmoClient.UserApplicationEnterpriseGetAsync(key, cToken);
+
+            return clientResult is null ? CreateDefaultViewState(key) : Map(clientResult);
         }
-        protected override async ValueTask<AppEnterpriseViewState> UpdateViewStateAsync(AppEnterpriseViewState viewState, CancellationToken cToken = default)
+        protected override async ValueTask<AppEnterpriseViewState> UpdateViewStateAsync(int key, AppEnterpriseViewState viewState, CancellationToken cToken = default)
         {
             var clientResult = await _gizmoClient.UserApplicationEnterpriseGetAsync(viewState.AppEnterpriseId, cToken);
-            
+
             return clientResult is null ? viewState : Map(clientResult, viewState);
         }
-        protected override AppEnterpriseViewState CreateDefaultViewState(int lookUpkey)
+        protected override AppEnterpriseViewState CreateDefaultViewState(int key)
         {
             var defaultState = ServiceProvider.GetRequiredService<AppEnterpriseViewState>();
 
-            defaultState.AppEnterpriseId = lookUpkey;
+            defaultState.AppEnterpriseId = key;
 
             defaultState.Name = "Default name";
 
@@ -65,9 +65,9 @@ namespace Gizmo.Client.UI.View.Services
         private AppEnterpriseViewState Map(UserApplicationEnterpriseModel model, AppEnterpriseViewState? viewState = null)
         {
             var result = viewState ?? CreateDefaultViewState(model.Id);
-            
+
             result.Name = model.Name;
-            
+
             return result;
         }
         #endregion

@@ -26,23 +26,23 @@ namespace Gizmo.Client.UI.View.Services
 
             return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
         }
-        protected override async ValueTask<UserProductGroupViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
+        protected override async ValueTask<UserProductGroupViewState> CreateViewStateAsync(int key, CancellationToken cToken = default)
         {
-            var clientResult = await _gizmoClient.UserProductGroupGetAsync(lookUpkey, cToken);
+            var clientResult = await _gizmoClient.UserProductGroupGetAsync(key, cToken);
 
-            return clientResult is null ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+            return clientResult is null ? CreateDefaultViewState(key) : Map(clientResult);
         }
-        protected override async ValueTask<UserProductGroupViewState> UpdateViewStateAsync(UserProductGroupViewState viewState, CancellationToken cToken = default)
+        protected override async ValueTask<UserProductGroupViewState> UpdateViewStateAsync(int key, UserProductGroupViewState viewState, CancellationToken cToken = default)
         {
             var clientResult = await _gizmoClient.UserProductGroupGetAsync(viewState.ProductGroupId, cToken);
-            
+
             return clientResult is null ? viewState : Map(clientResult, viewState);
         }
-        protected override UserProductGroupViewState CreateDefaultViewState(int lookUpkey)
+        protected override UserProductGroupViewState CreateDefaultViewState(int key)
         {
             var defaultState = ServiceProvider.GetRequiredService<UserProductGroupViewState>();
 
-            defaultState.ProductGroupId = lookUpkey;
+            defaultState.ProductGroupId = key;
 
             defaultState.Name = "Default name";
 
@@ -58,7 +58,7 @@ namespace Gizmo.Client.UI.View.Services
             result.Name = model.Name;
             result.SortOption = model.SortOption;
             result.DisplayOrder = model.DisplayOrder;
-            
+
             return result;
         }
         #endregion

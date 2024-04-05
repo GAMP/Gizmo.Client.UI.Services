@@ -1,13 +1,10 @@
-﻿using System.Reflection;
-using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
-using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -90,23 +87,23 @@ namespace Gizmo.Client.UI.View.Services
 
             return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
         }
-        protected override async ValueTask<PaymentMethodViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
+        protected override async ValueTask<PaymentMethodViewState> CreateViewStateAsync(int key, CancellationToken cToken = default)
         {
-            var clientResult = await _gizmoClient.UserPaymentMethodGetAsync(lookUpkey, cToken);
+            var clientResult = await _gizmoClient.UserPaymentMethodGetAsync(key, cToken);
 
-            return clientResult is null ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+            return clientResult is null ? CreateDefaultViewState(key) : Map(clientResult);
         }
-        protected override async ValueTask<PaymentMethodViewState> UpdateViewStateAsync(PaymentMethodViewState viewState, CancellationToken cToken = default)
+        protected override async ValueTask<PaymentMethodViewState> UpdateViewStateAsync(int key, PaymentMethodViewState viewState, CancellationToken cToken = default)
         {
             var clientResult = await _gizmoClient.UserPaymentMethodGetAsync(viewState.Id, cToken);
 
             return clientResult is null ? viewState : Map(clientResult, viewState);
         }
-        protected override PaymentMethodViewState CreateDefaultViewState(int lookUpkey)
+        protected override PaymentMethodViewState CreateDefaultViewState(int key)
         {
             var defaultState = ServiceProvider.GetRequiredService<PaymentMethodViewState>();
 
-            defaultState.Id = lookUpkey;
+            defaultState.Id = key;
 
             defaultState.Name = "Default name";
             defaultState.IsOnline = false;

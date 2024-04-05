@@ -38,23 +38,23 @@ namespace Gizmo.Client.UI.View.Services
 
             return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
         }
-        protected override async ValueTask<AppLinkViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
+        protected override async ValueTask<AppLinkViewState> CreateViewStateAsync(int key, CancellationToken cToken = default)
         {
-            var clientResult = await _gizmoClient.UserApplicationLinkGetAsync(lookUpkey, cToken);
+            var clientResult = await _gizmoClient.UserApplicationLinkGetAsync(key, cToken);
 
-            return clientResult is null ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+            return clientResult is null ? CreateDefaultViewState(key) : Map(clientResult);
         }
-        protected override async ValueTask<AppLinkViewState> UpdateViewStateAsync(AppLinkViewState viewState, CancellationToken cToken = default)
+        protected override async ValueTask<AppLinkViewState> UpdateViewStateAsync(int key, AppLinkViewState viewState, CancellationToken cToken = default)
         {
             var clientResult = await _gizmoClient.UserApplicationLinkGetAsync(viewState.AppLinkId, cToken);
-          
+
             return clientResult is null ? CreateDefaultViewState(viewState.AppLinkId) : Map(clientResult, viewState);
         }
-        protected override AppLinkViewState CreateDefaultViewState(int lookUpkey)
+        protected override AppLinkViewState CreateDefaultViewState(int key)
         {
             var defaultState = ServiceProvider.GetRequiredService<AppLinkViewState>();
 
-            defaultState.AppLinkId = lookUpkey;
+            defaultState.AppLinkId = key;
 
             return defaultState;
         }
@@ -107,7 +107,7 @@ namespace Gizmo.Client.UI.View.Services
         private AppLinkViewState Map(UserApplicationLinkModel model, AppLinkViewState? viewState = null)
         {
             var result = viewState ?? CreateDefaultViewState(model.Id);
-            
+
             result.ApplicationId = model.ApplicationId;
             result.Caption = model.Caption;
             result.Description = model.Description;

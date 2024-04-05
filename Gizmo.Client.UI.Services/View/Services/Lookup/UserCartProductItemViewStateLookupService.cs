@@ -26,23 +26,23 @@ namespace Gizmo.Client.UI.View.Services
 
             return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
         }
-        protected override async ValueTask<UserCartProductItemViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
+        protected override async ValueTask<UserCartProductItemViewState> CreateViewStateAsync(int key, CancellationToken cToken = default)
         {
-            var clientResult = await _gizmoClient.UserProductGetAsync(lookUpkey, cToken);
+            var clientResult = await _gizmoClient.UserProductGetAsync(key, cToken);
 
-            return clientResult is null ? CreateDefaultViewState(lookUpkey) : Map( clientResult);
+            return clientResult is null ? CreateDefaultViewState(key) : Map(clientResult);
         }
-        protected override async ValueTask<UserCartProductItemViewState> UpdateViewStateAsync(UserCartProductItemViewState viewState, CancellationToken cToken = default)
+        protected override async ValueTask<UserCartProductItemViewState> UpdateViewStateAsync(int key, UserCartProductItemViewState viewState, CancellationToken cToken = default)
         {
             var clientResult = await _gizmoClient.UserProductGetAsync(viewState.ProductId, cToken);
-            
-            return clientResult is null ? viewState : Map( clientResult, viewState);
+
+            return clientResult is null ? viewState : Map(clientResult, viewState);
         }
-        protected override UserCartProductItemViewState CreateDefaultViewState(int lookUpkey)
+        protected override UserCartProductItemViewState CreateDefaultViewState(int key)
         {
             var defaultState = ServiceProvider.GetRequiredService<UserCartProductItemViewState>();
 
-            defaultState.ProductId = lookUpkey;
+            defaultState.ProductId = key;
 
             return defaultState;
         }
@@ -52,7 +52,7 @@ namespace Gizmo.Client.UI.View.Services
         private UserCartProductItemViewState Map(UserProductModel model, UserCartProductItemViewState? viewState = null)
         {
             var result = viewState ?? CreateDefaultViewState(model.Id);
-            
+
             return result;
         }
         #endregion

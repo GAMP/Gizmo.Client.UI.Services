@@ -37,23 +37,23 @@ namespace Gizmo.Client.UI.View.Services
 
             return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
         }
-        protected override async ValueTask<AppCategoryViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
+        protected override async ValueTask<AppCategoryViewState> CreateViewStateAsync(int key, CancellationToken cToken = default)
         {
-            var clientResult = await _gizmoClient.UserApplicationCategoryGetAsync(lookUpkey, cToken);
+            var clientResult = await _gizmoClient.UserApplicationCategoryGetAsync(key, cToken);
 
-           return clientResult is null ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+            return clientResult is null ? CreateDefaultViewState(key) : Map(clientResult);
         }
-        protected override async ValueTask<AppCategoryViewState> UpdateViewStateAsync(AppCategoryViewState viewState, CancellationToken cToken = default)
+        protected override async ValueTask<AppCategoryViewState> UpdateViewStateAsync(int key, AppCategoryViewState viewState, CancellationToken cToken = default)
         {
             var clientResult = await _gizmoClient.UserApplicationCategoryGetAsync(viewState.AppCategoryId, cToken);
 
             return clientResult is null ? viewState : Map(clientResult, viewState);
         }
-        protected override AppCategoryViewState CreateDefaultViewState(int lookUpkey)
+        protected override AppCategoryViewState CreateDefaultViewState(int key)
         {
             var defaultState = ServiceProvider.GetRequiredService<AppCategoryViewState>();
 
-            defaultState.AppCategoryId = lookUpkey;
+            defaultState.AppCategoryId = key;
 
             defaultState.Name = "Default name";
 
@@ -62,12 +62,12 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region PRIVATE FUNCTIONS
-        private AppCategoryViewState Map (UserApplicationCategoryModel model, AppCategoryViewState? viewState = null)
+        private AppCategoryViewState Map(UserApplicationCategoryModel model, AppCategoryViewState? viewState = null)
         {
             var result = viewState ?? CreateDefaultViewState(model.Id);
 
             result.Name = model.Name;
-            
+
             return result;
         }
 

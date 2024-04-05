@@ -40,23 +40,23 @@ namespace Gizmo.Client.UI.View.Services
 
             return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
         }
-        protected override async ValueTask<AppViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
+        protected override async ValueTask<AppViewState> CreateViewStateAsync(int key, CancellationToken cToken = default)
         {
-            var clientResult = await _gizmoClient.UserApplicationGetAsync(lookUpkey, cToken);
+            var clientResult = await _gizmoClient.UserApplicationGetAsync(key, cToken);
 
-            return clientResult is null ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+            return clientResult is null ? CreateDefaultViewState(key) : Map(clientResult);
         }
-        protected override async ValueTask<AppViewState> UpdateViewStateAsync(AppViewState viewState, CancellationToken cToken = default)
+        protected override async ValueTask<AppViewState> UpdateViewStateAsync(int key, AppViewState viewState, CancellationToken cToken = default)
         {
             var clientResult = await _gizmoClient.UserApplicationGetAsync(viewState.ApplicationId, cToken);
 
             return clientResult is null ? viewState : Map(clientResult, viewState);
         }
-        protected override AppViewState CreateDefaultViewState(int lookUpkey)
+        protected override AppViewState CreateDefaultViewState(int key)
         {
             var defaultState = ServiceProvider.GetRequiredService<AppViewState>();
 
-            defaultState.ApplicationId = lookUpkey;
+            defaultState.ApplicationId = key;
 
             defaultState.Title = "Default title";
 

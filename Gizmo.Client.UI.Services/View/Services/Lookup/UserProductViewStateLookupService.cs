@@ -67,23 +67,23 @@ namespace Gizmo.Client.UI.View.Services
 
             return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
         }
-        protected override async ValueTask<UserProductViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
+        protected override async ValueTask<UserProductViewState> CreateViewStateAsync(int key, CancellationToken cToken = default)
         {
-            var clientResult = await _gizmoClient.UserProductGetAsync(lookUpkey, cToken);
+            var clientResult = await _gizmoClient.UserProductGetAsync(key, cToken);
 
-            return clientResult is null ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+            return clientResult is null ? CreateDefaultViewState(key) : Map(clientResult);
         }
-        protected override async ValueTask<UserProductViewState> UpdateViewStateAsync(UserProductViewState viewState, CancellationToken cToken = default)
+        protected override async ValueTask<UserProductViewState> UpdateViewStateAsync(int key, UserProductViewState viewState, CancellationToken cToken = default)
         {
             var clientResult = await _gizmoClient.UserProductGetAsync(viewState.Id, cToken);
 
             return clientResult is null ? viewState : Map(clientResult, viewState);
         }
-        protected override UserProductViewState CreateDefaultViewState(int lookUpkey)
+        protected override UserProductViewState CreateDefaultViewState(int key)
         {
             var defaultState = ServiceProvider.GetRequiredService<UserProductViewState>();
 
-            defaultState.Id = lookUpkey;
+            defaultState.Id = key;
 
             defaultState.Name = "Default name";
 

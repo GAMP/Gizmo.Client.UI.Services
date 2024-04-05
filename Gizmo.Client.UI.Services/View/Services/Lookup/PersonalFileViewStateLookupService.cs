@@ -38,23 +38,23 @@ namespace Gizmo.Client.UI.View.Services
 
             return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
         }
-        protected override async ValueTask<PersonalFileViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
+        protected override async ValueTask<PersonalFileViewState> CreateViewStateAsync(int key, CancellationToken cToken = default)
         {
-            var clientResult = await _gizmoClient.UserPersonalFileGetAsync(lookUpkey, cToken);
+            var clientResult = await _gizmoClient.UserPersonalFileGetAsync(key, cToken);
 
-            return clientResult is null ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+            return clientResult is null ? CreateDefaultViewState(key) : Map(clientResult);
         }
-        protected override async ValueTask<PersonalFileViewState> UpdateViewStateAsync(PersonalFileViewState viewState, CancellationToken cToken = default)
+        protected override async ValueTask<PersonalFileViewState> UpdateViewStateAsync(int key, PersonalFileViewState viewState, CancellationToken cToken = default)
         {
             var clientResult = await _gizmoClient.UserPersonalFileGetAsync(viewState.PersonalFileId, cToken);
 
             return clientResult is null ? viewState : Map(clientResult, viewState);
         }
-        protected override PersonalFileViewState CreateDefaultViewState(int lookUpkey)
+        protected override PersonalFileViewState CreateDefaultViewState(int key)
         {
             var defaultState = ServiceProvider.GetRequiredService<PersonalFileViewState>();
 
-            defaultState.PersonalFileId = lookUpkey;
+            defaultState.PersonalFileId = key;
 
             defaultState.Caption = "Default caption";
 

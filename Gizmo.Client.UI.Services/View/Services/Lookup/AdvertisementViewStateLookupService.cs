@@ -45,23 +45,23 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
 
         return clientResult.Data.ToDictionary(key => key.Id, value => Map(value));
     }
-    protected override async ValueTask<AdvertisementViewState> CreateViewStateAsync(int lookUpkey, CancellationToken cToken = default)
+    protected override async ValueTask<AdvertisementViewState> CreateViewStateAsync(int key, CancellationToken cToken = default)
     {
-        var clientResult = await _gizmoClient.NewsGetAsync(lookUpkey, cToken);
+        var clientResult = await _gizmoClient.NewsGetAsync(key, cToken);
 
-        return clientResult is null ? CreateDefaultViewState(lookUpkey) : Map(clientResult);
+        return clientResult is null ? CreateDefaultViewState(key) : Map(clientResult);
     }
-    protected override async ValueTask<AdvertisementViewState> UpdateViewStateAsync(AdvertisementViewState viewState, CancellationToken cToken = default)
+    protected override async ValueTask<AdvertisementViewState> UpdateViewStateAsync(int key, AdvertisementViewState viewState, CancellationToken cToken = default)
     {
         var clientResult = await _gizmoClient.NewsGetAsync(viewState.Id, cToken);
 
         return clientResult is null ? CreateDefaultViewState(viewState.Id) : Map(clientResult, viewState);
     }
-    protected override AdvertisementViewState CreateDefaultViewState(int lookUpkey)
+    protected override AdvertisementViewState CreateDefaultViewState(int key)
     {
         var defaultState = ServiceProvider.GetRequiredService<AdvertisementViewState>();
 
-        defaultState.Id = lookUpkey;
+        defaultState.Id = key;
         defaultState.Body = new("<div style=\"max-width: 40.0rem; margin: 8.6rem 3.2rem 6.5rem 3.2rem\">DEFAULT BODY</div>");
         defaultState.MediaUrlType = AdvertisementMediaUrlType.None;
 
