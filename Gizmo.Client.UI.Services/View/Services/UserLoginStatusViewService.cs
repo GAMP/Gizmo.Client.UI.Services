@@ -21,13 +21,15 @@ namespace Gizmo.Client.UI.View.Services
             IClientDialogService dialogService,
             UserChangePasswordViewService userChangePasswordViewService,
             UserChangeProfileViewService userChangeProfileViewService,
-            IOptions<ClientHomeOptions> clientHomeOptions) : base(viewState, logger, serviceProvider)
+            IOptions<ClientHomeOptions> clientHomeOptions,
+            IUICompositionService uICompositionService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _userChangePasswordViewService = userChangePasswordViewService;
             _userChangeProfileViewService = userChangeProfileViewService;
             _dialogService = dialogService;
             _clientHomeOptions = clientHomeOptions;
+            _uICompositionService = uICompositionService;
         }
 
         private readonly IGizmoClient _gizmoClient;
@@ -35,6 +37,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly UserChangeProfileViewService _userChangeProfileViewService;
         private readonly IClientDialogService _dialogService;
         private readonly IOptions<ClientHomeOptions> _clientHomeOptions;
+        private readonly IUICompositionService _uICompositionService;
 
         private const string BASE_ROUTE_URL = "https://0.0.0.0/";
 
@@ -83,13 +86,22 @@ namespace Gizmo.Client.UI.View.Services
             {
                 case LoginState.LoginCompleted:
 
-                    if (!_clientHomeOptions.Value.Disabled)
+                    var firstCustomModule = _uICompositionService.PageModules.Where(a => a.DisplayOrder < 0).OrderBy(a => a.DisplayOrder).FirstOrDefault();
+
+                    if (firstCustomModule != null)
                     {
-                        NavigationService.NavigateTo(ClientRoutes.HomeRoute);
+                        NavigationService.NavigateTo(firstCustomModule.DefaultRoute);
                     }
                     else
                     {
-                        NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute);
+                        if (!_clientHomeOptions.Value.Disabled)
+                        {
+                            NavigationService.NavigateTo(ClientRoutes.HomeRoute);
+                        }
+                        else
+                        {
+                            NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute);
+                        }
                     }
 
                     break;
@@ -213,13 +225,22 @@ namespace Gizmo.Client.UI.View.Services
                 //TODO temprary fix, we need to fix the mouse buttons problem
                 if (_isLoggedIn && e.Location == BASE_ROUTE_URL)
                 {
-                    if (!_clientHomeOptions.Value.Disabled)
+                    var firstCustomModule = _uICompositionService.PageModules.Where(a => a.DisplayOrder < 0).OrderBy(a => a.DisplayOrder).FirstOrDefault();
+
+                    if (firstCustomModule != null)
                     {
-                        NavigationService.NavigateTo(ClientRoutes.HomeRoute);
+                        NavigationService.NavigateTo(firstCustomModule.DefaultRoute);
                     }
                     else
                     {
-                        NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute);
+                        if (!_clientHomeOptions.Value.Disabled)
+                        {
+                            NavigationService.NavigateTo(ClientRoutes.HomeRoute);
+                        }
+                        else
+                        {
+                            NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute);
+                        }
                     }
                 }
                 else if (!_isLoggedIn && IsLoggedInRoute(e.Location))
@@ -235,7 +256,7 @@ namespace Gizmo.Client.UI.View.Services
             return base.OnLocationChanged(sender, e);
         }
 
-        private static bool IsLoggedInRoute(string routeName)
+        private bool IsLoggedInRoute(string routeName)
         {
             if (!Uri.TryCreate(routeName, UriKind.Absolute, out var uri))
                 return false;
@@ -252,7 +273,9 @@ namespace Gizmo.Client.UI.View.Services
                 uri.AbsolutePath == ClientRoutes.UserDepositsRoute ||
                 uri.AbsolutePath == ClientRoutes.UserProductsRoute ||
                 uri.AbsolutePath == ClientRoutes.UserPurchasesRoute ||
-                uri.AbsolutePath == ClientRoutes.UserSettingsRoute)
+                uri.AbsolutePath == ClientRoutes.UserSettingsRoute ||
+                _uICompositionService.PageModules.Where(a => a.DefaultRoute.Equals(uri.AbsolutePath)).Count() > 0
+                )
                 return true;
 
             return false;
