@@ -197,7 +197,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (e.State == LoginState.LoginCompleted && e.IsUserPasswordRequired)
                 {
-                    await _userChangePasswordViewService.StartAsync(false);
+                    await _userChangePasswordViewService.StartAsync(false, false);
                 }
             }
             catch (Exception ex)

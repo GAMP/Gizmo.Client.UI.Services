@@ -58,7 +58,7 @@ namespace Gizmo.Client.UI.View.Services
             ValidateProperty(() => ViewState.RepeatPassword);
         }
 
-        public async Task StartAsync(bool showOldPassword, CancellationToken cToken = default)
+        public async Task StartAsync(bool showOldPassword, bool closable, CancellationToken cToken = default)
         {
             try
             {
@@ -66,7 +66,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 ViewState.ShowOldPassword = showOldPassword;
 
-                var s = await _dialogService.ShowChangePasswordDialogAsync(cToken);
+                var s = await _dialogService.ShowChangePasswordDialogAsync(closable, cToken);
                 if (s.Result == AddComponentResultCode.Opened)
                     _ = await s.WaitForResultAsync(cToken);
             }
