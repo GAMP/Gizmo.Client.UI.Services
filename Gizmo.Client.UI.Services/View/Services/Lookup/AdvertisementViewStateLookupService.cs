@@ -218,6 +218,6 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
     {
         var states = await GetStatesAsync(cancellationToken);
         return states.Where(state => (!state.StartDate.HasValue || state.StartDate.Value <= DateTime.Now) &&
-                                     (!state.EndDate.HasValue || state.EndDate.Value > DateTime.Now)).ToList();
+                                     (!state.EndDate.HasValue || state.EndDate.Value > DateTime.Now)).OrderByDescending(a => a.Id).ToList();
     }
 }
