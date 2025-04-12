@@ -23,7 +23,7 @@ namespace Gizmo.Client.UI.Services
             _interfaceOptions = interfaceOptions;
             _currencyOptions = options.CurrentValue;
 
-            _interfaceOptions.OnChange(OnIntefaceOptionsChange);
+            _interfaceOptions.OnChange(OnInterfaceOptionsChange);
 
             options.OnChange(currencyOptions =>
             {
@@ -89,23 +89,23 @@ namespace Gizmo.Client.UI.Services
             return Task.CompletedTask;
         }
 
-        private void OnIntefaceOptionsChange(ClientInterfaceOptions clientInterfaceOptions)
+        private void OnInterfaceOptionsChange(ClientInterfaceOptions clientInterfaceOptions)
         {
-            if (!string.IsNullOrWhiteSpace(clientInterfaceOptions.PreferedLanguage))
+            if (!string.IsNullOrWhiteSpace(clientInterfaceOptions.PreferredLanguage))
             {
-                var preferedCulture = CultureInfo.CreateSpecificCulture(clientInterfaceOptions.PreferedLanguage);
-                if (preferedCulture != null)
+                var preferredCulture = CultureInfo.CreateSpecificCulture(clientInterfaceOptions.PreferredLanguage);
+                if (preferredCulture != null)
                 {
-                    SetCurrentCultureAsync(preferedCulture)
+                    SetCurrentCultureAsync(preferredCulture)
                         .ContinueWith((t) =>
                         {
-                            Logger.LogError(t.Exception, "Failed to set prefered culture on client interface options change.");
+                            Logger.LogError(t.Exception, "Failed to set preferred culture on client interface options change.");
                         }, TaskContinuationOptions.OnlyOnFaulted)
                         .ConfigureAwait(false);
                 }
                 else
                 {
-                    Logger.LogWarning("Invalid prefered culture [{culture}] found in client interface options.", clientInterfaceOptions.PreferedLanguage);
+                    Logger.LogWarning("Invalid preferred culture [{culture}] found in client interface options.", clientInterfaceOptions.PreferredLanguage);
                 }
             }
         }

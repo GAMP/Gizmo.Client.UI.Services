@@ -44,15 +44,15 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.AvailableCultures = await _localizationService.GetSupportedCulturesAsync(cToken);
 
-            var preferedLanguage = _clientInterfaceOptions.CurrentValue.PreferedLanguage;
-            CultureInfo? preferedCulture = null;
+            var preferredLanguage = _clientInterfaceOptions.CurrentValue.PreferredLanguage;
+            CultureInfo? preferredCulture = null;
 
-            if (!string.IsNullOrWhiteSpace(preferedLanguage))
-                preferedCulture = GetViewStatesCulture(preferedLanguage);
+            if (!string.IsNullOrWhiteSpace(preferredLanguage))
+                preferredCulture = GetViewStatesCulture(preferredLanguage);
 
-            preferedCulture ??= GetViewStatesCulture("en");
+            preferredCulture ??= GetViewStatesCulture("en");
 
-            ViewState.CurrentCulture = preferedCulture;
+            ViewState.CurrentCulture = preferredCulture;
 
             await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
