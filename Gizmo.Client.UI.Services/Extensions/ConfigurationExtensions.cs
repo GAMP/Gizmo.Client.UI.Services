@@ -55,6 +55,7 @@ namespace Gizmo.Client.UI.Services
             services.AddOptions<ClientAppsOptions>().Bind(configuration.GetSection("Apps"));
             services.AddOptions<ClientHomeOptions>().Bind(configuration.GetSection("Home"));
             services.AddOptions<AssistanceRequestOptions>().Bind(configuration.GetSection("AssistanceRequest"));
+            services.AddOptions<ClientReservationOptions>().Bind(configuration.GetSection("ClientReservation"));
             return services;
         } 
 
