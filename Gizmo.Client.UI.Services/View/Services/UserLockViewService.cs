@@ -100,6 +100,9 @@ namespace Gizmo.Client.UI.View.Services
 
             if (ViewState.InputPassword == ViewState.LockPassword)
             {
+                //exit full screen mode
+                await _gizmoClient.ExitFullSceenAsync();
+
                 //exit user lock mode
                 await _gizmoClient.UserLockExitAsync();
 

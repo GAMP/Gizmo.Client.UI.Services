@@ -51,6 +51,8 @@ namespace Gizmo.Client
 
         public bool IsUserLoggedIn { get; set; }
 
+        public bool IsFullScreen => throw new NotImplementedException();
+
         public event EventHandler<ClientExecutionContextStateArgs>? ExecutionContextStateChange;
         public event EventHandler<UserLoginStateChangeEventArgs>? LoginStateChange;
         public event EventHandler<UserBalanceEventArgs>? UserBalanceChange;
