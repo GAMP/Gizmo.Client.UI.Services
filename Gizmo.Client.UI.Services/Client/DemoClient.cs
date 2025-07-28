@@ -1878,13 +1878,13 @@ namespace Gizmo.Client
             return Task.FromResult(userHostGroup);
         }
 
-        public Task<FullScreenEnterResult> EnterFullSceenAsync(FullScreenEnterOptions? enterOptions = null, CancellationToken cancellationToken = default)
+        public Task<FullScreenEnterResult> EnterFullScreenAsync(FullScreenEnterOptions? enterOptions = null, CancellationToken cancellationToken = default)
         {
             //full screen not supported in web
             return Task.FromResult(FullScreenEnterResult.Default);
         }
 
-        public Task<FullScreenExitResult> ExitFullSceenAsync(FullScreenExitOptions? exitOptions = null, CancellationToken cancellationToken = default)
+        public Task<FullScreenExitResult> ExitFullScreenAsync(FullScreenExitOptions? exitOptions = null, CancellationToken cancellationToken = default)
         {
             //full screen not supported in web
             return Task.FromResult(FullScreenExitResult.Default);

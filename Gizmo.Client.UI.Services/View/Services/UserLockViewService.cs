@@ -44,7 +44,7 @@ namespace Gizmo.Client.UI.View.Services
         public async Task LockAsync()
         {
             //go into full screen mode
-            await _gizmoClient.EnterFullSceenAsync();
+            await _gizmoClient.EnterFullScreenAsync();
 
             ViewState.IsLocking = true;
             ViewState.RaiseChanged();            
@@ -56,7 +56,7 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsLocking && !ViewState.IsLocked)
             {
                 //exit full screen mode
-                await _gizmoClient.ExitFullSceenAsync();
+                await _gizmoClient.ExitFullScreenAsync();
 
                 ViewState.IsLocking = false;
                 ViewState.InputPassword = string.Empty;
@@ -101,7 +101,7 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.InputPassword == ViewState.LockPassword)
             {
                 //exit full screen mode
-                await _gizmoClient.ExitFullSceenAsync();
+                await _gizmoClient.ExitFullScreenAsync();
 
                 //exit user lock mode
                 await _gizmoClient.UserLockExitAsync();

@@ -86,11 +86,11 @@ namespace Gizmo.Client.UI.Services
 
             if (isFullScreen)
             {
-                await _client.EnterFullSceenAsync();
+                await _client.EnterFullScreenAsync();
             }
             else
             {
-                await _client.ExitFullSceenAsync();
+                await _client.ExitFullScreenAsync();
             }
         }
 
