@@ -1914,10 +1914,11 @@ namespace Gizmo.Client
         {
             return Task.FromResult<ClientReservationOptions>(new ClientReservationOptions()
             {
-                EnableLoginBlock = true,
-                LoginBlockTime = 30,
-                EnableLoginUnblock = true,
-                LoginUnblockTime = 30
+                AlertBeforeTime = 5,
+                EnableLoginBlockAfter = true,
+                EnableLoginBlockBefore = true,
+                LoginUnblockAfterTime = 5,
+                LoginBlockBeforeTime = 5,
             });
         }
 

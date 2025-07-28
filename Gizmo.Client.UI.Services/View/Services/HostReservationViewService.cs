@@ -102,17 +102,17 @@ namespace Gizmo.Client.UI.View.Services
                             time = reservationTime;
                             isReserved = DateTime.Now.AddHours(1) >= reservationTime;
 
-                            if (_configuration.EnableLoginBlock)
+                            if (_configuration.EnableLoginBlockBefore)
                             {
-                                var blockTime = reservationTime.Value.AddMinutes(_configuration.LoginBlockTime * -1);
+                                var blockTime = reservationTime.Value.AddMinutes(_configuration.LoginBlockBeforeTime * -1);
 
                                 if (currentTime >= blockTime)
                                 {
                                     isLoginBlocked = true;
 
-                                    if (_configuration.EnableLoginUnblock)
+                                    if (_configuration.EnableLoginBlockAfter)
                                     {
-                                        var unblockTime = reservationTime.Value.AddMinutes(_configuration.LoginUnblockTime);
+                                        var unblockTime = reservationTime.Value.AddMinutes(reservationDuration ?? 0).AddMinutes(_configuration.LoginUnblockAfterTime);
                                         isLoginBlocked = currentTime <= unblockTime;
                                     }
                                 }
