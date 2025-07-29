@@ -105,7 +105,7 @@ namespace Gizmo.Client.UI.Services
             }
             catch (Exception ex)
             {
-                _logger.LogCritical(ex, "Could not initalize client JavaScript interop.");
+                _logger.LogCritical(ex, "Could not initialize client JavaScript interop.");
             }
         }
 
