@@ -1,6 +1,7 @@
 ﻿using Gizmo.UI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Gizmo.Shared.Client.Options;
 
 namespace Gizmo.Client.UI.Services
 {
@@ -57,6 +58,7 @@ namespace Gizmo.Client.UI.Services
             services.AddOptions<AssistanceRequestOptions>().Bind(configuration.GetSection("AssistanceRequest"));
             services.AddOptions<ClientReservationOptions>().Bind(configuration.GetSection("ClientReservation"));
             services.AddOptions<ClientRegionalOptions>().Bind(configuration.GetSection("Regional"));
+            services.AddOptions<SteamPaymentIntentOptions>().Bind(configuration.GetSection("SteamPaymentIntent"));
             return services;
         } 
 

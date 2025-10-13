@@ -27,11 +27,11 @@ namespace Gizmo.Client.UI.Services
         /// </summary>
         /// <param name="services">Service collection.</param>
         /// <returns>Service collection.</returns>
-        public static IServiceCollection AddClientServices(this IServiceCollection services)
+        public static IServiceCollection AddClientServices(this IServiceCollection services, Assembly assembly)
         {
             services.AddClientUIServices();
-            services.AddClientViewServices();
-            services.AddClientViewStates();
+            services.AddClientViewServices(assembly);
+            services.AddClientViewStates(assembly);
 
             return services;
         }
@@ -101,10 +101,12 @@ namespace Gizmo.Client.UI.Services
         /// </summary>
         /// <param name="services">Service collection.</param>
         /// <returns>Service collection.</returns>
-        private static IServiceCollection AddClientViewServices(this IServiceCollection services)
+        private static IServiceCollection AddClientViewServices(this IServiceCollection services, Assembly assembly)
         {
             //add any view services contained in Gizmo.UI assembly
             _ = Gizmo.UI.ServiceCollectionExtensions.AddViewServices(services, _uiAssembly);
+            
+            _ = Gizmo.UI.ServiceCollectionExtensions.AddViewServices(services, assembly);
 
             //add any view services in executing assembly Gizmo.Client.UI.Services
             return Gizmo.UI.ServiceCollectionExtensions.AddViewServices(services, _executingAssembly);
@@ -115,10 +117,12 @@ namespace Gizmo.Client.UI.Services
         /// </summary>
         /// <param name="services">Service collection.</param>
         /// <returns>Service collection.</returns>
-        private static IServiceCollection AddClientViewStates(this IServiceCollection services)
+        private static IServiceCollection AddClientViewStates(this IServiceCollection services, Assembly assembly)
         {
             //add any view states contained in Gizmo.UI assembly
             _ = Gizmo.UI.ServiceCollectionExtensions.AddViewStates(services, _uiAssembly);
+            
+            _ = Gizmo.UI.ServiceCollectionExtensions.AddViewStates(services, assembly);
 
             //add any view states in executing assembly Gizmo.Client.UI.Services
             return Gizmo.UI.ServiceCollectionExtensions.AddViewStates(services, _executingAssembly);
