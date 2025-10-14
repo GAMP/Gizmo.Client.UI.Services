@@ -15,6 +15,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly HostGroupViewState _hostGroupViewState;
         private readonly SemaphoreSlim _disallowedRefreshLock = new(1);
         private Timer? _disallowedRefreshTimer;
+        private readonly PaymentMethodViewStateLookupService _paymentMethodViewStateLookupService;
         private const int PRODUCT_DISALLOWED_REFFRESH_INTERVAL = 1000;
 
         public UserProductViewStateLookupService(
@@ -22,11 +23,13 @@ namespace Gizmo.Client.UI.View.Services
             ILocalizationService localizationService,
             ILogger<UserProductViewStateLookupService> logger,
             IServiceProvider serviceProvider,
-            HostGroupViewState hostGroupViewState) : base(logger, serviceProvider)
+            HostGroupViewState hostGroupViewState, 
+            PaymentMethodViewStateLookupService paymentMethodViewStateLookupService) : base(logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _localizationService = localizationService;
             _hostGroupViewState = hostGroupViewState;
+            _paymentMethodViewStateLookupService = paymentMethodViewStateLookupService;
         }
 
         private async void OnUserLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
@@ -468,6 +471,10 @@ namespace Gizmo.Client.UI.View.Services
             {
                 states = states.Where(a => a.Name.Contains(searchPattern, StringComparison.InvariantCultureIgnoreCase));
             }
+            
+            if (!_paymentMethodViewStateLookupService.IsPointsPaymentMethodEnabled)
+                states = states.Where(e => e is { PurchaseOptions: PurchaseOptionType.And, UnitPointsPrice: null } ||
+                                           e.PurchaseOptions == PurchaseOptionType.Or);
 
             return states.ToList();
         }
