@@ -1,5 +1,4 @@
-﻿using Gizmo.Client.UI.Services.View.Constants;
-using Gizmo.Client.UI.View.Constants;
+﻿using Gizmo.Client.UI.View.Constants;
 using Gizmo.Client.UI.View.States;
 using Gizmo.Shared.Client.Enumerations;
 using Gizmo.Shared.Client.Options;
@@ -50,12 +49,12 @@ namespace Gizmo.Client.UI.View.Services
                 ? _hostNumberOptions.CurrentValue.ShowOnRotator
                 : _hostNumberOptions.CurrentValue.ShowOnWallpaper;
 
-            InitHostNumberBehaviour();
+            InitHostNumberBehavior();
             DebounceViewStateChanged();
             return base.OnInitializing(ct);
         }
 
-        private void InitHostNumberBehaviour()
+        private void InitHostNumberBehavior()
         {
             var hostNumberOptionsValue = _hostNumberOptions.CurrentValue;
             if (hostNumberOptionsValue is { ShowOnWallpaper: false, ShowOnRotator: false })
