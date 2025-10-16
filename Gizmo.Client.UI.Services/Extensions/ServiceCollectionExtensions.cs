@@ -65,11 +65,12 @@ namespace Gizmo.Client.UI.Services
             });
             services.AddHttpClient(nameof(ImageService));
 
-            //add country info service, singelton for now
+            //add country info service, singleton for now
             services.AddSingleton<CountryInformationService>();
 
             //add default string localizer
             services.AddSingleton<IStringLocalizer, StringLocalizer<Resources.Resources>>();
+            services.AddSingleton<IAssemblyResourcesLocalizationService, AssemblyResourcesLocalizationService>();
 
             //add localization service
 
@@ -82,7 +83,7 @@ namespace Gizmo.Client.UI.Services
             }
             else
             {
-                //add in memory configuration store as singelton
+                //add in memory configuration store as singleton
                 services.AddSingleton<ILocalizationService, WpfLocalizationService>();
                 services.AddSingleton((sp) => _uiCompositionConfiurationSource);
                 services.AddSingleton((sp) => _uiOptionsConfigurationSource);
