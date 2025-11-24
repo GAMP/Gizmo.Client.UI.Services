@@ -16,7 +16,5 @@ namespace Gizmo.Client.UI.Services
         Task<AddDialogResult<EmptyComponentResult>> ShowMediaDialogAsync(MediaDialogParameters mediaDialogParameters, CancellationToken cancellationToken = default);
         Task<AddDialogResult<AlertDialogResult>> ShowAlertDialogAsync(string title, string message, AlertDialogButtons buttons = AlertDialogButtons.OK, AlertTypes icon = AlertTypes.None, CancellationToken cancellationToken = default);
         Task<AddDialogResult<EmptyComponentResult>> ShowUserOnlineDepositsDialogAsync(CancellationToken cancellationToken = default);
-        Task<AddDialogResult<EmptyComponentResult>> ShowCustomDialogAsync<T>(CancellationToken cancellationToken = default) 
-            where T : ComponentBase, new();
     }
 }

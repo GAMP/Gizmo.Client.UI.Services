@@ -58,7 +58,6 @@ namespace Gizmo.Client.UI.Services
             services.AddOptions<AssistanceRequestOptions>().Bind(configuration.GetSection("AssistanceRequest"));
             services.AddOptions<ClientReservationOptions>().Bind(configuration.GetSection("ClientReservation"));
             services.AddOptions<ClientRegionalOptions>().Bind(configuration.GetSection("Regional"));
-            services.AddOptions<SteamPaymentIntentOptions>().Bind(configuration.GetSection("SteamPaymentIntent"));
             return services;
         } 
 
