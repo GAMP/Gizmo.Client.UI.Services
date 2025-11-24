@@ -2,6 +2,7 @@
 using Gizmo.UI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Gizmo.Shared.Client.Options;
 
 namespace Gizmo.Client.UI.Services
 {
