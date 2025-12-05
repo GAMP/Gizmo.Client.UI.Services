@@ -6,7 +6,7 @@ namespace Gizmo.Client.UI.Services
     public interface IClientNotificationService : INotificationsService
     {
         /// <summary>
-        /// Shows alert notficiation.
+        /// Shows alert notification.
         /// </summary>
         /// <param name="alertTypes">Alert type.</param>
         /// <param name="title">Title.</param>
