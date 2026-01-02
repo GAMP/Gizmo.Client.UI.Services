@@ -1,8 +1,12 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 using Gizmo.UI.Services;
+using Gizmo.Web.Api.Clients.Builder;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.Services
 {
@@ -28,11 +32,12 @@ namespace Gizmo.Client.UI.Services
         /// <param name="services">Service collection.</param>
         /// <returns>Service collection.</returns>
         public static IServiceCollection AddClientServices(this IServiceCollection services)
-        {
+        {           
             services.AddClientUIServices();
             services.AddClientViewServices();
             services.AddClientViewStates();
-
+            services.AddWebApiSupport();
+         
             return services;
         }
 
@@ -123,6 +128,65 @@ namespace Gizmo.Client.UI.Services
 
             //add any view states in executing assembly Gizmo.Client.UI.Services
             return Gizmo.UI.ServiceCollectionExtensions.AddViewStates(services, _executingAssembly);
+        }
+
+        private static IServiceCollection AddWebApiSupport(this IServiceCollection services)
+        {
+            services.AddSingleton<UserAccessTokenHandler>();
+            services.AddTransient<UserApiClientDelegatingHandler>();
+            services.AddSecureWebApiClients(Constants.SecureWebApiClientsName, httpClientConfig);
+            services.AddUnsecureWebApiClients(Constants.UnsecureWebApiClientsName, httpClientConfig);
+
+            static void httpClientConfig(IServiceProvider serviceProvider, HttpClient client)
+            {
+                var webApiSettings = serviceProvider.GetRequiredService<IOptions<ClientNetworkOptions>>().Value;
+                var logger = serviceProvider.GetRequiredService<ILogger<ClientNetworkOptions>>();
+
+                var baseUrl = webApiSettings.ServerUri;
+
+                if (string.IsNullOrWhiteSpace(baseUrl))
+                {
+                    var navManager = serviceProvider.GetRequiredService<NavigationManager>();
+                    baseUrl = navManager.BaseUri;
+                }
+
+                logger.LogInformation("Current base url: {baseUrl}", baseUrl);
+
+                client.BaseAddress = new Uri(baseUrl);
+            }
+
+            var httpClientBuilder = services
+                 .AddSecureWebApiClients(Constants.SecureWebApiClientsName, httpClientConfig)
+                 .WithMessagePackSerialization()
+                 .WithCurrentUICultureMessageHandler()
+                 .WithMessageHandler<UserApiClientDelegatingHandler>();
+
+            var unsecuredClientBuilder = services.AddUnsecureWebApiClients(Constants.UnsecureWebApiClientsName, httpClientConfig)
+                .WithCurrentUICultureMessageHandler()
+                .WithMessagePackSerialization();
+
+            //in case we run in desktop process we can allow any https cert
+            //in browser environment the cert acceptance will be done on browser level
+            if (!_isWebBrowser)
+            {
+                httpClientBuilder.ConfigurePrimaryHttpMessageHandler(() =>
+                {
+                    return new HttpClientHandler()
+                    {
+                        ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => true
+                    };
+                });
+
+                unsecuredClientBuilder.ConfigurePrimaryHttpMessageHandler(() =>
+                {
+                    return new HttpClientHandler()
+                    {
+                        ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, cetChain, policyErrors) => true
+                    };
+                });
+            }
+
+            return services;
         }
 
         #endregion
