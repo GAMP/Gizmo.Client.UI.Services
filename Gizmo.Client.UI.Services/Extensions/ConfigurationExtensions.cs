@@ -59,6 +59,7 @@ namespace Gizmo.Client.UI.Services
             services.AddOptions<ClientReservationOptions>().Bind(configuration.GetSection("ClientReservation"));
             services.AddOptions<ClientRegionalOptions>().Bind(configuration.GetSection("Regional"));
             services.AddOptions<HostNumberOptions>().Bind(configuration.GetSection("HostNumber"));
+            services.AddOptions<ClientNetworkOptions>().Bind(configuration.GetSection("Network"));
             return services;
         } 
 
