@@ -5,14 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Gizmo.Client.UI.View.States
 {
     [Register()]
-    public sealed class UserCartViewState : ValidatingViewStateBase
+    public sealed class UserCartViewState : ValidatingViewStateBase //TODO: AAAAA
     {
         #region PROPERTIES
-
-        /// <summary>
-        /// Gets current user cart product states.
-        /// </summary>
-        public IEnumerable<UserCartProductItemViewState> Products { get; internal set; } = Enumerable.Empty<UserCartProductItemViewState>();
 
         [ValidatingProperty()]
         public string? Notes { get; internal set; } = null!;
@@ -21,12 +16,6 @@ namespace Gizmo.Client.UI.View.States
 
         [ValidatingProperty()]
         public int? PaymentMethodId { get; internal set; } = null!;
-                
-        public decimal Total { get; internal set; }
-
-        public int PointsTotal { get; internal set; }
-
-        public int PointsAward { get; internal set; }
 
         public bool IsComplete { get; internal set; }
 

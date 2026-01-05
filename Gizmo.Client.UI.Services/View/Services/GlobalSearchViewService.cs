@@ -119,8 +119,8 @@ namespace Gizmo.Client.UI.View.Services
                     if (ViewState.ProductResults.Count() == 1)
                     {
                         //Only one result execute action.
-                        var userCartService = ServiceProvider.GetRequiredService<UserCartViewService>();
-                        await userCartService.AddUserCartProductAsync(ViewState.ProductResults.First().Id);
+                        var userCartService = ServiceProvider.GetRequiredService<ClientServerCartViewService>();
+                        userCartService.AddProduct(ViewState.ProductResults.First().Id);
                     }
                     else
                     {
