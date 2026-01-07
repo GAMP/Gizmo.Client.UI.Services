@@ -482,7 +482,7 @@ namespace Gizmo.Client
                 //PurchaseAvailability = productPurchaseAvailabilityModel
             }).ToList();
 
-            //_userProducts = new List<UserProductModel>();
+            _userProducts = new List<UserProductModel>();
 
             _userProducts.Add(new UserProductModel()
             {
@@ -491,7 +491,7 @@ namespace Gizmo.Client
                 ProductType = ProductType.Product,
                 Name = "Mars Bar",
                 DefaultImageId = 1,
-                Price = 1.50m,
+                Price = 1.10m,
                 //PointsPrice = random.Next(0, 100),
                 //PointsAward = random.Next(1, 500),
             });
@@ -503,7 +503,7 @@ namespace Gizmo.Client
                 ProductType = ProductType.Product,
                 Name = "Snickers Bar",
                 DefaultImageId = 2,
-                Price = 1.80m,
+                Price = 2.00m,
                 //PointsPrice = random.Next(0, 100),
                 //PointsAward = random.Next(1, 500),
             });
@@ -788,6 +788,19 @@ namespace Gizmo.Client
                         }
                     }
                 }
+            });
+            
+            _userProducts.Add(new UserProductModel()
+            {
+                Id = 9,
+                ProductGroupId = 4,
+                ProductType = ProductType.Product,
+                Name = "Or Points",
+                //DefaultImageId = 7,
+                Price = 1.00m,
+                PointsPrice = 1,
+                PointsAward = null,
+                PurchaseOptions = PurchaseOptionType.Or
             });
 
             //ProductPurchaseAvailabilityModel invalidAvailabilityModel = new ProductPurchaseAvailabilityModel()

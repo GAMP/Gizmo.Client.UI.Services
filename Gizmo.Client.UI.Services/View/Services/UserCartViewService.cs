@@ -29,7 +29,8 @@ namespace Gizmo.Client.UI.View.Services
             ILocalizationService localizationService,
             UserBalanceViewState userBalanceViewState,
             IOptions<ClientShopOptions> shopOptions,
-            ClientServerCartViewService clientServerCartViewService) : base(viewState, logger, serviceProvider)
+            ClientServerCartViewService clientServerCartViewService,
+            UserProductViewStateLookupService userProductViewStateLookupService) : base(viewState, logger, serviceProvider)
         {
             _dialogService = dialogService;
             _notificationService = notificationService;
@@ -38,6 +39,7 @@ namespace Gizmo.Client.UI.View.Services
             _userBalanceViewState = userBalanceViewState;
             _shopOptions = shopOptions;
             _clientServerCartViewService = clientServerCartViewService;
+            _userProductViewStateLookupService = userProductViewStateLookupService;
         }
         #endregion
 
@@ -49,6 +51,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly UserBalanceViewState _userBalanceViewState;
         private readonly IOptions<ClientShopOptions> _shopOptions;
         private readonly ClientServerCartViewService _clientServerCartViewService;
+        private readonly UserProductViewStateLookupService _userProductViewStateLookupService;
         #endregion
 
         #region FUNCTIONS
@@ -268,7 +271,7 @@ namespace Gizmo.Client.UI.View.Services
                 var result = await s.WaitForResultAsync();
 
                 if (s.Result == AddComponentResultCode.Ok && result!.Button == AlertDialogResultButton.Yes)
-                    _clientServerCartViewService.Clear(); //TODO: AAAAA CHECK
+                    _clientServerCartViewService.Clear();
             }
         }
 
@@ -320,6 +323,11 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.PaymentMethodId = paymentMethodId;
             ValidateProperty(() => ViewState.PaymentMethodId);
+
+            if (paymentMethodId.HasValue)
+                _clientServerCartViewService.AddPayment(paymentMethodId.Value, 0);
+            else
+                _clientServerCartViewService.RemovePayment(0);
         }
 
         //public async Task ChangeProductPayTypeAsync(int productId, OrderLinePayType payType)
@@ -575,27 +583,26 @@ namespace Gizmo.Client.UI.View.Services
 
             var productId = int.Parse(paramProductId, NumberStyles.Number);
 
-            //TODO: AAAAA CHECK
-            //var products = await _userProductViewStateLookupService.GetStatesAsync();
-            //if (!products.Where(a => a.Id == productId).Any())
-            //{
-            //    NavigationService.NavigateTo(ClientRoutes.NotFoundRoute);
-            //    return;
-            //}
+            var products = await _userProductViewStateLookupService.GetStatesAsync();
+            if (!products.Where(a => a.Id == productId).Any())
+            {
+                NavigationService.NavigateTo(ClientRoutes.NotFoundRoute);
+                return;
+            }
 
-            //var paramQuantity = command.Params.GetValueOrDefault("quantity")?.ToString();
+            var paramQuantity = command.Params.GetValueOrDefault("quantity")?.ToString();
 
-            //var quantity = 1;
-            //if (paramQuantity is not null)
-            //    quantity = int.Parse(paramQuantity, NumberStyles.Number);
+            var quantity = 1;
+            if (paramQuantity is not null)
+                quantity = int.Parse(paramQuantity, NumberStyles.Number);
 
-            //switch (command.Type)
-            //{
-            //    case ViewServiceCommandType.Add:
-            //        await AddUserCartProductAsync(productId, quantity);
-            //        NavigationService.NavigateTo(ClientRoutes.ShopRoute);
-            //        break;
-            //}
+            switch (command.Type)
+            {
+                case ViewServiceCommandType.Add:
+                    //TODO: AAAAA await AddUserCartProductAsync(productId, quantity);
+                    NavigationService.NavigateTo(ClientRoutes.ShopRoute);
+                    break;
+            }
         }
 
         //TODO: AAAAA CHECK
@@ -616,22 +623,22 @@ namespace Gizmo.Client.UI.View.Services
         //private async void OnUpdateUserCartProductsAsync(object? _, EventArgs __) =>
         //    await UpdateUserCartProductsAsync();
 
-        //protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
-        //{
-        //    if (fieldIdentifier.FieldEquals(() => ViewState.PaymentMethodId))
-        //    {
-        //        if (ViewState.Total > 0)
-        //        {
-        //            if (!ViewState.PaymentMethodId.HasValue)
-        //            {
-        //                AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_NAMED_FIELD", nameof(ViewState.PaymentMethodId)));
-        //            }
-        //            else if (ViewState.PaymentMethodId.Value == -3 && ViewState.Total > _userBalanceViewState.Balance)
-        //            {
-        //                AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("GIZ_INSUFFICIENT_DEPOSITS_MESSAGE", nameof(ViewState.PaymentMethodId)));
-        //            }
-        //        }
-        //    }
-        //}
+        protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
+        {
+            if (fieldIdentifier.FieldEquals(() => ViewState.PaymentMethodId))
+            {
+                if (_clientServerCartViewService.ViewState.Total > 0)
+                {
+                    if (!ViewState.PaymentMethodId.HasValue)
+                    {
+                        AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_NAMED_FIELD", nameof(ViewState.PaymentMethodId)));
+                    }
+                    else if (ViewState.PaymentMethodId.Value == -3 && _clientServerCartViewService.ViewState.Total > _userBalanceViewState.Balance) //TODO: AAAAA DOES THE SERVER CHECK THIS NOW?
+                    {
+                        AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("GIZ_INSUFFICIENT_DEPOSITS_MESSAGE", nameof(ViewState.PaymentMethodId)));
+                    }
+                }
+            }
+        }
     }
 }

@@ -6,11 +6,6 @@ namespace Gizmo.Client.UI.View.States
     [Register(Scope = RegisterScope.Transient)]
     public sealed class UserCartProductViewState : ViewStateBase
     {
-        ///// <summary>
-        ///// Product type.
-        ///// </summary>
-        //public required ProductTypes ProductType { get; init; }
-
         /// <summary>
         /// Unique entry id.
         /// </summary>

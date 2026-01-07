@@ -1,10 +1,12 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using System.Threading;
+using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
 using Gizmo.Server.Exceptions;
+using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Clients;
 using Gizmo.Web.Api.Models;
-using Gizmo.Web.Api.User.Clients;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -21,30 +23,42 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserCartViewService> logger,
             IServiceProvider serviceProvider,
             UserProductViewStateLookupService userProductViewStateLookupService,
-            Web.Api.User.Clients.CartsWebApiClient cartsWebApiClient) : base(viewState, globalCancellationService, localizationService, logger, serviceProvider)
+            Web.Api.User.Clients.CartsWebApiClient cartsWebApiClient,
+            IClientNotificationService notificationService) : base(viewState, globalCancellationService, localizationService, logger, serviceProvider)
         {
-            _localizationService = localizationService;
             _userProductViewStateLookupService = userProductViewStateLookupService;
             _cartsWebApiClient = cartsWebApiClient;
+            _notificationService = notificationService;
         }
         #endregion
 
         #region FIELDS
 
-        private readonly ILocalizationService _localizationService;
         private readonly UserProductViewStateLookupService _userProductViewStateLookupService;
         private readonly Web.Api.User.Clients.CartsWebApiClient _cartsWebApiClient;
+        private readonly IClientNotificationService _notificationService;
 
         #endregion
 
         public Task<UserCartProductViewState?> GetCartProductItemViewStateAsync(int productId)
         {
-            return Task.FromResult<UserCartProductViewState?>(ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault());
+            return Task.FromResult<UserCartProductViewState?>(ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault()); //TODO: AAAAA REVIEW
         }
 
-        public override Task AcceptAsync(CancellationToken cancellationToken = default)
+        public override async Task AcceptAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var currentCartId = await CartGetOrCreateAsync(cancellationToken);
+                await _cartsWebApiClient.AcceptAsync(currentCartId, new CartAcceptModel()
+                {
+                    //TODO: AAAAA CHECK
+                }, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), ex.Message);
+            }
         }
 
         protected override async Task<bool> ValidateRequestAsync(ICartRequest request, CancellationToken cancellationToken = default)
@@ -81,7 +95,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 //TODO: AAAAA
 
-                return false;
+                return true;
             }
 
             return true;
@@ -93,12 +107,8 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (ViewState.TryGetProductEntryViewState(setQuantityRequest.EntryId, out var productEntryViewState))
                 {
-                    //TODO: AAAAA
-                    //if (productEntryViewState.ProductType == ProductTypes.Product)
-                    //{
-                    //    productEntryViewState.Quantity = (int)setQuantityRequest.Quantity;
-                    //    productEntryViewState.RaiseChanged();
-                    //}
+                    productEntryViewState.Quantity = (int)setQuantityRequest.Quantity;
+                    productEntryViewState.RaiseChanged();
                 }
             }
             else if (request is SetCustomPriceRequest setCustomPriceRequest)
@@ -124,15 +134,14 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.TryRemoveEntry(removeEntryRequest.EntryId);
                 ViewState.RaiseChanged();
             }
-            else if (request is AddProductRequest || request is AddDepositRequest)
+            else if (request is AddProductRequest)
             {
                 //TODO: AAAAA
             }
             else if (request is ClearCartRequest)
             {
-                //TODO: AAAAA
-                //ViewState.Clear();
-                //ViewState.RaiseChanged();
+                ViewState.Clear();
+                ViewState.RaiseChanged();
             }
             else if (request is AddPomoCodeRequest || request is RemovePromoCodeRequest)
             {
@@ -149,16 +158,16 @@ namespace Gizmo.Client.UI.View.Services
 
             if (exception is WebApiClientException webApiException)
             {
-                //TODO: AAAAA
-                //ThrowInfInvalidCartError(webApiException);
+                //TODO: AAAAA ThrowInfInvalidCartError(webApiException);
 
-                //// the error is not invalid cart id here
+                // the error is not invalid cart id here
 
-                //// handle know/expected errors
-                //if (webApiException.ErrorCodeType == (int)ExceptionCode.Promotion || webApiException.ErrorCodeType == (int)ExceptionCode.Cart)
-                //{
-                //    await _errorHandlerService.Handle(ExceptionErrorContext.User(webApiException), nameof(Gizmo.Web.Manager.UI.Resources.Autogenerated.Resources.WEBM_GEN_ERROR_TITLE), null, null, cancellationToken);
-                //}
+                // handle know/expected errors
+                if (webApiException.ErrorCodeType == (int)ExceptionCode.Promotion || webApiException.ErrorCodeType == (int)ExceptionCode.Cart)
+                {
+                    //await _errorHandlerService.Handle(ExceptionErrorContext.User(webApiException), nameof(Gizmo.Web.Manager.UI.Resources.Autogenerated.Resources.WEBM_GEN_ERROR_TITLE), null, null, cancellationToken);
+                    await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), webApiException.Message);
+                }
             }
         }
 
@@ -195,28 +204,7 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     foreach (var cartEntryModel in userCartStateModel.Entries)
                     {
-                        if (cartEntryModel is CartEntryDepositModel depositModel)
-                        {
-                            if (!ViewState.TryGetProductEntryViewState(depositModel.Id, out var entryViewState) || entryViewState == null)
-                            {
-                                entryViewState = ViewState.Add(new UserCartProductViewState()
-                                {
-                                    ProductId = null,
-                                    Guid = depositModel.Id,
-                                    //TODO: AAAAA ProductType = ProductTypes.Deposit,
-                                    ProductName = _localizationService.GetString("WEBM_PRODUCT_TYPES_DEPOSIT"),
-                                });
-                            }
-
-                            entryViewState.UnitPrice = depositModel.UnitPrice;
-                            entryViewState.UnitPointsPrice = 0;
-                            entryViewState.Quantity = (int)depositModel.Quantity;
-                            entryViewState.TotalPointsAward = 0;
-                            entryViewState.TotalPrice = depositModel.Total;
-                            entryViewState.OriginalUnitPrice = depositModel.UnitPrice;
-                            entryViewState.IsCustomPrice = false;
-                        }
-                        else if (cartEntryModel is CartEntryProductModel productModel)
+                        if (cartEntryModel is CartEntryProductModel productModel)
                         {
                             if (!ViewState.TryGetProductEntryViewState(productModel.Id, out var entryViewState) || entryViewState == null)
                             {
@@ -227,7 +215,6 @@ namespace Gizmo.Client.UI.View.Services
                                     ProductId = productModel.ProductId,
                                     Guid = productModel.Id,
                                     PurchaseOptions = product.PurchaseOptions,
-                                    //TODO: AAAAA ProductType = ProductTypes.Product,
                                     ProductEntityType = product.ProductType,
                                     ProductName = product.Name,
                                 });
@@ -335,6 +322,7 @@ namespace Gizmo.Client.UI.View.Services
             catch (Exception ex)
             {
                 //TODO: AAAAA await _errorHandlerService.Handle(ExceptionErrorContext.Service(ex), new ErrorModel(), cancellationToken);
+                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), ex.Message);
             }
             finally
             {
@@ -415,7 +403,6 @@ namespace Gizmo.Client.UI.View.Services
                     var productState = new UserCartProductViewState()
                     {
                         Guid = entryCreateResult.Id,
-                        //TODO: AAAAA MOVE ProductTypes ENUM IN GIZMO.SHARED? ProductType = ProductTypes.Product,
                         ProductEntityType = targetProduct.ProductType,
                         ProductId = request.ProductId,
                         PurchaseOptions = targetProduct.PurchaseOptions,
@@ -480,14 +467,37 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        protected override Task HandleRequestAsync(AddPaymentRequest request, CancellationToken cancellationToken = default)
+        protected override async Task HandleRequestAsync(AddPaymentRequest request, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var currentCartId = await CartGetOrCreateAsync(cancellationToken);
+                await _cartsWebApiClient.PaymentMethodSetAsync(currentCartId, new CartPaymentMethodSetModel()
+                {
+                    PaymentMethodId = request.PaymentMethodId
+                }, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), ex.Message);
+            }
         }
 
-        protected override Task HandleRequestAsync(RemovePaymentRequest request, CancellationToken cancellationToken = default)
+        protected override async Task HandleRequestAsync(RemovePaymentRequest request, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            //TODO: AAAAA
+            //try
+            //{
+            //    var currentCartId = await CartGetOrCreateAsync(cancellationToken);
+            //    await _cartsWebApiClient.PaymentMethodSetAsync(currentCartId, new CartPaymentMethodSetModel()
+            //    {
+            //        PaymentMethodId = null
+            //    }, cancellationToken);
+            //}
+            //catch (Exception ex)
+            //{
+            //    await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), ex.Message);
+            //}
         }
 
         protected override Task HandleRequestAsync(AddPomoCodeRequest request, CancellationToken cancellationToken = default)
