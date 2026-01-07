@@ -45,6 +45,43 @@ namespace Gizmo.Client.UI.View.Services
             return Task.FromResult<UserCartProductViewState?>(ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault()); //TODO: AAAAA REVIEW
         }
 
+        public async Task<bool> SetPaymentMethodId(int paymentMethodId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var currentCartId = await CartGetOrCreateAsync(cancellationToken);
+                await _cartsWebApiClient.PaymentMethodSetAsync(currentCartId, new CartPaymentMethodSetModel()
+                {
+                    PaymentMethodId = paymentMethodId
+                }, cancellationToken);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), ex.Message);
+
+                return false;
+            }
+        }
+
+        public async Task<bool> SetNote(string? note, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var currentCartId = await CartGetOrCreateAsync(cancellationToken);
+                await _cartsWebApiClient.NoteAsync(currentCartId, note, cancellationToken);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), ex.Message);
+
+                return false;
+            }
+        }
+
         public override async Task AcceptAsync(CancellationToken cancellationToken = default)
         {
             try

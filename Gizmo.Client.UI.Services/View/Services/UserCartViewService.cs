@@ -394,127 +394,119 @@ namespace Gizmo.Client.UI.View.Services
                 _ = await s.WaitForResultAsync();
         }
 
-        //public async Task CheckoutAsync()
-        //{
-        //    Validate();
+        public async Task CheckoutAsync()
+        {
+            Validate();
 
-        //    if (ViewState.IsValid != true)
-        //        return;
+            if (ViewState.IsValid != true)
+                return;
 
-        //    ViewState.IsLoading = true;
-        //    ViewState.RaiseChanged();
+            ViewState.IsLoading = true;
+            ViewState.RaiseChanged();
 
-        //    try
-        //    {
-        //        var productItems = await _userCartProductItemLookupService.GetStatesAsync();
-        //        var products = productItems.Where(x => x.Quantity > 0).ToList();
+            try
+            {
+                if (ViewState.PaymentMethodId.HasValue)
+                {
+                    var result = await _clientServerCartViewService.SetPaymentMethodId(ViewState.PaymentMethodId.Value);
+                    if (!result)
+                        return;
+                }
 
-        //        var userOrderModelCreate = new UserOrderModelCreate()
-        //        {
-        //            UserNote = ViewState.Notes,
-        //            PreferredPaymentMethodId = ViewState.PaymentMethodId,
-        //            OrderLines = products.Select(a => new UserOrderLineModelCreate()
-        //            {
-        //                Guid = Guid.NewGuid(),
-        //                ProductId = a.ProductId,
-        //                Quantity = a.Quantity,
-        //                PayType = a.PayType,
-        //                Total = (a.PayType == OrderLinePayType.Cash || a.PayType == OrderLinePayType.Mixed) ? a.TotalPrice : 0,
-        //                PointsTotal = (a.PayType == OrderLinePayType.Points || a.PayType == OrderLinePayType.Mixed) ? a.TotalPointsPrice.GetValueOrDefault() : 0,
-        //                PointsAwardTotal = a.PayType != OrderLinePayType.Points ? a.TotalPointsAward.GetValueOrDefault() : 0
-        //            }).ToList()
-        //        };
+                var noteResult = await _clientServerCartViewService.SetNote(ViewState.Notes);
+                if (!noteResult)
+                    return;
 
-        //        var result = await _gizmoClient.UserOrderCreateAsync(userOrderModelCreate);
+                await _clientServerCartViewService.AcceptAsync();
 
-        //        if (result.Result != OrderResult.Failed)
-        //        {
-        //            //Clear
-        //            await ResetAsync();
-        //        }
-        //        else
-        //        {
-        //            ViewState.HasError = true;
-        //            ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED") + $" {result.FailReason.ToString()}"; //TODO: AAA TRANSLATE?
+                ViewState.HasError = false;
+                ViewState.ErrorMessage = string.Empty;
 
-        //            if (result.OrderLines != null)
-        //            {
-        //                foreach (var orderLine in result.OrderLines)
-        //                {
-        //                    var requestOrderLine = userOrderModelCreate.OrderLines.Where(a => a.Guid == orderLine.Guid).FirstOrDefault();
-        //                    if (requestOrderLine != null)
-        //                    {
-        //                        var product = await _userProductViewStateLookupService.GetStateAsync(requestOrderLine.ProductId);
+                //Clear
+                //TODO: AAAAA TOO SOON? await ResetAsync();
 
-        //                        string ERROR_MESSAGE = string.Empty;
+                //        if (result.Result == OrderResult.Failed)
+                //        {
+                //            ViewState.HasError = true;
+                //            ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED") + $" {result.FailReason.ToString()}"; //TODO: AAA TRANSLATE?
 
-        //                        switch (orderLine.Result)
-        //                        {
-        //                            case UserProductAvailabilityCheckResult.ClientOrderDisallowed:
-        //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_CLIENT_ORDER_DISALLOWED_MESSAGE");
-        //                                break;
-        //                            case UserProductAvailabilityCheckResult.UserGroupDisallowed:
-        //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_DISALLOWED_USER_GROUP_MESSAGE");
-        //                                break;
-        //                            case UserProductAvailabilityCheckResult.SaleDisallowed:
-        //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_SALE_DISALLOWED_MESSAGE");
-        //                                break;
-        //                            case UserProductAvailabilityCheckResult.GuestSaleDisallowed:
-        //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_GUEST_SALE_DISALLOWED_MESSAGE");
-        //                                break;
-        //                            case UserProductAvailabilityCheckResult.OutOfStock:
-        //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_OUT_OF_STOCK_MESSAGE");
-        //                                break;
-        //                            case UserProductAvailabilityCheckResult.PeriodDisallowed:
-        //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_PURCHASE_PERIOD_DISALLOWED_MESSAGE");
-        //                                break;
-        //                            //TODO: AAA DIALOG TRANSLATE MORE RESULTS
-        //                            default:
-        //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_ERROR_MESSAGE");
-        //                                break;
-        //                        }
+                //            if (result.OrderLines != null)
+                //            {
+                //                foreach (var orderLine in result.OrderLines)
+                //                {
+                //                    var requestOrderLine = userOrderModelCreate.OrderLines.Where(a => a.Guid == orderLine.Guid).FirstOrDefault();
+                //                    if (requestOrderLine != null)
+                //                    {
+                //                        var product = await _userProductViewStateLookupService.GetStateAsync(requestOrderLine.ProductId);
 
-        //                        ViewState.ErrorMessage += $"<br>{product.Name}: {ERROR_MESSAGE}";
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Logger.LogError(ex, "User order create error.");
+                //                        string ERROR_MESSAGE = string.Empty;
 
-        //        ViewState.HasError = true;
-        //        ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED");
-        //    }
-        //    finally
-        //    {
-        //        ViewState.IsComplete = true;
-        //        ViewState.IsLoading = false;
-        //        ViewState.RaiseChanged();
-        //    }
-        //}
+                //                        switch (orderLine.Result)
+                //                        {
+                //                            case UserProductAvailabilityCheckResult.ClientOrderDisallowed:
+                //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_CLIENT_ORDER_DISALLOWED_MESSAGE");
+                //                                break;
+                //                            case UserProductAvailabilityCheckResult.UserGroupDisallowed:
+                //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_DISALLOWED_USER_GROUP_MESSAGE");
+                //                                break;
+                //                            case UserProductAvailabilityCheckResult.SaleDisallowed:
+                //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_SALE_DISALLOWED_MESSAGE");
+                //                                break;
+                //                            case UserProductAvailabilityCheckResult.GuestSaleDisallowed:
+                //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_GUEST_SALE_DISALLOWED_MESSAGE");
+                //                                break;
+                //                            case UserProductAvailabilityCheckResult.OutOfStock:
+                //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_OUT_OF_STOCK_MESSAGE");
+                //                                break;
+                //                            case UserProductAvailabilityCheckResult.PeriodDisallowed:
+                //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_PURCHASE_PERIOD_DISALLOWED_MESSAGE");
+                //                                break;
+                //                            //TODO: AAA DIALOG TRANSLATE MORE RESULTS
+                //                            default:
+                //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_ERROR_MESSAGE");
+                //                                break;
+                //                        }
 
-        //public async Task ResetAsync()
-        //{
-        //    try
-        //    {
-        //        ViewState.Notes = null;
-        //        ViewState.PaymentMethodId = null;
+                //                        ViewState.ErrorMessage += $"<br>{product.Name}: {ERROR_MESSAGE}";
+                //                    }
+                //                }
+                //            }
+                //        }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "User order create error.");
 
-        //        await ClearProductsAsync();
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED");
+            }
+            finally
+            {
+                ViewState.IsComplete = true;
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
+            }
+        }
 
-        //        ViewState.IsComplete = false;
-        //        ViewState.HasError = false;
-        //        ViewState.ErrorMessage = string.Empty;
+        public async Task ResetAsync()
+        {
+            try
+            {
+                ViewState.Notes = null;
+                ViewState.PaymentMethodId = null;
+                ViewState.HasError = false;
+                ViewState.ErrorMessage = string.Empty;
+                ViewState.IsComplete = false;
 
-        //        ViewState.RaiseChanged();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Logger.LogError(ex, "Failed to reset user cart products.");
-        //    }
-        //}
+                _clientServerCartViewService.Clear(); //TODO: AAAAA CLEAR OR CREATE NEW CART?
+
+                ViewState.RaiseChanged();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to reset user cart products.");
+            }
+        }
 
         #endregion
 
@@ -605,7 +597,7 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        //TODO: AAAAA CHECK
+        //TODO: AAAAA I THINK THE REASON FOR THIS IS TO UPDATE PRODUCT PRICES IF CHANGED WHILE IN CART.
         //protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         //{
         //    await UpdateUserCartProductsAsync(cancellationToken);
