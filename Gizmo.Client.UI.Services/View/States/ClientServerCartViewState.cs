@@ -46,6 +46,16 @@ namespace Gizmo.Client.UI.View.States
 
             _entries.Clear();
 
+            IsStateUpdateRequired = false;
+            IsStateUpdating = false;
+            PointsTotal = 0;
+            SubTotal = 0;
+            TaxTotal = 0;
+            FeeTotal = 0;
+            Discount = 0;
+            Total = 0;
+            PointsAward = 0;
+
             //TODO: AAAAA ResetPromotionState();
         }
 

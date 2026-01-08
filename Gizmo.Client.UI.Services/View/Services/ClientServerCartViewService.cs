@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using Gizmo.Client.UI.Services;
+﻿using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.Server.Exceptions;
 using Gizmo.UI;
@@ -24,45 +23,30 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             UserProductViewStateLookupService userProductViewStateLookupService,
             Web.Api.User.Clients.CartsWebApiClient cartsWebApiClient,
-            IClientNotificationService notificationService) : base(viewState, globalCancellationService, localizationService, logger, serviceProvider)
+            IClientNotificationService notificationService,
+            IClientDialogService dialogService) : base(viewState, globalCancellationService, localizationService, logger, serviceProvider)
         {
             _userProductViewStateLookupService = userProductViewStateLookupService;
             _cartsWebApiClient = cartsWebApiClient;
             _notificationService = notificationService;
+            _dialogService = dialogService;
         }
         #endregion
+
+        public event EventHandler? OnReset;
 
         #region FIELDS
 
         private readonly UserProductViewStateLookupService _userProductViewStateLookupService;
         private readonly Web.Api.User.Clients.CartsWebApiClient _cartsWebApiClient;
         private readonly IClientNotificationService _notificationService;
+        private readonly IClientDialogService _dialogService;
 
         #endregion
 
         public Task<UserCartProductViewState?> GetCartProductItemViewStateAsync(int productId)
         {
             return Task.FromResult<UserCartProductViewState?>(ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault()); //TODO: AAAAA REVIEW
-        }
-
-        public async Task<bool> SetPaymentMethodId(int paymentMethodId, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                var currentCartId = await CartGetOrCreateAsync(cancellationToken);
-                await _cartsWebApiClient.PaymentMethodSetAsync(currentCartId, new CartPaymentMethodSetModel()
-                {
-                    PaymentMethodId = paymentMethodId
-                }, cancellationToken);
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), ex.Message);
-
-                return false;
-            }
         }
 
         public async Task<bool> SetNote(string? note, CancellationToken cancellationToken = default)
@@ -81,21 +65,95 @@ namespace Gizmo.Client.UI.View.Services
                 return false;
             }
         }
-
-        public override async Task AcceptAsync(CancellationToken cancellationToken = default)
+        
+        public async Task ResetAsync(CancellationToken cancellationToken = default)
         {
+            await _cartCreateLock.WaitAsync(cancellationToken);
             try
             {
-                var currentCartId = await CartGetOrCreateAsync(cancellationToken);
-                await _cartsWebApiClient.AcceptAsync(currentCartId, new CartAcceptModel()
+                try
                 {
-                    //TODO: AAAAA CHECK
-                }, cancellationToken);
+                    // check if we created cart already
+                    if (_currentCartId.HasValue)
+                        await _cartsWebApiClient.DeleteAsync(_currentCartId.Value, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    // only report non invalid cart errors, otherwise forward to lower handler
+                    if (!ex.IsExceptionCode(ExceptionCode.Cart, (ExceptionCode)0)) //TODO: AAAAA CartErrorCode.InvalidCartId
+                        throw;
+                }
+
+                ViewState.Clear();
+                DebounceViewStateChanged();
+
+                OnReset?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
                 await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), ex.Message);
             }
+            finally
+            {
+                _currentCartId = null;
+                _cartCreateLock.Release();
+            }
+        }
+
+        private async ValueTask InvalidateCartAsync(WebApiClientException webApiException, CancellationToken cancellationToken = default)
+        {
+            // here we need to check the api error code, an potential problem here is when the cart expires on server
+            // in such case the local state have no meaning and we should inform the user and reset the local cart state
+
+            if (webApiException.ErrorCodeType == (int?)ExceptionCode.Cart && webApiException.ErrorCode == 0) //TODO: AAAAA CartErrorCode.InvalidCartId
+            {
+                // reset state here               
+                try
+                {
+                    await _cartCreateLock.WaitAsync(cancellationToken);
+                    _currentCartId = null;
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogCritical(ex, "Unexpected error on cart invalidation.");
+                }
+                finally
+                {
+                    _cartCreateLock.Release();
+                }
+
+                // report invalid cart error to the user
+                //await _errorHandlerService.Handle(ExceptionErrorContext.User(webApiException), nameof(Gizmo.Web.Manager.UI.Resources.Autogenerated.Resources.WEBM_GEN_ERROR_TITLE), null, null, cancellationToken);
+                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), webApiException.Message);
+
+                // clear cart
+                ViewState.Clear();
+                DebounceViewStateChanged();
+
+                OnReset?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        protected void ThrowInfInvalidCartError(WebApiClientException webApiException)
+        {
+            if (webApiException.IsExceptionCode(ExceptionCode.Cart, (ExceptionCode)0)) //TODO: AAAAA CartErrorCode.InvalidCartId
+                throw webApiException;
+        }
+
+        public override async Task AcceptAsync(CancellationToken cancellationToken = default)
+        {
+            //try
+            //{
+                var currentCartId = await CartGetOrCreateAsync(cancellationToken);
+                await _cartsWebApiClient.AcceptAsync(currentCartId, new CartAcceptModel()
+                {
+                    //TODO: AAAAA CHECK
+                }, cancellationToken);
+            //}
+            //catch (Exception ex)
+            //{
+            //    await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), ex.Message);
+            //}
         }
 
         protected override async Task<bool> ValidateRequestAsync(ICartRequest request, CancellationToken cancellationToken = default)
@@ -117,22 +175,40 @@ namespace Gizmo.Client.UI.View.Services
                 var productViewState = await _userProductViewStateLookupService.GetStateAsync(addProductRequest.ProductId, cancellationToken);
                 if (productViewState.ProductType == ProductType.ProductTime)
                 {
-                    // when adding product time we should block in case of being added to joined guest                  
+                    if (productViewState.ProductType == ProductType.ProductTime && productViewState.TimeProduct?.UsageAvailability != null)
+                    {
+                        bool verifyNotAvailableTimeProduct = false;
 
-                    //TODO: AAAAA
+                        if (productViewState.TimeProduct.UsageAvailability.DateRange)
+                        {
+                            if ((productViewState.TimeProduct.UsageAvailability.StartDate.HasValue && productViewState.TimeProduct.UsageAvailability.StartDate.Value > DateTime.Now) ||
+                                (productViewState.TimeProduct.UsageAvailability.EndDate.HasValue && productViewState.TimeProduct.UsageAvailability.EndDate.Value < DateTime.Now))
+                            {
+                                verifyNotAvailableTimeProduct = true;
+                            }
+                        }
+
+                        if (productViewState.TimeProduct.UsageAvailability.TimeRange)
+                        {
+                            var daySecond = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second).TotalSeconds;
+
+                            if (productViewState.TimeProduct.UsageAvailability.DaysAvailable.Where(day => day.Day == DateTime.Now.DayOfWeek && day.DayTimesAvailable != null && day.DayTimesAvailable.Where(time => time.StartSecond <= daySecond && time.EndSecond > daySecond).Any()).Any() == false)
+                            {
+                                verifyNotAvailableTimeProduct = true;
+                            }
+                        }
+
+                        if (verifyNotAvailableTimeProduct)
+                        {
+                            var dialogResult = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_WARNING"), _localizationService.GetString("GIZ_PRODUCT_TIME_CURRENTLY_UNAVAILABLE_VERIFY"), AlertDialogButtons.YesNo, AlertTypes.Warning);
+                            var dialogResponse = await dialogResult.WaitForResultAsync();
+                            if (dialogResponse?.Button == AlertDialogResultButton.No)
+                            {
+                                return false;
+                            }
+                        }
+                    }
                 }
-            }
-            else if (request is AddDepositRequest addDepositRequest)
-            {
-                // empty carts would mean adding the deposit to joined guest, we don't want that
-
-                //TODO: AAAAA
-            }
-            else if (request is AddPaymentRequest addPaymentRequest)
-            {
-                //TODO: AAAAA
-
-                return true;
             }
 
             return true;
@@ -145,14 +221,6 @@ namespace Gizmo.Client.UI.View.Services
                 if (ViewState.TryGetProductEntryViewState(setQuantityRequest.EntryId, out var productEntryViewState))
                 {
                     productEntryViewState.Quantity = (int)setQuantityRequest.Quantity;
-                    productEntryViewState.RaiseChanged();
-                }
-            }
-            else if (request is SetCustomPriceRequest setCustomPriceRequest)
-            {
-                if (ViewState.TryGetProductEntryViewState(setCustomPriceRequest.EntryId, out var productEntryViewState))
-                {
-                    productEntryViewState.IsCustomPrice = true;
                     productEntryViewState.RaiseChanged();
                 }
             }
@@ -171,10 +239,6 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.TryRemoveEntry(removeEntryRequest.EntryId);
                 ViewState.RaiseChanged();
             }
-            else if (request is AddProductRequest)
-            {
-                //TODO: AAAAA
-            }
             else if (request is ClearCartRequest)
             {
                 ViewState.Clear();
@@ -191,11 +255,13 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async ValueTask HandleRequestErrorAsync(Exception exception, ICartRequest request, CartRequestContext cartRequestContext, CancellationToken cancellationToken = default)
         {
+            //TODO: AAAAA RAISE EVENT FOR INVALID CART?
+
             // the handler should always throw once invalid cart error occurs
 
             if (exception is WebApiClientException webApiException)
             {
-                //TODO: AAAAA ThrowInfInvalidCartError(webApiException);
+                ThrowInfInvalidCartError(webApiException);
 
                 // the error is not invalid cart id here
 
@@ -212,7 +278,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (exception is WebApiClientException webApiClientException)
             {
-                //TODO: AAAAA
+                await InvalidateCartAsync(webApiClientException, cancellationToken);
             }
         }
 
@@ -360,6 +426,8 @@ namespace Gizmo.Client.UI.View.Services
             {
                 //TODO: AAAAA await _errorHandlerService.Handle(ExceptionErrorContext.Service(ex), new ErrorModel(), cancellationToken);
                 await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), ex.Message);
+
+                //TODO: AAAAA reset here?
             }
             finally
             {

@@ -4,7 +4,6 @@ using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
-using Gizmo.Web.Api.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -52,217 +51,13 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IOptions<ClientShopOptions> _shopOptions;
         private readonly ClientServerCartViewService _clientServerCartViewService;
         private readonly UserProductViewStateLookupService _userProductViewStateLookupService;
+
+        private Guid? _lastCartId = null;
+        private AddDialogResult<EmptyComponentResult>? _checkoutDialog = null;
         #endregion
 
         #region FUNCTIONS
-        //public async Task AddUserCartProductAsync(int productId, int quantity = 1)
-        //{
-        //    try
-        //    {
-        //        var product = await _userProductViewStateLookupService.GetStateAsync(productId);
-        //        var productItem = await _userCartProductItemLookupService.GetStateAsync(productId);
-
-        //        if (product.ProductType == ProductType.ProductTime && productItem.Quantity >= 1)
-        //        {
-        //            return;
-        //        }
-
-        //        //If PurchaseOptions is And then we cannot set PayType other than Mixed.
-        //        if (product.PurchaseOptions == PurchaseOptionType.And)
-        //        {
-        //            productItem.PayType = OrderLinePayType.Mixed;
-        //        }
-
-        //        if ((productItem.PayType == OrderLinePayType.Points || productItem.PayType == OrderLinePayType.Mixed) && product.UnitPointsPrice > 0)
-        //        {
-        //            if (ViewState.PointsTotal + product.UnitPointsPrice > _userBalanceViewState.PointsBalance)
-        //            {
-        //                if (productItem.Quantity == 0 && product.PurchaseOptions == PurchaseOptionType.Or)
-        //                {
-        //                    //There is a case where the user previously used all his points and bought this product with points.
-        //                    //When this product is added again in the cart the pay type is Points, but the user does'n have enough points to add it in the cart.
-        //                    //Change the pay type to Cash to unblock add to cart.
-        //                    productItem.PayType = OrderLinePayType.Cash;
-        //                }
-        //                else
-        //                {
-        //                    await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_INSUFFICIENT_POINTS_ERROR_TITLE"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS_ERROR_MESSAGE"));
-        //                    return;
-        //                }
-        //            }
-        //        }
-
-        //        if (product.IsStockLimited ||
-        //            product.PurchaseAvailability != null)
-        //        {
-        //            try
-        //            {
-        //                var checkResult = await _gizmoClient.UserProductAvailabilityCheckAsync(new UserOrderLineModelCreate()
-        //                {
-        //                    Guid = Guid.NewGuid(),
-        //                    ProductId = productId,
-        //                    Quantity = productItem.Quantity + quantity,
-        //                    PayType = productItem.PayType
-        //                });
-
-        //                if (checkResult != UserProductAvailabilityCheckResult.Success)
-        //                {
-        //                    string ERROR_MESSAGE = string.Empty;
-
-        //                    switch (checkResult)
-        //                    {
-        //                        case UserProductAvailabilityCheckResult.ClientOrderDisallowed:
-        //                            ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_CLIENT_ORDER_DISALLOWED_MESSAGE");
-        //                            break;
-        //                        case UserProductAvailabilityCheckResult.UserGroupDisallowed:
-        //                            ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_DISALLOWED_USER_GROUP_MESSAGE");
-        //                            break;
-        //                        case UserProductAvailabilityCheckResult.SaleDisallowed:
-        //                            ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_SALE_DISALLOWED_MESSAGE");
-        //                            break;
-        //                        case UserProductAvailabilityCheckResult.GuestSaleDisallowed:
-        //                            ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_GUEST_SALE_DISALLOWED_MESSAGE");
-        //                            break;
-        //                        case UserProductAvailabilityCheckResult.OutOfStock:
-        //                            ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_OUT_OF_STOCK_MESSAGE");
-        //                            break;
-        //                        case UserProductAvailabilityCheckResult.PeriodDisallowed:
-        //                            ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_PURCHASE_PERIOD_DISALLOWED_MESSAGE");
-        //                            break;
-        //                        //TODO: AAA DIALOG TRANSLATE MORE RESULTS
-        //                        default:
-        //                            ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_ERROR_MESSAGE");
-        //                            break;
-        //                    }
-
-        //                    await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_ERROR_TITLE"), ERROR_MESSAGE);
-        //                    return;
-        //                }
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                Logger.LogError(ex, "User product availability check error.");
-        //                return;
-        //            }
-        //            finally
-        //            {
-        //            }
-        //        }
-
-        //        if (productItem.Quantity == 0 && product.ProductType == ProductType.ProductTime && product.TimeProduct?.UsageAvailability != null)
-        //        {
-        //            bool verifyNotAvailableTimeProduct = false;
-
-        //            if (product.TimeProduct.UsageAvailability.DateRange)
-        //            {
-        //                if ((product.TimeProduct.UsageAvailability.StartDate.HasValue && product.TimeProduct.UsageAvailability.StartDate.Value > DateTime.Now) ||
-        //                    (product.TimeProduct.UsageAvailability.EndDate.HasValue && product.TimeProduct.UsageAvailability.EndDate.Value < DateTime.Now))
-        //                {
-        //                    verifyNotAvailableTimeProduct = true;
-        //                }
-        //            }
-
-        //            if (product.TimeProduct.UsageAvailability.TimeRange)
-        //            {
-        //                var daySecond = new TimeSpan(DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second).TotalSeconds;
-
-        //                if (product.TimeProduct.UsageAvailability.DaysAvailable.Where(day => day.Day == DateTime.Now.DayOfWeek && day.DayTimesAvailable != null && day.DayTimesAvailable.Where(time => time.StartSecond <= daySecond && time.EndSecond > daySecond).Any()).Any() == false)
-        //                {
-        //                    verifyNotAvailableTimeProduct = true;
-        //                }
-        //            }
-
-        //            if (verifyNotAvailableTimeProduct) //TODO: AAAAA
-        //            {
-        //                var dialogResult = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_WARNING"), _localizationService.GetString("GIZ_PRODUCT_TIME_CURRENTLY_UNAVAILABLE_VERIFY"), AlertDialogButtons.YesNo, AlertTypes.Warning);
-        //                var dialogResponse = await dialogResult.WaitForResultAsync();
-        //                if (dialogResponse?.Button == AlertDialogResultButton.No)
-        //                {
-        //                    return;
-        //                }
-        //            }
-        //        }
-
-        //        productItem.Quantity += quantity;
-
-        //        await UpdateUserCartProductsAsync();
-
-        //        productItem.RaiseChanged();
-
-        //        //If current uri is not shop or product details then navigate to shop.
-        //        var currentUri = NavigationService.GetUri();
-
-        //        //TODO: A USE CONSTS?
-        //        if (!currentUri.EndsWith("/shop") && !currentUri.Contains("/productdetails"))
-        //            NavigationService.NavigateTo(ClientRoutes.ShopRoute);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Logger.LogError(ex, "Failed to add user cart product.");
-        //    }
-        //}
-
-        //public async Task RemoveUserCartProductAsync(int productId, int quantity = 1)
-        //{
-        //    try
-        //    {
-        //        var productItem = await _userCartProductItemLookupService.GetStateAsync(productId);
-
-        //        productItem.Quantity -= quantity;
-
-        //        await UpdateUserCartProductsAsync();
-
-        //        productItem.RaiseChanged();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Logger.LogError(ex, "Failed to remove user cart product.");
-        //    }
-        //}
-
-        //public async Task DeleteUserCartProductAsync(int productId)
-        //{
-        //    try
-        //    {
-        //        var productItem = await _userCartProductItemLookupService.GetStateAsync(productId);
-
-        //        productItem.Quantity = 0;
-
-        //        await UpdateUserCartProductsAsync();
-
-        //        productItem.RaiseChanged();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Logger.LogError(ex, "Failed to delete user cart product.");
-        //    }
-        //}
-
-        //private async Task ClearProductsAsync()
-        //{
-        //    try
-        //    {
-        //        var productItems = await _userCartProductItemLookupService.GetStatesAsync();
-        //        var products = productItems.Where(x => x.Quantity > 0).ToList();
-
-        //        foreach (var item in products)
-        //        {
-        //            item.Quantity = 0;
-        //        }
-
-        //        await UpdateUserCartProductsAsync();
-
-        //        foreach (var item in products)
-        //        {
-        //            item.RaiseChanged();
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Logger.LogError(ex, "Failed to clear user cart products.");
-        //    }
-        //}
-
+        
         public async Task ClearUserCartProductsAsync()
         {
             var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_VERIFY"), _localizationService.GetString("GIZ_SHOP_VERIFY_CLEAR_CART"), AlertDialogButtons.YesNo);
@@ -270,8 +65,8 @@ namespace Gizmo.Client.UI.View.Services
             {
                 var result = await s.WaitForResultAsync();
 
-                if (s.Result == AddComponentResultCode.Ok && result!.Button == AlertDialogResultButton.Yes)
-                    _clientServerCartViewService.Clear();
+                if (s.Result == AddComponentResultCode.Ok && result!.Button == AlertDialogResultButton.Yes)                
+                    _clientServerCartViewService.Clear();                
             }
         }
 
@@ -338,22 +133,6 @@ namespace Gizmo.Client.UI.View.Services
         //        if (productItem.PayType == payType)
         //            return;
 
-        //        var product = await _userProductViewStateLookupService.GetStateAsync(productId);
-
-        //        //If PurchaseOptions is And then we cannot set PayType other than Mixed.
-        //        if (product.PurchaseOptions == PurchaseOptionType.And)
-        //        {
-        //            if (productItem.PayType != OrderLinePayType.Mixed)
-        //            {
-        //                productItem.PayType = OrderLinePayType.Mixed;
-        //            }
-
-        //            await UpdateUserCartProductsAsync();
-        //            productItem.RaiseChanged();
-
-        //            return;
-        //        }
-
         //        if ((payType == OrderLinePayType.Points || productItem.PayType == OrderLinePayType.Mixed) && product.UnitPointsPrice > 0)
         //        {
         //            if (ViewState.PointsTotal + (product.UnitPointsPrice * productItem.Quantity) > _userBalanceViewState.PointsBalance)
@@ -389,9 +168,11 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.ShowPaymentMethods = true;
             }
 
-            var s = await _dialogService.ShowCheckoutDialogAsync();
-            if (s.Result == AddComponentResultCode.Opened)
-                _ = await s.WaitForResultAsync();
+            _checkoutDialog = await _dialogService.ShowCheckoutDialogAsync();
+            if (_checkoutDialog.Result == AddComponentResultCode.Opened)
+                await _checkoutDialog.WaitForResultAsync();
+
+            _checkoutDialog = null;
         }
 
         public async Task CheckoutAsync()
@@ -406,25 +187,15 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                if (ViewState.PaymentMethodId.HasValue)
-                {
-                    var result = await _clientServerCartViewService.SetPaymentMethodId(ViewState.PaymentMethodId.Value);
-                    if (!result)
-                        return;
-                }
-
-                var noteResult = await _clientServerCartViewService.SetNote(ViewState.Notes);
-                if (!noteResult)
-                    return;
-
                 await _clientServerCartViewService.AcceptAsync();
 
                 ViewState.HasError = false;
                 ViewState.ErrorMessage = string.Empty;
 
                 //Clear
-                //TODO: AAAAA TOO SOON? await ResetAsync();
+                await _clientServerCartViewService.ResetAsync();
 
+                //TODO: AAAAA CHECK
                 //        if (result.Result == OrderResult.Failed)
                 //        {
                 //            ViewState.HasError = true;
@@ -488,24 +259,15 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        public async Task ResetAsync()
+        public void Clear()
         {
-            try
-            {
-                ViewState.Notes = null;
-                ViewState.PaymentMethodId = null;
-                ViewState.HasError = false;
-                ViewState.ErrorMessage = string.Empty;
-                ViewState.IsComplete = false;
+            ViewState.Notes = null;
+            ViewState.PaymentMethodId = null;
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
+            ViewState.IsComplete = false;
 
-                _clientServerCartViewService.Clear(); //TODO: AAAAA CLEAR OR CREATE NEW CART?
-
-                ViewState.RaiseChanged();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Failed to reset user cart products.");
-            }
+            ViewState.RaiseChanged();
         }
 
         #endregion
@@ -513,18 +275,31 @@ namespace Gizmo.Client.UI.View.Services
         protected override Task OnInitializing(CancellationToken ct)
         {
             _gizmoClient.LoginStateChange += OnUserLoginStateChange;
+            _clientServerCartViewService.OnReset += ClientServerCartViewService_OnReset;
             return base.OnInitializing(ct);
         }
 
-        private void OnUserLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
+        private void ClientServerCartViewService_OnReset(object? sender, EventArgs e)
+        {
+            Clear();
+
+            //Close dialog.
+            _checkoutDialog?.Controller?.Result(new EmptyComponentResult());
+        }
+
+        private async void OnUserLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
         {
             try
             {
                 switch (e.State)
                 {
                     case LoginState.LoggingOut:
-                        _clientServerCartViewService.Clear(); //TODO: AAAAA CHECK
+
+                        await _clientServerCartViewService.ResetAsync();
+                        Clear();
+
                         break;
+
                     default:
                         break;
                 }
@@ -537,6 +312,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override void OnDisposing(bool dis)
         {
+            _clientServerCartViewService.OnReset -= ClientServerCartViewService_OnReset;
             _gizmoClient.LoginStateChange -= OnUserLoginStateChange;
             base.OnDisposing(dis);
         }
@@ -591,7 +367,7 @@ namespace Gizmo.Client.UI.View.Services
             switch (command.Type)
             {
                 case ViewServiceCommandType.Add:
-                    //TODO: AAAAA await AddUserCartProductAsync(productId, quantity);
+                    _clientServerCartViewService.AddProduct(productId, quantity); //From Adds.
                     NavigationService.NavigateTo(ClientRoutes.ShopRoute);
                     break;
             }
