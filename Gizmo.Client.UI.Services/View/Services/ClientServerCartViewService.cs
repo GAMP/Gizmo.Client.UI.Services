@@ -44,9 +44,9 @@ namespace Gizmo.Client.UI.View.Services
 
         #endregion
 
-        public Task<UserCartProductViewState?> GetCartProductItemViewStateAsync(int productId)
+        public Task<UserCartProductViewState?> GetUserCartProductViewStateAsync(int productId)
         {
-            return Task.FromResult<UserCartProductViewState?>(ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault()); //TODO: AAAAA REVIEW
+            return Task.FromResult<UserCartProductViewState?>(ViewState.Products.Where(a => a.ProductId == productId).FirstOrDefault());
         }
 
         public async Task<bool> SetNote(string? note, CancellationToken cancellationToken = default)
@@ -147,7 +147,7 @@ namespace Gizmo.Client.UI.View.Services
                 var currentCartId = await CartGetOrCreateAsync(cancellationToken);
                 await _cartsWebApiClient.AcceptAsync(currentCartId, new CartAcceptModel()
                 {
-                    //TODO: AAAAA CHECK
+                    //TODO: AAAAA NOTE
                 }, cancellationToken);
             //}
             //catch (Exception ex)
@@ -255,8 +255,6 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async ValueTask HandleRequestErrorAsync(Exception exception, ICartRequest request, CartRequestContext cartRequestContext, CancellationToken cancellationToken = default)
         {
-            //TODO: AAAAA RAISE EVENT FOR INVALID CART?
-
             // the handler should always throw once invalid cart error occurs
 
             if (exception is WebApiClientException webApiException)
@@ -328,6 +326,7 @@ namespace Gizmo.Client.UI.View.Services
                             entryViewState.Quantity = (int)productModel.Quantity;
                             entryViewState.TotalPointsAward = productModel.PointsAward;
                             entryViewState.TotalPrice = productModel.Total;
+                            entryViewState.TotalPointsPrice = productModel.PointsTotal;
                             entryViewState.OriginalUnitPrice = productModel.UnitListPrice;
                             entryViewState.IsCustomPrice = productModel.UnitPrice != productModel.UnitListPrice;
                         }
@@ -345,70 +344,69 @@ namespace Gizmo.Client.UI.View.Services
 
                     // update user cart values
 
-                    ViewState.SubTotal = userCartStateModel.SubTotal; //TODO: AAAAA REVIEW
-                    ViewState.PointsTotal = userCartStateModel.PointsTotal;
+                    ViewState.SubTotal = userCartStateModel.SubTotal;
                     ViewState.TaxTotal = userCartStateModel.TaxTotal;
                     ViewState.Total = userCartStateModel.Total;
                     ViewState.PointsTotal = userCartStateModel.PointsTotal;
 
                     // promotion code status
-                    //TODO: AAAAA ViewState.PromoCodeStatus = userCartStateModel.PromoCodeStatus;
+                    ViewState.PromoCodeStatus = userCartStateModel.PromoCodeStatus;
 
                     // TODO : debounce at the end
                     ViewState.RaiseChanged();
                 }
 
-                //TODO: AAAAA REVIEW
-                //if (cartStateModel.PromotionState != null)
-                //{
-                //    // TODO : implement caching or an custom api for better performance
-                //    // we also don't need to pull this information on each refresh, just updating it on initial addition of promocode is required
+                if (cartStateModel.PromotionState != null)
+                {
+                    // TODO : implement caching or an custom api for better performance
+                    // we also don't need to pull this information on each refresh, just updating it on initial addition of promocode is required
 
-                //    var promoCodeStateModel = cartStateModel.PromotionState;
-                //    var promoCodeViewState = ViewState.PromoCodeViewState;
+                    var promoCodeStateModel = cartStateModel.PromotionState;
+                    var promoCodeViewState = ViewState.PromoCodeViewState;
 
-                //    if (promoCodeViewState.PromoCodeId == null || promoCodeViewState.PromoCodeId != promoCodeStateModel.PromoCodeId)
-                //    {
-                //        int promoCodeId = promoCodeStateModel.PromoCodeId;
-                //        var promoCode = await _promotionsWebApiClient.PromotionCodeAsync(promoCodeId, cancellationToken);
-                //        var promotion = await _promotionsWebApiClient.GetByIdAsync(promoCode.PromotionId, cancellationToken);
+                    if (promoCodeViewState.PromoCodeId == null || promoCodeViewState.PromoCodeId != promoCodeStateModel.PromoCodeId)
+                    {
+                        int promoCodeId = promoCodeStateModel.PromoCodeId;
+                        //TODO: AAAAA REVIEW
+                        //var promoCode = await _promotionsWebApiClient.PromotionCodeAsync(promoCodeId, cancellationToken);
+                        //var promotion = await _promotionsWebApiClient.GetByIdAsync(promoCode.PromotionId, cancellationToken);
 
-                //        string name = (promotion as PromotionDiscountModel)?.Name ?? (promotion as PromotionDiscountModel)?.Name ?? string.Empty;
-                //        string description = (promotion as PromotionDiscountModel)?.Description ?? (promotion as PromotionDiscountModel)?.Description ?? string.Empty;
+                        //string name = (promotion as PromotionDiscountModel)?.Name ?? (promotion as PromotionDiscountModel)?.Name ?? string.Empty;
+                        //string description = (promotion as PromotionDiscountModel)?.Description ?? (promotion as PromotionDiscountModel)?.Description ?? string.Empty;
 
-                //        IList<string> discountNames = [];
-                //        if (promotion is PromotionDiscountModel promotionDiscount)
-                //        {
-                //            var discount = await _discountsWebApiClient.GetByIdAsync(promotionDiscount.DiscountId, cancellationToken);
-                //            discountNames.Add(discount.Name);
-                //        }
-                //        else if (promotion is PromotionDiscountGroupModel promotionDiscountGroup)
-                //        {
-                //            var discountGroup = await _discountGroupsWebApiClient.GetByIdAsync(promotionDiscountGroup.DiscountGroupId, cancellationToken);
-                //            foreach (var discountGroupDiscount in discountGroup.Discounts)
-                //            {
-                //                var discount = await _discountsWebApiClient.GetByIdAsync(discountGroupDiscount.DiscountId, cancellationToken);
-                //                discountNames.Add(discount.Name);
-                //            }
-                //        }
+                        //IList<string> discountNames = [];
+                        //if (promotion is PromotionDiscountModel promotionDiscount)
+                        //{
+                        //    var discount = await _discountsWebApiClient.GetByIdAsync(promotionDiscount.DiscountId, cancellationToken);
+                        //    discountNames.Add(discount.Name);
+                        //}
+                        //else if (promotion is PromotionDiscountGroupModel promotionDiscountGroup)
+                        //{
+                        //    var discountGroup = await _discountGroupsWebApiClient.GetByIdAsync(promotionDiscountGroup.DiscountGroupId, cancellationToken);
+                        //    foreach (var discountGroupDiscount in discountGroup.Discounts)
+                        //    {
+                        //        var discount = await _discountsWebApiClient.GetByIdAsync(discountGroupDiscount.DiscountId, cancellationToken);
+                        //        discountNames.Add(discount.Name);
+                        //    }
+                        //}
 
-                //        promoCodeViewState.PromoCodeId = promoCodeId;
+                        promoCodeViewState.PromoCodeId = promoCodeId;
 
-                //        // TODO : only update value if none set, this will allow us to keep the promo code value same way user have typed it, not sure if it is desired based on UI designs and promo code rules
-                //        if (string.IsNullOrWhiteSpace(promoCodeViewState.PromoCode))
-                //            promoCodeViewState.PromoCode = promoCode.Value;
+                        //// TODO : only update value if none set, this will allow us to keep the promo code value same way user have typed it, not sure if it is desired based on UI designs and promo code rules
+                        //if (string.IsNullOrWhiteSpace(promoCodeViewState.PromoCode))
+                        //    promoCodeViewState.PromoCode = promoCode.Value;
 
-                //        promoCodeViewState.DiscountNames = discountNames;
-                //        promoCodeViewState.Name = name;
-                //        promoCodeViewState.Description = description;
-                //        promoCodeViewState.RaiseChanged();
-                //    }
-                //}
-                //else
-                //{
-                //    // TODO : we would only need to call this if we have applied promo code previously
-                //    ViewState.ResetPromotionState();
-                //}
+                        //promoCodeViewState.DiscountNames = discountNames;
+                        //promoCodeViewState.Name = name;
+                        //promoCodeViewState.Description = description;
+                        promoCodeViewState.RaiseChanged();
+                    }
+                }
+                else
+                {
+                    // TODO : we would only need to call this if we have applied promo code previously
+                    ViewState.ResetPromotionState();
+                }
 
                 // TODO : process payments 
 
@@ -424,7 +422,7 @@ namespace Gizmo.Client.UI.View.Services
             }
             catch (Exception ex)
             {
-                //TODO: AAAAA await _errorHandlerService.Handle(ExceptionErrorContext.Service(ex), new ErrorModel(), cancellationToken);
+                //await _errorHandlerService.Handle(ExceptionErrorContext.Service(ex), new ErrorModel(), cancellationToken);
                 await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), ex.Message);
 
                 //TODO: AAAAA reset here?
@@ -584,35 +582,58 @@ namespace Gizmo.Client.UI.View.Services
             }
             catch (Exception ex)
             {
-                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), ex.Message);
+                await HandleRequestErrorAsync(ex, request, new CartRequestContext() { PaymentMethodId = request.PaymentMethodId }, cancellationToken);
             }
         }
 
         protected override async Task HandleRequestAsync(RemovePaymentRequest request, CancellationToken cancellationToken = default)
         {
-            //TODO: AAAAA
-            //try
-            //{
-            //    var currentCartId = await CartGetOrCreateAsync(cancellationToken);
-            //    await _cartsWebApiClient.PaymentMethodSetAsync(currentCartId, new CartPaymentMethodSetModel()
-            //    {
-            //        PaymentMethodId = null
-            //    }, cancellationToken);
-            //}
-            //catch (Exception ex)
-            //{
-            //    await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), ex.Message);
-            //}
+            try
+            {
+                var currentCartId = await CartGetOrCreateAsync(cancellationToken);
+                await _cartsWebApiClient.PaymentMethodSetAsync(currentCartId, new CartPaymentMethodSetModel()
+                {
+                    PaymentMethodId = null
+                }, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                await HandleRequestErrorAsync(ex, request, new CartRequestContext() { PaymentMethodId = request.PaymentMethodId }, cancellationToken);
+            }
         }
 
-        protected override Task HandleRequestAsync(AddPomoCodeRequest request, CancellationToken cancellationToken = default)
+        protected override async Task HandleRequestAsync(AddPomoCodeRequest request, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var currentCartId = await CartGetOrCreateAsync(cancellationToken);
+                var result = await _cartsWebApiClient.PromotionCodeAddAsync(currentCartId, new CartPromotionCodeAddModel() { Code = request.PromoCode }, cancellationToken);
+
+                // keep the typed promo code value, all other updates to promocode value will be done based on cart state              
+                ViewState.PromoCodeViewState.IsLoading = false;
+                ViewState.PromoCodeViewState.PromoCode = request.PromoCode;
+                ViewState.PromoCodeViewState.RaiseChanged();
+            }
+            catch (Exception ex)
+            {
+                await HandleRequestErrorAsync(ex, request, new CartRequestContext(), cancellationToken);
+            }
         }
 
-        protected override Task HandleRequestAsync(RemovePromoCodeRequest request, CancellationToken cancellationToken = default)
+        protected override async Task HandleRequestAsync(RemovePromoCodeRequest request, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var currentCartId = await CartGetOrCreateAsync(cancellationToken);
+                var result = await _cartsWebApiClient.PromotionCodeRemoveAsync(currentCartId, cancellationToken);
+
+                // reset state, this will also trigger loading=false
+                ViewState.ResetPromotionState();
+            }
+            catch (Exception ex)
+            {
+                await HandleRequestErrorAsync(ex, request, new CartRequestContext(), cancellationToken);
+            }
         }
 
         protected override async Task HandleRequestAsync(ClearCartRequest request, CancellationToken cancellationToken = default)

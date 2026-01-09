@@ -4,7 +4,7 @@ using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
-
+using Gizmo.Web.Api.Clients;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,7 +57,19 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         #region FUNCTIONS
-        
+
+        private async Task TryResetCart(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                await _clientServerCartViewService.ResetAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Cart reset error.");
+            }
+        }
+
         public async Task ClearUserCartProductsAsync()
         {
             var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_VERIFY"), _localizationService.GetString("GIZ_SHOP_VERIFY_CLEAR_CART"), AlertDialogButtons.YesNo);
@@ -156,6 +168,11 @@ namespace Gizmo.Client.UI.View.Services
         //        Logger.LogError(ex, "Failed to change user cart product pay type.");
         //    }
         //}
+        
+        public async Task RemovePromocodeAsync()
+        {
+            _clientServerCartViewService.RemovePromoCode();
+        }
 
         public async Task SubmitAsync()
         {
@@ -167,6 +184,8 @@ namespace Gizmo.Client.UI.View.Services
             {
                 ViewState.ShowPaymentMethods = true;
             }
+            
+            ClearDialog();
 
             _checkoutDialog = await _dialogService.ShowCheckoutDialogAsync();
             if (_checkoutDialog.Result == AddComponentResultCode.Opened)
@@ -191,9 +210,6 @@ namespace Gizmo.Client.UI.View.Services
 
                 ViewState.HasError = false;
                 ViewState.ErrorMessage = string.Empty;
-
-                //Clear
-                await _clientServerCartViewService.ResetAsync();
 
                 //TODO: AAAAA CHECK
                 //        if (result.Result == OrderResult.Failed)
@@ -253,16 +269,25 @@ namespace Gizmo.Client.UI.View.Services
             }
             finally
             {
+                //Clear
+                await TryResetCart();
+
                 ViewState.IsComplete = true;
                 ViewState.IsLoading = false;
                 ViewState.RaiseChanged();
             }
         }
 
-        public void Clear()
+        public void ClearCart()
         {
             ViewState.Notes = null;
             ViewState.PaymentMethodId = null;
+
+            ViewState.RaiseChanged();
+        }
+
+        public void ClearDialog()
+        {
             ViewState.HasError = false;
             ViewState.ErrorMessage = string.Empty;
             ViewState.IsComplete = false;
@@ -281,7 +306,7 @@ namespace Gizmo.Client.UI.View.Services
 
         private void ClientServerCartViewService_OnReset(object? sender, EventArgs e)
         {
-            Clear();
+            ClearCart();
 
             //Close dialog.
             _checkoutDialog?.Controller?.Result(new EmptyComponentResult());
@@ -289,24 +314,17 @@ namespace Gizmo.Client.UI.View.Services
 
         private async void OnUserLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
         {
-            try
+            switch (e.State)
             {
-                switch (e.State)
-                {
-                    case LoginState.LoggingOut:
+                case LoginState.LoggingOut:
 
-                        await _clientServerCartViewService.ResetAsync();
-                        Clear();
+                    await TryResetCart();
+                    ClearCart();
 
-                        break;
+                    break;
 
-                    default:
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Error handling login state change.");
+                default:
+                    break;
             }
         }
 
@@ -373,24 +391,6 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        //TODO: AAAAA I THINK THE REASON FOR THIS IS TO UPDATE PRODUCT PRICES IF CHANGED WHILE IN CART.
-        //protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
-        //{
-        //    await UpdateUserCartProductsAsync(cancellationToken);
-
-        //    _userProductViewStateLookupService.Changed += OnUpdateUserCartProductsAsync;
-        //}
-
-        //protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
-        //{
-        //    _userProductViewStateLookupService.Changed -= OnUpdateUserCartProductsAsync;
-
-        //    return base.OnNavigatedOut(navigationParameters, cancellationToken);
-        //}
-
-        //private async void OnUpdateUserCartProductsAsync(object? _, EventArgs __) =>
-        //    await UpdateUserCartProductsAsync();
-
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
             if (fieldIdentifier.FieldEquals(() => ViewState.PaymentMethodId))
@@ -401,7 +401,7 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_NAMED_FIELD", nameof(ViewState.PaymentMethodId)));
                     }
-                    else if (ViewState.PaymentMethodId.Value == -3 && _clientServerCartViewService.ViewState.Total > _userBalanceViewState.Balance) //TODO: AAAAA DOES THE SERVER CHECK THIS NOW?
+                    else if (ViewState.PaymentMethodId.Value == -3 && _clientServerCartViewService.ViewState.Total > _userBalanceViewState.Balance)
                     {
                         AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("GIZ_INSUFFICIENT_DEPOSITS_MESSAGE", nameof(ViewState.PaymentMethodId)));
                     }

@@ -1,19 +1,26 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using Gizmo.UI.View.States;
+using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gizmo.Client.UI.View.States
 {
-    [Register()]
+    [Register(Scope = RegisterScope.Singelton)]
     public sealed class ClientServerCartViewState : ViewStateBase, ICartViewState
     {
-        private readonly ConcurrentDictionary<Guid, UserCartProductViewState> _entries = [];
+        public ClientServerCartViewState(CartPromoCodeViewState cartPromoCodeViewState)
+        {
+            _promoCodeViewState = cartPromoCodeViewState;
+        }
 
-        public IEnumerable<UserCartProductViewState> Products => _entries.Values.OrderByDescending(line => line.Number);
+        private readonly ConcurrentDictionary<Guid, UserCartProductViewState> _entries = [];
+        private readonly CartPromoCodeViewState _promoCodeViewState;
 
         // line number counter, used to assign an unique number to each line in cart
         private long _lineNumber;
+
+        public IEnumerable<UserCartProductViewState> Products => _entries.Values.OrderByDescending(line => line.Number);
 
         /// <summary>
         /// Adds entry to user cart.
@@ -56,7 +63,26 @@ namespace Gizmo.Client.UI.View.States
             Total = 0;
             PointsAward = 0;
 
-            //TODO: AAAAA ResetPromotionState();
+            ResetPromotionState();
+        }
+
+        /// <summary>
+        /// Reset promotion state to default values.
+        /// </summary>
+        public void ResetPromotionState()
+        {
+            // reset promotion code loading state
+            PromoCodeViewState.IsLoading = false;
+
+            // reset promo code state
+            PromoCodeViewState.PromoCodeId = null;
+            PromoCodeViewState.InputPromoCode = string.Empty;
+            PromoCodeViewState.PromoCode = null;
+            PromoCodeViewState.Description = null;
+            PromoCodeViewState.Name = null;
+            PromoCodeViewState.DiscountNames = Enumerable.Empty<string>();
+
+            PromoCodeViewState.RaiseChanged();
         }
 
         public bool IsStateUpdateRequired { get; set; }
@@ -77,6 +103,8 @@ namespace Gizmo.Client.UI.View.States
 
         public int PointsAward { get; internal set; }
 
-        public ICartPromoCodeViewState PromoCodeViewState => null; //TODO: AAAAA
+        public PromoCodeApplyStatus PromoCodeStatus { get; internal set; }
+
+        public ICartPromoCodeViewState PromoCodeViewState => _promoCodeViewState;
     }
 }
