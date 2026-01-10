@@ -38,6 +38,7 @@
 		<PackageReference Include="System.ServiceModel.Syndication" Version="10.0.1" />
 		<ProjectReference Include="..\..\Gizmo.Client.Shared\Gizmo.Client.Shared\Gizmo.Client.Shared.csproj" />
 		<ProjectReference Include="..\..\Gizmo.Client.UI.Resources\Gizmo.Client.UI.Resources\Gizmo.Client.UI.Resources.csproj" />
+		<ProjectReference Include="..\..\Gizmo.Server.Shared\Gizmo.Server.Shared\Gizmo.Server.Shared.csproj" />
 		<ProjectReference Include="..\..\Gizmo.Shared\Gizmo.Shared.csproj" />
 		<ProjectReference Include="..\..\Gizmo.UI\Gizmo.UI\Gizmo.UI.csproj" />
 		<ProjectReference Include="..\..\Gizmo.Web.Api.Client\Gizmo.Web.Api.Client\Gizmo.Web.Api.Client.csproj" />
