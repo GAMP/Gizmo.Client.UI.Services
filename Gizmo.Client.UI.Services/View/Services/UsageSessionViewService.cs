@@ -47,6 +47,8 @@ namespace Gizmo.Client.UI.View.Services
                             ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_RATE");
                             break;
                         case UsageType.TimeFixed:
+                            ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_TIME_FIXED");
+                            break;                            
                         case UsageType.TimeOffer:
                             ViewState.CurrentTimeProductName = currentUserSession.TimePorduct;
                             break;
@@ -82,6 +84,8 @@ namespace Gizmo.Client.UI.View.Services
                     ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_RATE");
                     break;
                 case UsageType.TimeFixed:
+                    ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_TIME_FIXED"); 
+                    break;
                 case UsageType.TimeOffer:
                     ViewState.CurrentTimeProductName = e.CurrentTimeProduct;
                     break;
