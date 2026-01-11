@@ -34,7 +34,7 @@ public sealed class InputLanguageViewService : ViewStateServiceBase<InputLanguag
         if (ViewState.CurrentInputLanguage is not null)
             await _inputLanguageService.SetCurrentInputLanguageAsync(ViewState.CurrentInputLanguage);
 
-        _inputLanguageService.LangauageChange += OnInputLangauageChange;
+        _inputLanguageService.LanguageChange += OnInputLangauageChange;
 
         await base.OnInitializing(ct);
     }

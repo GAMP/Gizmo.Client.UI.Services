@@ -11,7 +11,7 @@ namespace Gizmo.Client.UI.Services
 
         public CultureInfo CurrentInputLanguage => CultureInfo.CurrentCulture;
 
-        public event EventHandler<EventArgs>? LangauageChange;
+        public event EventHandler<EventArgs>? LanguageChange;
 
         public Task SetCurrentInputLanguageAsync(CultureInfo culture)
         {
