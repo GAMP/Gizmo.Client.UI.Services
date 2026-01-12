@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI;
+﻿using Gizmo.Client.Options;
+using Gizmo.Client.UI;
 using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.Services.Client;
 using Gizmo.UI;
