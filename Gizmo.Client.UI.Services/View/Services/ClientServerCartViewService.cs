@@ -24,7 +24,8 @@ namespace Gizmo.Client.UI.View.Services
             UserProductViewStateLookupService userProductViewStateLookupService,
             Web.Api.User.Clients.CartsWebApiClient cartsWebApiClient,
             IClientNotificationService notificationService,
-            IClientDialogService dialogService) : base(viewState, globalCancellationService, localizationService, logger, serviceProvider)
+            IClientDialogService dialogService,
+            IAssemblyResourcesLocalizationService _assemblyResourcesLocalizationService) : base(viewState, globalCancellationService, localizationService, logger, serviceProvider)
         {
             _userProductViewStateLookupService = userProductViewStateLookupService;
             _cartsWebApiClient = cartsWebApiClient;
@@ -41,6 +42,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly Web.Api.User.Clients.CartsWebApiClient _cartsWebApiClient;
         private readonly IClientNotificationService _notificationService;
         private readonly IClientDialogService _dialogService;
+        private readonly IAssemblyResourcesLocalizationService _assemblyResourcesLocalizationService;
 
         #endregion
 
@@ -613,6 +615,11 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.PromoCodeViewState.IsLoading = false;
                 ViewState.PromoCodeViewState.PromoCode = request.PromoCode;
                 ViewState.PromoCodeViewState.RaiseChanged();
+            }
+            catch (PromotionException pex)
+            {         
+                ViewState.PromotionExceptionMessage = _assemblyResourcesLocalizationService.GetLocalizedStringValue(pex.ErrorCode);
+                ViewState.RaiseChanged();
             }
             catch (Exception ex)
             {

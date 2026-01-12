@@ -62,6 +62,7 @@ namespace Gizmo.Client.UI.View.States
             Discount = 0;
             Total = 0;
             PointsAward = 0;
+            PromotionExceptionMessage = null;
 
             ResetPromotionState();
         }
@@ -104,6 +105,8 @@ namespace Gizmo.Client.UI.View.States
         public int PointsAward { get; internal set; }
 
         public PromoCodeApplyStatus PromoCodeStatus { get; internal set; }
+
+        public string? PromotionExceptionMessage { get; set; }
 
         public ICartPromoCodeViewState PromoCodeViewState => _promoCodeViewState;
     }
