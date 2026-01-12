@@ -32,12 +32,12 @@ namespace Gizmo.Client.UI.Services
         /// <param name="services">Service collection.</param>
         /// <returns>Service collection.</returns>
         public static IServiceCollection AddClientServices(this IServiceCollection services)
-        {           
+        {
             services.AddClientUIServices();
             services.AddClientViewServices();
             services.AddClientViewStates();
             services.AddWebApiSupport();
-         
+
             return services;
         }
 
@@ -75,7 +75,8 @@ namespace Gizmo.Client.UI.Services
 
             //add default string localizer
             services.AddSingleton<IStringLocalizer, StringLocalizer<Resources.Resources>>();
-            services.AddSingleton<IAssemblyResourcesLocalizationService, AssemblyResourcesLocalizationService>();
+            services.AddSingleton<AssemblyResourcesLocalizationService>();
+            services.AddSingleton<IAssemblyResourcesLocalizationService>(sp => sp.GetRequiredService<AssemblyResourcesLocalizationService>());
 
             //add localization service
 
