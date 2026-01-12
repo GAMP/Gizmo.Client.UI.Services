@@ -143,6 +143,22 @@ namespace Gizmo.Client.UI.View.Services
                 throw webApiException;
         }
 
+        public async Task AcceptAsync(string? note, CancellationToken cancellationToken = default)
+        {
+            //try
+            //{
+            var currentCartId = await CartGetOrCreateAsync(cancellationToken);
+            await _cartsWebApiClient.AcceptAsync(currentCartId, new UserCartAcceptModel()
+            {
+                Note = note
+            }, cancellationToken);
+            //}
+            //catch (Exception ex)
+            //{
+            //    await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), ex.Message);
+            //}
+        }
+
         public override async Task AcceptAsync(CancellationToken cancellationToken = default)
         {
             //try
@@ -150,7 +166,6 @@ namespace Gizmo.Client.UI.View.Services
             var currentCartId = await CartGetOrCreateAsync(cancellationToken);
             await _cartsWebApiClient.AcceptAsync(currentCartId, new UserCartAcceptModel()
             {
-                //TODO: AAAAA NOTE
             }, cancellationToken);
             //}
             //catch (Exception ex)
