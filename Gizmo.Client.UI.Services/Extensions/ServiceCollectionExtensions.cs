@@ -16,11 +16,11 @@ namespace Gizmo.Client.UI.Services
     public static partial class Extensions
     {
         #region FIELDS
-        private static readonly bool _isWebBrowser = RuntimeInformation.IsOSPlatform(OSPlatform.Create("browser"));
-        private static readonly Assembly _executingAssembly = Assembly.GetExecutingAssembly();
-        private static readonly Assembly _uiAssembly = typeof(Gizmo.UI.Services.UICompositionServiceBase).Assembly;
-        private static readonly UICompositionInMemoryConfiurationSource _uiCompositionConfiurationSource = new();
-        private static readonly UIOptionsInMemoryConfigurationSource _uiOptionsConfigurationSource = new();
+        private static readonly bool IS_WEB_BROWSER = RuntimeInformation.IsOSPlatform(OSPlatform.Create("browser"));
+        private static readonly Assembly EXECUTING_ASSEMBLY = Assembly.GetExecutingAssembly();
+        private static readonly Assembly UI_ASSEMBLY = typeof(Gizmo.UI.Services.UICompositionServiceBase).Assembly;
+        private static readonly UICompositionInMemoryConfiurationSource UI_CONFIGURATION_SOURCE = new();
+        private static readonly UIOptionsInMemoryConfigurationSource UI_OPTIONS_CONFIGURATION_SROUCE = new();
         private static readonly TimeSpan API_HTTP_CLIENT_DEFAULT_TIMEOUT = TimeSpan.FromSeconds(15);
         #endregion
 
@@ -81,7 +81,7 @@ namespace Gizmo.Client.UI.Services
             //add localization service
 
             //use appropriate component discovery service based on current platform
-            if (_isWebBrowser)
+            if (IS_WEB_BROWSER)
             {
                 services.AddSingleton<ILocalizationService, WebLocalizationService>();
                 services.AddSingleton<WebAssemblyUICompositionService>();
@@ -91,8 +91,8 @@ namespace Gizmo.Client.UI.Services
             {
                 //add in memory configuration store as singleton
                 services.AddSingleton<ILocalizationService, WpfLocalizationService>();
-                services.AddSingleton((sp) => _uiCompositionConfiurationSource);
-                services.AddSingleton((sp) => _uiOptionsConfigurationSource);
+                services.AddSingleton((sp) => UI_CONFIGURATION_SOURCE);
+                services.AddSingleton((sp) => UI_OPTIONS_CONFIGURATION_SROUCE);
                 services.AddSingleton<DesktopUICompositionService>();
                 services.AddSingleton<IUICompositionService>((sp) => sp.GetRequiredService<DesktopUICompositionService>());
             }
@@ -111,10 +111,10 @@ namespace Gizmo.Client.UI.Services
         private static IServiceCollection AddClientViewServices(this IServiceCollection services)
         {
             //add any view services contained in Gizmo.UI assembly
-            _ = Gizmo.UI.ServiceCollectionExtensions.AddViewServices(services, _uiAssembly);
+            _ = Gizmo.UI.ServiceCollectionExtensions.AddViewServices(services, UI_ASSEMBLY);
 
             //add any view services in executing assembly Gizmo.Client.UI.Services
-            return Gizmo.UI.ServiceCollectionExtensions.AddViewServices(services, _executingAssembly);
+            return Gizmo.UI.ServiceCollectionExtensions.AddViewServices(services, EXECUTING_ASSEMBLY);
         }
 
         /// <summary>
@@ -125,10 +125,10 @@ namespace Gizmo.Client.UI.Services
         private static IServiceCollection AddClientViewStates(this IServiceCollection services)
         {
             //add any view states contained in Gizmo.UI assembly
-            _ = Gizmo.UI.ServiceCollectionExtensions.AddViewStates(services, _uiAssembly);
+            _ = Gizmo.UI.ServiceCollectionExtensions.AddViewStates(services, UI_ASSEMBLY);
 
             //add any view states in executing assembly Gizmo.Client.UI.Services
-            return Gizmo.UI.ServiceCollectionExtensions.AddViewStates(services, _executingAssembly);
+            return Gizmo.UI.ServiceCollectionExtensions.AddViewStates(services, EXECUTING_ASSEMBLY);
         }
 
         private static IServiceCollection AddWebApiSupport(this IServiceCollection services)
@@ -168,7 +168,7 @@ namespace Gizmo.Client.UI.Services
 
             //in case we run in desktop process we can allow any https cert
             //in browser environment the cert acceptance will be done on browser level
-            if (!_isWebBrowser)
+            if (!IS_WEB_BROWSER)
             {
                 httpClientBuilder.ConfigurePrimaryHttpMessageHandler(() =>
                 {

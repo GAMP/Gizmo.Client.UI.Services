@@ -16,14 +16,14 @@ namespace Gizmo.Client.UI.Services
         /// <returns>Configuration builder.</returns>
         public static IConfigurationBuilder AddClientConfigurationSource(this IConfigurationBuilder configuration)
         {
-            if (_isWebBrowser)
+            if (IS_WEB_BROWSER)
             {
                 configuration.AddJsonFile("appsettings.json", true);
             }
             else
             {
-                configuration.Add(_uiCompositionConfiurationSource);
-                configuration.Add(_uiOptionsConfigurationSource);
+                configuration.Add(UI_CONFIGURATION_SOURCE);
+                configuration.Add(UI_OPTIONS_CONFIGURATION_SROUCE);
             }
 
             return configuration;
