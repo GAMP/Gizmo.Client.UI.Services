@@ -25,12 +25,13 @@ namespace Gizmo.Client.UI.View.Services
             Web.Api.User.Clients.CartsWebApiClient cartsWebApiClient,
             IClientNotificationService notificationService,
             IClientDialogService dialogService,
-            IAssemblyResourcesLocalizationService _assemblyResourcesLocalizationService) : base(viewState, globalCancellationService, localizationService, logger, serviceProvider)
+            IAssemblyResourcesLocalizationService assemblyResourcesLocalizationService) : base(viewState, globalCancellationService, localizationService, logger, serviceProvider)
         {
             _userProductViewStateLookupService = userProductViewStateLookupService;
             _cartsWebApiClient = cartsWebApiClient;
             _notificationService = notificationService;
             _dialogService = dialogService;
+            _assemblyResourcesLocalizationService = assemblyResourcesLocalizationService;
         }
         #endregion
 
@@ -82,7 +83,7 @@ namespace Gizmo.Client.UI.View.Services
                 catch (Exception ex)
                 {
                     // only report non invalid cart errors, otherwise forward to lower handler
-                    if (!ex.IsExceptionCode(ExceptionCode.Cart, (ExceptionCode)0)) //TODO: AAAAA CartErrorCode.InvalidCartId
+                    if (!ex.IsExceptionCode(ExceptionCode.Cart, CartErrorCode.InvalidCartId))
                         throw;
                 }
 
@@ -107,7 +108,7 @@ namespace Gizmo.Client.UI.View.Services
             // here we need to check the api error code, an potential problem here is when the cart expires on server
             // in such case the local state have no meaning and we should inform the user and reset the local cart state
 
-            if (webApiException.ErrorCodeType == (int?)ExceptionCode.Cart && webApiException.ErrorCode == 0) //TODO: AAAAA CartErrorCode.InvalidCartId
+            if (webApiException.ErrorCodeType == (int?)ExceptionCode.Cart && webApiException.ErrorCode == (int)CartErrorCode.InvalidCartId)
             {
                 // reset state here               
                 try
@@ -138,7 +139,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected void ThrowInfInvalidCartError(WebApiClientException webApiException)
         {
-            if (webApiException.IsExceptionCode(ExceptionCode.Cart, (ExceptionCode)0)) //TODO: AAAAA CartErrorCode.InvalidCartId
+            if (webApiException.IsExceptionCode(ExceptionCode.Cart, CartErrorCode.InvalidCartId))
                 throw webApiException;
         }
 
