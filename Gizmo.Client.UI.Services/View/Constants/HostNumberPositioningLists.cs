@@ -1,6 +1,4 @@
-﻿using Gizmo.Shared.Client.Enumerations;
-
-namespace Gizmo.Client.UI.View.Constants;
+﻿namespace Gizmo.Client.UI.View.Constants;
 /// <summary>
 /// Host number positioning lists
 /// </summary>

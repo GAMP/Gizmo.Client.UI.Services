@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Gizmo.Client.Options;
 using Gizmo.UI;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;

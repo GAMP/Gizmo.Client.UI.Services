@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
+using Gizmo.Client.Options;
 using Gizmo.UI.Services;
 using Gizmo.Web.Api.Clients.Builder;
 using Microsoft.AspNetCore.Components;

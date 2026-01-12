@@ -2,6 +2,7 @@
 using System.ServiceModel.Syndication;
 using System.Xml;
 using System.Xml.Linq;
+using Gizmo.Client.Options;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;

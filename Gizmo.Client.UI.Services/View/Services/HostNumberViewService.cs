@@ -1,7 +1,6 @@
-﻿using Gizmo.Client.UI.View.Constants;
+﻿using Gizmo.Client.Options;
+using Gizmo.Client.UI.View.Constants;
 using Gizmo.Client.UI.View.States;
-using Gizmo.Shared.Client.Enumerations;
-using Gizmo.Shared.Client.Options;
 using Gizmo.UI.View.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

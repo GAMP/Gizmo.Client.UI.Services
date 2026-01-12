@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using Gizmo.Client.Options;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Microsoft.Extensions.DependencyInjection;

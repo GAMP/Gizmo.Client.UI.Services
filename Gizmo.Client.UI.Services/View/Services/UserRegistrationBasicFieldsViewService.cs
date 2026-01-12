@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Gizmo.Client.Options;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;

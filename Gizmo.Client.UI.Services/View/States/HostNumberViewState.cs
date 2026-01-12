@@ -1,5 +1,4 @@
-﻿using Gizmo.Shared.Client.Enumerations;
-using Gizmo.UI.View.States;
+﻿using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gizmo.Client.UI.View.States

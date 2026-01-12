@@ -1,4 +1,4 @@
-﻿using Gizmo.Shared.Client.Options;
+﻿using Gizmo.Client.Options;
 using Gizmo.UI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
