@@ -206,7 +206,7 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                await _clientServerCartViewService.AcceptAsync();
+                await _clientServerCartViewService.AcceptAsync(ViewState.Notes);
 
                 ViewState.HasError = false;
                 ViewState.ErrorMessage = string.Empty;

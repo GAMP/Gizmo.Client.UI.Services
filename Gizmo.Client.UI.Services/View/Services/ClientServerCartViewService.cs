@@ -147,11 +147,11 @@ namespace Gizmo.Client.UI.View.Services
         {
             //try
             //{
-                var currentCartId = await CartGetOrCreateAsync(cancellationToken);
-                await _cartsWebApiClient.AcceptAsync(currentCartId, new CartAcceptModel()
-                {
-                    //TODO: AAAAA NOTE
-                }, cancellationToken);
+            var currentCartId = await CartGetOrCreateAsync(cancellationToken);
+            await _cartsWebApiClient.AcceptAsync(currentCartId, new UserCartAcceptModel()
+            {
+                //TODO: AAAAA NOTE
+            }, cancellationToken);
             //}
             //catch (Exception ex)
             //{
@@ -617,10 +617,17 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.PromoCodeViewState.PromoCode = request.PromoCode;
                 ViewState.PromoCodeViewState.RaiseChanged();
             }
-            catch (PromotionException pex)
-            {         
-                ViewState.PromotionExceptionMessage = _assemblyResourcesLocalizationService.GetLocalizedStringValue(pex.ErrorCode);
-                ViewState.RaiseChanged();
+            catch (WebApiClientException wace)
+            {
+                if (wace.ErrorCode.HasValue && wace.IsExceptionCode(ExceptionCode.Promotion))
+                {
+                    ViewState.PromotionExceptionMessage = _assemblyResourcesLocalizationService.GetLocalizedStringValue((PromotionErrorCode)wace.ErrorCode);
+                    ViewState.RaiseChanged();
+                }
+                else
+                {
+                    throw;
+                }
             }
             catch (Exception ex)
             {
