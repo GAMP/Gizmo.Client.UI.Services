@@ -17,9 +17,11 @@ namespace Gizmo.Client.UI.Services
 
         protected ClientLocalizationServiceBase(ILogger logger,
             IStringLocalizer localizer,
+            IAssemblyResourcesLocalizationService assemblyResourcesLocalizationService,
             IOptionsMonitor<CurrencyOptions> options,
             IOptionsMonitor<ClientInterfaceOptions> interfaceOptions) : base(logger, localizer)
         {
+            _assemblyResourcesLocalizationService = assemblyResourcesLocalizationService;
             _interfaceOptions = interfaceOptions;
             _currencyOptions = options.CurrentValue;
 
@@ -31,6 +33,8 @@ namespace Gizmo.Client.UI.Services
                 LocalizationOptionsChanged?.Invoke(this, EventArgs.Empty);
             });
         }
+
+        private readonly IAssemblyResourcesLocalizationService _assemblyResourcesLocalizationService;
 
         public override event EventHandler<EventArgs>? LocalizationOptionsChanged;
 
@@ -85,6 +89,7 @@ namespace Gizmo.Client.UI.Services
 
         public override Task SetCurrentCultureAsync(CultureInfo culture)
         {
+            _assemblyResourcesLocalizationService.SetCulture(culture);
             LanguageChanged?.Invoke(this, EventArgs.Empty);
             return Task.CompletedTask;
         }
