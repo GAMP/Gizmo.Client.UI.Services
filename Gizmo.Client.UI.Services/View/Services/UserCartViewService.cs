@@ -2,6 +2,7 @@
 using Gizmo.Client.Options;
 using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
+using Gizmo.Server.Exceptions;
 using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
@@ -30,7 +31,8 @@ namespace Gizmo.Client.UI.View.Services
             UserBalanceViewState userBalanceViewState,
             IOptions<ClientShopOptions> shopOptions,
             ClientServerCartViewService clientServerCartViewService,
-            UserProductViewStateLookupService userProductViewStateLookupService) : base(viewState, logger, serviceProvider)
+            UserProductViewStateLookupService userProductViewStateLookupService,
+            IAssemblyResourcesLocalizationService assemblyResourcesLocalizationService) : base(viewState, logger, serviceProvider)
         {
             _dialogService = dialogService;
             _notificationService = notificationService;
@@ -40,6 +42,7 @@ namespace Gizmo.Client.UI.View.Services
             _shopOptions = shopOptions;
             _clientServerCartViewService = clientServerCartViewService;
             _userProductViewStateLookupService = userProductViewStateLookupService;
+            _assemblyResourcesLocalizationService = assemblyResourcesLocalizationService;
         }
         #endregion
 
@@ -52,6 +55,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IOptions<ClientShopOptions> _shopOptions;
         private readonly ClientServerCartViewService _clientServerCartViewService;
         private readonly UserProductViewStateLookupService _userProductViewStateLookupService;
+        private readonly IAssemblyResourcesLocalizationService _assemblyResourcesLocalizationService;
 
         private Guid? _lastCartId = null;
         private AddDialogResult<EmptyComponentResult>? _checkoutDialog = null;
@@ -260,6 +264,25 @@ namespace Gizmo.Client.UI.View.Services
                 //                }
                 //            }
                 //        }
+            }
+            catch (WebApiClientException wace)
+            {
+                if (wace.ErrorCode.HasValue)
+                {
+                    if (wace.IsExceptionCode(ExceptionCode.Cart))
+                    {
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = _assemblyResourcesLocalizationService.GetLocalizedStringValue((CartErrorCode)wace.ErrorCode);
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                else
+                {
+                    throw;
+                }
             }
             catch (Exception ex)
             {
