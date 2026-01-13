@@ -274,6 +274,11 @@ namespace Gizmo.Client.UI.View.Services
                         ViewState.HasError = true;
                         ViewState.ErrorMessage = _assemblyResourcesLocalizationService.GetLocalizedStringValue((CartErrorCode)wace.ErrorCode);
                     }
+                    else if (wace.IsExceptionCode(ExceptionCode.Promotion))
+                    {
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = _assemblyResourcesLocalizationService.GetLocalizedStringValue((PromotionErrorCode)wace.ErrorCode);
+                    }
                     else
                     {
                         throw;
@@ -293,12 +298,12 @@ namespace Gizmo.Client.UI.View.Services
             }
             finally
             {
-                //Clear
-                await TryResetCart();
-
                 ViewState.IsComplete = true;
                 ViewState.IsLoading = false;
                 ViewState.RaiseChanged();
+
+                //Clear
+                await TryResetCart();
             }
         }
 
@@ -332,8 +337,11 @@ namespace Gizmo.Client.UI.View.Services
         {
             ClearCart();
 
-            //Close dialog.
-            _checkoutDialog?.Controller?.Result(new EmptyComponentResult());
+            if (!ViewState.IsComplete)
+            {
+                //Close dialog.
+                _checkoutDialog?.Controller?.Result(new EmptyComponentResult());
+            }
         }
 
         private async void OnUserLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
