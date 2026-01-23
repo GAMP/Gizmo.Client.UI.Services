@@ -18,7 +18,7 @@
         public string PostCode { get; set; }
         public int Id { get; set; }
         public Sex Sex { get; set; }
-        public UserRoles Role { get; set; }
+        public Server.UserRoles Role { get; set; }
 
         public bool IsAdmin => false;
 
@@ -41,7 +41,7 @@
             Phone = string.Empty;
             PostCode = string.Empty;
             Sex = Gizmo.Sex.Unspecified;
-            Role = Gizmo.UserRoles.None;
+            Role = Gizmo.Server.UserRoles.None;
             UserName = string.Empty;
             IsEnabled = false;
             CanChangePassword = false;
