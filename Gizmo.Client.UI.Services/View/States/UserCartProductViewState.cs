@@ -1,4 +1,5 @@
 ﻿using Gizmo.UI.View.States;
+using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gizmo.Client.UI.View.States
@@ -13,7 +14,7 @@ namespace Gizmo.Client.UI.View.States
 
         public int? ProductId { get; init; }
 
-        public Gizmo.ProductType ProductEntityType { get; init; }
+        public ProductType ProductEntityType { get; init; }
 
         public string ProductName { get; init; } = string.Empty;
 

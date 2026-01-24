@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Gizmo.Web.Api.Models;
 
 namespace Gizmo.Client.UI.View.States
 {
