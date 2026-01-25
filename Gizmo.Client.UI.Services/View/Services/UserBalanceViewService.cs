@@ -38,7 +38,7 @@ namespace Gizmo.Client.UI.View.Services
             base.OnDisposing(isDisposing);
         }
 
-        private void OnUserBalanceChange(object? sender, UserBalanceEventArgs e)
+        private void OnUserBalanceChange(object? sender, UserBalanceChangeEventArgs e)
         {
             ViewState.Balance = e.Balance.Balance;
             ViewState.PointsBalance = e.Balance.Points;

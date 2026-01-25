@@ -217,7 +217,7 @@ namespace Gizmo.Client.UI.View.Services
             _changed = true;
         }
 
-        private void OnUserBalanceChange(object? sender, UserBalanceEventArgs e)
+        private void OnUserBalanceChange(object? sender, UserBalanceChangeEventArgs e)
         {
             _changed = true;
         }

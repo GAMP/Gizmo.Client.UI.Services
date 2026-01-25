@@ -56,7 +56,7 @@ namespace Gizmo.Client
 
         public event EventHandler<ClientExecutionContextStateArgs>? ExecutionContextStateChange;
         public event EventHandler<UserLoginStateChangeEventArgs>? LoginStateChange;
-        public event EventHandler<UserBalanceEventArgs>? UserBalanceChange;
+        public event EventHandler<UserBalanceChangeEventArgs>? UserBalanceChange;
         public event EventHandler<UserIdleEventArgs>? UserIdleChange;
         public event EventHandler<AppEnterpriseChangeEventArgs>? AppEnterpriseChange;
         public event EventHandler<AppCategoryChangeEventArgs>? AppCategoryChange;
@@ -68,9 +68,9 @@ namespace Gizmo.Client
         public event EventHandler<PersonalFileChangeEventArgs>? PersonalFileChange;
         public event EventHandler<AppLinkChangeEventArgs>? AppLinkChange;
         public event EventHandler<ConnectionStateEventArgs>? ConnectionStateChange;
-        public event EventHandler<LockStateEventArgs>? LockStateChange;
+        public event EventHandler<LockStateChangeEventArgs>? LockStateChange;
         public event EventHandler<GracePeriodChangeEventArgs>? GracePeriodChange;
-        public event EventHandler<OutOfOrderStateEventArgs>? OutOfOrderStateChange;
+        public event EventHandler<OutOfOrderStateChangeEventArgs>? OutOfOrderStateChange;
         public event EventHandler<ReservationChangeEventArgs>? ReservationChange;
         public event EventHandler<UsageSessionChangeEventArgs>? UsageSessionChange;
         public event EventHandler<StartUpEventArgs>? StartUp;

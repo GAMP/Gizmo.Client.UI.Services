@@ -35,7 +35,7 @@ namespace Gizmo.Client.UI.View.Services
             base.OnDisposing(isDisposing);
         }
 
-        private void OnOutOfOrderStateChange(object? sender, OutOfOrderStateEventArgs e)
+        private void OnOutOfOrderStateChange(object? sender, OutOfOrderStateChangeEventArgs e)
         {
             ViewState.IsOutOfOrder = e.IsOutOfOrder;
             DebounceViewStateChanged();

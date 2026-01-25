@@ -34,7 +34,7 @@ namespace Gizmo.Client.UI.View.Services
             base.OnDisposing(isDisposing);
         }
 
-        private void OnLockStateChange(object? sender, LockStateEventArgs e)
+        private void OnLockStateChange(object? sender, LockStateChangeEventArgs e)
         {
             ViewState.IsLocked = e.IsLocked;
             DebounceViewStateChanged();
