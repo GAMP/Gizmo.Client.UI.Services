@@ -12,7 +12,7 @@ namespace Gizmo.Client.UI.View.States
 
         public LineType LineType { get; internal set; }
 
-        public OrderLinePayType PayType { get; internal set; }
+        public Web.Api.Models.OrderLinePayType PayType { get; internal set; }
 
         public string ProductName { get; internal set; } = string.Empty;
 

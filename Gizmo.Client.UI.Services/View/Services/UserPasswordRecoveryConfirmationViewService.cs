@@ -129,7 +129,7 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     try
                     {
-                        if (!await _gizmoClient.TokenIsValidAsync(TokenType.ResetPassword, _userPasswordRecoveryViewState.Token, ViewState.ConfirmationCode))
+                        if (!await _gizmoClient.TokenIsValidAsync(Web.Api.Models.TokenType.ResetPassword, _userPasswordRecoveryViewState.Token, ViewState.ConfirmationCode))
                         {
                             return new string[] { _localizationService.GetString("GIZ_USER_CONFIRMATION_CONFIRMATION_CODE_IS_INVALID") };
                         }

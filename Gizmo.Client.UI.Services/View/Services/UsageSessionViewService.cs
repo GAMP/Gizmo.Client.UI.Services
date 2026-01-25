@@ -43,14 +43,14 @@ namespace Gizmo.Client.UI.View.Services
                     ViewState.CurrentTimeProductType = currentUserSession.CurrentUsageType;
                     switch (currentUserSession.CurrentUsageType)
                     {
-                        case UsageType.Rate:
+                        case Web.Api.Models.UsageType.Rate:
                             ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_RATE");
                             break;
-                        case UsageType.TimeFixed:
+                        case Web.Api.Models.UsageType.TimeFixed:
                             ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_TIME_FIXED");
                             break;                            
-                        case UsageType.TimeOffer:
-                            ViewState.CurrentTimeProductName = currentUserSession.TimePorduct;
+                        case Web.Api.Models.UsageType.TimeOffer:
+                            ViewState.CurrentTimeProductName = currentUserSession.TimeProduct;
                             break;
                     }
                 }
@@ -80,13 +80,13 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.CurrentTimeProductType = e.CurrentUsageType;
             switch (e.CurrentUsageType)
             {
-                case UsageType.Rate:
+                case Web.Api.Models.UsageType.Rate:
                     ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_RATE");
                     break;
-                case UsageType.TimeFixed:
+                case Web.Api.Models.UsageType.TimeFixed:
                     ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_TIME_FIXED"); 
                     break;
-                case UsageType.TimeOffer:
+                case Web.Api.Models.UsageType.TimeOffer:
                     ViewState.CurrentTimeProductName = e.CurrentTimeProduct;
                     break;
             }

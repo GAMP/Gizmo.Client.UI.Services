@@ -12,7 +12,7 @@ namespace Gizmo.Client.UI.View.States
 
         public string ProductNames { get; internal set; } = string.Empty;
 
-        public OrderStatus OrderStatus { get; internal set; }
+        public Web.Api.Models.OrderStatus OrderStatus { get; internal set; }
 
         public DateTime OrderDate { get; internal set; }
 

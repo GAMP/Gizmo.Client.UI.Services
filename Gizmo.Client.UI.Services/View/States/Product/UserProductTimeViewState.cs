@@ -20,11 +20,11 @@ namespace Gizmo.Client.UI.View.States
 
         public int ExpiresAfter { get; internal set; }
 
-        public ProductTimeExpirationOptionType ExpirationOptions { get; internal set; }
+        public Web.Api.Models.ProductTimeExpirationOptionType ExpirationOptions { get; internal set; }
 
-        public ExpireFromOptionType ExpireFromOptions { get; internal set; }
+        public Web.Api.Models.ExpireFromOptionType ExpireFromOptions { get; internal set; }
 
-        public ExpireAfterType ExpireAfterType { get; internal set; }
+        public Web.Api.Models.ExpireAfterType ExpireAfterType { get; internal set; }
 
         public int ExpireAtDayTimeMinute { get; internal set; }
 

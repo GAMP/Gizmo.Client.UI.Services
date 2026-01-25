@@ -10,7 +10,7 @@ namespace Gizmo.Client.UI.View.States
 
         public int Id { get; internal set; }
 
-        public InvoiceStatus PaymentStatus { get; internal set; }
+        public Web.Api.Models.InvoiceStatus PaymentStatus { get; internal set; }
 
         public string PaymentMethodNames { get; internal set; } = string.Empty;
 

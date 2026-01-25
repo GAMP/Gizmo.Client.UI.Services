@@ -1246,7 +1246,7 @@ namespace Gizmo.Client
 
             UsageSessionChange?.Invoke(this, new UsageSessionChangeEventArgs(_iUserProfile.Id, UsageType.Rate, string.Empty));
 
-            return LoginResult.Sucess;
+            return LoginResult.Success;
         }
 
         public async Task UserLogoutAsync(CancellationToken cancellationToken)

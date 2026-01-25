@@ -10,7 +10,7 @@ namespace Gizmo.Client.UI.View.States
 
         public int? ActivationOrder { get; internal set; } = null!;
 
-        public UsageType TimeProductType { get; internal set; }
+        public Web.Api.Models.UsageType TimeProductType { get; internal set; }
 
         public string TimeProductName { get; internal set; } = null!;
 
