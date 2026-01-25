@@ -129,7 +129,7 @@ namespace Gizmo.Client.UI.View.Services
                     userRegistrationService.SetConfirmationMethod(registrationVerificationMethod);
                     userRegistrationService.SetUserGroupDefaultRequiredInfo(userGroupDefaultRequiredInfo);
 
-                    if (userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.None)
+                    if (userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.None)
                     {
                         NavigationService.NavigateTo(ClientRoutes.RegistrationBasicFieldsRoute);
                     }

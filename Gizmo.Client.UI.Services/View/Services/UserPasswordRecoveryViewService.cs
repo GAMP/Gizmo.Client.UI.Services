@@ -54,10 +54,10 @@ namespace Gizmo.Client.UI.View.Services
             ValidateProperty(() => ViewState.MobilePhone);
         }
 
-        public void SetSelectedRecoveryMethod(UserRecoveryMethod value)
+        public void SetSelectedRecoveryMethod(Server.UserRecoveryMethod value)
         {
             //Do not allow the user to change the recovery method, use the recovery method specified on configuration.
-            if (!(_userPasswordRecoveryMethodServiceViewState.AvailabledRecoveryMethod.HasFlag(UserRecoveryMethod.Mobile) && _userPasswordRecoveryMethodServiceViewState.AvailabledRecoveryMethod.HasFlag(UserRecoveryMethod.Email)))
+            if (!(_userPasswordRecoveryMethodServiceViewState.AvailableRecoveryMethod.HasFlag(Server.UserRecoveryMethod.Mobile) && _userPasswordRecoveryMethodServiceViewState.AvailableRecoveryMethod.HasFlag(Server.UserRecoveryMethod.Email)))
                 return;
 
             ViewState.SelectedRecoveryMethod = value;
@@ -96,7 +96,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 try
                 {
-                    if (ViewState.SelectedRecoveryMethod == UserRecoveryMethod.Email)
+                    if (ViewState.SelectedRecoveryMethod == Server.UserRecoveryMethod.Email)
                     {
                         var result = await _gizmoClient.UserPasswordRecoveryByEmailStartAsync(ViewState.Email);
 
@@ -142,7 +142,7 @@ namespace Gizmo.Client.UI.View.Services
                     else
                     {
                         //TODO: AAA 9digit phones?
-                        var result = await _gizmoClient.UserPasswordRecoveryByMobileStartAsync(ViewState.MobilePhone, !fallback ? Gizmo.ConfirmationCodeDeliveryMethod.Undetermined : Gizmo.ConfirmationCodeDeliveryMethod.SMS);
+                        var result = await _gizmoClient.UserPasswordRecoveryByMobileStartAsync(ViewState.MobilePhone, !fallback ? Gizmo.Web.Api.Models.ConfirmationCodeDeliveryMethod.Undetermined : Gizmo.Web.Api.Models.ConfirmationCodeDeliveryMethod.SMS);
 
                         switch (result.Result)
                         {
@@ -153,7 +153,7 @@ namespace Gizmo.Client.UI.View.Services
                                 if (mobile.Length > 4)
                                     mobile = result.MobilePhone.Substring(result.MobilePhone.Length - 4).PadLeft(10, '*');
 
-                                bool isFlashCall = result.DeliveryMethod == ConfirmationCodeDeliveryMethod.FlashCall;
+                                bool isFlashCall = result.DeliveryMethod == Web.Api.Models.ConfirmationCodeDeliveryMethod.FlashCall;
                                 
                                 if (isFlashCall)
                                 {
@@ -238,13 +238,13 @@ namespace Gizmo.Client.UI.View.Services
             userPasswordRecoveryConfirmationService.Clear();
             userPasswordRecoverySetNewPasswordService.Clear();
 
-            ViewState.SelectedRecoveryMethod = UserRecoveryMethod.None;
+            ViewState.SelectedRecoveryMethod = Server.UserRecoveryMethod.None;
             ViewState.MobilePhone = string.Empty;
             ViewState.Email = string.Empty;
             ViewState.Destination = string.Empty;
             ViewState.Token = string.Empty;
             ViewState.CodeLength = 0;
-            ViewState.DeliveryMethod = ConfirmationCodeDeliveryMethod.Undetermined;
+            ViewState.DeliveryMethod = Web.Api.Models.ConfirmationCodeDeliveryMethod.Undetermined;
             
             ViewState.IsLoading = false;
             ViewState.HasError = false;
@@ -281,10 +281,10 @@ namespace Gizmo.Client.UI.View.Services
             {
                 ClearAll();
 
-                if (_userPasswordRecoveryMethodServiceViewState.AvailabledRecoveryMethod.HasFlag(UserRecoveryMethod.Mobile) && _userPasswordRecoveryMethodServiceViewState.AvailabledRecoveryMethod.HasFlag(UserRecoveryMethod.Email))
-                    ViewState.SelectedRecoveryMethod = UserRecoveryMethod.Mobile;
+                if (_userPasswordRecoveryMethodServiceViewState.AvailableRecoveryMethod.HasFlag(Server.UserRecoveryMethod.Mobile) && _userPasswordRecoveryMethodServiceViewState.AvailableRecoveryMethod.HasFlag(Server.UserRecoveryMethod.Email))
+                    ViewState.SelectedRecoveryMethod = Server.UserRecoveryMethod.Mobile;
                 else
-                    ViewState.SelectedRecoveryMethod = _userPasswordRecoveryMethodServiceViewState.AvailabledRecoveryMethod;
+                    ViewState.SelectedRecoveryMethod = _userPasswordRecoveryMethodServiceViewState.AvailableRecoveryMethod;
             }
 
             return Task.CompletedTask;
@@ -292,14 +292,14 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
-            if (ViewState.SelectedRecoveryMethod == UserRecoveryMethod.Email &&
+            if (ViewState.SelectedRecoveryMethod == Server.UserRecoveryMethod.Email &&
                 fieldIdentifier.FieldEquals(() => ViewState.Email) &&
                 string.IsNullOrEmpty(ViewState.Email))
             {
                 AddError(() => ViewState.Email, _localizationService.GetString("GIZ_USER_CONFIRMATION_VE_EMAIL_IS_REQUIRED"));
             }
 
-            if (ViewState.SelectedRecoveryMethod == UserRecoveryMethod.Mobile &&
+            if (ViewState.SelectedRecoveryMethod == Server.UserRecoveryMethod.Mobile &&
                 fieldIdentifier.FieldEquals(() => ViewState.MobilePhone) &&
                 string.IsNullOrEmpty(ViewState.MobilePhone))
             {

@@ -17,7 +17,7 @@ namespace Gizmo.Client.UI.View.Services
         }
         #endregion
 
-        public void SetConfirmationMethod(RegistrationVerificationMethod value)
+        public void SetConfirmationMethod(Gizmo.Server.RegistrationVerificationMethod value)
         {
             ViewState.ConfirmationMethod = value;
             DebounceViewStateChanged();

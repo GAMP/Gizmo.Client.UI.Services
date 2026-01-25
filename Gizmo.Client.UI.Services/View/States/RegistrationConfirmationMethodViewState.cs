@@ -8,12 +8,12 @@ namespace Gizmo.Client.UI.View.States
     public sealed class RegistrationConfirmationMethodViewState : ValidatingViewStateBase
     {
         #region FIELDS
-        private RegistrationVerificationMethod _confirmationMethod;
+        private Server.RegistrationVerificationMethod _confirmationMethod;
         #endregion
 
         #region PROPERTIES
 
-        public RegistrationVerificationMethod ConfirmationMethod
+        public Server.RegistrationVerificationMethod ConfirmationMethod
         {
             get { return _confirmationMethod; }
             internal set { _confirmationMethod = value; }

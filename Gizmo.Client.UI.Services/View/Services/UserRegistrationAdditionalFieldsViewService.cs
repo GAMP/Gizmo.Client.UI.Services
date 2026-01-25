@@ -92,7 +92,7 @@ namespace Gizmo.Client.UI.View.Services
             var userRegistrationConfirmationMethodViewState = ServiceProvider.GetRequiredService<UserRegistrationConfirmationMethodViewState>();
             var userRegistrationBasicFieldsViewState = ServiceProvider.GetRequiredService<UserRegistrationBasicFieldsViewState>();
 
-            bool confirmationRequired = userRegistrationViewState.ConfirmationMethod != RegistrationVerificationMethod.None;
+            bool confirmationRequired = userRegistrationViewState.ConfirmationMethod != Server.RegistrationVerificationMethod.None;
 
             try
             {
@@ -108,7 +108,7 @@ namespace Gizmo.Client.UI.View.Services
                     PostCode = ViewState.PostCode
                 };
                 
-                if (userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
+                if (userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.MobilePhone)
                 {
                     profile.Country = userRegistrationConfirmationMethodViewState.Country;
 
@@ -226,7 +226,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.MobilePhone))
             {
-                if (_userRegistrationViewState.ConfirmationMethod != RegistrationVerificationMethod.MobilePhone)
+                if (_userRegistrationViewState.ConfirmationMethod != Server.RegistrationVerificationMethod.MobilePhone)
                 {
                     if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.Mobile == true && string.IsNullOrEmpty(ViewState.MobilePhone))
                     {

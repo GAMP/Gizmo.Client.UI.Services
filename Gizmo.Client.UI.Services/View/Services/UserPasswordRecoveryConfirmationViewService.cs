@@ -91,13 +91,13 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            if (_userPasswordRecoveryViewState.SelectedRecoveryMethod == UserRecoveryMethod.Email)
+            if (_userPasswordRecoveryViewState.SelectedRecoveryMethod == Server.UserRecoveryMethod.Email)
             {
                 ViewState.ConfirmationCodeMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_EMAIL_MESSAGE", _userPasswordRecoveryViewState.Destination);
             }
-            else if (_userPasswordRecoveryViewState.SelectedRecoveryMethod == UserRecoveryMethod.Mobile)
+            else if (_userPasswordRecoveryViewState.SelectedRecoveryMethod == Server.UserRecoveryMethod.Mobile)
             {
-                if (_userPasswordRecoveryViewState.DeliveryMethod == ConfirmationCodeDeliveryMethod.FlashCall)
+                if (_userPasswordRecoveryViewState.DeliveryMethod == Web.Api.Models.ConfirmationCodeDeliveryMethod.FlashCall)
                 {
                     ViewState.ConfirmationCodeMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_FLASH_CALL_MESSAGE", _userPasswordRecoveryViewState.Destination, _userPasswordRecoveryViewState.CodeLength);
                 }

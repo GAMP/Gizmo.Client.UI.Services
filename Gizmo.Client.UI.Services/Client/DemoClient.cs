@@ -1650,14 +1650,14 @@ namespace Gizmo.Client
             return confirmationCode == "1" ? false : true;
         }
 
-        public Task<RegistrationVerificationMethod> RegistrationVerificationMethodGetAsync(CancellationToken cancellationToken = default)
+        public Task<Server.RegistrationVerificationMethod> RegistrationVerificationMethodGetAsync(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(RegistrationVerificationMethod.MobilePhone);
+            return Task.FromResult(Server.RegistrationVerificationMethod.MobilePhone);
         }
 
-        public Task<UserRecoveryMethod> PasswordRecoveryMethodGetAsync(CancellationToken cancellationToken = default)
+        public Task<Server.UserRecoveryMethod> PasswordRecoveryMethodGetAsync(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(UserRecoveryMethod.Mobile);
+            return Task.FromResult(Server.UserRecoveryMethod.Mobile);
         }
 
         public bool AppCurrentProfilePass(int appId)
@@ -1687,7 +1687,7 @@ namespace Gizmo.Client
             return result;
         }
 
-        public async Task<PasswordRecoveryStartResultModelByMobile> UserPasswordRecoveryByMobileStartAsync(string mobilePhone, Gizmo.ConfirmationCodeDeliveryMethod confirmationCodeDeliveryMethod = Gizmo.ConfirmationCodeDeliveryMethod.Undetermined, CancellationToken cancellationToken = default)
+        public async Task<PasswordRecoveryStartResultModelByMobile> UserPasswordRecoveryByMobileStartAsync(string mobilePhone, Gizmo.Web.Api.Models.ConfirmationCodeDeliveryMethod confirmationCodeDeliveryMethod = Gizmo.Web.Api.Models.ConfirmationCodeDeliveryMethod.Undetermined, CancellationToken cancellationToken = default)
         {
             // Simulate task.
             await Task.Delay(3000);

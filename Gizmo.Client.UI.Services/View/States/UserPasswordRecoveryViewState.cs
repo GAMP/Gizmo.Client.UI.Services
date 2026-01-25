@@ -10,7 +10,7 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
-        public UserRecoveryMethod SelectedRecoveryMethod { get; internal set; }
+        public Server.UserRecoveryMethod SelectedRecoveryMethod { get; internal set; }
 
         [ValidatingProperty()]
         [PhoneNullEmptyValidation(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_INVALID_FIELD")]
@@ -26,7 +26,7 @@ namespace Gizmo.Client.UI.View.States
 
         public int CodeLength { get; internal set; }
 
-        public ConfirmationCodeDeliveryMethod DeliveryMethod { get; internal set; }
+        public Gizmo.Web.Api.Models.ConfirmationCodeDeliveryMethod DeliveryMethod { get; internal set; }
 
         public bool IsLoading { get; internal set; }
 

@@ -135,8 +135,8 @@ namespace Gizmo.Client.UI.View.Services
 
             var userRegistrationConfirmationMethodViewState = ServiceProvider.GetRequiredService<UserRegistrationConfirmationMethodViewState>();
 
-            bool confirmationRequired = _userRegistrationViewState.ConfirmationMethod != RegistrationVerificationMethod.None;
-            bool confirmationWithMobilePhone = _userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone; //TODO: A If both methods are available then get user selection.
+            bool confirmationRequired = _userRegistrationViewState.ConfirmationMethod != Server.RegistrationVerificationMethod.None;
+            bool confirmationWithMobilePhone = _userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.MobilePhone; //TODO: A If both methods are available then get user selection.
 
             if (_userRegistrationViewState.DefaultUserGroupRequiredInfo.Address ||
                 _userRegistrationViewState.DefaultUserGroupRequiredInfo.PostCode ||
@@ -163,7 +163,7 @@ namespace Gizmo.Client.UI.View.Services
                         Sex = ViewState.Sex
                     };
 
-                    if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email)
+                    if (_userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.Email)
                     {
                         profile.Email = userRegistrationConfirmationMethodViewState.Email;
                     }
@@ -419,7 +419,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.Email))
             {
-                if (_userRegistrationViewState.ConfirmationMethod != RegistrationVerificationMethod.Email)
+                if (_userRegistrationViewState.ConfirmationMethod != Server.RegistrationVerificationMethod.Email)
                 {
                     if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.Email == true && string.IsNullOrEmpty(ViewState.Email))
                     {

@@ -9,7 +9,7 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
-        public RegistrationVerificationMethod ConfirmationMethod { get; internal set; } = RegistrationVerificationMethod.None;
+        public Server.RegistrationVerificationMethod ConfirmationMethod { get; internal set; } = Server.RegistrationVerificationMethod.None;
 
         public UserModelRequiredInfo DefaultUserGroupRequiredInfo { get; internal set; } = new UserModelRequiredInfo();
 

@@ -6,6 +6,6 @@ namespace Gizmo.Client.UI.View.States
     [Register]
     public sealed class UserPasswordRecoveryMethodServiceViewState : ViewStateBase
     {
-        public UserRecoveryMethod AvailabledRecoveryMethod { get; internal set; }
+        public Server.UserRecoveryMethod AvailableRecoveryMethod { get; internal set; }
     }
 }

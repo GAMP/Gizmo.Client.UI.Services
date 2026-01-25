@@ -94,13 +94,13 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email)
+            if (_userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.Email)
             {
                 ViewState.ConfirmationCodeMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_EMAIL_MESSAGE", _userRegistrationConfirmationMethodViewState.Destination);
             }
-            else if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
+            else if (_userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.MobilePhone)
             {
-                if (_userRegistrationConfirmationMethodViewState.DeliveryMethod == ConfirmationCodeDeliveryMethod.FlashCall)
+                if (_userRegistrationConfirmationMethodViewState.DeliveryMethod == Web.Api.Models.ConfirmationCodeDeliveryMethod.FlashCall)
                 {
                     ViewState.ConfirmationCodeMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_FLASH_CALL_MESSAGE", _userRegistrationConfirmationMethodViewState.Destination, _userRegistrationConfirmationMethodViewState.CodeLength);
                 }

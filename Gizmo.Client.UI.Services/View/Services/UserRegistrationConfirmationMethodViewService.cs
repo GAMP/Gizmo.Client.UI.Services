@@ -111,7 +111,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 try
                 {
-                    if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email)
+                    if (_userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.Email)
                     {
                         var result = await _gizmoClient.UserCreateByEmailStartAsync(ViewState.Email);
 
@@ -154,10 +154,10 @@ namespace Gizmo.Client.UI.View.Services
                                 break;
                         }
                     }
-                    else if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
+                    else if (_userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.MobilePhone)
                     {
                         //TODO: AAA 9digit phones?
-                        var result = await _gizmoClient.UserCreateByMobileStartAsync(ViewState.MobilePhone, !fallback ? Gizmo.ConfirmationCodeDeliveryMethod.Undetermined : Gizmo.ConfirmationCodeDeliveryMethod.SMS);
+                        var result = await _gizmoClient.UserCreateByMobileStartAsync(ViewState.MobilePhone, !fallback ? Gizmo.Web.Api.Models.ConfirmationCodeDeliveryMethod.Undetermined : Gizmo.Web.Api.Models.ConfirmationCodeDeliveryMethod.SMS);
 
                         switch (result.Result)
                         {
@@ -168,7 +168,7 @@ namespace Gizmo.Client.UI.View.Services
                                 if (mobile.Length > 4)
                                     mobile = result.MobilePhone.Substring(result.MobilePhone.Length - 4).PadLeft(10, '*');
 
-                                bool isFlashCall = result.DeliveryMethod == Gizmo.ConfirmationCodeDeliveryMethod.FlashCall;
+                                bool isFlashCall = result.DeliveryMethod == Gizmo.Web.Api.Models.ConfirmationCodeDeliveryMethod.FlashCall;
 
                                 if (isFlashCall)
                                 {
@@ -249,7 +249,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
-            if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email &&
+            if (_userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.Email &&
                 fieldIdentifier.FieldEquals(() => ViewState.Email))
             {
                 if (string.IsNullOrEmpty(ViewState.Email))
@@ -258,7 +258,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
+            if (_userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.MobilePhone)
             {
                 if (fieldIdentifier.FieldEquals(() => ViewState.Country))
                 {
@@ -284,7 +284,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task<IEnumerable<string>> OnValidateAsync(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger, CancellationToken cancellationToken = default)
         {
-            if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email &&
+            if (_userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.Email &&
                 fieldIdentifier.FieldEquals(() => ViewState.Email))
             {
                 if (!string.IsNullOrEmpty(ViewState.Email))
@@ -304,7 +304,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone &&
+            if (_userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.MobilePhone &&
                 fieldIdentifier.FieldEquals(() => ViewState.MobilePhone))
             {
                 if (!string.IsNullOrEmpty(ViewState.MobilePhone))
@@ -338,11 +338,11 @@ namespace Gizmo.Client.UI.View.Services
         {
             switch(_userRegistrationViewState.ConfirmationMethod)
             {
-                case RegistrationVerificationMethod.MobilePhone:
+                case Server.RegistrationVerificationMethod.MobilePhone:
                     if (IsAsyncValidated(() => ViewState.MobilePhone))
                         return AsyncValidatedDetermineResult.DefaultTrue;
                     break;
-                case RegistrationVerificationMethod.Email:
+                case Server.RegistrationVerificationMethod.Email:
                     if (IsAsyncValidated(() => ViewState.Email))
                         return AsyncValidatedDetermineResult.DefaultTrue;
                     break;
