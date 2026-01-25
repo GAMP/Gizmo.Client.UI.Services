@@ -44,7 +44,7 @@ namespace Gizmo.Client.UI.View.States
         public DateTime? BirthDate { get; internal set; }
 
         [ValidatingProperty()]
-        public Sex Sex { get; internal set; }
+        public Web.Api.Models.Sex Sex { get; internal set; }
 
         [ValidatingProperty()]
         [EmailNullEmptyValidation(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_INVALID_FIELD")]

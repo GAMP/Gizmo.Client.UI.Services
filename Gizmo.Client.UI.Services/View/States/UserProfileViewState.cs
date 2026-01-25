@@ -18,7 +18,7 @@ namespace Gizmo.Client.UI.View.States
 
         public DateTime? BirthDate { get; internal set; }
 
-        public Sex Sex { get; internal set; }
+        public Web.Api.Models.Sex Sex { get; internal set; }
 
         public string? Country { get; internal set; }
 

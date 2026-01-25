@@ -17,7 +17,7 @@
         public string MobilePhone { get; set; }
         public string PostCode { get; set; }
         public int Id { get; set; }
-        public Sex Sex { get; set; }
+        public Web.Api.Models.Sex Sex { get; set; }
         public Server.UserRoles Role { get; set; }
 
         public bool IsAdmin => false;
@@ -40,7 +40,7 @@
             MobilePhone = string.Empty;
             Phone = string.Empty;
             PostCode = string.Empty;
-            Sex = Gizmo.Sex.Unspecified;
+            Sex = Gizmo.Web.Api.Models.Sex.Unspecified;
             Role = Gizmo.Server.UserRoles.None;
             UserName = string.Empty;
             IsEnabled = false;
