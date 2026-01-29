@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Gizmo.Client.UI.View.Services;
+using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.Extensions.DependencyInjection;
