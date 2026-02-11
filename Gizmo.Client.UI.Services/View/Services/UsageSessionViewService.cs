@@ -87,7 +87,8 @@ namespace Gizmo.Client.UI.View.Services
                     ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_TIME_FIXED"); 
                     break;
                 case Web.Api.Models.UsageType.TimeOffer:
-                    ViewState.CurrentTimeProductName = e.CurrentTimeProduct;
+                    // fallback to default localized value in case product name not provided
+                    ViewState.CurrentTimeProductName = !string.IsNullOrWhiteSpace(e.CurrentTimeProduct) ? e.CurrentTimeProduct : _localizationService.GetString("GIZ_USAGE_TYPE_TIME_PRODUCT");
                     break;
             }
             

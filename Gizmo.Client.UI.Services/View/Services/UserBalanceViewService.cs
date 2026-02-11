@@ -40,10 +40,10 @@ namespace Gizmo.Client.UI.View.Services
 
         private void OnUserBalanceChange(object? sender, UserBalanceChangeEventArgs e)
         {
-            ViewState.Balance = e.Balance.Balance;
-            ViewState.PointsBalance = e.Balance.Points;
-            ViewState.Outstanding = e.Balance.TotalOutstanding;
-            ViewState.Time = e.Balance.AvailableCreditedTime.HasValue ? TimeSpan.FromSeconds(e.Balance.AvailableCreditedTime.Value) : null;
+            ViewState.Balance = e.Balance;
+            ViewState.PointsBalance = e.Points;
+            ViewState.Outstanding = e.Outstanding;
+            ViewState.Time = e.CreditedTime.HasValue ? TimeSpan.FromSeconds(e.CreditedTime.Value) : null;
             DebounceViewStateChanged();
         }
 
