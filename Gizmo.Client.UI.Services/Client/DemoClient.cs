@@ -1914,28 +1914,6 @@ namespace Gizmo.Client
             return @"C:\ProgramData\Application Data\NETProjects\Gizmo Client\Cache";
         }
 
-        public Task<NextHostReservationModel?> NextHostReservationGetAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult<NextHostReservationModel?>(new NextHostReservationModel()
-            {
-                NextReservationId = 1,
-                NextReservationTime = DateTime.Now,
-                NextReservationDuration = 30
-            });
-        }
-
-        public Task<ClientReservationOptions> ReservationConfigurationGetAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult<ClientReservationOptions>(new ClientReservationOptions()
-            {
-                AlertBeforeTime = 5,
-                EnableLoginBlockAfter = true,
-                EnableLoginBlockBefore = true,
-                LoginUnblockAfterTime = 5,
-                LoginBlockBeforeTime = 5,
-            });
-        }
-
         public Task UserLockEnterAsync()
         {
             return Task.CompletedTask;
