@@ -1477,9 +1477,9 @@ namespace Gizmo.Client
             return Task.FromResult(new UserUsageSessionModel());
         }
 
-        public Task<ClientReservationModel> ClientReservationGetAsync(CancellationToken cancellationToken = default)
+        public Task<ClientNextReservationModel> ClientReservationGetAsync(CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(new ClientReservationModel());
+            return Task.FromResult(new ClientNextReservationModel());
         }
 
         public Task<PagedList<NewsModel>> NewsGetAsync(NewsFilter filters, CancellationToken cancellationToken = default) =>

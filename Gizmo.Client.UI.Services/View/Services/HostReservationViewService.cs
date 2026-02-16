@@ -1,10 +1,10 @@
-﻿using System.Threading;
-using Gizmo.Client.Options;
+﻿using Gizmo.Client.Options;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -16,14 +16,19 @@ namespace Gizmo.Client.UI.View.Services
     {
         public HostReservationViewService(HostReservationViewState viewState,
             ILogger<HostReservationViewService> logger,
+            IOptionsMonitor<ClientReservationOptions> reservationOptions,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient)
             : base(viewState, logger, serviceProvider)
         {
+            _reservationOptions = reservationOptions;
             _gizmoClient = gizmoClient;
         }
 
         private readonly IGizmoClient _gizmoClient;
+
+        private readonly IOptionsMonitor<ClientReservationOptions> _reservationOptions;
+
         private ClientReservationOptions? _configuration;
         private NextHostReservationModel? _currentData;
 
