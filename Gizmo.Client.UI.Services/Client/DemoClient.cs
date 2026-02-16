@@ -1857,23 +1857,6 @@ namespace Gizmo.Client
             return Task.FromResult(result);
         }
 
-        public Task<UserProductAvailabilityCheckResult> UserProductAvailabilityCheckAsync(UserOrderLineModelCreate userOrderLineModelCreate, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult<UserProductAvailabilityCheckResult>(UserProductAvailabilityCheckResult.Success);
-        }
-
-        public async Task<UserOrderCreateResultModel> UserOrderCreateAsync(UserOrderModelCreate userOrderModelCreate, CancellationToken cancellationToken = default)
-        {
-            await _notificationsService.ShowAlertNotification(AlertTypes.Success, "Success", "Success");
-
-            return new UserOrderCreateResultModel()
-            {
-                Id = 1,
-                Result = OrderResult.OnHold,
-                FailReason = OrderFailReason.None
-            };
-        }
-
         public Task<bool> IsClientRegistrationEnabledGetAsync(CancellationToken cancellationToken = default)
         {
             return Task.FromResult(true);

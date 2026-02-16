@@ -27,11 +27,7 @@ namespace Gizmo.Client.UI.View.Services
 
         private readonly IGizmoClient _gizmoClient;
 
-        private readonly IOptionsMonitor<ClientReservationOptions> _reservationOptions;
-
-        private ClientReservationOptions? _configuration;
-        private NextHostReservationModel? _currentData;
-
+        private readonly IOptionsMonitor<ClientReservationOptions> _reservationOptions; 
         private ClientNextReservationModel? _nextReservation;
 
         private readonly SemaphoreSlim _reservationRefreshLock = new(1);
@@ -58,7 +54,7 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             //If there is a reservation then start the timer.
-            if (_currentData != null)
+            if (_nextReservation != null)
             {
                 _reservationRefreshTimer ??= new Timer(ReservationRefreshCallback);
                 _reservationRefreshTimer.Change(RESERVATION_REFFRESH_INTERVAL, RESERVATION_REFFRESH_INTERVAL);
@@ -81,13 +77,13 @@ namespace Gizmo.Client.UI.View.Services
             {
                 try
                 {
-                    var reservationId = _currentData?.NextReservationId;
-                    var reservationTime = _currentData?.NextReservationTime;
-                    var reservationDuration = _currentData?.NextReservationDuration;
+                    //var reservationId = _currentData?.NextReservationId;
+                    //var reservationTime = _currentData?.NextReservationTime;
+                    //var reservationDuration = _currentData?.NextReservationDuration;
 
-                    bool isReserved;
-                    bool isLoginBlocked;
-                    DateTime? time;
+                    //bool isReserved;
+                    //bool isLoginBlocked;
+                    //DateTime? time;
 
                     ////check if we have reservation configuration data and that there is a reservation upcoming
                     //if (_configuration != null && reservationId != null && reservationTime != null && reservationDuration != null)
@@ -180,6 +176,7 @@ namespace Gizmo.Client.UI.View.Services
 
             base.OnDisposing(isDisposing);
         }
+
         private void OnLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
         {
             switch (e.State)
@@ -193,7 +190,7 @@ namespace Gizmo.Client.UI.View.Services
                 case LoginState.LoggedOut:
 
                     //If there is a reservation then start the timer.
-                    if (_currentData != null)
+                    if (_nextReservation != null)
                     {
                         _reservationRefreshTimer ??= new Timer(ReservationRefreshCallback);
                         _reservationRefreshTimer.Change(RESERVATION_REFFRESH_INTERVAL, RESERVATION_REFFRESH_INTERVAL);
