@@ -19,6 +19,7 @@ namespace Gizmo.Client.UI.View.States
         private string? _loginName = "user";
         private string? _password = "user";
 #endif
+        private string? _pin;
         private bool _isPasswordVisible;
         private bool _hasLoginError;
         private string? _loginError;
@@ -68,6 +69,16 @@ namespace Gizmo.Client.UI.View.States
             internal set { _password = value; }
         }
 
+        /// <summary>
+        /// Gets or sets user pin.
+        /// </summary>
+        [ValidatingProperty()]
+        public string? Pin
+        {
+            get { return _pin; }
+            internal set { _pin = value; }
+        }
+
         public bool IsPasswordVisible
         {
             get { return _isPasswordVisible; }
@@ -92,6 +103,7 @@ namespace Gizmo.Client.UI.View.States
         {
             LoginName = null;
             Password = null;
+            Pin = null;
             LoginType = UserLoginType.UsernameOrEmail;
             IsLogginIn = false;
             HasLoginError = false;
