@@ -82,7 +82,7 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                var result = await _gizmoClient.UserLoginAsync(loginName, password);
+                var result = await _gizmoClient.UserLoginAsync(loginName, password, pin);
                 Logger.LogTrace("Client login result {result}", result);
             }
             catch (Exception ex)
