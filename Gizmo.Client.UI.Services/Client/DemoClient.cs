@@ -74,7 +74,7 @@ namespace Gizmo.Client
         public event EventHandler<ReservationChangeEventArgs>? ReservationChange;
         public event EventHandler<UsageSessionChangeEventArgs>? UsageSessionChange;
         public event EventHandler<StartUpEventArgs>? StartUp;
-        public event EventHandler<IAPIEventMessage> OnAPIEventMessage;
+        public event EventHandler<IAPIEventMessage>? OnAPIEventMessage;
 
         public DemoClient(IClientNotificationService notificationsService)
         {
@@ -1233,7 +1233,7 @@ namespace Gizmo.Client
             }).ToList();
         }
 
-        public async Task<LoginResult> UserLoginAsync(string loginName, string? password, CancellationToken cancellationToken)
+        public async Task<LoginResult> UserLoginAsync(string loginName, string? password, string? pin, CancellationToken cancellationToken)
         {
             LoginStateChange?.Invoke(this, new UserLoginStateChangeEventArgs(_iUserProfile, LoginState.LoggingIn));
             await Task.Delay(new Random().Next(100, 1000), cancellationToken);
