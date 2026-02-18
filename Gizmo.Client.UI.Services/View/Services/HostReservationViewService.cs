@@ -34,8 +34,6 @@ namespace Gizmo.Client.UI.View.Services
         private Timer? _reservationRefreshTimer;
         private const int RESERVATION_REFFRESH_INTERVAL = 1000;
 
-        private bool _requiresRefresh = false;
-
         private async Task LoadNextHostReservation()
         {
             try
@@ -43,8 +41,6 @@ namespace Gizmo.Client.UI.View.Services
                 _reservationRefreshTimer?.Change(Timeout.Infinite, Timeout.Infinite);
 
                 _nextReservation = await _gizmoClient.ClientReservationGetAsync();
-
-                _requiresRefresh = false;
 
                 await ReservationRefresh();
             }
@@ -63,11 +59,6 @@ namespace Gizmo.Client.UI.View.Services
 
         private async void ReservationRefreshCallback(object? state)
         {
-            if (_requiresRefresh)
-            {
-                await LoadNextHostReservation();
-            }
-
             await ReservationRefresh();
         }
 
@@ -77,77 +68,66 @@ namespace Gizmo.Client.UI.View.Services
             {
                 try
                 {
-                    //var reservationId = _currentData?.NextReservationId;
-                    //var reservationTime = _currentData?.NextReservationTime;
-                    //var reservationDuration = _currentData?.NextReservationDuration;
+                    var reservationId = _nextReservation?.NextReservationId;
+                    var reservationTime = _nextReservation?.NextReservationTime;
+                    var reservationDuration = _nextReservation?.Duration;
+                    var reservationBlockTime = _nextReservation?.LoginBlockBeforeTime;
+                    var reservationNotificationTime = _reservationOptions.CurrentValue.AlertBeforeTime;
 
-                    //bool isReserved;
-                    //bool isLoginBlocked;
-                    //DateTime? time;
+                    var reservationBlockTimeReached = false;
+                    var reservationNotificationTimeReached = false;
+                    DateTime? time = null;
 
-                    ////check if we have reservation configuration data and that there is a reservation upcoming
-                    //if (_configuration != null && reservationId != null && reservationTime != null && reservationDuration != null)
-                    //{
-                    //    var currentTime = DateTime.Now;
+                    //check if we have reservation configuration data and that there is a reservation upcoming
+                    if (reservationId != null && reservationTime != null && reservationDuration != null)
+                    {
+                        var currentTime = DateTime.Now;
 
-                    //    if (currentTime > reservationTime.Value.AddMinutes(reservationDuration.Value))
-                    //    {
-                    //        //In case of expired reservation reset configuration.
+                        time = reservationTime;
 
-                    //        isReserved = false;
-                    //        isLoginBlocked = false;
-                    //        time = null;
+                        if (reservationBlockTime.HasValue)
+                        {
+                            if (currentTime >= reservationTime.Value.AddMinutes(reservationBlockTime.Value * -1))
+                            {
+                                reservationBlockTimeReached = true;
+                            }
+                        }
+                        else
+                        {
+                            if (currentTime >= reservationTime.Value)
+                            {
+                                reservationBlockTimeReached = true;
+                            }
+                        }
 
-                    //        _requiresRefresh = true;
-                    //    }
-                    //    else
-                    //    {
-                    //        time = reservationTime;
-                    //        isReserved = DateTime.Now.AddHours(1) >= reservationTime;
-
-                    //        if (_configuration.EnableLoginBlockBefore)
-                    //        {
-                    //            var blockTime = reservationTime.Value.AddMinutes(_configuration.LoginBlockBeforeTime * -1);
-
-                    //            if (currentTime >= blockTime)
-                    //            {
-                    //                isLoginBlocked = true;
-
-                    //                if (_configuration.EnableLoginBlockAfter)
-                    //                {
-                    //                    var unblockTime = reservationTime.Value.AddMinutes(reservationDuration ?? 0).AddMinutes(_configuration.LoginUnblockAfterTime);
-                    //                    isLoginBlocked = currentTime <= unblockTime;
-                    //                }
-                    //            }
-                    //            else
-                    //            {
-                    //                isLoginBlocked = false;
-                    //            }
-                    //        }
-                    //        else
-                    //        {
-                    //            isLoginBlocked = false;
-                    //        }
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    //in case no reservation data is present reset configuration
-
-                    //    isReserved = false;
-                    //    isLoginBlocked = false;
-                    //    time = null;
-                    //}
+                        if (reservationNotificationTime.HasValue)
+                        {
+                            if (currentTime >= reservationTime.Value.AddMinutes(reservationNotificationTime.Value * -1))
+                            {
+                                reservationNotificationTimeReached = true;
+                            }
+                        }
+                    }
 
                     //Update UI only if there are changes.
-                    //if (ViewState.IsReserved != isReserved || ViewState.IsLoginBlocked != isLoginBlocked || ViewState.Time != time)
-                    //{
-                    //    ViewState.IsReserved = isReserved;
-                    //    ViewState.IsLoginBlocked = isLoginBlocked;
-                    //    ViewState.Time = time;
+                    if (ViewState.Time != time || ViewState.ReservationBlockTimeReached != reservationBlockTimeReached || ViewState.ReservationNotificationTimeReached != reservationNotificationTimeReached)
+                    {
+                        if (!ViewState.ReservationBlockTimeReached && reservationBlockTimeReached)
+                        {
+                            //TODO: AAA IF LOGGED IN LOG OUT?
+                        }
 
-                    //    DebounceViewStateChanged();
-                    //}
+                        if (!ViewState.ReservationNotificationTimeReached && reservationNotificationTimeReached)
+                        {
+                            //TODO: AAA IF LOGGED IN SHOW NOTIFICATION
+                        }
+
+                        ViewState.Time = time;
+                        ViewState.ReservationBlockTimeReached = reservationBlockTimeReached;
+                        ViewState.ReservationNotificationTimeReached = reservationNotificationTimeReached;
+
+                        DebounceViewStateChanged();                        
+                    }
                 }
                 catch (Exception ex)
                 {

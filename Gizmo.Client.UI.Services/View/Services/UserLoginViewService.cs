@@ -53,6 +53,12 @@ namespace Gizmo.Client.UI.View.Services
             DebounceViewStateChanged();
         }
 
+        public void SetPin(string value)
+        {
+            ViewState.Pin = value;
+            ValidateProperty(() => ViewState.Pin);
+        }
+
         public Task<bool> UsernameCharacterIsValid(char value)
         {
             return Task.FromResult(true);
@@ -69,6 +75,7 @@ namespace Gizmo.Client.UI.View.Services
 
             string? loginName = ViewState.LoginName;
             string? password = ViewState.Password;
+            string? pin = ViewState.Pin;
 
             if (string.IsNullOrEmpty(loginName))
                 return;

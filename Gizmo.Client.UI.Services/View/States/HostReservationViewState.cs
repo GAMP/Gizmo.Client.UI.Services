@@ -11,11 +11,11 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
-        public bool IsReserved { get; internal set; }
-
         public DateTime? Time { get; internal set; }
 
-        public bool IsLoginBlocked { get; internal set; }
+        public bool ReservationNotificationTimeReached { get; internal set; }
+
+        public bool ReservationBlockTimeReached { get; internal set; }
 
         #endregion
     }
