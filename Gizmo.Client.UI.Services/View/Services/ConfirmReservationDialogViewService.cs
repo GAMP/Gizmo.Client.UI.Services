@@ -2,6 +2,7 @@
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -58,10 +59,17 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                //TODO: AAAAA SUBMIT
                 await Task.Delay(5000);
-
-                ViewState.Step = 1;
+                var result = await _gizmoClient.ReservationCurrentConfirmAsync(ViewState.Pin);
+                if (result == ReservationCurrentConfirmResult.Success)
+                {
+                    ViewState.Step = 1;
+                }
+                else
+                {
+                    SetPin(string.Empty);
+                    //TODO: AAAAA SHOW ERROR
+                }
             }
             catch (Exception ex)
             {
@@ -71,6 +79,13 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
+        public void CloseIfWaitingPayment()
+        {
+            //Close dialog if waiting payment.
+            if (_confirmReservationDialog != null && ViewState.Step == 1)
+                _confirmReservationDialog.Controller?.Result(new EmptyComponentResult());
+        }
+
         public async Task StartAsync(CancellationToken cToken = default)
         {
             if (_confirmReservationDialog != null)
@@ -78,10 +93,12 @@ namespace Gizmo.Client.UI.View.Services
 
             Clear();
 
-            var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
+            var result = await _gizmoClient.ReservationCurrentConfirmedAsync(cToken);
 
-            if (hostReservationViewService.ViewState.IsConfirmed)
+            if (result == ReservationCurrentConfirmedResult.Confirmed)
             {
+                var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
+
                 if (hostReservationViewService.ViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.NotRequired ||
                     hostReservationViewService.ViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.Satisfied)
                 {
@@ -89,8 +106,25 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
+                    if (DateTime.Now >= hostReservationViewService.ViewState.Time)
+                    {
+                        //TODO: AAAAA CANNOT CLOSE
+                    }
+                    else
+                    {
+                        //TODO: AAAAA CAN CLOSE, BUT NEED REFRESH TIMER TO CHECK AGAIN
+                    }
                     ViewState.Step = 1;
                 }
+            }
+            else if (result == ReservationCurrentConfirmedResult.Unconfirmed)
+            {
+
+            }
+            else
+            {
+                //No reservation
+                return;
             }
 
             try

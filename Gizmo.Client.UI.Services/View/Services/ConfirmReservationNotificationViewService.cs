@@ -49,31 +49,33 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 
-            //TODO: AAAAA SUBMIT
-            await Task.Delay(5000);
-
-            bool confirmed = true;
-
-            if (confirmed)
+            try
             {
-                var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
-                hostReservationViewService.SetConfirmed();
-
-                if (hostReservationViewService.ViewState.ReservationPaymentStatus == ReservationPaymentStatus.NotRequired ||
-                    hostReservationViewService.ViewState.ReservationPaymentStatus == ReservationPaymentStatus.Satisfied)
+                await Task.Delay(5000);
+                var result = await _gizmoClient.ReservationCurrentConfirmAsync(ViewState.Pin);
+                if (result == ReservationCurrentConfirmResult.Success)
                 {
-                    //TODO: AAAAA CLOSE
-                    _clientNotificationService.TryAcknowledge(_confirmReservationNotification.Controller.Identifier);
+                    var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
+
+                    if (hostReservationViewService.ViewState.ReservationPaymentStatus == ReservationPaymentStatus.NotRequired ||
+                        hostReservationViewService.ViewState.ReservationPaymentStatus == ReservationPaymentStatus.Satisfied)
+                    {
+                        _clientNotificationService.TryAcknowledge(_confirmReservationNotification.Controller.Identifier);
+                    }
+                    else
+                    {
+                        ViewState.Step = 1;
+                        ViewState.RaiseChanged();
+                    }
                 }
                 else
                 {
-                    ViewState.Step = 1;
-                    ViewState.RaiseChanged();
+                    SetPin(string.Empty);
+                    //TODO: AAAAA SHOW ERROR
                 }
             }
-            else
+            catch (Exception ex)
             {
-                SetPin(string.Empty);
             }
 
             ViewState.IsLoading = false;
@@ -98,10 +100,13 @@ namespace Gizmo.Client.UI.View.Services
 
             Clear();
 
-            var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewState>();
 
-            if (hostReservationViewService.IsConfirmed)
+            var result = await _gizmoClient.ReservationCurrentConfirmedAsync(cToken);
+
+            if (result == ReservationCurrentConfirmedResult.Confirmed)
             {
+                var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewState>();
+
                 if (hostReservationViewService.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.NotRequired ||
                     hostReservationViewService.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.Satisfied)
                 {
@@ -111,6 +116,15 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     ViewState.Step = 1;
                 }
+            }
+            else if (result == ReservationCurrentConfirmedResult.Unconfirmed)
+            {
+
+            }
+            else
+            {
+                //No reservation
+                return;
             }
 
             try

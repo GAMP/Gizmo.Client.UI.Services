@@ -117,6 +117,12 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (e.State == LoginState.LoginCompleted)
                 {
+                    var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
+                    if (hostReservationViewService.ViewState.ReservationId.HasValue && hostReservationViewService.ViewState.ReservationNotificationTimeReached)
+                    {
+                        await hostReservationViewService.ShowDialog();
+                    }
+
                     //get all current outstanding user agreements
                     //the result will contain all unacepted or always showing agreements
                     var userAgreements = await _gizmoClient.UserAgreementsPendingGetAsync(new Web.Api.Models.UserAgreementsFilter());

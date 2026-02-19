@@ -22,7 +22,7 @@ namespace Gizmo.Client.UI.View.States
 
         public ReservationPaymentStatus? ReservationPaymentStatus { get; internal set; }
 
-        public bool IsConfirmed { get; internal set; }
+        public bool Ignored { get; internal set; }
 
         #endregion
     }

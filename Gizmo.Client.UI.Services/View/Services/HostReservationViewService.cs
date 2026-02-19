@@ -1,7 +1,7 @@
 ﻿using Gizmo.Client.Options;
-using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Messaging;
 using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,16 +20,19 @@ namespace Gizmo.Client.UI.View.Services
             IOptionsMonitor<ClientReservationOptions> reservationOptions,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient,
-            ConfirmReservationNotificationViewService confirmReservationNotificationViewService)
+            ConfirmReservationNotificationViewService confirmReservationNotificationViewService,
+            ConfirmReservationDialogViewService confirmReservationDialogViewService)
             : base(viewState, logger, serviceProvider)
         {
             _reservationOptions = reservationOptions;
             _gizmoClient = gizmoClient;
             _confirmReservationNotificationViewService = confirmReservationNotificationViewService;
+            _confirmReservationDialogViewService = confirmReservationDialogViewService;
         }
 
         private readonly IGizmoClient _gizmoClient;
         private readonly ConfirmReservationNotificationViewService _confirmReservationNotificationViewService;
+        private readonly ConfirmReservationDialogViewService _confirmReservationDialogViewService;
 
         private readonly IOptionsMonitor<ClientReservationOptions> _reservationOptions;
         private ClientNextReservationModel? _nextReservation;
@@ -37,12 +40,6 @@ namespace Gizmo.Client.UI.View.Services
         private readonly SemaphoreSlim _reservationRefreshLock = new(1);
         private Timer? _reservationRefreshTimer;
         private const int RESERVATION_REFFRESH_INTERVAL = 1000;
-
-        public void SetConfirmed()
-        {
-            ViewState.IsConfirmed = true;
-            DebounceViewStateChanged();
-        }
 
         private async Task LoadNextHostReservation()
         {
@@ -144,7 +141,7 @@ namespace Gizmo.Client.UI.View.Services
                             {
                                 if (_gizmoClient.IsUserLoggedIn)
                                 {
-                                    await _confirmReservationNotificationViewService.StartAsync();
+                                    await ShowNotification();
                                 }
                             }
                         }
@@ -155,8 +152,8 @@ namespace Gizmo.Client.UI.View.Services
                             {
                                 if (_gizmoClient.IsUserLoggedIn)
                                 {
-                                    //TODO: AAAAA IF LOGGED IN USER IS CONFIRMED THEN SHOW NOTIFICATION FOR PAYMENT?
-                                    await _confirmReservationNotificationViewService.StartAsync();
+                                    //Show notification for payment
+                                    await ShowNotification();
                                 }
                             }
                         }
@@ -178,11 +175,13 @@ namespace Gizmo.Client.UI.View.Services
             _gizmoClient.StartUp += OnStartUp;
             _gizmoClient.ReservationChange += OnReservationChange;
             _gizmoClient.LoginStateChange += OnLoginStateChange;
+            _gizmoClient.OnAPIEventMessage += OnAPIEventMessage;
             await base.OnInitializing(ct);
         }
 
         protected override void OnDisposing(bool isDisposing)
         {
+            _gizmoClient.OnAPIEventMessage -= OnAPIEventMessage;
             _gizmoClient.StartUp -= OnStartUp;
             _gizmoClient.ReservationChange -= OnReservationChange;
             _gizmoClient.LoginStateChange -= OnLoginStateChange;
@@ -201,8 +200,6 @@ namespace Gizmo.Client.UI.View.Services
                     break;
 
                 case LoginState.LoggedOut:
-
-                    ViewState.IsConfirmed = false;
 
                     //If there is a reservation then start the timer.
                     if (_nextReservation != null)
@@ -223,6 +220,55 @@ namespace Gizmo.Client.UI.View.Services
         private async void OnReservationChange(object? sender, ReservationChangeEventArgs e)
         {
             await LoadNextHostReservation();
+        }
+
+        public async Task ShowNotification()
+        {
+            //Stop timer.
+            _reservationRefreshTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+            
+            await _confirmReservationNotificationViewService.StartAsync();
+
+            if (_nextReservation != null)
+            {
+                //Restart timer.
+                _reservationRefreshTimer ??= new Timer(ReservationRefreshCallback);
+                _reservationRefreshTimer.Change(RESERVATION_REFFRESH_INTERVAL, RESERVATION_REFFRESH_INTERVAL);
+            }
+        }
+
+        public async Task ShowDialog()
+        {
+            //Stop timer.
+            _reservationRefreshTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+
+            await _confirmReservationDialogViewService.StartAsync();
+
+            if (_nextReservation != null)
+            {
+                //Restart timer.
+                _reservationRefreshTimer ??= new Timer(ReservationRefreshCallback);
+                _reservationRefreshTimer.Change(RESERVATION_REFFRESH_INTERVAL, RESERVATION_REFFRESH_INTERVAL);
+            }
+        }
+
+        private void OnAPIEventMessage(object? sender, Web.Api.Messaging.IAPIEventMessage e)
+        {
+            if (e is ReservationPaymentStatusChangedEvent reservationPaymentStatusChangedEvent)
+            {
+                if (reservationPaymentStatusChangedEvent.ReservationId == ViewState.ReservationId)
+                {
+                    ViewState.ReservationPaymentStatus = reservationPaymentStatusChangedEvent.Status;
+
+                    if (ViewState.ReservationPaymentStatus == ReservationPaymentStatus.NotRequired ||
+                        ViewState.ReservationPaymentStatus == ReservationPaymentStatus.Satisfied)
+                    {
+                        _confirmReservationDialogViewService.CloseIfWaitingPayment();
+                    }
+
+                    DebounceViewStateChanged();
+                }
+            }
         }
     }
 }
