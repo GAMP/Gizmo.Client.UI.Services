@@ -21,5 +21,12 @@ namespace Gizmo.Client.UI.Services
             NotificationDisplayOptions? displayOptions = default,
             NotificationAddOptions? addOptions = default,
             CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Shows confirm reservation notification.
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Add result.</returns>
+        Task<AddNotificationResult<EmptyComponentResult>> ShowConfirmReservationNotification(CancellationToken cancellationToken = default);
     }
 }

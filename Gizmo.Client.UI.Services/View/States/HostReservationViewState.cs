@@ -1,4 +1,5 @@
 ﻿using Gizmo.UI.View.States;
+using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gizmo.Client.UI.View.States
@@ -11,11 +12,17 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
+        public int? ReservationId { get; internal set; }
+
         public DateTime? Time { get; internal set; }
 
         public bool ReservationNotificationTimeReached { get; internal set; }
 
         public bool ReservationBlockTimeReached { get; internal set; }
+
+        public ReservationPaymentStatus? ReservationPaymentStatus { get; internal set; }
+
+        public bool IsConfirmed { get; internal set; }
 
         #endregion
     }

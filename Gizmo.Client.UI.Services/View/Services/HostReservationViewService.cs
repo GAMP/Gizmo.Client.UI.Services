@@ -1,4 +1,5 @@
 ﻿using Gizmo.Client.Options;
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
@@ -18,21 +19,30 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<HostReservationViewService> logger,
             IOptionsMonitor<ClientReservationOptions> reservationOptions,
             IServiceProvider serviceProvider,
-            IGizmoClient gizmoClient)
+            IGizmoClient gizmoClient,
+            ConfirmReservationNotificationViewService confirmReservationNotificationViewService)
             : base(viewState, logger, serviceProvider)
         {
             _reservationOptions = reservationOptions;
             _gizmoClient = gizmoClient;
+            _confirmReservationNotificationViewService = confirmReservationNotificationViewService;
         }
 
         private readonly IGizmoClient _gizmoClient;
+        private readonly ConfirmReservationNotificationViewService _confirmReservationNotificationViewService;
 
-        private readonly IOptionsMonitor<ClientReservationOptions> _reservationOptions; 
+        private readonly IOptionsMonitor<ClientReservationOptions> _reservationOptions;
         private ClientNextReservationModel? _nextReservation;
 
         private readonly SemaphoreSlim _reservationRefreshLock = new(1);
         private Timer? _reservationRefreshTimer;
         private const int RESERVATION_REFFRESH_INTERVAL = 1000;
+
+        public void SetConfirmed()
+        {
+            ViewState.IsConfirmed = true;
+            DebounceViewStateChanged();
+        }
 
         private async Task LoadNextHostReservation()
         {
@@ -73,6 +83,7 @@ namespace Gizmo.Client.UI.View.Services
                     var reservationDuration = _nextReservation?.Duration;
                     var reservationBlockTime = _nextReservation?.LoginBlockBeforeTime;
                     var reservationNotificationTime = _reservationOptions.CurrentValue.AlertBeforeTime;
+                    var reservationPaymentStatus = _nextReservation?.PaymentStatus;
 
                     var reservationBlockTimeReached = false;
                     var reservationNotificationTimeReached = false;
@@ -110,23 +121,45 @@ namespace Gizmo.Client.UI.View.Services
                     }
 
                     //Update UI only if there are changes.
-                    if (ViewState.Time != time || ViewState.ReservationBlockTimeReached != reservationBlockTimeReached || ViewState.ReservationNotificationTimeReached != reservationNotificationTimeReached)
+                    if (ViewState.ReservationId != reservationId ||
+                        ViewState.Time != time ||
+                        ViewState.ReservationBlockTimeReached != reservationBlockTimeReached ||
+                        ViewState.ReservationNotificationTimeReached != reservationNotificationTimeReached ||
+                        ViewState.ReservationPaymentStatus != reservationPaymentStatus)
                     {
-                        if (!ViewState.ReservationBlockTimeReached && reservationBlockTimeReached)
-                        {
-                            //TODO: AAA IF LOGGED IN LOG OUT?
-                        }
+                        var previousReservationBlockTimeReached = ViewState.ReservationBlockTimeReached;
+                        var previousReservationNotificationTimeReached = ViewState.ReservationNotificationTimeReached;
 
-                        if (!ViewState.ReservationNotificationTimeReached && reservationNotificationTimeReached)
-                        {
-                            //TODO: AAA IF LOGGED IN SHOW NOTIFICATION
-                        }
-
+                        ViewState.ReservationId = reservationId;
                         ViewState.Time = time;
                         ViewState.ReservationBlockTimeReached = reservationBlockTimeReached;
                         ViewState.ReservationNotificationTimeReached = reservationNotificationTimeReached;
+                        ViewState.ReservationPaymentStatus = reservationPaymentStatus;
 
-                        DebounceViewStateChanged();                        
+                        DebounceViewStateChanged();
+
+                        if (reservationNotificationTime.HasValue)
+                        {
+                            if (!previousReservationNotificationTimeReached && reservationNotificationTimeReached)
+                            {
+                                if (_gizmoClient.IsUserLoggedIn)
+                                {
+                                    await _confirmReservationNotificationViewService.StartAsync();
+                                }
+                            }
+                        }
+                        else if (reservationBlockTime.HasValue)
+                        {
+                            //The notification time is not set but block time is set.
+                            if (!previousReservationBlockTimeReached && reservationBlockTimeReached)
+                            {
+                                if (_gizmoClient.IsUserLoggedIn)
+                                {
+                                    //TODO: AAAAA IF LOGGED IN USER IS CONFIRMED THEN SHOW NOTIFICATION FOR PAYMENT?
+                                    await _confirmReservationNotificationViewService.StartAsync();
+                                }
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -163,11 +196,13 @@ namespace Gizmo.Client.UI.View.Services
             {
                 case LoginState.LoggedIn:
 
-                    _reservationRefreshTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+                    //_reservationRefreshTimer?.Change(Timeout.Infinite, Timeout.Infinite);
 
                     break;
 
                 case LoginState.LoggedOut:
+
+                    ViewState.IsConfirmed = false;
 
                     //If there is a reservation then start the timer.
                     if (_nextReservation != null)
