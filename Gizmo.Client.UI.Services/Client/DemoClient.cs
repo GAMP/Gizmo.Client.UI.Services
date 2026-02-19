@@ -1,6 +1,4 @@
-﻿using Gizmo.Client.Options;
-using Gizmo.Client.UI;
-using Gizmo.Client.UI.Services;
+﻿using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.Services.Client;
 using Gizmo.UI;
 using Gizmo.Web.Api.Messaging;
@@ -790,7 +788,7 @@ namespace Gizmo.Client
                     }
                 }
             });
-            
+
             _userProducts.Add(new UserProductModel()
             {
                 Id = 9,
@@ -2032,6 +2030,16 @@ namespace Gizmo.Client
             _assistanceRequest = false;
 
             return new UpdateResult();
+        }
+
+        public Task<ReservationCurrentConfirmedResult> ReservationCurrentConfirmedAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(ReservationCurrentConfirmedResult.NoReservation);
+        }
+
+        public Task<ReservationCurrentConfirmResult> ReservationCurrentConfirmAsync(string pin, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(ReservationCurrentConfirmResult.NoReservation);
         }
     }
 }
