@@ -86,6 +86,13 @@ namespace Gizmo.Client.UI.View.Services
                 _confirmReservationDialog.Controller?.Result(new EmptyComponentResult());
         }
 
+        public void Ignore()
+        {
+            var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
+            hostReservationViewService.Ignore();
+            _confirmReservationDialog?.Controller?.Result(new EmptyComponentResult());
+        }
+
         public async Task StartAsync(CancellationToken cToken = default)
         {
             if (_confirmReservationDialog != null)
@@ -106,14 +113,6 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    if (DateTime.Now >= hostReservationViewService.ViewState.Time)
-                    {
-                        //TODO: AAAAA CANNOT CLOSE
-                    }
-                    else
-                    {
-                        //TODO: AAAAA CAN CLOSE, BUT NEED REFRESH TIMER TO CHECK AGAIN
-                    }
                     ViewState.Step = 1;
                 }
             }

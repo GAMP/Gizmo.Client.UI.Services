@@ -16,13 +16,19 @@ namespace Gizmo.Client.UI.View.States
 
         public DateTime? Time { get; internal set; }
 
+        public int? Duration { get; internal set; }
+
         public bool ReservationNotificationTimeReached { get; internal set; }
 
         public bool ReservationBlockTimeReached { get; internal set; }
 
+        public bool ReservationTimeReached { get; internal set; }
+
         public ReservationPaymentStatus? ReservationPaymentStatus { get; internal set; }
 
         public bool Ignored { get; internal set; }
+
+        public DateTime? DismissedTime { get; internal set; }
 
         #endregion
     }

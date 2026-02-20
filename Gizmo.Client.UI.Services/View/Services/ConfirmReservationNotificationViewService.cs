@@ -84,13 +84,31 @@ namespace Gizmo.Client.UI.View.Services
 
         public void Ignore()
         {
+            var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
+            hostReservationViewService.Ignore();
+            _confirmReservationNotification?.Controller?.Result(new EmptyComponentResult());
+        }
 
+        public void Dismiss()
+        {
+            var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
+            hostReservationViewService.Dismiss();
+            _confirmReservationNotification?.Controller?.Result(new EmptyComponentResult());
         }
 
         public async Task OpenPaymentDialogAsync()
         {
-            _clientNotificationService.TryAcknowledge(_confirmReservationNotification.Controller.Identifier);
-            await _confirmReservationDialogViewService.StartAsync();
+            var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
+            hostReservationViewService.Ignore();
+            _confirmReservationNotification?.Controller?.Result(new EmptyComponentResult());
+            await hostReservationViewService.ShowDialog();
+        }
+
+        public void CloseIfOpen()
+        {
+            var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
+            hostReservationViewService.Ignore();
+            _confirmReservationNotification?.Controller?.Result(new EmptyComponentResult());
         }
 
         public async Task StartAsync(CancellationToken cToken = default)
@@ -100,15 +118,14 @@ namespace Gizmo.Client.UI.View.Services
 
             Clear();
 
-
             var result = await _gizmoClient.ReservationCurrentConfirmedAsync(cToken);
 
             if (result == ReservationCurrentConfirmedResult.Confirmed)
             {
-                var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewState>();
+                var hostReservationViewState = ServiceProvider.GetRequiredService<HostReservationViewState>();
 
-                if (hostReservationViewService.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.NotRequired ||
-                    hostReservationViewService.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.Satisfied)
+                if (hostReservationViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.NotRequired ||
+                    hostReservationViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.Satisfied)
                 {
                     return;
                 }
@@ -129,9 +146,9 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                _confirmReservationNotification = await _clientNotificationService.ShowConfirmReservationNotification();
+                _confirmReservationNotification = await _clientNotificationService.ShowConfirmReservationNotification(cToken);
                 if (_confirmReservationNotification.Result == AddComponentResultCode.Opened)
-                    await _confirmReservationNotification.WaitForResultAsync(cToken);
+                    await _confirmReservationNotification.WaitForResultAsync(cToken); //TODO: AAAAA CANCEL DOES NOT UNBLOCK THIS
 
                 _confirmReservationNotification = null;
             }

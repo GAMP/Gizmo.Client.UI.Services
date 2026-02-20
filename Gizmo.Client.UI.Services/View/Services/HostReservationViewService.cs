@@ -38,15 +38,18 @@ namespace Gizmo.Client.UI.View.Services
         private ClientNextReservationModel? _nextReservation;
 
         private readonly SemaphoreSlim _reservationRefreshLock = new(1);
-        private Timer? _reservationRefreshTimer;
+        private readonly SemaphoreSlim _reservationWarningLock = new(1);
+        private Timer? _reservationRefreshTimer = null;
         private const int RESERVATION_REFFRESH_INTERVAL = 1000;
+
+        private CancellationTokenSource? _warningCancellationTokenSource = null;
 
         private async Task LoadNextHostReservation()
         {
+            StopTimer();
+
             try
             {
-                _reservationRefreshTimer?.Change(Timeout.Infinite, Timeout.Infinite);
-
                 _nextReservation = await _gizmoClient.ClientReservationGetAsync();
 
                 await ReservationRefresh();
@@ -56,12 +59,7 @@ namespace Gizmo.Client.UI.View.Services
                 Logger.LogError(ex, "Failed to load next host reservation.");
             }
 
-            //If there is a reservation then start the timer.
-            if (_nextReservation != null)
-            {
-                _reservationRefreshTimer ??= new Timer(ReservationRefreshCallback);
-                _reservationRefreshTimer.Change(RESERVATION_REFFRESH_INTERVAL, RESERVATION_REFFRESH_INTERVAL);
-            }
+            StartTimer();
         }
 
         private async void ReservationRefreshCallback(object? state)
@@ -75,6 +73,8 @@ namespace Gizmo.Client.UI.View.Services
             {
                 try
                 {
+                    var currentTime = DateTime.Now;
+
                     var reservationId = _nextReservation?.NextReservationId;
                     var reservationTime = _nextReservation?.NextReservationTime;
                     var reservationDuration = _nextReservation?.Duration;
@@ -82,16 +82,17 @@ namespace Gizmo.Client.UI.View.Services
                     var reservationNotificationTime = _reservationOptions.CurrentValue.AlertBeforeTime;
                     var reservationPaymentStatus = _nextReservation?.PaymentStatus;
 
+                    var reservationTimeReached = false;
                     var reservationBlockTimeReached = false;
                     var reservationNotificationTimeReached = false;
-                    DateTime? time = null;
 
                     //check if we have reservation configuration data and that there is a reservation upcoming
                     if (reservationId != null && reservationTime != null && reservationDuration != null)
                     {
-                        var currentTime = DateTime.Now;
-
-                        time = reservationTime;
+                        if (currentTime >= reservationTime.Value)
+                        {
+                            reservationTimeReached = true;
+                        }
 
                         if (reservationBlockTime.HasValue)
                         {
@@ -119,42 +120,81 @@ namespace Gizmo.Client.UI.View.Services
 
                     //Update UI only if there are changes.
                     if (ViewState.ReservationId != reservationId ||
-                        ViewState.Time != time ||
+                        ViewState.Time != reservationTime ||
+                        ViewState.Duration != reservationDuration ||
+                        ViewState.ReservationTimeReached != reservationTimeReached ||
                         ViewState.ReservationBlockTimeReached != reservationBlockTimeReached ||
                         ViewState.ReservationNotificationTimeReached != reservationNotificationTimeReached ||
                         ViewState.ReservationPaymentStatus != reservationPaymentStatus)
                     {
+                        if (_warningCancellationTokenSource != null)
+                        {
+                            _warningCancellationTokenSource.Cancel();
+                        }
+
+                        if (ViewState.ReservationId != reservationId)
+                        {
+                            ViewState.Ignored = false;
+                            ViewState.DismissedTime = null;
+                        }
+
+                        var previousReservationTimeReached = ViewState.ReservationTimeReached;
                         var previousReservationBlockTimeReached = ViewState.ReservationBlockTimeReached;
                         var previousReservationNotificationTimeReached = ViewState.ReservationNotificationTimeReached;
 
                         ViewState.ReservationId = reservationId;
-                        ViewState.Time = time;
+                        ViewState.Time = reservationTime;
+                        ViewState.Duration = reservationDuration;
+                        ViewState.ReservationTimeReached = reservationTimeReached;
                         ViewState.ReservationBlockTimeReached = reservationBlockTimeReached;
                         ViewState.ReservationNotificationTimeReached = reservationNotificationTimeReached;
                         ViewState.ReservationPaymentStatus = reservationPaymentStatus;
 
                         DebounceViewStateChanged();
 
-                        if (reservationNotificationTime.HasValue)
+                        if (!reservationTimeReached && !ViewState.Ignored)
                         {
-                            if (!previousReservationNotificationTimeReached && reservationNotificationTimeReached)
+                            if (reservationNotificationTime.HasValue)
                             {
-                                if (_gizmoClient.IsUserLoggedIn)
+                                if (!previousReservationNotificationTimeReached && reservationNotificationTimeReached)
                                 {
-                                    await ShowNotification();
+                                    if (_gizmoClient.IsUserLoggedIn)
+                                    {
+                                        _ = ShowNotification();
+                                    }
+                                }
+                            }
+                            else if (reservationBlockTime.HasValue)
+                            {
+                                //The notification time is not set but block time is set.
+                                if (!previousReservationBlockTimeReached && reservationBlockTimeReached)
+                                {
+                                    if (_gizmoClient.IsUserLoggedIn)
+                                    {
+                                        //Show notification for payment
+                                        //If not confirmed will be logged out. //TODO: AAAAA CHECK THAT THE DIALOG WILL BE CLOSED IN THIS CASE.
+                                        //TODO: AAAAA ONLY CONFIRMED
+                                        _ = ShowNotification();
+                                    }
                                 }
                             }
                         }
-                        else if (reservationBlockTime.HasValue)
+
+                        if (reservationTimeReached && !previousReservationTimeReached)
                         {
-                            //The notification time is not set but block time is set.
-                            if (!previousReservationBlockTimeReached && reservationBlockTimeReached)
+                            //If not confirmed will be logged out. //TODO: AAAAA CHECK THAT THE DIALOG WILL BE CLOSED IN THIS CASE.
+                            _ = ShowDialog();
+                        }
+                    }
+
+                    if (!ViewState.Ignored)
+                    {
+                        //TODO: AAAAA ONLY IF NOT CONFIRMED OR NOT PAID
+                        if (ViewState.DismissedTime.HasValue && ViewState.DismissedTime.Value.AddMinutes(1) <= DateTime.Now)
+                        {
+                            if (ViewState.ReservationNotificationTimeReached && !reservationTimeReached)
                             {
-                                if (_gizmoClient.IsUserLoggedIn)
-                                {
-                                    //Show notification for payment
-                                    await ShowNotification();
-                                }
+                                _ = ShowNotification();
                             }
                         }
                     }
@@ -195,18 +235,13 @@ namespace Gizmo.Client.UI.View.Services
             {
                 case LoginState.LoggedIn:
 
-                    //_reservationRefreshTimer?.Change(Timeout.Infinite, Timeout.Infinite);
-
                     break;
 
                 case LoginState.LoggedOut:
 
-                    //If there is a reservation then start the timer.
-                    if (_nextReservation != null)
-                    {
-                        _reservationRefreshTimer ??= new Timer(ReservationRefreshCallback);
-                        _reservationRefreshTimer.Change(RESERVATION_REFFRESH_INTERVAL, RESERVATION_REFFRESH_INTERVAL);
-                    }
+                    ViewState.DismissedTime = null;
+                    ViewState.Ignored = false;
+                    ViewState.RaiseChanged();
 
                     break;
             }
@@ -224,32 +259,79 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task ShowNotification()
         {
-            //Stop timer.
-            _reservationRefreshTimer?.Change(Timeout.Infinite, Timeout.Infinite);
-            
-            await _confirmReservationNotificationViewService.StartAsync();
-
-            if (_nextReservation != null)
+            if (await _reservationWarningLock.WaitAsync(TimeSpan.Zero))
             {
-                //Restart timer.
-                _reservationRefreshTimer ??= new Timer(ReservationRefreshCallback);
-                _reservationRefreshTimer.Change(RESERVATION_REFFRESH_INTERVAL, RESERVATION_REFFRESH_INTERVAL);
+                _warningCancellationTokenSource = new CancellationTokenSource();
+
+                try
+                {
+                    if (ViewState.DismissedTime.HasValue)
+                    {
+                        ViewState.DismissedTime = null;
+                        DebounceViewStateChanged();
+                    }
+
+                    //StopTimer();
+
+                    await _confirmReservationNotificationViewService.StartAsync(_warningCancellationTokenSource.Token);
+
+                    //StartTimer();
+                }
+                catch { }
+                finally
+                {
+                    _reservationWarningLock.Release();
+                }
+
+                _warningCancellationTokenSource.Dispose();
+                _warningCancellationTokenSource = null;
             }
         }
 
         public async Task ShowDialog()
         {
-            //Stop timer.
-            _reservationRefreshTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+            _confirmReservationNotificationViewService.CloseIfOpen();
 
-            await _confirmReservationDialogViewService.StartAsync();
-
-            if (_nextReservation != null)
+            if (await _reservationWarningLock.WaitAsync(TimeSpan.Zero))
             {
-                //Restart timer.
-                _reservationRefreshTimer ??= new Timer(ReservationRefreshCallback);
-                _reservationRefreshTimer.Change(RESERVATION_REFFRESH_INTERVAL, RESERVATION_REFFRESH_INTERVAL);
+                _warningCancellationTokenSource = new CancellationTokenSource();
+
+                try
+                {
+                    if (ViewState.DismissedTime.HasValue)
+                    {
+                        ViewState.DismissedTime = null;
+                        DebounceViewStateChanged();
+                    }
+
+                    StopTimer();
+
+                    await _confirmReservationDialogViewService.StartAsync(_warningCancellationTokenSource.Token);
+
+                    StartTimer();
+                }
+                catch { }
+                finally
+                {
+                    _reservationWarningLock.Release();
+                }
+
+                _warningCancellationTokenSource.Dispose();
+                _warningCancellationTokenSource = null;
             }
+        }
+
+        public void Ignore()
+        {
+            ViewState.DismissedTime = null;
+            ViewState.Ignored = true;
+            ViewState.RaiseChanged();
+        }
+
+        public void Dismiss()
+        {
+            ViewState.DismissedTime = DateTime.Now;
+            ViewState.RaiseChanged();
         }
 
         private void OnAPIEventMessage(object? sender, Web.Api.Messaging.IAPIEventMessage e)
@@ -268,6 +350,27 @@ namespace Gizmo.Client.UI.View.Services
 
                     DebounceViewStateChanged();
                 }
+            }
+        }
+
+        private void StopTimer()
+        {
+            if (_reservationRefreshTimer != null)
+            {
+                _reservationRefreshTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                _reservationRefreshTimer.Dispose();
+                _reservationRefreshTimer = null;
+            }
+        }
+
+        private void StartTimer()
+        {
+            StopTimer();
+
+            //If there is a reservation then start the timer.
+            if (_nextReservation != null)
+            {
+                _reservationRefreshTimer = new Timer(ReservationRefreshCallback, null, RESERVATION_REFFRESH_INTERVAL, RESERVATION_REFFRESH_INTERVAL);
             }
         }
     }
