@@ -152,49 +152,64 @@ namespace Gizmo.Client.UI.View.Services
 
                         DebounceViewStateChanged();
 
-                        if (!reservationTimeReached && !ViewState.Ignored)
+                        if (ViewState.ReservationId.HasValue)
                         {
-                            if (reservationNotificationTime.HasValue)
+                            if (_gizmoClient.IsUserLoggedIn)
                             {
-                                if (!previousReservationNotificationTimeReached && reservationNotificationTimeReached)
+                                if (!reservationTimeReached && !ViewState.Ignored)
                                 {
-                                    if (_gizmoClient.IsUserLoggedIn)
+                                    if (reservationNotificationTime.HasValue)
                                     {
-                                        _ = ShowNotification();
+                                        if (!previousReservationNotificationTimeReached && reservationNotificationTimeReached)
+                                        {
+                                            _ = ShowNotification();
+                                        }
+                                        else if (!previousReservationBlockTimeReached && reservationBlockTimeReached)
+                                        {
+
+                                        }
+                                    }
+                                    else if (reservationBlockTime.HasValue)
+                                    {
+                                        if (_gizmoClient.IsUserLoggedIn)
+                                        {
+                                            //The notification time is not set but block time is set.
+                                            if (!previousReservationBlockTimeReached && reservationBlockTimeReached)
+                                            {
+                                                //Show notification for payment
+                                                //If not confirmed will be logged out. //TODO: AAAAA CHECK THAT THE DIALOG WILL BE CLOSED IN THIS CASE.
+                                                //TODO: AAAAA ONLY CONFIRMED
+                                                _ = ShowNotification();
+                                            }
+                                        }
                                     }
                                 }
-                            }
-                            else if (reservationBlockTime.HasValue)
-                            {
-                                //The notification time is not set but block time is set.
-                                if (!previousReservationBlockTimeReached && reservationBlockTimeReached)
+
+                                if (reservationTimeReached && !previousReservationTimeReached)
                                 {
-                                    if (_gizmoClient.IsUserLoggedIn)
-                                    {
-                                        //Show notification for payment
-                                        //If not confirmed will be logged out. //TODO: AAAAA CHECK THAT THE DIALOG WILL BE CLOSED IN THIS CASE.
-                                        //TODO: AAAAA ONLY CONFIRMED
-                                        _ = ShowNotification();
-                                    }
+                                    //If not confirmed will be logged out. //TODO: AAAAA CHECK THAT THE DIALOG WILL BE CLOSED IN THIS CASE.
+                                    _ = ShowDialog();
                                 }
                             }
                         }
-
-                        if (reservationTimeReached && !previousReservationTimeReached)
+                        else
                         {
-                            //If not confirmed will be logged out. //TODO: AAAAA CHECK THAT THE DIALOG WILL BE CLOSED IN THIS CASE.
-                            _ = ShowDialog();
+                            StopTimer();
+                            return;
                         }
                     }
 
-                    if (!ViewState.Ignored)
+                    if (_gizmoClient.IsUserLoggedIn)
                     {
-                        //TODO: AAAAA ONLY IF NOT CONFIRMED OR NOT PAID
-                        if (ViewState.DismissedTime.HasValue && ViewState.DismissedTime.Value.AddMinutes(1) <= DateTime.Now)
+                        if (!ViewState.Ignored)
                         {
                             if (ViewState.ReservationNotificationTimeReached && !reservationTimeReached)
                             {
-                                _ = ShowNotification();
+                                if (ViewState.DismissedTime.HasValue && ViewState.DismissedTime.Value.AddMinutes(1) <= DateTime.Now)
+                                {
+                                    //TODO: AAAAA ONLY IF NOT CONFIRMED OR NOT PAID
+                                    _ = ShowNotification();
+                                }
                             }
                         }
                     }
@@ -212,21 +227,31 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnInitializing(CancellationToken ct)
         {
+            //_ = LoadNextHostReservation(); //Only for demo
             _gizmoClient.StartUp += OnStartUp;
-            _gizmoClient.ReservationChange += OnReservationChange;
             _gizmoClient.LoginStateChange += OnLoginStateChange;
+            _gizmoClient.ConnectionStateChange += OnConnectionStateChange;
             _gizmoClient.OnAPIEventMessage += OnAPIEventMessage;
+
             await base.OnInitializing(ct);
         }
 
         protected override void OnDisposing(bool isDisposing)
         {
             _gizmoClient.OnAPIEventMessage -= OnAPIEventMessage;
+            _gizmoClient.ConnectionStateChange -= OnConnectionStateChange;
             _gizmoClient.StartUp -= OnStartUp;
-            _gizmoClient.ReservationChange -= OnReservationChange;
             _gizmoClient.LoginStateChange -= OnLoginStateChange;
 
             base.OnDisposing(isDisposing);
+        }
+
+        private void OnConnectionStateChange(object? sender, ConnectionStateEventArgs e)
+        {
+            if (e.IsConnected)
+            {
+                _ = LoadNextHostReservation();
+            }
         }
 
         private void OnLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
@@ -252,11 +277,6 @@ namespace Gizmo.Client.UI.View.Services
             await LoadNextHostReservation();
         }
 
-        private async void OnReservationChange(object? sender, ReservationChangeEventArgs e)
-        {
-            await LoadNextHostReservation();
-        }
-
         public async Task ShowNotification()
         {
             if (await _reservationWarningLock.WaitAsync(TimeSpan.Zero))
@@ -271,11 +291,7 @@ namespace Gizmo.Client.UI.View.Services
                         DebounceViewStateChanged();
                     }
 
-                    //StopTimer();
-
                     await _confirmReservationNotificationViewService.StartAsync(_warningCancellationTokenSource.Token);
-
-                    //StartTimer();
                 }
                 catch { }
                 finally
@@ -350,6 +366,34 @@ namespace Gizmo.Client.UI.View.Services
 
                     DebounceViewStateChanged();
                 }
+            }
+            //else if (e is ReservationHostActivatedEventMessage reservationHostActivatedEventMessage)
+            //{
+            //    _ = LoadNextHostReservation();
+            //}
+            else if (e is ReservationHostAddedEventMessage reservationHostAddedEventMessage)
+            {
+                _ = LoadNextHostReservation();
+            }
+            else if (e is ReservationHostCancelledEventMessage reservationHostCancelledEventMessage)
+            {
+                _ = LoadNextHostReservation();
+            }
+            else if (e is ReservationHostCompletedEventMessage reservationHostCompletedEventMessage)
+            {
+                _ = LoadNextHostReservation();
+            }
+            else if (e is ReservationHostExpiredEventMessage reservationHostExpiredEventMessage)
+            {
+                _ = LoadNextHostReservation();
+            }
+            else if (e is ReservationHostUpdatedEventMessage reservationHostUpdatedEventMessage)
+            {
+                _ = LoadNextHostReservation();
+            }
+            else if (e is ReservationHostMovedEventMessage reservationHostMovedEventMessage)
+            {
+                _ = LoadNextHostReservation();
             }
         }
 

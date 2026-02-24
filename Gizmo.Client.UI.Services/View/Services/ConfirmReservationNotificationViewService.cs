@@ -118,38 +118,42 @@ namespace Gizmo.Client.UI.View.Services
 
             Clear();
 
-            var result = await _gizmoClient.ReservationCurrentConfirmedAsync(cToken);
-
-            if (result == ReservationCurrentConfirmedResult.Confirmed)
+            try
             {
-                var hostReservationViewState = ServiceProvider.GetRequiredService<HostReservationViewState>();
+                var result = await _gizmoClient.ReservationCurrentConfirmedAsync(cToken);
 
-                if (hostReservationViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.NotRequired ||
-                    hostReservationViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.Satisfied)
+                if (result == ReservationCurrentConfirmedResult.Confirmed)
                 {
-                    return;
+                    var hostReservationViewState = ServiceProvider.GetRequiredService<HostReservationViewState>();
+
+                    if (hostReservationViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.NotRequired ||
+                        hostReservationViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.Satisfied)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        ViewState.Step = 1;
+                    }
+                }
+                else if (result == ReservationCurrentConfirmedResult.Unconfirmed)
+                {
+
                 }
                 else
                 {
-                    ViewState.Step = 1;
+                    //No reservation
+                    return;
                 }
-            }
-            else if (result == ReservationCurrentConfirmedResult.Unconfirmed)
-            {
 
-            }
-            else
-            {
-                //No reservation
-                return;
-            }
-
-            try
-            {
                 _confirmReservationNotification = await _clientNotificationService.ShowConfirmReservationNotification(cToken);
                 if (_confirmReservationNotification.Result == AddComponentResultCode.Opened)
-                    await _confirmReservationNotification.WaitForResultAsync(cToken); //TODO: AAAAA CANCEL DOES NOT UNBLOCK THIS
+                    await _confirmReservationNotification.WaitForResultAsync(cToken);
 
+                _confirmReservationNotification = null;
+            }
+            catch (OperationCanceledException)
+            {
                 _confirmReservationNotification = null;
             }
             catch (Exception ex)

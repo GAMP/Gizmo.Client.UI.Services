@@ -17,11 +17,13 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient,
             ILocalizationService localizationService,
-            IClientDialogService dialogService) : base(viewState, logger, serviceProvider)
+            IClientDialogService dialogService,
+            PaymentMethodViewStateLookupService paymentMethodViewStateLookupService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _localizationService = localizationService;
             _dialogService = dialogService;
+            _paymentMethodViewStateLookupService = paymentMethodViewStateLookupService;
         }
         #endregion
 
@@ -29,6 +31,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IGizmoClient _gizmoClient;
         private readonly ILocalizationService _localizationService;
         private readonly IClientDialogService _dialogService;
+        private readonly PaymentMethodViewStateLookupService _paymentMethodViewStateLookupService;
 
         private AddDialogResult<EmptyComponentResult>? _confirmReservationDialog = null;
         #endregion
@@ -45,6 +48,9 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.PaymentMethodId = value;
             ValidateProperty(() => ViewState.PaymentMethodId);
+
+            ViewState.SelectedPaymentMethod = ViewState.AvailablePaymentMethods.Where(a => a.Id == value).FirstOrDefault();
+            ViewState.RaiseChanged();
         }
 
         public async Task ConfirmAsync()
@@ -100,34 +106,37 @@ namespace Gizmo.Client.UI.View.Services
 
             Clear();
 
-            var result = await _gizmoClient.ReservationCurrentConfirmedAsync(cToken);
-
-            if (result == ReservationCurrentConfirmedResult.Confirmed)
+            try
             {
-                var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
+                var result = await _gizmoClient.ReservationCurrentConfirmedAsync(cToken);
 
-                if (hostReservationViewService.ViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.NotRequired ||
-                    hostReservationViewService.ViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.Satisfied)
+                if (result == ReservationCurrentConfirmedResult.Confirmed)
                 {
-                    return;
+                    var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
+
+                    if (hostReservationViewService.ViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.NotRequired ||
+                        hostReservationViewService.ViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.Satisfied)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        ViewState.Step = 1;
+                    }
+                }
+                else if (result == ReservationCurrentConfirmedResult.Unconfirmed)
+                {
+
                 }
                 else
                 {
-                    ViewState.Step = 1;
+                    //No reservation
+                    return;
                 }
-            }
-            else if (result == ReservationCurrentConfirmedResult.Unconfirmed)
-            {
 
-            }
-            else
-            {
-                //No reservation
-                return;
-            }
+                var paymentMethods = await _paymentMethodViewStateLookupService.GetStatesAsync(cToken);
+                ViewState.AvailablePaymentMethods = paymentMethods.Where(a => a.Id != -4 && !a.IsDeleted && a.IsEnabled).ToList();
 
-            try
-            {
                 _confirmReservationDialog = await _dialogService.ShowConfirmReservationDialogAsync(cToken);
                 if (_confirmReservationDialog.Result == AddComponentResultCode.Opened)
                     await _confirmReservationDialog.WaitForResultAsync(cToken);
@@ -142,6 +151,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public void Clear()
         {
+            ViewState.AvailablePaymentMethods = [];
             ViewState.Step = 0;
             ViewState.Pin = null;
             ViewState.PaymentMethodId = null;

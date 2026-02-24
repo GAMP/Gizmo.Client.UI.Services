@@ -9,6 +9,8 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
+        public IEnumerable<PaymentMethodViewState> AvailablePaymentMethods { get; internal set; } = [];
+
         public int Step { get; internal set; }
 
         [ValidatingProperty()]
@@ -16,6 +18,8 @@ namespace Gizmo.Client.UI.View.States
 
         [ValidatingProperty()]
         public int? PaymentMethodId { get; internal set; }
+
+        public PaymentMethodViewState? SelectedPaymentMethod { get; internal set; }
 
         public bool IsLoading { get; internal set; }
 
