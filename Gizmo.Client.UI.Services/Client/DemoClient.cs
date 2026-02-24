@@ -2041,5 +2041,10 @@ namespace Gizmo.Client
         {
             return Task.FromResult(ReservationCurrentConfirmResult.NoReservation);
         }
+
+        public Task<ClientReservationPaymentsCreateResultModel> ReservationCurrentPaymentsAsync(ClientReservationPaymentsCreateModel model, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
