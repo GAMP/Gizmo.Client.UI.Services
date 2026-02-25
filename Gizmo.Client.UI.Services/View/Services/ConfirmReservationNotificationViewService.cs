@@ -51,7 +51,6 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                await Task.Delay(5000);
                 var result = await _gizmoClient.ReservationCurrentConfirmAsync(ViewState.Pin);
                 if (result == ReservationCurrentConfirmResult.Success)
                 {
@@ -60,12 +59,12 @@ namespace Gizmo.Client.UI.View.Services
                     if (hostReservationViewService.ViewState.ReservationPaymentStatus == ReservationPaymentStatus.NotRequired ||
                         hostReservationViewService.ViewState.ReservationPaymentStatus == ReservationPaymentStatus.Satisfied)
                     {
-                        _clientNotificationService.TryAcknowledge(_confirmReservationNotification.Controller.Identifier);
+                        //If confirmed and paid close the notification.
+                        _confirmReservationNotification?.Controller?.Result(new EmptyComponentResult());
                     }
                     else
                     {
                         ViewState.Step = 1;
-                        ViewState.RaiseChanged();
                     }
                 }
                 else
@@ -76,6 +75,7 @@ namespace Gizmo.Client.UI.View.Services
             }
             catch (Exception ex)
             {
+                //TODO: AAAAA SHOW ERROR
             }
 
             ViewState.IsLoading = false;
@@ -104,13 +104,6 @@ namespace Gizmo.Client.UI.View.Services
             await hostReservationViewService.ShowDialog();
         }
 
-        public void CloseIfOpen()
-        {
-            var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
-            hostReservationViewService.Ignore();
-            _confirmReservationNotification?.Controller?.Result(new EmptyComponentResult());
-        }
-
         public async Task StartAsync(CancellationToken cToken = default)
         {
             if (_confirmReservationNotification != null)
@@ -129,6 +122,7 @@ namespace Gizmo.Client.UI.View.Services
                     if (hostReservationViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.NotRequired ||
                         hostReservationViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.Satisfied)
                     {
+                        //If confirmed and paid do no show the notification.
                         return;
                     }
                     else
@@ -142,7 +136,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    //No reservation
+                    //No reservation.
                     return;
                 }
 

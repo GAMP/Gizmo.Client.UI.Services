@@ -65,11 +65,21 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                await Task.Delay(5000);
                 var result = await _gizmoClient.ReservationCurrentConfirmAsync(ViewState.Pin);
                 if (result == ReservationCurrentConfirmResult.Success)
                 {
-                    ViewState.Step = 1;
+                    var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
+
+                    if (hostReservationViewService.ViewState.ReservationPaymentStatus == ReservationPaymentStatus.NotRequired ||
+                        hostReservationViewService.ViewState.ReservationPaymentStatus == ReservationPaymentStatus.Satisfied)
+                    {
+                        //If confirmed and paid close the dialog.
+                        _confirmReservationDialog?.Controller?.Result(new EmptyComponentResult());
+                    }
+                    else
+                    {
+                        ViewState.Step = 1;
+                    }
                 }
                 else
                 {
@@ -79,6 +89,48 @@ namespace Gizmo.Client.UI.View.Services
             }
             catch (Exception ex)
             {
+                //TODO: AAAAA SHOW ERROR
+            }
+
+            ViewState.IsLoading = false;
+            ViewState.RaiseChanged();
+        }
+
+        public async Task PayAsync()
+        {
+            ViewState.IsLoading = true;
+            ViewState.RaiseChanged();
+
+            try
+            {
+                var result = await _gizmoClient.ReservationCurrentPaymentsAsync(new ClientReservationPaymentsCreateModel()
+                {
+                    PaymentMethodId = ViewState.PaymentMethodId.Value
+                });
+
+                if (result.Result == ClientReservationCreateResult.Success)
+                {
+                    if (result.ExpectedPayment == null)
+                    {
+                        //TODO: AAAAA CHECK
+                        //var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
+                        //hostReservationViewService.SetPaid();
+
+                        ViewState.Step = 2;
+                    }
+                    else
+                    {
+                        ViewState.HasQr = true;
+                    }
+                }
+                else
+                {
+                    //TODO: AAAAA SHOW ERROR
+                }
+            }
+            catch (Exception ex)
+            {
+                //TODO: AAAAA SHOW ERROR
             }
 
             ViewState.IsLoading = false;
@@ -89,13 +141,26 @@ namespace Gizmo.Client.UI.View.Services
         {
             //Close dialog if waiting payment.
             if (_confirmReservationDialog != null && ViewState.Step == 1)
-                _confirmReservationDialog.Controller?.Result(new EmptyComponentResult());
+            {
+                var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
+                hostReservationViewService.ResetIgnore();
+
+                ViewState.Step = 2;
+                ViewState.RaiseChanged();
+            }
         }
 
         public void Ignore()
         {
             var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
             hostReservationViewService.Ignore();
+            _confirmReservationDialog?.Controller?.Result(new EmptyComponentResult());
+        }
+
+        public void Close()
+        {
+            var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
+            hostReservationViewService.ResetIgnore();
             _confirmReservationDialog?.Controller?.Result(new EmptyComponentResult());
         }
 
@@ -117,6 +182,7 @@ namespace Gizmo.Client.UI.View.Services
                     if (hostReservationViewService.ViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.NotRequired ||
                         hostReservationViewService.ViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.Satisfied)
                     {
+                        //If confirmed and paid do no show the dialog.
                         return;
                     }
                     else
@@ -130,12 +196,12 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    //No reservation
+                    //No reservation.
                     return;
                 }
 
                 var paymentMethods = await _paymentMethodViewStateLookupService.GetStatesAsync(cToken);
-                ViewState.AvailablePaymentMethods = paymentMethods.Where(a => a.Id != -4 && !a.IsDeleted && a.IsEnabled).ToList();
+                ViewState.AvailablePaymentMethods = paymentMethods.Where(a => (a.Id > 0 || a.Id == -3) && !a.IsDeleted && a.IsEnabled).ToList();
 
                 _confirmReservationDialog = await _dialogService.ShowConfirmReservationDialogAsync(cToken);
                 if (_confirmReservationDialog.Result == AddComponentResultCode.Opened)

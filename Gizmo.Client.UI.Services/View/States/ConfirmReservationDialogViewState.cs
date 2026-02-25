@@ -22,6 +22,8 @@ namespace Gizmo.Client.UI.View.States
         public PaymentMethodViewState? SelectedPaymentMethod { get; internal set; }
 
         public bool IsLoading { get; internal set; }
+        
+        public bool HasQr { get; internal set; }
 
         #endregion
     }

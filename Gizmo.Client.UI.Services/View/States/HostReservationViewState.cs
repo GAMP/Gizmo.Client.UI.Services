@@ -18,6 +18,12 @@ namespace Gizmo.Client.UI.View.States
 
         public int? Duration { get; internal set; }
 
+        public decimal? Total { get; internal set; }
+
+        public decimal? Outstanding { get; internal set; }
+
+        public IEnumerable<ReservationInfoHostModel> Hosts { get; internal set; } = [];
+
         public bool ReservationNotificationTimeReached { get; internal set; }
 
         public bool ReservationBlockTimeReached { get; internal set; }
