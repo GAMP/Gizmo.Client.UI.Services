@@ -433,6 +433,19 @@ namespace Gizmo.Client.UI.View.Services
                     DebounceViewStateChanged();
                 }
             }
+
+            // TODO : Since we only going to be receiving only specific reservation events atm we could simply check reservation event by base type like this       
+            //if (e is Web.Api.Messaging.ReservationEventMessageBase)
+            //{
+
+            //}
+            // or with explicit function that check for desired event like IsExpectedEvent(IAPIEventMessage e)
+            // the other thing is debouncing, since in some cases 2-3 events might occur almost at same time and we will generate multiple calls to server
+
+            // TODO : Looks like payment status change event is not accounted for here, this causes the current _nextReservation value to remain in same unpaid state
+            // even when we have processed the payment and closed the payment dialog
+
+
             //else if (e is ReservationHostActivatedEventMessage reservationHostActivatedEventMessage)
             //{
             //    _ = LoadNextHostReservation();
