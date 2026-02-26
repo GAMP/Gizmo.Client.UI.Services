@@ -326,6 +326,7 @@ namespace Gizmo.Client.UI.View.Services
 
         private async void OnStartUp(object? sender, StartUpEventArgs e)
         {
+            // TODO : AAA this most always fail since when client starts up there is no connection to server
             await LoadNextHostReservation();
         }
 
