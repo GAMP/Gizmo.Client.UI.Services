@@ -1,8 +1,11 @@
 ﻿using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
+using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -40,12 +43,14 @@ namespace Gizmo.Client.UI.View.Services
 
         public void SetPin(string value)
         {
+            ViewState.ErrorMessage = null;
             ViewState.Pin = value;
             ValidateProperty(() => ViewState.Pin);
         }
 
         public void SetPaymentMethodId(int? value)
         {
+            ViewState.ErrorMessage = null;
             ViewState.PaymentMethodId = value;
             ValidateProperty(() => ViewState.PaymentMethodId);
 
@@ -55,6 +60,8 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task ConfirmAsync()
         {
+            ViewState.ErrorMessage = null;
+
             Validate();
 
             if (ViewState.IsValid != true)
@@ -83,13 +90,13 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    SetPin(string.Empty);
-                    //TODO: AAAAA SHOW ERROR
+                    ViewState.Pin = null;
+                    ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURED));
                 }
             }
             catch (Exception ex)
             {
-                //TODO: AAAAA SHOW ERROR
+                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURED));
             }
 
             ViewState.IsLoading = false;
@@ -98,6 +105,13 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task PayAsync()
         {
+            ViewState.ErrorMessage = null;
+
+            Validate();
+
+            if (ViewState.IsValid != true)
+                return;
+
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 
@@ -121,16 +135,19 @@ namespace Gizmo.Client.UI.View.Services
                     else
                     {
                         ViewState.HasQr = true;
+
+                        var qrResult = await _gizmoClient.GenerateQRCodeFromUrlAsync(result.ExpectedPayment.PaymentUrl);
+                        ViewState.QRCode = qrResult.QRCode;
                     }
                 }
                 else
                 {
-                    //TODO: AAAAA SHOW ERROR
+                    ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURED));
                 }
             }
             catch (Exception ex)
             {
-                //TODO: AAAAA SHOW ERROR
+                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURED));
             }
 
             ViewState.IsLoading = false;
@@ -221,11 +238,41 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Step = 0;
             ViewState.Pin = null;
             ViewState.PaymentMethodId = null;
+            ViewState.SelectedPaymentMethod = null;
             ViewState.IsLoading = false;
+            ViewState.HasQr = false;
+            ViewState.QRCode = null;
 
             ViewState.RaiseChanged();
         }
 
         #endregion
+
+        protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
+        {
+            ClearError(() => ViewState.Pin);
+            ClearError(() => ViewState.PaymentMethodId);
+
+            if (ViewState.Step == 0)
+            {
+                if (fieldIdentifier.FieldEquals(() => ViewState.Pin))
+                {
+                    if (string.IsNullOrEmpty(ViewState.Pin))
+                    {
+                        AddError(() => ViewState.Pin, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                    }
+                }
+            }
+            else if (ViewState.Step == 1)
+            {
+                if (fieldIdentifier.FieldEquals(() => ViewState.PaymentMethodId))
+                {
+                    if (!ViewState.PaymentMethodId.HasValue)
+                    {
+                        AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                    }
+                }
+            }
+        }
     }
 }

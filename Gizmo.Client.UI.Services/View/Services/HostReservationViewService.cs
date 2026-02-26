@@ -86,7 +86,7 @@ namespace Gizmo.Client.UI.View.Services
                     var currentTime = DateTime.Now;
 
                     var reservationId = _nextReservation?.NextReservationId;
-                    var reservationTime = _nextReservation?.NextReservationTime;
+                    var reservationTime = _nextReservation?.NextReservationTime == null ? _nextReservation?.NextReservationTime : _nextReservation.NextReservationTime.Value.ToLocalTime();
                     var reservationBlockTime = _nextReservation?.LoginBlockBeforeTime;
                     var reservationNotificationTime = _reservationOptions.CurrentValue.AlertBeforeTime;
                     var reservationPaymentStatus = _nextReservation?.PaymentStatus;
@@ -231,7 +231,7 @@ namespace Gizmo.Client.UI.View.Services
                                                 _dialogCancellationTokenSource.Cancel();
                                             }
                                         }
-                                    }                                   
+                                    }
                                 }
                             }
                             else

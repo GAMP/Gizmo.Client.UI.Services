@@ -153,6 +153,7 @@ namespace Gizmo.Client.UI.View.Services
                         default:
                             ViewState.LoginName = null;
                             ViewState.Password = null;
+                            ViewState.Pin = null;
                             break;
                     }
 

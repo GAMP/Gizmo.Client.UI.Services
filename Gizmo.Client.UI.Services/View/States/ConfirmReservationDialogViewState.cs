@@ -25,6 +25,10 @@ namespace Gizmo.Client.UI.View.States
         
         public bool HasQr { get; internal set; }
 
+        public string? QRCode { get; internal set; }
+
+        public string? ErrorMessage { get; internal set; }
+
         #endregion
     }
 }
