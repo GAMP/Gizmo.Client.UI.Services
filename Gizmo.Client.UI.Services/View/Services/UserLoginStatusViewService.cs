@@ -120,7 +120,6 @@ namespace Gizmo.Client.UI.View.Services
                     var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
                     if (hostReservationViewService.ViewState.ReservationId.HasValue && hostReservationViewService.ViewState.ReservationNotificationTimeReached)
                     {
-                        hostReservationViewService.Ignore();
                         await hostReservationViewService.ShowDialog();
                     }
 

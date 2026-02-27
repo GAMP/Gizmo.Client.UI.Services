@@ -132,6 +132,9 @@ namespace Gizmo.Client.UI.View.Services
                         }
                     }
 
+                    var previousReservationHostIds = ViewState.Hosts.Select(a => a.HostNumber).ToList();
+                    var reservationHostIds = reservationHosts?.Select(a => a.HostNumber).ToList() ?? [];
+
                     //Update UI only if there are changes.
                     if (ViewState.ReservationId != reservationId ||
                         ViewState.Time != reservationTime ||
@@ -141,7 +144,8 @@ namespace Gizmo.Client.UI.View.Services
                         ViewState.ReservationPaymentStatus != reservationPaymentStatus ||
                         ViewState.Duration != reservationDuration ||
                         ViewState.Total != reservationTotal ||
-                        ViewState.Outstanding != reservationOutstanding) //TODO: AAAAA HOSTS
+                        ViewState.Outstanding != reservationOutstanding ||
+                        !previousReservationHostIds.SequenceEqual(reservationHostIds))
                     {
                         bool important = false;
                         if (ViewState.ReservationId != reservationId ||
@@ -163,6 +167,7 @@ namespace Gizmo.Client.UI.View.Services
                         var previousReservationTimeReached = ViewState.ReservationTimeReached;
                         var previousReservationBlockTimeReached = ViewState.ReservationBlockTimeReached;
                         var previousReservationNotificationTimeReached = ViewState.ReservationNotificationTimeReached;
+                        var previousReservationPaymentStatus = ViewState.ReservationPaymentStatus;
 
                         ViewState.ReservationId = reservationId;
                         ViewState.Time = reservationTime;
@@ -178,6 +183,20 @@ namespace Gizmo.Client.UI.View.Services
                             HostNumber = a.HostNumber,
                             HostName = a.HostName
                         }) ?? [];
+
+                        if ((previousReservationPaymentStatus != ReservationPaymentStatus.NotRequired || previousReservationPaymentStatus != ReservationPaymentStatus.Satisfied) &&
+                            reservationPaymentStatus == ReservationPaymentStatus.NotRequired || reservationPaymentStatus == ReservationPaymentStatus.Satisfied)
+                        {
+                            if (ViewState.Ignored)
+                            {
+                                var result = await _gizmoClient.ReservationCurrentConfirmedAsync();
+
+                                if (result == ReservationCurrentConfirmedResult.Confirmed)
+                                {
+                                    ResetIgnore();
+                                }
+                            }
+                        }
 
                         DebounceViewStateChanged();
 
@@ -409,7 +428,8 @@ namespace Gizmo.Client.UI.View.Services
                     if (reservationPaymentStatusChangedEvent.Status == ReservationPaymentStatus.NotRequired ||
                         reservationPaymentStatusChangedEvent.Status == ReservationPaymentStatus.Satisfied)
                     {
-                        _confirmReservationDialogViewService.CloseIfWaitingPayment();
+                        _confirmReservationNotificationViewService.CloseIfWaitingPayment();
+                        _confirmReservationDialogViewService.ShowPaymentSuccessful();
                     }
 
                     _ = LoadNextHostReservation();

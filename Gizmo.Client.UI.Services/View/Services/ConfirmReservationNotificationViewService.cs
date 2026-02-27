@@ -44,9 +44,17 @@ namespace Gizmo.Client.UI.View.Services
         public async Task OpenPaymentDialogAsync()
         {
             var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
-            hostReservationViewService.Ignore();
             _confirmReservationNotification?.Controller?.Result(new EmptyComponentResult());
             await hostReservationViewService.ShowDialog();
+        }
+
+        public void CloseIfWaitingPayment()
+        {
+            //Close notification if waiting payment.
+            if (_confirmReservationNotification != null && ViewState.Step == 1)
+            {
+                _confirmReservationNotification?.Controller?.Result(new EmptyComponentResult());
+            }
         }
 
         public async Task StartAsync(CancellationToken cToken = default)

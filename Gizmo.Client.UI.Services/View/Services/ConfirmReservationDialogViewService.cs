@@ -3,7 +3,6 @@ using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
-using Gizmo.UI.View.States;
 using Gizmo.Web.Api.Models;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -81,6 +80,7 @@ namespace Gizmo.Client.UI.View.Services
                         hostReservationViewService.ViewState.ReservationPaymentStatus == ReservationPaymentStatus.Satisfied)
                     {
                         //If confirmed and paid close the dialog.
+                        hostReservationViewService.ResetIgnore();
                         _confirmReservationDialog?.Controller?.Result(new EmptyComponentResult());
                     }
                     else
@@ -153,7 +153,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
-        public void CloseIfWaitingPayment()
+        public void ShowPaymentSuccessful()
         {
             //Close dialog if waiting payment.
             if (_confirmReservationDialog != null && ViewState.Step == 1)
@@ -166,6 +166,9 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
+        /// <summary>
+        /// Close dialog after successful with x or ignore button.
+        /// </summary>
         public void Ignore()
         {
             var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
@@ -173,6 +176,9 @@ namespace Gizmo.Client.UI.View.Services
             _confirmReservationDialog?.Controller?.Result(new EmptyComponentResult());
         }
 
+        /// <summary>
+        /// Close dialog after successful payment.
+        /// </summary>
         public void Close()
         {
             var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
@@ -189,12 +195,12 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
+                var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
+
                 var result = await _gizmoClient.ReservationCurrentConfirmedAsync(cToken);
 
                 if (result == ReservationCurrentConfirmedResult.Confirmed)
                 {
-                    var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
-
                     if (hostReservationViewService.ViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.NotRequired ||
                         hostReservationViewService.ViewState.ReservationPaymentStatus == Web.Api.Models.ReservationPaymentStatus.Satisfied)
                     {
@@ -216,6 +222,9 @@ namespace Gizmo.Client.UI.View.Services
                     return;
                 }
 
+                //Now that we know that the dialog will be show, call Ignore so the notification will not be shown at the same time.
+                hostReservationViewService.Ignore();
+
                 var paymentMethods = await _paymentMethodViewStateLookupService.GetStatesAsync(cToken);
                 ViewState.AvailablePaymentMethods = paymentMethods.Where(a => (a.Id > 0 || a.Id == -3) && !a.IsDeleted && a.IsEnabled).ToList();
 
@@ -223,6 +232,10 @@ namespace Gizmo.Client.UI.View.Services
                 if (_confirmReservationDialog.Result == AddComponentResultCode.Opened)
                     await _confirmReservationDialog.WaitForResultAsync(cToken);
 
+                _confirmReservationDialog = null;
+            }
+            catch (OperationCanceledException)
+            {
                 _confirmReservationDialog = null;
             }
             catch (Exception ex)
