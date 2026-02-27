@@ -126,9 +126,8 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     if (result.ExpectedPayment == null)
                     {
-                        //TODO: AAAAA CHECK
-                        //var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
-                        //hostReservationViewService.SetPaid();
+                        var hostReservationViewService = ServiceProvider.GetRequiredService<HostReservationViewService>();
+                        hostReservationViewService.ResetIgnore();
 
                         ViewState.Step = 2;
                     }

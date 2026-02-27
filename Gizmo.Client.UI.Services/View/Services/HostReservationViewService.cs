@@ -37,7 +37,6 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IOptionsMonitor<ClientReservationOptions> _reservationOptions;
         private ClientNextReservationModel? _nextReservation;
 
-        private readonly SemaphoreSlim _reservationReloadLock = new(1);
         private readonly SemaphoreSlim _reservationRefreshLock = new(1);
         private readonly SemaphoreSlim _notificationLock = new(1);
         private readonly SemaphoreSlim _dialogLock = new(1);
@@ -46,29 +45,31 @@ namespace Gizmo.Client.UI.View.Services
 
         private CancellationTokenSource? _notificationCancellationTokenSource = null;
         private CancellationTokenSource? _dialogCancellationTokenSource = null;
+        private CancellationTokenSource? _cancellationTokenSource;
+        private const int DebounceDelay = 500;
 
         private async Task LoadNextHostReservation()
         {
-            if (await _reservationReloadLock.WaitAsync(TimeSpan.Zero))
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource = new CancellationTokenSource();
+
+            try
             {
                 StopTimer();
 
-                try
-                {
-                    _nextReservation = await _gizmoClient.ClientReservationGetAsync();
+                await Task.Delay(DebounceDelay, _cancellationTokenSource.Token);
+                _nextReservation = await _gizmoClient.ClientReservationGetAsync(_cancellationTokenSource.Token);
 
-                    await ReservationRefresh();
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Failed to load next host reservation.");
-                }
-                finally
-                {
-                    _reservationReloadLock.Release();
-                }
+                await ReservationRefresh();
 
                 StartTimer();
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to load next host reservation.");
             }
         }
 
@@ -282,7 +283,6 @@ namespace Gizmo.Client.UI.View.Services
         {
             _gizmoClient.StartUp += OnStartUp;
             _gizmoClient.LoginStateChange += OnLoginStateChange;
-            _gizmoClient.ConnectionStateChange += OnConnectionStateChange;
             _gizmoClient.OnAPIEventMessage += OnAPIEventMessage;
 
             await base.OnInitializing(ct);
@@ -291,19 +291,10 @@ namespace Gizmo.Client.UI.View.Services
         protected override void OnDisposing(bool isDisposing)
         {
             _gizmoClient.OnAPIEventMessage -= OnAPIEventMessage;
-            _gizmoClient.ConnectionStateChange -= OnConnectionStateChange;
             _gizmoClient.StartUp -= OnStartUp;
             _gizmoClient.LoginStateChange -= OnLoginStateChange;
 
             base.OnDisposing(isDisposing);
-        }
-
-        private void OnConnectionStateChange(object? sender, ConnectionStateEventArgs e)
-        {
-            if (e.IsConnected)
-            {
-                _ = LoadNextHostReservation();
-            }
         }
 
         private void OnLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
@@ -326,7 +317,6 @@ namespace Gizmo.Client.UI.View.Services
 
         private async void OnStartUp(object? sender, StartUpEventArgs e)
         {
-            // TODO : AAA this most always fail since when client starts up there is no connection to server
             await LoadNextHostReservation();
         }
 
@@ -404,12 +394,6 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.RaiseChanged();
         }
 
-        public void SetPaid()
-        {
-            ViewState.ReservationPaymentStatus = ReservationPaymentStatus.Satisfied;
-            ViewState.RaiseChanged();
-        }
-
         public void Dismiss()
         {
             ViewState.DismissedTime = DateTime.Now;
@@ -422,15 +406,13 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (reservationPaymentStatusChangedEvent.ReservationId == ViewState.ReservationId)
                 {
-                    ViewState.ReservationPaymentStatus = reservationPaymentStatusChangedEvent.Status;
-
-                    if (ViewState.ReservationPaymentStatus == ReservationPaymentStatus.NotRequired ||
-                        ViewState.ReservationPaymentStatus == ReservationPaymentStatus.Satisfied)
+                    if (reservationPaymentStatusChangedEvent.Status == ReservationPaymentStatus.NotRequired ||
+                        reservationPaymentStatusChangedEvent.Status == ReservationPaymentStatus.Satisfied)
                     {
                         _confirmReservationDialogViewService.CloseIfWaitingPayment();
                     }
 
-                    DebounceViewStateChanged();
+                    _ = LoadNextHostReservation();
                 }
             }
 
