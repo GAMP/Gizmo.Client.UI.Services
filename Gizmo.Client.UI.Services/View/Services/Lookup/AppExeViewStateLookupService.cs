@@ -134,7 +134,8 @@ namespace Gizmo.Client.UI.View.Services
             viewStates = viewStates.Where(state => state.ApplicationId == appId)
                 .Where(state => state.Accessible)
                 .Where(state => state.IsFileAccessible)
-                .Where(state => _gizmoClient.AppCurrentProfilePass(state.ApplicationId));
+                .Where(state => _gizmoClient.AppCurrentProfilePass(state.ApplicationId))
+                .OrderBy(state => state.DisplayOrder);
 
             return viewStates.ToList();
         }
