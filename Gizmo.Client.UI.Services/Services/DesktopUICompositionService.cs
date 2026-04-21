@@ -13,12 +13,12 @@ namespace Gizmo.Client.UI.Services
     {
         #region CONSTRUCTOR
         public DesktopUICompositionService(IOptionsMonitor<UICompositionOptions> optionsMonitor,
-            UICompositionInMemoryConfiurationSource uiCompositionConfiurationSource,
+            UICompositionInMemoryConfiurationSource uiCompositionConfigurationSource,
             UIOptionsInMemoryConfigurationSource uiOptionsConfigurationSource,
             IServiceProvider serviceProvider,
             ILogger<DesktopUICompositionService> logger) : base(optionsMonitor, logger, serviceProvider)
         {
-            _uiCompositionConfiurationSource = uiCompositionConfiurationSource;
+            _uiCompositionConfiurationSource = uiCompositionConfigurationSource;
             _uiOptionsConfigurationSource = uiOptionsConfigurationSource;
         }
         #endregion        
@@ -79,7 +79,7 @@ namespace Gizmo.Client.UI.Services
             return Task.CompletedTask;
         }
 
-        protected async override void OnCompositionSettingsChanged(UICompositionOptions uICompositionSettings, string setting)
+        protected async override void OnCompositionSettingsChanged(UICompositionOptions uICompositionSettings, string? setting)
         {
             base.OnCompositionSettingsChanged(uICompositionSettings, setting);
 
