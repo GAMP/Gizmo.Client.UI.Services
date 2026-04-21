@@ -18,14 +18,14 @@ namespace Gizmo.Client.UI.Services
             IServiceProvider serviceProvider,
             ILogger<DesktopUICompositionService> logger) : base(optionsMonitor, logger, serviceProvider)
         {
-            _uiCompositionConfiurationSource = uiCompositionConfigurationSource;
+            _uiCompositionConfigurationSource = uiCompositionConfigurationSource;
             _uiOptionsConfigurationSource = uiOptionsConfigurationSource;
         }
         #endregion        
 
         #region FIELDS
         private string _basePath = Environment.CurrentDirectory;
-        private readonly UICompositionInMemoryConfiurationSource _uiCompositionConfiurationSource;
+        private readonly UICompositionInMemoryConfiurationSource _uiCompositionConfigurationSource;
         private readonly UIOptionsInMemoryConfigurationSource _uiOptionsConfigurationSource;
         #endregion
 
@@ -55,7 +55,7 @@ namespace Gizmo.Client.UI.Services
 
             using(var fileStream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                _uiCompositionConfiurationSource.Load(fileStream);
+                _uiCompositionConfigurationSource.Load(fileStream);
             }
 
             return Task.CompletedTask;
