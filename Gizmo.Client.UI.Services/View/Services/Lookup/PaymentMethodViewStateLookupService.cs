@@ -26,6 +26,10 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         #endregion
 
+        #region PROPERTIES
+        public bool IsPointsPaymentMethodEnabled { get; private set; }
+        #endregion
+        
         private async void OnLanguageChanged(object? sender, EventArgs e)
         {
             //we should only try to obtain user payment methods while the user is logged in
@@ -74,6 +78,12 @@ namespace Gizmo.Client.UI.View.Services
         protected override Task OnInitializing(CancellationToken ct)
         {
             _localizationService.LanguageChanged += OnLanguageChanged;
+            
+            var paymentMethodsTask = GetStatesAsync(ct).ConfigureAwait(false);
+            var paymentMethods = paymentMethodsTask.GetAwaiter().GetResult().ToList();
+    
+            IsPointsPaymentMethodEnabled = paymentMethods.FirstOrDefault(e => e is { Id: -4, IsEnabled: true, IsDeleted: false }) is not null;
+            
             return base.OnInitializing(ct);
         }
         protected override void OnDisposing(bool isDisposing)
