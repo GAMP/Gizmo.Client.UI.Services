@@ -43,6 +43,9 @@ namespace Gizmo.Client.UI.View.Services
                     ViewState.CurrentTimeProductType = currentUserSession.CurrentUsageType;
                     switch (currentUserSession.CurrentUsageType)
                     {
+                        case Web.Api.Models.UsageType.None:
+                            ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_NONE");
+                            break;
                         case Web.Api.Models.UsageType.Rate:
                             ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_RATE");
                             break;
@@ -50,7 +53,7 @@ namespace Gizmo.Client.UI.View.Services
                             ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_TIME_FIXED");
                             break;                            
                         case Web.Api.Models.UsageType.TimeOffer:
-                            ViewState.CurrentTimeProductName = currentUserSession.TimeProduct;
+                            ViewState.CurrentTimeProductName = currentUserSession.TimeProduct ?? _localizationService.GetString("GIZ_USAGE_TYPE_NONE");
                             break;
                     }
                 }
@@ -80,6 +83,9 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.CurrentTimeProductType = e.CurrentUsageType;
             switch (e.CurrentUsageType)
             {
+                case Web.Api.Models.UsageType.None:
+                    ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_NONE");
+                    break;
                 case Web.Api.Models.UsageType.Rate:
                     ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_RATE");
                     break;
