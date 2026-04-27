@@ -82,8 +82,8 @@ namespace Gizmo.Client.UI.View.Services
             {
                 var result = await s.WaitForResultAsync();
 
-                if (s.Result == AddComponentResultCode.Ok && result!.Button == AlertDialogResultButton.Yes)                
-                    _clientServerCartViewService.Clear();                
+                if (s.Result == AddComponentResultCode.Ok && result!.Button == AlertDialogResultButton.Yes)
+                    _clientServerCartViewService.Clear();
             }
         }
 
@@ -173,7 +173,7 @@ namespace Gizmo.Client.UI.View.Services
         //        Logger.LogError(ex, "Failed to change user cart product pay type.");
         //    }
         //}
-        
+
         public async Task RemovePromocodeAsync()
         {
             _clientServerCartViewService.RemovePromoCode();
@@ -189,7 +189,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 ViewState.ShowPaymentMethods = true;
             }
-            
+
             ClearDialog();
 
             _checkoutDialog = await _dialogService.ShowCheckoutDialogAsync();
@@ -329,6 +329,7 @@ namespace Gizmo.Client.UI.View.Services
         protected override Task OnInitializing(CancellationToken ct)
         {
             _gizmoClient.LoginStateChange += OnUserLoginStateChange;
+            _gizmoClient.UserBalanceChange += OnUserBalanceChange;
             _clientServerCartViewService.OnReset += ClientServerCartViewService_OnReset;
             return base.OnInitializing(ct);
         }
@@ -363,6 +364,7 @@ namespace Gizmo.Client.UI.View.Services
         protected override void OnDisposing(bool dis)
         {
             _clientServerCartViewService.OnReset -= ClientServerCartViewService_OnReset;
+            _gizmoClient.UserBalanceChange -= OnUserBalanceChange;
             _gizmoClient.LoginStateChange -= OnUserLoginStateChange;
             base.OnDisposing(dis);
         }
@@ -439,6 +441,11 @@ namespace Gizmo.Client.UI.View.Services
                     }
                 }
             }
+        }
+
+        private void OnUserBalanceChange(object? sender, UserBalanceChangeEventArgs e)
+        {
+            ValidateProperty(() => ViewState.PaymentMethodId);
         }
     }
 }
