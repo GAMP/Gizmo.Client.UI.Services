@@ -211,82 +211,46 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                await _clientServerCartViewService.AcceptAsync(ViewState.Notes);
 
-                ViewState.HasError = false;
-                ViewState.ErrorMessage = string.Empty;
-
-                //TODO: AAAAA CHECK
-                //        if (result.Result == OrderResult.Failed)
-                //        {
-                //            ViewState.HasError = true;
-                //            ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED") + $" {result.FailReason.ToString()}"; //TODO: AAA TRANSLATE?
-
-                //            if (result.OrderLines != null)
-                //            {
-                //                foreach (var orderLine in result.OrderLines)
-                //                {
-                //                    var requestOrderLine = userOrderModelCreate.OrderLines.Where(a => a.Guid == orderLine.Guid).FirstOrDefault();
-                //                    if (requestOrderLine != null)
-                //                    {
-                //                        var product = await _userProductViewStateLookupService.GetStateAsync(requestOrderLine.ProductId);
-
-                //                        string ERROR_MESSAGE = string.Empty;
-
-                //                        switch (orderLine.Result)
-                //                        {
-                //                            case UserProductAvailabilityCheckResult.ClientOrderDisallowed:
-                //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_CLIENT_ORDER_DISALLOWED_MESSAGE");
-                //                                break;
-                //                            case UserProductAvailabilityCheckResult.UserGroupDisallowed:
-                //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_DISALLOWED_USER_GROUP_MESSAGE");
-                //                                break;
-                //                            case UserProductAvailabilityCheckResult.SaleDisallowed:
-                //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_SALE_DISALLOWED_MESSAGE");
-                //                                break;
-                //                            case UserProductAvailabilityCheckResult.GuestSaleDisallowed:
-                //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_GUEST_SALE_DISALLOWED_MESSAGE");
-                //                                break;
-                //                            case UserProductAvailabilityCheckResult.OutOfStock:
-                //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_OUT_OF_STOCK_MESSAGE");
-                //                                break;
-                //                            case UserProductAvailabilityCheckResult.PeriodDisallowed:
-                //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_PURCHASE_PERIOD_DISALLOWED_MESSAGE");
-                //                                break;
-                //                            //TODO: AAA DIALOG TRANSLATE MORE RESULTS
-                //                            default:
-                //                                ERROR_MESSAGE = _localizationService.GetString("GIZ_PRODUCT_ORDER_PASS_RESULT_ERROR_MESSAGE");
-                //                                break;
-                //                        }
-
-                //                        ViewState.ErrorMessage += $"<br>{product.Name}: {ERROR_MESSAGE}";
-                //                    }
-                //                }
-                //            }
-                //        }
-            }
-            catch (WebApiClientException wace)
-            {
-                if (wace.ErrorCode.HasValue)
+                try
                 {
-                    if (wace.IsExceptionCode(ExceptionCode.Cart))
+                    await _clientServerCartViewService.AcceptAsync(ViewState.Notes);
+
+                    ViewState.HasError = false;
+                    ViewState.ErrorMessage = string.Empty;
+                }
+                catch (WebApiClientException wace)
+                {
+                    if (wace.ErrorCode.HasValue)
                     {
-                        ViewState.HasError = true;
-                        ViewState.ErrorMessage = _assemblyResourcesLocalizationService.GetLocalizedStringValue((CartErrorCode)wace.ErrorCode);
-                    }
-                    else if (wace.IsExceptionCode(ExceptionCode.Promotion))
-                    {
-                        ViewState.HasError = true;
-                        ViewState.ErrorMessage = _assemblyResourcesLocalizationService.GetLocalizedStringValue((PromotionErrorCode)wace.ErrorCode);
+                        if (wace.IsExceptionCode(ExceptionCode.Cart))
+                        {
+                            ViewState.HasError = true;
+                            ViewState.ErrorMessage = _assemblyResourcesLocalizationService.GetLocalizedStringValue((CartErrorCode)wace.ErrorCode);
+                        }
+                        else if (wace.IsExceptionCode(ExceptionCode.Promotion))
+                        {
+                            ViewState.HasError = true;
+                            ViewState.ErrorMessage = _assemblyResourcesLocalizationService.GetLocalizedStringValue((PromotionErrorCode)wace.ErrorCode);
+                        }
+                        else
+                        {
+                            throw;
+                        }
                     }
                     else
                     {
                         throw;
                     }
                 }
-                else
+                finally
                 {
-                    throw;
+                    ViewState.IsComplete = true;
+                    ViewState.IsLoading = false;
+                    ViewState.RaiseChanged();
+
+                    //Clear
+                    await TryResetCart();
                 }
             }
             catch (Exception ex)
@@ -295,15 +259,6 @@ namespace Gizmo.Client.UI.View.Services
 
                 ViewState.HasError = true;
                 ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED");
-            }
-            finally
-            {
-                ViewState.IsComplete = true;
-                ViewState.IsLoading = false;
-                ViewState.RaiseChanged();
-
-                //Clear
-                await TryResetCart();
             }
         }
 
