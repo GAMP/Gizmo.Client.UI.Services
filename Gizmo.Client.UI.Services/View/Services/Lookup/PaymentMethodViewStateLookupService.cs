@@ -42,19 +42,19 @@ namespace Gizmo.Client.UI.View.Services
                     switch (state.Id)
                     {
                         case -4: //Points
-                            state.Name = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_POINTS");
+                            state.Name = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_PAYMENT_METHOD_POINTS));
                             break;
 
                         case -3: //Deposit
-                            state.Name = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_DEPOSIT");
+                            state.Name = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_PAYMENT_METHOD_DEPOSIT));
                             break;
 
                         case -2: //Credit Card
-                            state.Name = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_CREDIT_CARD");
+                            state.Name = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_PAYMENT_METHOD_CREDIT_CARD));
                             break;
 
                         case -1: //Cash
-                            state.Name = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_CASH");
+                            state.Name = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_PAYMENT_METHOD_CASH));
                             break;
 
                         default:
@@ -120,19 +120,19 @@ namespace Gizmo.Client.UI.View.Services
             switch (model.Id)
             {
                 case -4: //Points
-                    result.Name = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_POINTS");
+                    result.Name = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_PAYMENT_METHOD_POINTS));
                     break;
 
                 case -3: //Deposit
-                    result.Name = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_DEPOSIT");
+                    result.Name = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_PAYMENT_METHOD_DEPOSIT));
                     break;
 
                 case -2: //Credit Card
-                    result.Name = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_CREDIT_CARD");
+                    result.Name = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_PAYMENT_METHOD_CREDIT_CARD));
                     break;
 
                 case -1: //Cash
-                    result.Name = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_CASH");
+                    result.Name = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_PAYMENT_METHOD_CASH));
                     break;
 
                 default:

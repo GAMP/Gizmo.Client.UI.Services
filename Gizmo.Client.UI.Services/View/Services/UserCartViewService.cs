@@ -77,7 +77,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task ClearUserCartProductsAsync()
         {
-            var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_VERIFY"), _localizationService.GetString("GIZ_SHOP_VERIFY_CLEAR_CART"), AlertDialogButtons.YesNo);
+            var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VERIFY)), _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_SHOP_VERIFY_CLEAR_CART)), AlertDialogButtons.YesNo);
             if (s.Result == AddComponentResultCode.Opened)
             {
                 var result = await s.WaitForResultAsync();
@@ -157,7 +157,7 @@ namespace Gizmo.Client.UI.View.Services
         //                await UpdateUserCartProductsAsync();
         //                productItem.RaiseChanged();
 
-        //                await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_GEN_ERROR"), _localizationService.GetString("GIZ_INSUFFICIENT_POINTS_ERROR_MESSAGE"), AlertDialogButtons.OK, AlertTypes.Danger);
+        //                await _dialogService.ShowAlertDialogAsync(_localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_ERROR)), _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_INSUFFICIENT_POINTS_ERROR_MESSAGE)), AlertDialogButtons.OK, AlertTypes.Danger);
 
         //                return;
         //            }
@@ -258,7 +258,7 @@ namespace Gizmo.Client.UI.View.Services
                 Logger.LogError(ex, "User order create error.");
 
                 ViewState.HasError = true;
-                ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURRED");
+                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
             }
         }
 
@@ -388,11 +388,11 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     if (!ViewState.PaymentMethodId.HasValue)
                     {
-                        AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_NAMED_FIELD", nameof(ViewState.PaymentMethodId)));
+                        AddError(() => ViewState.PaymentMethodId, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_NAMED_FIELD), nameof(ViewState.PaymentMethodId)));
                     }
                     else if (ViewState.PaymentMethodId.Value == -3 && _clientServerCartViewService.ViewState.Total > _userBalanceViewState.Balance)
                     {
-                        AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("GIZ_INSUFFICIENT_DEPOSITS_MESSAGE", nameof(ViewState.PaymentMethodId)));
+                        AddError(() => ViewState.PaymentMethodId, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_INSUFFICIENT_DEPOSITS_MESSAGE), nameof(ViewState.PaymentMethodId)));
                     }
                 }
             }

@@ -165,43 +165,43 @@ namespace Gizmo.Client.UI.View.Services
                     switch (e.FailReason)
                     {
                         case Web.Api.Models.LoginResult.AccountDisabled:
-                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_ACCOUNT_DISABLED");
+                            ERROR_MESSAGE = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_LOGIN_RESULT_ACCOUNT_DISABLED));
                             break;
                         case Web.Api.Models.LoginResult.AlreadyLoggedIn:
-                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_ALREADY_LOGGED_IN");
+                            ERROR_MESSAGE = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_LOGIN_RESULT_ALREADY_LOGGED_IN));
                             break;
                         case Web.Api.Models.LoginResult.Denied:
-                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_DENIED");
+                            ERROR_MESSAGE = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_LOGIN_RESULT_DENIED));
                             break;
                         case Web.Api.Models.LoginResult.Failed:
-                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_FAILED");
+                            ERROR_MESSAGE = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_LOGIN_RESULT_FAILED));
                             break;
                         case Web.Api.Models.LoginResult.InsufficientBalance:
-                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_INSUFFICIENT_BALANCE");
+                            ERROR_MESSAGE = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_LOGIN_RESULT_INSUFFICIENT_BALANCE));
                             break;
                         case Web.Api.Models.LoginResult.InvalidCredentials:
-                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_INVALID_CREDENTIALS");
+                            ERROR_MESSAGE = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_LOGIN_RESULT_INVALID_CREDENTIALS));
                             break;
                         case Web.Api.Models.LoginResult.InvalidParameters:
-                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_INVALID_PARAMETERS");
+                            ERROR_MESSAGE = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_LOGIN_RESULT_INVALID_PARAMETERS));
                             break;
                         case Web.Api.Models.LoginResult.InvalidPassword:
-                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_INVALID_PASSWORD");
+                            ERROR_MESSAGE = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_LOGIN_RESULT_INVALID_PASSWORD));
                             break;
                         case Web.Api.Models.LoginResult.InvalidUserName:
-                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_INVALID_USERNAME");
+                            ERROR_MESSAGE = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_LOGIN_RESULT_INVALID_USERNAME));
                             break;
                         case Web.Api.Models.LoginResult.MaximumSessionsReached:
-                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_MAX_SESSIONS_REACHED");
+                            ERROR_MESSAGE = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_LOGIN_RESULT_MAX_SESSIONS_REACHED));
                             break;
                         case Web.Api.Models.LoginResult.NotInWaitingLine:
-                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_NOT_IN_WAITING_LINE");
+                            ERROR_MESSAGE = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_LOGIN_RESULT_NOT_IN_WAITING_LINE));
                             break;
                         case Web.Api.Models.LoginResult.Success:
-                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_SUCCESS");
+                            ERROR_MESSAGE = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_LOGIN_RESULT_SUCCESS));
                             break;
                         case Web.Api.Models.LoginResult.RestrictedByAge:
-                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_RESTRICTED_BY_AGE");
+                            ERROR_MESSAGE = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_LOGIN_RESULT_RESTRICTED_BY_AGE));
                             break;
                         default:
                             ERROR_MESSAGE = e.FailReason.ToString();

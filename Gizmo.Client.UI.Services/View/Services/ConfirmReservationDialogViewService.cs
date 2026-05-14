@@ -271,7 +271,7 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     if (string.IsNullOrEmpty(ViewState.Pin))
                     {
-                        AddError(() => ViewState.Pin, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                        AddError(() => ViewState.Pin, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                     }
                 }
             }
@@ -281,7 +281,7 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     if (!ViewState.PaymentMethodId.HasValue)
                     {
-                        AddError(() => ViewState.PaymentMethodId, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                        AddError(() => ViewState.PaymentMethodId, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                     }
                 }
             }

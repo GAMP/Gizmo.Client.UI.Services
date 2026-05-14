@@ -44,16 +44,16 @@ namespace Gizmo.Client.UI.View.Services
                     switch (currentUserSession.CurrentUsageType)
                     {
                         case Web.Api.Models.UsageType.None:
-                            ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_NONE");
+                            ViewState.CurrentTimeProductName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USAGE_TYPE_NONE));
                             break;
                         case Web.Api.Models.UsageType.Rate:
-                            ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_RATE");
+                            ViewState.CurrentTimeProductName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USAGE_TYPE_RATE));
                             break;
                         case Web.Api.Models.UsageType.TimeFixed:
-                            ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_TIME_FIXED");
+                            ViewState.CurrentTimeProductName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USAGE_TYPE_TIME_FIXED));
                             break;                            
                         case Web.Api.Models.UsageType.TimeOffer:
-                            ViewState.CurrentTimeProductName = currentUserSession.TimeProduct ?? _localizationService.GetString("GIZ_USAGE_TYPE_NONE");
+                            ViewState.CurrentTimeProductName = currentUserSession.TimeProduct ?? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USAGE_TYPE_NONE));
                             break;
                     }
                 }
@@ -84,17 +84,17 @@ namespace Gizmo.Client.UI.View.Services
             switch (e.CurrentUsageType)
             {
                 case Web.Api.Models.UsageType.None:
-                    ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_NONE");
+                    ViewState.CurrentTimeProductName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USAGE_TYPE_NONE));
                     break;
                 case Web.Api.Models.UsageType.Rate:
-                    ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_RATE");
+                    ViewState.CurrentTimeProductName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USAGE_TYPE_RATE));
                     break;
                 case Web.Api.Models.UsageType.TimeFixed:
-                    ViewState.CurrentTimeProductName = _localizationService.GetString("GIZ_USAGE_TYPE_TIME_FIXED"); 
+                    ViewState.CurrentTimeProductName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USAGE_TYPE_TIME_FIXED)); 
                     break;
                 case Web.Api.Models.UsageType.TimeOffer:
                     // fallback to default localized value in case product name not provided
-                    ViewState.CurrentTimeProductName = !string.IsNullOrWhiteSpace(e.CurrentTimeProduct) ? e.CurrentTimeProduct : _localizationService.GetString("GIZ_USAGE_TYPE_TIME_PRODUCT");
+                    ViewState.CurrentTimeProductName = !string.IsNullOrWhiteSpace(e.CurrentTimeProduct) ? e.CurrentTimeProduct : _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USAGE_TYPE_TIME_PRODUCT));
                     break;
             }
             

@@ -93,17 +93,17 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (_userPasswordRecoveryViewState.SelectedRecoveryMethod == Server.UserRecoveryMethod.Email)
             {
-                ViewState.ConfirmationCodeMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_EMAIL_MESSAGE", _userPasswordRecoveryViewState.Destination);
+                ViewState.ConfirmationCodeMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CONFIRMATION_EMAIL_MESSAGE), _userPasswordRecoveryViewState.Destination);
             }
             else if (_userPasswordRecoveryViewState.SelectedRecoveryMethod == Server.UserRecoveryMethod.Mobile)
             {
                 if (_userPasswordRecoveryViewState.DeliveryMethod == Web.Api.Models.ConfirmationCodeDeliveryMethod.FlashCall)
                 {
-                    ViewState.ConfirmationCodeMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_FLASH_CALL_MESSAGE", _userPasswordRecoveryViewState.Destination, _userPasswordRecoveryViewState.CodeLength);
+                    ViewState.ConfirmationCodeMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CONFIRMATION_FLASH_CALL_MESSAGE), _userPasswordRecoveryViewState.Destination, _userPasswordRecoveryViewState.CodeLength);
                 }
                 else
                 {
-                    ViewState.ConfirmationCodeMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_SMS_MESSAGE", _userPasswordRecoveryViewState.Destination);
+                    ViewState.ConfirmationCodeMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CONFIRMATION_SMS_MESSAGE), _userPasswordRecoveryViewState.Destination);
                 }
             }
 
@@ -116,7 +116,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (ViewState.ConfirmationCode.Length != _userPasswordRecoveryViewState.CodeLength)
                 {
-                    AddError(() => ViewState.ConfirmationCode, _localizationService.GetString("GIZ_CONFIRMATION_CODE_LENGTH_ERROR", _userPasswordRecoveryViewState.CodeLength));
+                    AddError(() => ViewState.ConfirmationCode, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_CONFIRMATION_CODE_LENGTH_ERROR), _userPasswordRecoveryViewState.CodeLength));
                 }
             }
         }
@@ -131,13 +131,13 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         if (!await _gizmoClient.TokenIsValidAsync(Web.Api.Models.TokenType.ResetPassword, _userPasswordRecoveryViewState.Token, ViewState.ConfirmationCode))
                         {
-                            return new string[] { _localizationService.GetString("GIZ_USER_CONFIRMATION_CONFIRMATION_CODE_IS_INVALID") };
+                            return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CONFIRMATION_CONFIRMATION_CODE_IS_INVALID)) };
                         }
                     }
                     catch (Exception ex)
                     {
                         Logger.LogError(ex, "Check password recovery token validity error.");
-                        return new string[] { _localizationService.GetString("GIZ_USER_CONFIRMATION_VE_CANNOT_VALIDATE_TOKEN") };
+                        return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CONFIRMATION_VE_CANNOT_VALIDATE_TOKEN)) };
                     }
                 }
             }

@@ -98,14 +98,14 @@ namespace Gizmo.Client.UI.View.Services
             if (product.IsRestrictedForGuest)
             {
                 product.DisallowPurchase = true;
-                product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_NOT_AVAILABLE_FOR_GUEST");
+                product.DisallowPurchaseReason = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PRODUCT_NOT_AVAILABLE_FOR_GUEST));
                 return;
             }
 
             if (product.IsRestrictedForUserGroup)
             {
                 product.DisallowPurchase = true;
-                product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_NOT_AVAILABLE_FOR_USER_GROUP");
+                product.DisallowPurchaseReason = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PRODUCT_NOT_AVAILABLE_FOR_USER_GROUP));
                 return;
             }
 
@@ -113,14 +113,14 @@ namespace Gizmo.Client.UI.View.Services
                 product.OrderOptions.HasFlag(OrderOptionType.RestrictSale))
             {
                 product.DisallowPurchase = true;
-                product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_NOT_AVAILABLE_FOR_PURCHASE");
+                product.DisallowPurchaseReason = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PRODUCT_NOT_AVAILABLE_FOR_PURCHASE));
                 return;
             }
 
             if (product.IsDeleted)
             {
                 product.DisallowPurchase = true;
-                product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_NOT_AVAILABLE");
+                product.DisallowPurchaseReason = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PRODUCT_NOT_AVAILABLE));
                 return;
             }
 
@@ -129,7 +129,7 @@ namespace Gizmo.Client.UI.View.Services
                 if (product.HiddenHostGroups.Contains(_hostGroupViewState.HostGroupId.Value))
                 {
                     product.DisallowPurchase = true;
-                    product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_NOT_AVAILABLE_ON_THIS_HOST");
+                    product.DisallowPurchaseReason = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PRODUCT_NOT_AVAILABLE_ON_THIS_HOST));
 
                     return;
                 }
@@ -169,18 +169,18 @@ namespace Gizmo.Client.UI.View.Services
                     if (product.PurchaseAvailability.StartDate.HasValue && product.PurchaseAvailability.StartDate.Value > DateTime.Now)
                     {
                         product.DisallowPurchase = true;
-                        product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_NOT_YET_AVAILABLE");
+                        product.DisallowPurchaseReason = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PRODUCT_NOT_YET_AVAILABLE));
                     }
                     else if (expired)
                     {
                         product.DisallowPurchase = true;
-                        product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_NOT_AVAILABLE_ANYMORE");
+                        product.DisallowPurchaseReason = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PRODUCT_NOT_AVAILABLE_ANYMORE));
                     }
                 }
                 else if (product.PurchaseAvailability.DaysAvailable.Count() > 0)
                 {
                     product.DisallowPurchase = true;
-                    product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_CURRENTLY_NOT_AVAILABLE");
+                    product.DisallowPurchaseReason = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PRODUCT_CURRENTLY_NOT_AVAILABLE));
 
                     var today = product.PurchaseAvailability.DaysAvailable.Where(a => a.Day == DateTime.Now.DayOfWeek).FirstOrDefault();
                     if (today != null && today.DayTimesAvailable != null)
@@ -204,7 +204,7 @@ namespace Gizmo.Client.UI.View.Services
                 if (_hostGroupViewState.HostGroupId.HasValue && product.TimeProduct.DisallowedHostGroups.Contains(_hostGroupViewState.HostGroupId.Value))
                 {
                     product.DisallowPurchase = true;
-                    product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_TIME_NOT_AVAILABLE_ON_THIS_HOST");
+                    product.DisallowPurchaseReason = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PRODUCT_TIME_NOT_AVAILABLE_ON_THIS_HOST));
                 }
 
                 if (product.TimeProduct.UsageAvailability != null)

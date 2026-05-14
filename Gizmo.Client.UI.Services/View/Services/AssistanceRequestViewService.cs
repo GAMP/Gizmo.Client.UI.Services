@@ -89,7 +89,7 @@ namespace Gizmo.Client.UI.View.Services
                 var userMenuViewService = ServiceProvider.GetRequiredService<UserMenuViewService>();
                 userMenuViewService.CloseAssistanceRequests();
 
-                var dialogResult = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_ASSISTANCE_REQUEST_SENT_TITLE"), _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_SENT_MESSAGE"), AlertDialogButtons.OK, AlertTypes.Success);
+                var dialogResult = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_ASSISTANCE_REQUEST_SENT_TITLE)), _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_ASSISTANCE_REQUEST_SENT_MESSAGE)), AlertDialogButtons.OK, AlertTypes.Success);
                 _ = await dialogResult.WaitForResultAsync();
             }
             catch (Exception ex)
@@ -99,7 +99,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 Logger.LogError(ex, "Assistance request create error.");
 
-                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURRED"), _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_FAILED_TO_PROCESS"));
+                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED)), _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_ASSISTANCE_REQUEST_FAILED_TO_PROCESS)));
             }
         }
 
@@ -123,7 +123,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 Logger.LogError(ex, "Assistance request cancel error.");
 
-                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURRED"), _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_FAILED_TO_PROCESS"));
+                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED)), _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_ASSISTANCE_REQUEST_FAILED_TO_PROCESS)));
             }
         }
 
@@ -144,7 +144,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (!ViewState.SelectedAssistanceRequestType.HasValue)
                 {
-                    AddError(() => ViewState.SelectedAssistanceRequestType, _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_VE_TYPE_IS_REQUIRED"));
+                    AddError(() => ViewState.SelectedAssistanceRequestType, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_ASSISTANCE_REQUEST_VE_TYPE_IS_REQUIRED)));
                 }
             }
         }
@@ -176,11 +176,11 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         if (assistanceRequestStatusChangeEventMessage.Status == AssistanceRequestStatus.Accepted)
                         {
-                            _ = await _notificationService.ShowAlertNotification(Gizmo.UI.AlertTypes.Info, _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_RESPONSE_TITLE"), _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_RESPONSE_ACCEPTED"));
+                            _ = await _notificationService.ShowAlertNotification(Gizmo.UI.AlertTypes.Info, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_ASSISTANCE_REQUEST_RESPONSE_TITLE)), _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_ASSISTANCE_REQUEST_RESPONSE_ACCEPTED)));
                         }
                         else if (assistanceRequestStatusChangeEventMessage.Status == AssistanceRequestStatus.Rejected)
                         {
-                            _ = await _notificationService.ShowAlertNotification(Gizmo.UI.AlertTypes.Warning, _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_RESPONSE_TITLE"), _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_RESPONSE_REJECTED"));
+                            _ = await _notificationService.ShowAlertNotification(Gizmo.UI.AlertTypes.Warning, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_ASSISTANCE_REQUEST_RESPONSE_TITLE)), _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_ASSISTANCE_REQUEST_RESPONSE_REJECTED)));
                         }
                     }
                     catch (Exception ex)

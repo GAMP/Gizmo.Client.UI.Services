@@ -142,14 +142,14 @@ namespace Gizmo.Client.UI.View.Services
 
                             case Gizmo.VerificationStartResultCode.NoRouteForDelivery:
                                 ViewState.HasError = true;
-                                ViewState.ErrorMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY");
+                                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY));
 
                                 break;
 
                             default:
 
                                 ViewState.HasError = true;
-                                ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURRED") + $" {result.Result.ToString()}"; //TODO: AAA TRANSLATE?
+                                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED)) + $" {result.Result.ToString()}"; //TODO: AAA TRANSLATE?
 
                                 break;
                         }
@@ -195,21 +195,21 @@ namespace Gizmo.Client.UI.View.Services
                             case Gizmo.VerificationStartResultCode.NonUniqueInput:
 
                                 ViewState.HasError = true;
-                                ViewState.ErrorMessage = _localizationService.GetString("GIZ_REGISTRATION_VE_MOBILE_PHONE_USED");
+                                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_MOBILE_PHONE_USED));
 
                                 break;
 
                             case Gizmo.VerificationStartResultCode.NoRouteForDelivery:
 
                                 ViewState.HasError = true;
-                                ViewState.ErrorMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY");
+                                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY));
 
                                 break;
 
                             default:
 
                                 ViewState.HasError = true;
-                                ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURRED") + $" {result.Result.ToString()}"; //TODO: AAA TRANSLATE?
+                                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED)) + $" {result.Result.ToString()}"; //TODO: AAA TRANSLATE?
 
                                 break;
                         }
@@ -220,7 +220,7 @@ namespace Gizmo.Client.UI.View.Services
                     Logger.LogError(ex, "User create start error.");
 
                     ViewState.HasError = true;
-                    ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURRED");
+                    ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
                 }
                 finally
                 {
@@ -254,7 +254,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (string.IsNullOrEmpty(ViewState.Email))
                 {
-                    AddError(() => ViewState.Email, _localizationService.GetString("GIZ_USER_CONFIRMATION_VE_EMAIL_IS_REQUIRED"));
+                    AddError(() => ViewState.Email, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CONFIRMATION_VE_EMAIL_IS_REQUIRED)));
                 }
             }
 
@@ -264,7 +264,7 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     if (string.IsNullOrEmpty(ViewState.Country))
                     {
-                        AddError(() => ViewState.Country, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                        AddError(() => ViewState.Country, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                     }
                     else
                     {
@@ -276,7 +276,7 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     if (string.IsNullOrEmpty(ViewState.MobilePhone))
                     {
-                        AddError(() => ViewState.MobilePhone, _localizationService.GetString("GIZ_USER_CONFIRMATION_VE_PHONE_IS_REQUIRED"));
+                        AddError(() => ViewState.MobilePhone, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CONFIRMATION_VE_PHONE_IS_REQUIRED)));
                     }
                 }
             }
@@ -293,13 +293,13 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         if (await _gizmoClient.UserEmailExistAsync(ViewState.Email))
                         {
-                            return new string[] { _localizationService.GetString("GIZ_REGISTRATION_VE_EMAIL_ADDRESS_USED") };
+                            return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_EMAIL_ADDRESS_USED)) };
                         }
                     }
                     catch (Exception ex)
                     {
                         Logger.LogError(ex, "Cannot validate email.");
-                        return new string[] { _localizationService.GetString("GIZ_REGISTRATION_VE_CANNOT_VALIDATE_EMAIL") };
+                        return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_CANNOT_VALIDATE_EMAIL)) };
                     }
                 }
             }
@@ -320,13 +320,13 @@ namespace Gizmo.Client.UI.View.Services
 
                         if (await _gizmoClient.UserMobileExistAsync(tmp))
                         {
-                            return new string[] { _localizationService.GetString("GIZ_REGISTRATION_VE_MOBILE_PHONE_USED") };
+                            return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_MOBILE_PHONE_USED)) };
                         }
                     }
                     catch (Exception ex)
                     {
                         Logger.LogError(ex, "Cannot validate phone.");
-                        return new string[] { _localizationService.GetString("GIZ_REGISTRATION_VE_CANNOT_VALIDATE_PHONE") };
+                        return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_CANNOT_VALIDATE_PHONE)) };
                     }
                 }
             }

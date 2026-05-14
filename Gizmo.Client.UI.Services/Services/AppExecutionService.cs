@@ -69,7 +69,7 @@ namespace Gizmo.Client.UI.Services
                     if (await _client.AppExePassAgeRatingAsync(appExeId, cancellationToken) == false)
                     {
                         _ = await _clientNotificationService.ShowAlertNotification(Gizmo.UI.AlertTypes.Warning,
-                           _localizationService.GetString("GIZ_APP_EXE_AGE_RATING_WARNING_TITLE"), _localizationService.GetString("GIZ_APP_EXE_AGE_RATING_WARNING_MESSAGE"),
+                           _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_APP_EXE_AGE_RATING_WARNING_TITLE)), _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_APP_EXE_AGE_RATING_WARNING_MESSAGE)),
                            cancellationToken: cancellationToken);
                         return;
                     }
@@ -77,7 +77,7 @@ namespace Gizmo.Client.UI.Services
                     //pass execution limit
                     if (await _client.AppExeExecutionLimitPassAsync(appExeId, cancellationToken) == false)
                     {
-                        var addDialogResult = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_APP_EXE_MAX_LIMIT_WARNING_TITLE"), _localizationService.GetString("GIZ_APP_EXE_MAX_LIMIT_WARNING_MESSAGE"), AlertDialogButtons.YesNo, cancellationToken: cancellationToken);
+                        var addDialogResult = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_APP_EXE_MAX_LIMIT_WARNING_TITLE)), _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_APP_EXE_MAX_LIMIT_WARNING_MESSAGE)), AlertDialogButtons.YesNo, cancellationToken: cancellationToken);
                         if (addDialogResult.Result == AddComponentResultCode.Opened)
                         {
                             var result = await addDialogResult.WaitForResultAsync(cancellationToken);
@@ -92,7 +92,7 @@ namespace Gizmo.Client.UI.Services
 
                     if (reprocess)
                     {
-                        var addDialogResult = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_APP_EXE_REPAIR_VERIFICATION_TITLE"), _localizationService.GetString("GIZ_APP_EXE_REPAIR_VERIFICATION_MESSAGE"), AlertDialogButtons.YesNo, cancellationToken: cancellationToken);
+                        var addDialogResult = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_APP_EXE_REPAIR_VERIFICATION_TITLE)), _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_APP_EXE_REPAIR_VERIFICATION_MESSAGE)), AlertDialogButtons.YesNo, cancellationToken: cancellationToken);
                         if (addDialogResult.Result == AddComponentResultCode.Opened)
                         {
                             var result = await addDialogResult.WaitForResultAsync(cancellationToken);
@@ -127,7 +127,7 @@ namespace Gizmo.Client.UI.Services
                 var executionContext = executionContextResult.ExecutionContext;
                 if (executionContextResult.IsSuccess && executionContext != null && !executionContext.IsAborting)
                 {
-                    var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_APP_EXE_ABORT_LAUNCH_VERIFICATION_TITLE"), _localizationService.GetString("GIZ_APP_EXE_ABORT_LAUNCH_VERIFICATION_MESSAGE"), AlertDialogButtons.YesNo);
+                    var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_APP_EXE_ABORT_LAUNCH_VERIFICATION_TITLE)), _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_APP_EXE_ABORT_LAUNCH_VERIFICATION_MESSAGE)), AlertDialogButtons.YesNo);
                     if (s.Result == AddComponentResultCode.Opened)
                     {
                         var result = await s.WaitForResultAsync();
@@ -159,7 +159,7 @@ namespace Gizmo.Client.UI.Services
                 var executionContext = executionContextResult.ExecutionContext;
                 if (executionContextResult.IsSuccess && executionContext != null)
                 {
-                    var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_APP_EXE_TERMINATE_VERIFICATION_TITLE"), _localizationService.GetString("GIZ_APP_EXE_TERMINATE_VERIFICATION_MESSAGE"), AlertDialogButtons.YesNo);
+                    var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_APP_EXE_TERMINATE_VERIFICATION_TITLE)), _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_APP_EXE_TERMINATE_VERIFICATION_MESSAGE)), AlertDialogButtons.YesNo);
                     if (s.Result == AddComponentResultCode.Opened)
                     {
                         var result = await s.WaitForResultAsync();

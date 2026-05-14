@@ -112,7 +112,7 @@ namespace Gizmo.Client.UI.View.Services
             }
             else
             {
-                ViewState.Error = _localizationService.GetString("GIZ_USER_LOCK_SCREEN_INCORRECT_PIN");
+                ViewState.Error = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LOCK_SCREEN_INCORRECT_PIN));
             }
 
             ViewState.RaiseChanged();
@@ -184,7 +184,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (ViewState.InputPassword.Length != 4)
                 {
-                    AddError(() => ViewState.InputPassword, _localizationService.GetString("GIZ_USER_LOCK_SCREEN_VE_PASSWORD_LENGTH"));
+                    AddError(() => ViewState.InputPassword, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LOCK_SCREEN_VE_PASSWORD_LENGTH)));
                 }
             }
         }

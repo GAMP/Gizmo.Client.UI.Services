@@ -76,11 +76,11 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         if (string.IsNullOrEmpty(userOrderViewState.Invoice.PaymentMethodNames))
                         {
-                            userOrderViewState.Invoice.PaymentMethodNames = _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_POINTS");
+                            userOrderViewState.Invoice.PaymentMethodNames = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_PAYMENT_METHOD_POINTS));
                         }
                         else
                         {
-                            userOrderViewState.Invoice.PaymentMethodNames += " & " + _localizationService.GetString("GIZ_GEN_PAYMENT_METHOD_POINTS");
+                            userOrderViewState.Invoice.PaymentMethodNames += " & " + _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_PAYMENT_METHOD_POINTS));
                         }
                     }
                 }
