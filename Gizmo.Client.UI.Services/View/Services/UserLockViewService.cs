@@ -47,7 +47,9 @@ namespace Gizmo.Client.UI.View.Services
             await _gizmoClient.EnterFullScreenAsync();
 
             ViewState.IsLocking = true;
-            ViewState.RaiseChanged();            
+            ViewState.Error = string.Empty;
+            ResetValidationState();
+            ViewState.RaiseChanged();
         }
 
         public async Task CancelLockAsync()
@@ -60,7 +62,9 @@ namespace Gizmo.Client.UI.View.Services
 
                 ViewState.IsLocking = false;
                 ViewState.InputPassword = string.Empty;
-                ViewState.RaiseChanged();             
+                ViewState.Error = string.Empty;
+                ResetValidationState();
+                ViewState.RaiseChanged();
             }
         }
 
@@ -93,6 +97,9 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task UnlockAsync()
         {
+            ViewState.Error = string.Empty;
+            ResetValidationState();
+
             Validate();
 
             if (ViewState.IsValid != true)
