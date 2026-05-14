@@ -74,11 +74,20 @@ namespace Gizmo.Client.UI.View.Services
         protected override Task OnInitializing(CancellationToken ct)
         {
             _localizationService.LanguageChanged += OnLanguageChanged;
+            _gizmoClient.LoginStateChange += OnLoginStateChange;
             return base.OnInitializing(ct);
         }
+
+        private async void OnLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
+        {
+            if (e.State == LoginState.LoggedIn)
+                await ResetInitialization(CancellationToken.None);
+        }
+
         protected override void OnDisposing(bool isDisposing)
         {
             _localizationService.LanguageChanged -= OnLanguageChanged;
+            _gizmoClient.LoginStateChange -= OnLoginStateChange;
             base.OnDisposing(isDisposing);
         }
         protected override async Task<IDictionary<int, PaymentMethodViewState>> DataInitializeAsync(CancellationToken cToken)
