@@ -99,7 +99,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 Logger.LogError(ex, "Assistance request create error.");
 
-                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_FAILED_TO_PROCESS"));
+                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURRED"), _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_FAILED_TO_PROCESS"));
             }
         }
 
@@ -123,7 +123,7 @@ namespace Gizmo.Client.UI.View.Services
 
                 Logger.LogError(ex, "Assistance request cancel error.");
 
-                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED"), _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_FAILED_TO_PROCESS"));
+                await _notificationService.ShowAlertNotification(AlertTypes.Danger, _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURRED"), _localizationService.GetString("GIZ_ASSISTANCE_REQUEST_FAILED_TO_PROCESS"));
             }
         }
 
