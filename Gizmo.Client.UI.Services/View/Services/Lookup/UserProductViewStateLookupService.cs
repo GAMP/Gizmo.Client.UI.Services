@@ -94,15 +94,33 @@ namespace Gizmo.Client.UI.View.Services
         #region PRIVATE FUNCTIONS
         private void RefreshProductAvailability(UserProductViewState product)
         {
-            if (product.IsDeleted ||
-                product.OrderOptions.HasFlag(OrderOptionType.DisallowAllowOrder) ||
-                product.IsRestrictedForGuest ||
-                product.OrderOptions.HasFlag(OrderOptionType.RestrictSale) ||
-                product.IsRestrictedForUserGroup)
+            // Specific reasons first so the user sees the most actionable message.
+            if (product.IsRestrictedForGuest)
+            {
+                product.DisallowPurchase = true;
+                product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_NOT_AVAILABLE_FOR_GUEST");
+                return;
+            }
+
+            if (product.IsRestrictedForUserGroup)
+            {
+                product.DisallowPurchase = true;
+                product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_NOT_AVAILABLE_FOR_USER_GROUP");
+                return;
+            }
+
+            if (product.OrderOptions.HasFlag(OrderOptionType.DisallowAllowOrder) ||
+                product.OrderOptions.HasFlag(OrderOptionType.RestrictSale))
+            {
+                product.DisallowPurchase = true;
+                product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_NOT_AVAILABLE_FOR_PURCHASE");
+                return;
+            }
+
+            if (product.IsDeleted)
             {
                 product.DisallowPurchase = true;
                 product.DisallowPurchaseReason = _localizationService.GetString("GIZ_PRODUCT_NOT_AVAILABLE");
-
                 return;
             }
 

@@ -198,7 +198,7 @@ namespace Gizmo.Client.UI.View.Services
                             ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_NOT_IN_WAITING_LINE");
                             break;
                         case Web.Api.Models.LoginResult.Success:
-                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_SUCESS");
+                            ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_SUCCESS");
                             break;
                         case Web.Api.Models.LoginResult.RestrictedByAge:
                             ERROR_MESSAGE = _localizationService.GetString("GIZ_LOGIN_RESULT_RESTRICTED_BY_AGE");
