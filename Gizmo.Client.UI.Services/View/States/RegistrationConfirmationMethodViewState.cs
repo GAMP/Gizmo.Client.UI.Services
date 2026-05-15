@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Gizmo.Client.UI.View.States
 {
     [Register()]
+    [Obsolete("Abandoned since 2023. Use UserRegistrationConfirmationMethodViewState instead.")]
     public sealed class RegistrationConfirmationMethodViewState : ValidatingViewStateBase
     {
         #region FIELDS

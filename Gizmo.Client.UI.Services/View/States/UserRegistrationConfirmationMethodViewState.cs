@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Gizmo.Client.UI.Services;
 using Gizmo.UI;
 using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,7 +30,7 @@ namespace Gizmo.Client.UI.View.States
 
         public int CodeLength { get; internal set; }
 
-        public Web.Api.Models.ConfirmationCodeDeliveryMethod DeliveryMethod { get; internal set; }
+        public RegistrationDeliveryMethod DeliveryMethod { get; internal set; }
 
         public bool IsLoading { get; internal set; }
 

@@ -1,5 +1,5 @@
-﻿using Gizmo.UI.View.States;
-using Gizmo.Web.Api.Models;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gizmo.Client.UI.View.States
@@ -9,9 +9,12 @@ namespace Gizmo.Client.UI.View.States
     {
         #region PROPERTIES
 
-        public Server.RegistrationVerificationMethod ConfirmationMethod { get; internal set; } = Server.RegistrationVerificationMethod.None;
+        [Obsolete("Replaced by SelectedProvider. Remove when separate pages per method implemented.")]
+        public RegistrationVerificationMethod ConfirmationMethod { get; internal set; } = RegistrationVerificationMethod.None;
 
-        public UserModelRequiredInfo DefaultUserGroupRequiredInfo { get; internal set; } = new UserModelRequiredInfo();
+        public RegistrationProvider? SelectedProvider { get; internal set; }
+
+        public RegistrationRequiredInfo? DefaultUserGroupRequiredInfo { get; internal set; }
 
         #endregion
     }

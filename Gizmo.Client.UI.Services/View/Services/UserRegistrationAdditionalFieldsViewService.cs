@@ -1,8 +1,8 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
-using Gizmo.Web.Api.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,18 +19,18 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserRegistrationAdditionalFieldsViewService> logger,
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
-            IGizmoClient gizmoClient,
+            IUserRegistrationService registrationService,
             UserRegistrationViewState userRegistrationViewState) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
-            _gizmoClient = gizmoClient;
+            _registrationService = registrationService;
             _userRegistrationViewState = userRegistrationViewState;
         }
         #endregion
 
         #region FIELDS
         private readonly ILocalizationService _localizationService;
-        private readonly IGizmoClient _gizmoClient;
+        private readonly IUserRegistrationService _registrationService;
         private readonly UserRegistrationViewState _userRegistrationViewState;
         #endregion
 
@@ -92,11 +92,27 @@ namespace Gizmo.Client.UI.View.Services
             var userRegistrationConfirmationMethodViewState = ServiceProvider.GetRequiredService<UserRegistrationConfirmationMethodViewState>();
             var userRegistrationBasicFieldsViewState = ServiceProvider.GetRequiredService<UserRegistrationBasicFieldsViewState>();
 
-            bool confirmationRequired = userRegistrationViewState.ConfirmationMethod != Server.RegistrationVerificationMethod.None;
+            bool confirmationRequired = userRegistrationViewState.ConfirmationMethod != RegistrationVerificationMethod.None;
 
             try
             {
-                var profile = new UserProfileModelCreate()
+                string? country;
+                string? mobilePhone;
+
+                if (userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
+                {
+                    country = userRegistrationConfirmationMethodViewState.Country;
+                    var rawPhone = userRegistrationConfirmationMethodViewState.MobilePhone;
+                    mobilePhone = rawPhone?.StartsWith("+") == true ? rawPhone.Substring(1) : rawPhone;
+                }
+                else
+                {
+                    country = ViewState.Country;
+                    var rawPhone = ViewState.MobilePhone;
+                    mobilePhone = rawPhone?.StartsWith("+") == true ? rawPhone.Substring(1) : rawPhone;
+                }
+
+                var profile = new RegistrationProfile
                 {
                     Username = userRegistrationBasicFieldsViewState.Username,
                     FirstName = userRegistrationBasicFieldsViewState.FirstName,
@@ -105,70 +121,26 @@ namespace Gizmo.Client.UI.View.Services
                     Sex = userRegistrationBasicFieldsViewState.Sex,
                     Email = userRegistrationBasicFieldsViewState.Email,
                     Address = ViewState.Address,
-                    PostCode = ViewState.PostCode
+                    PostCode = ViewState.PostCode,
+                    Country = country,
+                    MobilePhone = mobilePhone
                 };
-                
-                if (userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.MobilePhone)
+
+                // TODO: agreements are collected in ViewState but not sent — new API does not accept them in registration request
+
+                var result = await _registrationService.CompleteAsync(new RegistrationCompleteRequest
                 {
-                    profile.Country = userRegistrationConfirmationMethodViewState.Country;
+                    Token = confirmationRequired ? userRegistrationConfirmationMethodViewState.Token : null,
+                    Profile = profile,
+                    Password = userRegistrationBasicFieldsViewState.Password
+                });
 
-                    var mobilePhone = userRegistrationConfirmationMethodViewState.MobilePhone;
-                    if (mobilePhone?.StartsWith("+") == true)
-                    {
-                        mobilePhone = mobilePhone.Substring(1);
-                    }
-
-                    profile.MobilePhone = mobilePhone;
-                }
-                else
+                if (result != RegistrationCompleteCode.Success)
                 {
-                    profile.Country = ViewState.Country;
+                    ViewState.HasError = true;
+                    ViewState.ErrorMessage = _localizationService.GetString("GIZ_REGISTRATION_FAILED_MESSAGE");
 
-                    var mobilePhone = ViewState.MobilePhone;
-                    if (mobilePhone?.StartsWith("+") == true)
-                    {
-                        mobilePhone = mobilePhone.Substring(1);
-                    }
-
-                    profile.MobilePhone = mobilePhone;
-                }
-
-                //get all user agreements states
-                var userAgreements = userRegistrationIndexViewState.UserAgreementStates
-                    .Select(a => new UserAgreementModelState()
-                    {
-                        UserAgreementId = a.Id,
-                        AcceptState = a.AcceptState
-                    }).ToList();
-
-                if (!confirmationRequired)
-                {
-                    var password = userRegistrationBasicFieldsViewState.Password;
-
-                    var result = await _gizmoClient.UserCreateCompleteAsync(profile, password, userAgreements);
-
-                    if (result.Result != AccountCreationCompleteResultCode.Success)
-                    {
-                        ViewState.HasError = true;
-                        ViewState.ErrorMessage = _localizationService.GetString("GIZ_REGISTRATION_FAILED_MESSAGE");
-
-                        return;
-                    }
-                }
-                else
-                {
-                    var token = userRegistrationConfirmationMethodViewState.Token;
-                    var password = userRegistrationBasicFieldsViewState.Password;
-
-                    var result = await _gizmoClient.UserCreateByTokenCompleteAsync(token, profile, password, userAgreements);
-
-                    if (result.Result != AccountCreationByTokenCompleteResultCode.Success)
-                    {
-                        ViewState.HasError = true;
-                        ViewState.ErrorMessage = _localizationService.GetString("GIZ_REGISTRATION_FAILED_MESSAGE");
-
-                        return;
-                    }
+                    return;
                 }
 
                 //TODO: AAA SUCCESS MESSAGE?
@@ -226,7 +198,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.MobilePhone))
             {
-                if (_userRegistrationViewState.ConfirmationMethod != Server.RegistrationVerificationMethod.MobilePhone)
+                if (_userRegistrationViewState.ConfirmationMethod != RegistrationVerificationMethod.MobilePhone)
                 {
                     if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.Mobile == true && string.IsNullOrEmpty(ViewState.MobilePhone))
                     {

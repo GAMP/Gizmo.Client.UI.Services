@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
+    [Obsolete("Abandoned since 2023. Use UserRegistrationConfirmationMethodViewService instead.")]
     public sealed class RegistrationConfirmationMethodViewService : ViewStateServiceBase<RegistrationConfirmationMethodViewState>
     {
         #region CONSTRUCTOR

@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Headers;
+﻿using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
@@ -17,14 +17,14 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserRegistrationConfirmationMethodViewService> logger,
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
-            IGizmoClient gizmoClient,
+            IUserRegistrationService registrationService,
             UserRegistrationViewState userRegistrationViewState,
              UserVerificationViewService userVerificationService,
             UserVerificationFallbackViewService userVerificationFallbackService) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
 
-            _gizmoClient = gizmoClient;
+            _registrationService = registrationService;
             _userRegistrationViewState = userRegistrationViewState;
             _userVerificationService = userVerificationService;
             _userVerificationFallbackService = userVerificationFallbackService;
@@ -33,7 +33,7 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FIELDS
         private readonly ILocalizationService _localizationService;
-        private readonly IGizmoClient _gizmoClient;
+        private readonly IUserRegistrationService _registrationService;
         private readonly UserRegistrationViewState _userRegistrationViewState;
         private readonly UserVerificationViewService _userVerificationService;
         private readonly UserVerificationFallbackViewService _userVerificationFallbackService;
@@ -109,29 +109,22 @@ namespace Gizmo.Client.UI.View.Services
 
                 bool wasSuccessful = false;
 
+                var integrationPublicId = _userRegistrationViewState.SelectedProvider?.PublicId ?? Guid.Empty;
+                if (_userRegistrationViewState.SelectedProvider is null)
+                    Logger.LogWarning("SelectedProvider is null in SubmitAsync; using Guid.Empty as IntegrationPublicId.");
+
                 try
                 {
-                    if (_userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.Email)
+                    if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email)
                     {
-                        var result = await _gizmoClient.UserCreateByEmailStartAsync(ViewState.Email);
+                        var result = await _registrationService.StartAsync(new RegistrationStartRequest { Email = ViewState.Email, DeliveryMethod = RegistrationDeliveryMethod.CodeDispatch, IntegrationPublicId = integrationPublicId });
 
                         switch (result.Result)
                         {
-                            case Gizmo.VerificationStartResultCode.Success:
-
-                                string email = "";
-
-                                if (!string.IsNullOrEmpty(result.Email))
-                                {
-                                    int atIndex = result.Email.IndexOf('@');
-                                    if (atIndex != -1 && atIndex > 1)
-                                        email = result.Email.Substring(atIndex - 2).PadLeft(result.Email.Length, '*');
-                                    else
-                                        email = result.Email;
-                                }
+                            case RegistrationStartCode.Success:
 
                                 ViewState.Token = result.Token;
-                                ViewState.Destination = email;
+                                ViewState.Destination = result.Destination;
                                 ViewState.CodeLength = result.CodeLength;
 
                                 wasSuccessful = true;
@@ -140,7 +133,7 @@ namespace Gizmo.Client.UI.View.Services
 
                                 break;
 
-                            case Gizmo.VerificationStartResultCode.NoRouteForDelivery:
+                            case RegistrationStartCode.NoRouteForDelivery:
                                 ViewState.HasError = true;
                                 ViewState.ErrorMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY");
 
@@ -154,37 +147,21 @@ namespace Gizmo.Client.UI.View.Services
                                 break;
                         }
                     }
-                    else if (_userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.MobilePhone)
+                    else if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
                     {
                         //TODO: AAA 9digit phones?
-                        var result = await _gizmoClient.UserCreateByMobileStartAsync(ViewState.MobilePhone, !fallback ? Gizmo.Web.Api.Models.ConfirmationCodeDeliveryMethod.Undetermined : Gizmo.Web.Api.Models.ConfirmationCodeDeliveryMethod.SMS);
+                        var result = await _registrationService.StartAsync(new RegistrationStartRequest { Phone = ViewState.MobilePhone, DeliveryMethod = RegistrationDeliveryMethod.CodeDispatch, IntegrationPublicId = integrationPublicId });
 
                         switch (result.Result)
                         {
-                            case Gizmo.VerificationStartResultCode.Success:
+                            case RegistrationStartCode.Success:
 
-                                string mobile = result.MobilePhone;
-
-                                if (mobile.Length > 4)
-                                    mobile = result.MobilePhone.Substring(result.MobilePhone.Length - 4).PadLeft(10, '*');
-
-                                bool isFlashCall = result.DeliveryMethod == Gizmo.Web.Api.Models.ConfirmationCodeDeliveryMethod.FlashCall;
-
-                                if (isFlashCall)
-                                {
-                                    _userVerificationFallbackService.SetSMSFallbackAvailability(true);
-                                    _userVerificationFallbackService.Lock();
-                                    _userVerificationFallbackService.StartUnlockTimer();
-                                }
-                                else
-                                {
-                                    _userVerificationFallbackService.SetSMSFallbackAvailability(false);
-                                }
+                                // TODO: FlashCall removed in new DeliveryMethod; re-evaluate when provider-specific fallback is implemented
 
                                 ViewState.Token = result.Token;
-                                ViewState.Destination = mobile;
+                                ViewState.Destination = result.Destination;
                                 ViewState.CodeLength = result.CodeLength;
-                                ViewState.DeliveryMethod = result.DeliveryMethod;
+                                ViewState.DeliveryMethod = result.DeliveryMethod.GetValueOrDefault();
 
                                 wasSuccessful = true;
 
@@ -192,14 +169,14 @@ namespace Gizmo.Client.UI.View.Services
 
                                 break;
 
-                            case Gizmo.VerificationStartResultCode.NonUniqueInput:
+                            case RegistrationStartCode.NonUniqueInput:
 
                                 ViewState.HasError = true;
                                 ViewState.ErrorMessage = _localizationService.GetString("GIZ_REGISTRATION_VE_MOBILE_PHONE_USED");
 
                                 break;
 
-                            case Gizmo.VerificationStartResultCode.NoRouteForDelivery:
+                            case RegistrationStartCode.NoRouteForDelivery:
 
                                 ViewState.HasError = true;
                                 ViewState.ErrorMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY");
@@ -249,7 +226,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
-            if (_userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.Email &&
+            if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email &&
                 fieldIdentifier.FieldEquals(() => ViewState.Email))
             {
                 if (string.IsNullOrEmpty(ViewState.Email))
@@ -258,7 +235,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            if (_userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.MobilePhone)
+            if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
             {
                 if (fieldIdentifier.FieldEquals(() => ViewState.Country))
                 {
@@ -284,14 +261,14 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task<IEnumerable<string>> OnValidateAsync(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger, CancellationToken cancellationToken = default)
         {
-            if (_userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.Email &&
+            if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email &&
                 fieldIdentifier.FieldEquals(() => ViewState.Email))
             {
                 if (!string.IsNullOrEmpty(ViewState.Email))
                 {
                     try
                     {
-                        if (await _gizmoClient.UserEmailExistAsync(ViewState.Email))
+                        if (await _registrationService.ExistsAsync(ViewState.Email, cancellationToken))
                         {
                             return new string[] { _localizationService.GetString("GIZ_REGISTRATION_VE_EMAIL_ADDRESS_USED") };
                         }
@@ -304,7 +281,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            if (_userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.MobilePhone &&
+            if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone &&
                 fieldIdentifier.FieldEquals(() => ViewState.MobilePhone))
             {
                 if (!string.IsNullOrEmpty(ViewState.MobilePhone))
@@ -318,7 +295,7 @@ namespace Gizmo.Client.UI.View.Services
                             tmp = tmp.Substring(1);
                         }
 
-                        if (await _gizmoClient.UserMobileExistAsync(tmp))
+                        if (await _registrationService.ExistsAsync(tmp, cancellationToken))
                         {
                             return new string[] { _localizationService.GetString("GIZ_REGISTRATION_VE_MOBILE_PHONE_USED") };
                         }
@@ -338,11 +315,11 @@ namespace Gizmo.Client.UI.View.Services
         {
             switch(_userRegistrationViewState.ConfirmationMethod)
             {
-                case Server.RegistrationVerificationMethod.MobilePhone:
+                case RegistrationVerificationMethod.MobilePhone:
                     if (IsAsyncValidated(() => ViewState.MobilePhone))
                         return AsyncValidatedDetermineResult.DefaultTrue;
                     break;
-                case Server.RegistrationVerificationMethod.Email:
+                case RegistrationVerificationMethod.Email:
                     if (IsAsyncValidated(() => ViewState.Email))
                         return AsyncValidatedDetermineResult.DefaultTrue;
                     break;

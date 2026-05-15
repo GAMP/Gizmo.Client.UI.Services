@@ -17,24 +17,24 @@ namespace Gizmo.Client.UI.View.Services
         public UserRegistrationIndexViewService(UserRegistrationIndexViewState viewState,
             ILogger<UserRegistrationIndexViewService> logger,
             IServiceProvider serviceProvider,
-            IGizmoClient gizmoClient,
+            IUserRegistrationService registrationService,
             IClientDialogService dialogService) : base(viewState, logger, serviceProvider)
         {
-            _gizmoClient = gizmoClient;
+            _registrationService = registrationService;
             _dialogService = dialogService;
         }
         #endregion
 
         #region FIELDS
-        private readonly IGizmoClient _gizmoClient;
+        private readonly IUserRegistrationService _registrationService;
         private readonly IClientDialogService _dialogService;
         #endregion
 
         public async Task<bool> ProcessUserAgreements(CancellationToken cancellationToken = default)
         {
-            var userAgreements = await _gizmoClient.UserAgreementsGetAsync(new UserAgreementsFilter() { IsEnabled = true }, cancellationToken);
+            var userAgreements = await _registrationService.GetAgreementsAsync(cancellationToken);
 
-            var userAgreementStates = userAgreements.Data.Select(a => new UserAgreementViewState()
+            var userAgreementStates = userAgreements.Select(a => new UserAgreementViewState()
             {
                 Id = a.Id,
                 Name = a.Name,
@@ -98,11 +98,13 @@ namespace Gizmo.Client.UI.View.Services
             var userRegistrationConfirmationMethodService = ServiceProvider.GetRequiredService<UserRegistrationConfirmationMethodViewService>();
             var userRegistrationBasicFieldsService = ServiceProvider.GetRequiredService<UserRegistrationBasicFieldsViewService>();
             var userRegistrationAdditionalFieldsService = ServiceProvider.GetRequiredService<UserRegistrationAdditionalFieldsViewService>();
+            var userRegistrationService = ServiceProvider.GetRequiredService<UserRegistrationViewService>();
 
             userRegistrationConfirmationService.Clear();
             userRegistrationConfirmationMethodService.Clear();
             userRegistrationBasicFieldsService.Clear();
             userRegistrationAdditionalFieldsService.Clear();
+            userRegistrationService.ClearProvider();
 
             ViewState.UserAgreementStates = Enumerable.Empty<UserAgreementViewState>();
             DebounceViewStateChanged();
@@ -116,26 +118,25 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
+                var providers = await _registrationService.GetProvidersAsync(cancellationToken);
+
                 var agreementStatus = await ProcessUserAgreements(cancellationToken);
 
                 if (agreementStatus)
                 {
                     var userRegistrationService = ServiceProvider.GetRequiredService<UserRegistrationViewService>();
-                    var userRegistrationViewState = ServiceProvider.GetRequiredService<UserRegistrationViewState>();
 
-                    var registrationVerificationMethod = await _gizmoClient.RegistrationVerificationMethodGetAsync();
-                    var userGroupDefaultRequiredInfo = await _gizmoClient.UserGroupDefaultRequiredInfoGetAsync();
+                    var userGroupDefaultRequiredInfo = await _registrationService.GetRequiredUserInfoAsync(cancellationToken);
 
-                    userRegistrationService.SetConfirmationMethod(registrationVerificationMethod);
                     userRegistrationService.SetUserGroupDefaultRequiredInfo(userGroupDefaultRequiredInfo);
 
-                    if (userRegistrationViewState.ConfirmationMethod == Server.RegistrationVerificationMethod.None)
+                    if (providers.Count > 0)
                     {
-                        NavigationService.NavigateTo(ClientRoutes.RegistrationBasicFieldsRoute);
+                        NavigationService.NavigateTo("/registrationproviders");
                     }
                     else
                     {
-                        NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationMethodRoute);
+                        NavigationService.NavigateTo(ClientRoutes.RegistrationBasicFieldsRoute);
                     }
                 }
                 else
