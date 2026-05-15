@@ -73,7 +73,7 @@ namespace Gizmo.Client.UI.View.Services
                 if (result != PasswordRecoveryCompleteResultCode.Success)
                 {
                     ViewState.HasError = true;
-                    ViewState.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_RECOVERY_PASSWORD_RESET_FAILED_MESSAGE");
+                    ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_RECOVERY_PASSWORD_RESET_FAILED_MESSAGE));
 
                     return;
                 }
@@ -86,7 +86,7 @@ namespace Gizmo.Client.UI.View.Services
                 Logger.LogError(ex, "Password recovery complete error.");
 
                 ViewState.HasError = true;
-                ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED");
+                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
             }
             finally
             {
@@ -111,7 +111,7 @@ namespace Gizmo.Client.UI.View.Services
         private void CheckPasswordRules(string password)
         {
             ViewState.PasswordTooltip.PassedRules = 0;
-            ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_SHORT");
+            ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_MESSAGE_TOO_SHORT));
 
             ViewState.PasswordTooltip.LengthRulePassed = false;
             ViewState.PasswordTooltip.LowerCaseCharactersRulePassed = false;
@@ -133,11 +133,11 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     if (ViewState.PasswordTooltip.MaximumLengthRule.HasValue && password.Length >= ViewState.PasswordTooltip.MaximumLengthRule)
                     {
-                        ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_LONG");
+                        ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_MESSAGE_TOO_LONG));
                     }
                     else
                     {
-                        ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_SHORT");
+                        ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_MESSAGE_TOO_SHORT));
                     }
                 }
             }
@@ -155,7 +155,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_EASY");
+                    ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_MESSAGE_TOO_EASY));
                 }
             }
 
@@ -168,7 +168,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_EASY");
+                    ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_MESSAGE_TOO_EASY));
                 }
             }
 
@@ -181,13 +181,13 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_EASY");
+                    ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_MESSAGE_TOO_EASY));
                 }
             }
 
             if (ViewState.PasswordTooltip.PassedRules == ViewState.PasswordTooltip.TotalRules)
             {
-                ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_SECURE");
+                ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_MESSAGE_SECURE));
             }
         }
 
@@ -239,7 +239,7 @@ namespace Gizmo.Client.UI.View.Services
                 ClearError(() => ViewState.RepeatPassword);
                 if (!string.IsNullOrEmpty(ViewState.NewPassword) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.NewPassword, ViewState.RepeatPassword) != 0)
                 {
-                    AddError(() => ViewState.RepeatPassword, _localizationService.GetString("GIZ_GEN_PASSWORDS_DO_NOT_MATCH"));
+                    AddError(() => ViewState.RepeatPassword, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_PASSWORDS_DO_NOT_MATCH)));
                 }
             }
         }

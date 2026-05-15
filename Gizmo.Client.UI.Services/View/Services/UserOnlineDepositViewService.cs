@@ -110,7 +110,7 @@ namespace Gizmo.Client.UI.View.Services
                 Logger.LogError(ex, "Payment intent create error.");
 
                 ViewState.HasError = true;
-                ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED");
+                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
             }
             finally
             {
@@ -150,11 +150,11 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (ViewState.Amount < ViewState.MinimumAmount)
                 {
-                    AddError(() => ViewState.Amount, _localizationService.GetString("GIZ_ONLINE_DEPOSIT_MINIMUM_AMOUNT_IS", ViewState.MinimumAmount));
+                    AddError(() => ViewState.Amount, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_ONLINE_DEPOSIT_MINIMUM_AMOUNT_IS), ViewState.MinimumAmount));
                 }
                 else if (ViewState.Amount > _userOnlineDepositOptions.Value.MaximumAmount)
                 {
-                    AddError(() => ViewState.Amount, _localizationService.GetString("GIZ_ONLINE_DEPOSIT_MAXIMUM_AMOUNT_IS", _userOnlineDepositOptions.Value.MaximumAmount));
+                    AddError(() => ViewState.Amount, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_ONLINE_DEPOSIT_MAXIMUM_AMOUNT_IS), _userOnlineDepositOptions.Value.MaximumAmount));
                 }
             }
         }

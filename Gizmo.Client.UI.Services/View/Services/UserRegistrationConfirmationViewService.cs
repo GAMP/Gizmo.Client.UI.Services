@@ -120,12 +120,12 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email)
             {
-                ViewState.ConfirmationCodeMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_EMAIL_MESSAGE", _userRegistrationConfirmationMethodViewState.Destination);
+                ViewState.ConfirmationCodeMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CONFIRMATION_EMAIL_MESSAGE), _userRegistrationConfirmationMethodViewState.Destination);
             }
             else if (_userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
             {
                 // TODO: FlashCall removed in new DeliveryMethod; re-evaluate when provider-specific fallback is implemented
-                ViewState.ConfirmationCodeMessage = _localizationService.GetString("GIZ_USER_CONFIRMATION_SMS_MESSAGE", _userRegistrationConfirmationMethodViewState.Destination);
+                ViewState.ConfirmationCodeMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CONFIRMATION_SMS_MESSAGE), _userRegistrationConfirmationMethodViewState.Destination);
             }
 
             return Task.CompletedTask;
@@ -137,7 +137,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (ViewState.ConfirmationCode.Length != _userRegistrationConfirmationMethodViewState.CodeLength)
                 {
-                    AddError(() => ViewState.ConfirmationCode, _localizationService.GetString("GIZ_CONFIRMATION_CODE_LENGTH_ERROR", _userRegistrationConfirmationMethodViewState.CodeLength));
+                    AddError(() => ViewState.ConfirmationCode, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_CONFIRMATION_CODE_LENGTH_ERROR), _userRegistrationConfirmationMethodViewState.CodeLength));
                 }
             }
         }

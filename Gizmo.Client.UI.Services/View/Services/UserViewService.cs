@@ -38,7 +38,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             try
             {
-                var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString("GIZ_LOGOUT_VERIFICATION_TITLE"), _localizationService.GetString("GIZ_LOGOUT_VERIFICATION_MESSAGE"), AlertDialogButtons.YesNo);
+                var s = await _dialogService.ShowAlertDialogAsync(_localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_LOGOUT_VERIFICATION_TITLE)), _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_LOGOUT_VERIFICATION_MESSAGE)), AlertDialogButtons.YesNo);
                 if (s.Result == AddComponentResultCode.Opened)
                 {
                     var result = await s.WaitForResultAsync();
@@ -86,7 +86,7 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.Id = e.UserProfile.Id;
                 if (e.UserProfile.IsGuest)
                 {
-                    ViewState.Username = _localizationService.GetString("GIZ_GEN_GUEST");
+                    ViewState.Username = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_GUEST));
                 }
                 else
                 {

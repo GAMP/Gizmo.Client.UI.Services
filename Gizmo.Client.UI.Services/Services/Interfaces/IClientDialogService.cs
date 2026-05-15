@@ -8,8 +8,6 @@ namespace Gizmo.Client.UI.Services
         Task<AddDialogResult<EmptyComponentResult>> ShowCheckoutDialogAsync(CancellationToken cancellationToken = default);
         Task<AddDialogResult<UserAgreementResult>> ShowUserAgreementDialogAsync(UserAgreementDialogParameters userAgreementDialogParameters, CancellationToken cancellationToken = default);
         Task<AddDialogResult<EmptyComponentResult>> ShowChangeProfileDialogAsync(CancellationToken cancellationToken = default);
-        Task<AddDialogResult<EmptyComponentResult>> ShowChangeEmailDialogAsync(CancellationToken cancellationToken = default);
-        Task<AddDialogResult<EmptyComponentResult>> ShowChangeMobileDialogAsync(CancellationToken cancellationToken = default);
         Task<AddDialogResult<EmptyComponentResult>> ShowChangePasswordDialogAsync(bool closable, CancellationToken cancellationToken = default);
         Task<AddDialogResult<EmptyComponentResult>> ShowChangePictureDialogAsync(CancellationToken cancellationToken = default);
         Task<AddDialogResult<EmptyComponentResult>> ShowMediaDialogAsync(MediaDialogParameters mediaDialogParameters, CancellationToken cancellationToken = default);

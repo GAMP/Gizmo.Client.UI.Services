@@ -51,30 +51,30 @@ namespace Gizmo.Client.UI.View.Services
         {
             List<EnumFilterViewState<ApplicationSortingOption>> sortingOptions = new List<EnumFilterViewState<ApplicationSortingOption>>
             {
-                new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Popularity, DisplayName = _localizationService.GetString("GIZ_APP_SORTING_OPTION_POPULARITY") },
-                new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Title, DisplayName = _localizationService.GetString("GIZ_APP_SORTING_OPTION_TITLE") },
-                new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.AddDate, DisplayName = _localizationService.GetString("GIZ_APP_SORTING_OPTION_ADD_DATE") },
-                new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.ReleaseDate, DisplayName = _localizationService.GetString("GIZ_APP_SORTING_OPTION_RELEASE_DATE") }
+                new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Popularity, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_APP_SORTING_OPTION_POPULARITY)) },
+                new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.Title, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_APP_SORTING_OPTION_TITLE)) },
+                new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.AddDate, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_APP_SORTING_OPTION_ADD_DATE)) },
+                new EnumFilterViewState<ApplicationSortingOption>() { Value = ApplicationSortingOption.ReleaseDate, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_APP_SORTING_OPTION_RELEASE_DATE)) }
             };
 
             ViewState.SortingOptions = sortingOptions;
 
             List<EnumFilterViewState<ApplicationModes>> executableModes = new List<EnumFilterViewState<ApplicationModes>>
             {
-                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.SinglePlayer, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_SINGLE_PLAYER") },
-                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Online, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_ONLINE") },
-                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Multiplayer, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_MULTIPLAYER") },
-                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Settings, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_SETTINGS") },
-                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Utility, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_UTILITY") },
-                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Game, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_GAME") },
-                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Application, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_APPLICATION") },
-                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.FreeToPlay, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_FREE_TO_PLAY") },
-                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.RequiresSubscription, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_REQUIRES_SUBSCRIPTION") },
-                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.FreeTrial, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_FREE_TRIAL") },
-                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.SplitScreenMultiPlayer, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_SPLIT_SCREEN_MULTIPLAYER") },
-                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.CoOpLan, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_CO_OP") },
-                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.CoOpOnline, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_CO_OP_ONLINE") },
-                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.OneTimePurchase, DisplayName = _localizationService.GetString("GIZ_EXECUTABLE_MODE_ONE_TIME_PURCHASE") }
+                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.SinglePlayer, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_EXECUTABLE_MODE_SINGLE_PLAYER)) },
+                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Online, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_EXECUTABLE_MODE_ONLINE)) },
+                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Multiplayer, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_EXECUTABLE_MODE_MULTIPLAYER)) },
+                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Settings, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_EXECUTABLE_MODE_SETTINGS)) },
+                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Utility, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_EXECUTABLE_MODE_UTILITY)) },
+                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Game, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_EXECUTABLE_MODE_GAME)) },
+                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.Application, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_EXECUTABLE_MODE_APPLICATION)) },
+                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.FreeToPlay, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_EXECUTABLE_MODE_FREE_TO_PLAY)) },
+                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.RequiresSubscription, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_EXECUTABLE_MODE_REQUIRES_SUBSCRIPTION)) },
+                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.FreeTrial, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_EXECUTABLE_MODE_FREE_TRIAL)) },
+                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.SplitScreenMultiPlayer, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_EXECUTABLE_MODE_SPLIT_SCREEN_MULTIPLAYER)) },
+                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.CoOpLan, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_EXECUTABLE_MODE_CO_OP)) },
+                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.CoOpOnline, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_EXECUTABLE_MODE_CO_OP_ONLINE)) },
+                new EnumFilterViewState<ApplicationModes>() { Value = ApplicationModes.OneTimePurchase, DisplayName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_EXECUTABLE_MODE_ONE_TIME_PURCHASE)) }
             };
 
             ViewState.ExecutableModes = executableModes;

@@ -180,7 +180,7 @@ namespace Gizmo.Client.UI.View.Services
                     if (result != RegistrationCompleteCode.Success)
                     {
                         ViewState.HasError = true;
-                        ViewState.ErrorMessage = _localizationService.GetString("GIZ_REGISTRATION_FAILED_MESSAGE");
+                        ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_FAILED_MESSAGE));
 
                         return;
                     }
@@ -192,7 +192,7 @@ namespace Gizmo.Client.UI.View.Services
                     Logger.LogError(ex, "User create complete error.");
 
                     ViewState.HasError = true;
-                    ViewState.ErrorMessage = _localizationService.GetString("GIZ_GEN_AN_ERROR_HAS_OCCURED");
+                    ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
                 }
                 finally
                 {
@@ -205,7 +205,7 @@ namespace Gizmo.Client.UI.View.Services
         private void CheckPasswordRules(string password)
         {
             ViewState.PasswordTooltip.PassedRules = 0;
-            ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_SHORT");
+            ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_MESSAGE_TOO_SHORT));
 
             ViewState.PasswordTooltip.LengthRulePassed = false;
             ViewState.PasswordTooltip.LowerCaseCharactersRulePassed = false;
@@ -227,11 +227,11 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     if (password.Length >= ViewState.PasswordTooltip.MaximumLengthRule)
                     {
-                        ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_LONG");
+                        ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_MESSAGE_TOO_LONG));
                     }
                     else
                     {
-                        ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_SHORT");
+                        ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_MESSAGE_TOO_SHORT));
                     }
                 }
             }
@@ -249,7 +249,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_EASY");
+                    ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_MESSAGE_TOO_EASY));
                 }
             }
 
@@ -262,7 +262,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_EASY");
+                    ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_MESSAGE_TOO_EASY));
                 }
             }
 
@@ -275,13 +275,13 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 else
                 {
-                    ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_TOO_EASY");
+                    ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_MESSAGE_TOO_EASY));
                 }
             }
 
             if (ViewState.PasswordTooltip.PassedRules == ViewState.PasswordTooltip.TotalRules)
             {
-                ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString("GIZ_PASSWORD_MESSAGE_SECURE");
+                ViewState.PasswordTooltip.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_MESSAGE_SECURE));
             }
         }
 
@@ -342,7 +342,7 @@ namespace Gizmo.Client.UI.View.Services
                 if (!string.IsNullOrEmpty(ViewState.Username) && ViewState.Username.ToString().Any(c => char.IsWhiteSpace(c)))
                 {
                     ClearError(() => ViewState.Username);
-                    AddError(() => ViewState.Username, _localizationService.GetString("GIZ_REGISTRATION_VE_WHITE_SPACE_NOT_ALLOWED"));
+                    AddError(() => ViewState.Username, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_WHITE_SPACE_NOT_ALLOWED)));
                 }
             }
             else if (fieldIdentifier.FieldEquals(() => ViewState.Password) || fieldIdentifier.FieldEquals(() => ViewState.RepeatPassword))
@@ -361,7 +361,7 @@ namespace Gizmo.Client.UI.View.Services
                     ClearError(() => ViewState.RepeatPassword);
                     if (!string.IsNullOrEmpty(ViewState.Password) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.Password, ViewState.RepeatPassword) != 0)
                     {
-                        AddError(() => ViewState.RepeatPassword, _localizationService.GetString("GIZ_GEN_PASSWORDS_DO_NOT_MATCH"));
+                        AddError(() => ViewState.RepeatPassword, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_PASSWORDS_DO_NOT_MATCH)));
                     }
                 }               
             }
@@ -371,7 +371,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.FirstName == true && string.IsNullOrEmpty(ViewState.FirstName))
                 {
-                    AddError(() => ViewState.FirstName, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                    AddError(() => ViewState.FirstName, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
             }
 
@@ -379,7 +379,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.LastName == true && string.IsNullOrEmpty(ViewState.LastName))
                 {
-                    AddError(() => ViewState.LastName, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                    AddError(() => ViewState.LastName, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
             }
 
@@ -387,7 +387,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.BirthDate == true && !ViewState.BirthDate.HasValue)
                 {
-                    AddError(() => ViewState.BirthDate, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                    AddError(() => ViewState.BirthDate, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
             }
 
@@ -395,7 +395,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.Sex == true && ViewState.Sex == Sex.Unspecified)
                 {
-                    AddError(() => ViewState.Sex, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                    AddError(() => ViewState.Sex, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
             }
 
@@ -405,7 +405,7 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.Email == true && string.IsNullOrEmpty(ViewState.Email))
                     {
-                        AddError(() => ViewState.Email, _localizationService.GetString("GIZ_GEN_VE_REQUIRED_FIELD"));
+                        AddError(() => ViewState.Email, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                     }
                 }
             }
@@ -421,13 +421,13 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         if (await _registrationService.ExistsAsync(ViewState.Username, cancellationToken))
                         {
-                            return new string[] { _localizationService.GetString("GIZ_REGISTRATION_VE_USERNAME_IN_USE") };
+                            return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_USERNAME_IN_USE)) };
                         }
                     }
                     catch (Exception ex)
                     {
                         Logger.LogError(ex, "Cannot validate username.");
-                        return new string[] { _localizationService.GetString("GIZ_REGISTRATION_VE_CANNOT_VALIDATE_USERNAME") };
+                        return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_CANNOT_VALIDATE_USERNAME)) };
                     }
                 }
             }

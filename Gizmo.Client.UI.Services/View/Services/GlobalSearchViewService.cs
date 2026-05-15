@@ -64,8 +64,8 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.ProductResults = Enumerable.Empty<GlobalSearchResultViewState>();
             ViewState.ExecutableResults = Enumerable.Empty<GlobalSearchResultViewState>();
 
-            ViewState.EmptyResultTitle = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_TITLE");
-            ViewState.EmptyResultMessage = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_MESSAGE", GLOBAL_SEARCH_MINIMUM_CHARACTERS);
+            ViewState.EmptyResultTitle = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_TITLE));
+            ViewState.EmptyResultMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_MESSAGE), GLOBAL_SEARCH_MINIMUM_CHARACTERS);
 
             ViewState.OpenDropDown = false;
 
@@ -148,8 +148,8 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.ProductResults = Enumerable.Empty<GlobalSearchResultViewState>();
             ViewState.ExecutableResults = Enumerable.Empty<GlobalSearchResultViewState>();
 
-            ViewState.EmptyResultTitle = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_TITLE");
-            ViewState.EmptyResultMessage = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_MESSAGE", GLOBAL_SEARCH_MINIMUM_CHARACTERS);
+            ViewState.EmptyResultTitle = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_TITLE));
+            ViewState.EmptyResultMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_MESSAGE), GLOBAL_SEARCH_MINIMUM_CHARACTERS);
 
             DebounceViewStateChanged();
 
@@ -161,15 +161,15 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.ProductResults = Enumerable.Empty<GlobalSearchResultViewState>();
             ViewState.ExecutableResults = Enumerable.Empty<GlobalSearchResultViewState>();
 
-            ViewState.EmptyResultTitle = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NO_RESULTS_TITLE");
-            ViewState.EmptyResultMessage = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NO_RESULTS_MESSAGE");
+            ViewState.EmptyResultTitle = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GLOBAL_SEARCH_NO_RESULTS_TITLE));
+            ViewState.EmptyResultMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GLOBAL_SEARCH_NO_RESULTS_MESSAGE));
 
             if (ViewState.SearchPattern.Length < GLOBAL_SEARCH_MINIMUM_CHARACTERS)
             {
                 ViewState.IsLoading = false;
 
-                ViewState.EmptyResultTitle = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_TITLE");
-                ViewState.EmptyResultMessage = _localizationService.GetString("GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_MESSAGE", GLOBAL_SEARCH_MINIMUM_CHARACTERS);
+                ViewState.EmptyResultTitle = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_TITLE));
+                ViewState.EmptyResultMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GLOBAL_SEARCH_NOT_ENOUGH_CHARACTERS_MESSAGE), GLOBAL_SEARCH_MINIMUM_CHARACTERS);
 
                 ViewState.RaiseChanged();
             }
