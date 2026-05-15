@@ -132,7 +132,7 @@ namespace Gizmo.Client.UI.View.Services
 
                     if (providers.Count > 0)
                     {
-                        NavigationService.NavigateTo("/registrationproviders");
+                        NavigationService.NavigateTo(ClientRoutes.RegistrationProvidersRoute);
                     }
                     else
                     {

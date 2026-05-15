@@ -1,3 +1,4 @@
+using Gizmo.Client;
 using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
@@ -9,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
-    [Route("/registrationproviders")]
+    [Route(ClientRoutes.RegistrationProvidersRoute)]
     public sealed class RegistrationProvidersViewService : ViewStateServiceBase<RegistrationProvidersViewState>
     {
         #region CONSTRUCTOR
@@ -70,6 +71,7 @@ namespace Gizmo.Client.UI.View.Services
             else if (provider.CanRedirect)
             {
                 SetProviderError(channelGuid);
+                NavigationService.NavigateTo(ClientRoutes.RegistrationErrorRoute);
             }
 
             return Task.CompletedTask;
