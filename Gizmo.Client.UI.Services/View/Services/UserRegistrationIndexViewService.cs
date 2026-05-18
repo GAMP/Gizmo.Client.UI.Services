@@ -106,6 +106,9 @@ namespace Gizmo.Client.UI.View.Services
             userRegistrationAdditionalFieldsService.Clear();
             userRegistrationService.ClearProvider();
 
+            var registrationSession = ServiceProvider.GetRequiredService<IRegistrationSessionService>();
+            registrationSession.Clear();
+
             ViewState.UserAgreementStates = Enumerable.Empty<UserAgreementViewState>();
             DebounceViewStateChanged();
         }

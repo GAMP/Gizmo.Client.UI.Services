@@ -39,9 +39,9 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public Task SelectProviderAsync(Guid channelGuid)
+        public Task SelectProviderAsync(Guid publicId)
         {
-            var provider = ViewState.Providers.FirstOrDefault(p => p.ChannelGuid == channelGuid);
+            var provider = ViewState.Providers.FirstOrDefault(p => p.PublicId == publicId);
             if (provider is null)
                 return Task.CompletedTask;
 
@@ -50,29 +50,18 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.FailedChannelGuid = null;
             ViewState.RaiseChanged();
 
-            if (provider.CanDispatchCode && !provider.CanRedirect && provider.CanProvideEmail)
+            if (provider.CanRedirect)
             {
-                _userRegistrationViewService.SelectProvider(provider);
-#pragma warning disable CS0618
-                // TODO: remove SetConfirmationMethod call when separate pages per method implemented
-                _userRegistrationViewService.SetConfirmationMethod(RegistrationVerificationMethod.Email);
-#pragma warning restore CS0618
-                NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationMethodRoute);
+                SetProviderError(provider.ChannelGuid);
+                return Task.CompletedTask;
             }
-            else if (provider.CanDispatchCode && !provider.CanRedirect && provider.CanProvidePhone)
-            {
-                _userRegistrationViewService.SelectProvider(provider);
-#pragma warning disable CS0618
-                // TODO: remove SetConfirmationMethod call when separate pages per method implemented
-                _userRegistrationViewService.SetConfirmationMethod(RegistrationVerificationMethod.MobilePhone);
-#pragma warning restore CS0618
-                NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationMethodRoute);
-            }
-            else if (provider.CanRedirect)
-            {
-                SetProviderError(channelGuid);
-                NavigationService.NavigateTo(ClientRoutes.RegistrationErrorRoute);
-            }
+
+            _userRegistrationViewService.SelectProvider(provider);
+
+            if (provider.CanProvideEmail)
+                NavigationService.NavigateTo(ClientRoutes.RegistrationEmailRoute);
+            else
+                NavigationService.NavigateTo(ClientRoutes.RegistrationPhoneRoute);
 
             return Task.CompletedTask;
         }
@@ -80,7 +69,7 @@ namespace Gizmo.Client.UI.View.Services
         public void SetProviderError(Guid channelGuid)
         {
             ViewState.HasError = true;
-            ViewState.ErrorMessage = _localizationService.GetString("GIZ_REGISTRATION_PROVIDER_REDIRECT_NOT_IMPLEMENTED");
+            ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_PROVIDER_REDIRECT_NOT_IMPLEMENTED));
             ViewState.FailedChannelGuid = channelGuid;
             ViewState.RaiseChanged();
         }

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
+    [Obsolete("Use Registration/RegistrationEmailViewService or RegistrationPhoneViewService")]
     public sealed class UserRegistrationConfirmationMethodViewService : ValidatingViewStateServiceBase<UserRegistrationConfirmationMethodViewState>
     {
         #region CONSTRUCTOR

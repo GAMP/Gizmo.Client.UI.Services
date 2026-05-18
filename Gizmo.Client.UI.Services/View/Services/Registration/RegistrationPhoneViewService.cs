@@ -1,0 +1,195 @@
+using Gizmo.Client;
+using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
+using Gizmo.UI;
+using Gizmo.UI.Services;
+using Gizmo.UI.View.Services;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
+namespace Gizmo.Client.UI.View.Services
+{
+    [Register()]
+    [Route(ClientRoutes.RegistrationPhoneRoute)]
+    public sealed class RegistrationPhoneViewService : ValidatingViewStateServiceBase<RegistrationPhoneViewState>
+    {
+        #region CONSTRUCTOR
+        public RegistrationPhoneViewService(
+            RegistrationPhoneViewState viewState,
+            ILogger<RegistrationPhoneViewService> logger,
+            IServiceProvider serviceProvider,
+            IUserRegistrationService registrationService,
+            IRegistrationSessionService registrationSession,
+            UserRegistrationViewState userRegistrationViewState,
+            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
+        {
+            _registrationService = registrationService;
+            _registrationSession = registrationSession;
+            _userRegistrationViewState = userRegistrationViewState;
+            _localizationService = localizationService;
+        }
+        #endregion
+
+        #region FIELDS
+        private readonly IUserRegistrationService _registrationService;
+        private readonly IRegistrationSessionService _registrationSession;
+        private readonly UserRegistrationViewState _userRegistrationViewState;
+        private readonly ILocalizationService _localizationService;
+        #endregion
+
+        #region FUNCTIONS
+
+        public void SetCountry(string value)
+        {
+            ViewState.Country = value;
+            ValidateProperty(() => ViewState.Country);
+        }
+
+        public void SetMobilePhone(string value)
+        {
+            ViewState.MobilePhone = value;
+            ValidateProperty(() => ViewState.MobilePhone);
+        }
+
+        public async Task SubmitAsync()
+        {
+            ViewState.IsLoading = true;
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
+            ViewState.RaiseChanged();
+
+            Validate();
+
+            if (ViewState.IsValid != true)
+            {
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
+                return;
+            }
+
+            var phone = ViewState.MobilePhone ?? string.Empty;
+            if (phone.StartsWith("+"))
+                phone = phone.Substring(1);
+
+            var integrationPublicId = _userRegistrationViewState.SelectedProvider?.PublicId ?? Guid.Empty;
+
+            try
+            {
+                var result = await _registrationService.StartAsync(new RegistrationStartRequest
+                {
+                    Phone = phone,
+                    DeliveryMethod = RegistrationDeliveryMethod.CodeDispatch,
+                    IntegrationPublicId = integrationPublicId
+                });
+
+                switch (result.Result)
+                {
+                    case RegistrationStartCode.Success:
+                        _registrationSession.SetStartResult(
+                            result.Token ?? string.Empty,
+                            result.Destination ?? string.Empty,
+                            result.CodeLength,
+                            RegistrationFlow.Sms);
+                        NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationRoute);
+                        break;
+
+                    case RegistrationStartCode.NonUniqueInput:
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_MOBILE_PHONE_USED));
+                        break;
+
+                    case RegistrationStartCode.NoRouteForDelivery:
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY));
+                        break;
+
+                    default:
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED)) + $" {result.Result}";
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Registration phone start error.");
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
+            }
+            finally
+            {
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
+            }
+        }
+
+        #endregion
+
+        public void Reset()
+        {
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
+        }
+
+        #region OVERRIDES
+
+        protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        {
+            ViewState.Country = null;
+            ViewState.MobilePhone = null;
+            ViewState.IsLoading = false;
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
+            ResetValidationState();
+            ViewState.RaiseChanged();
+            return Task.CompletedTask;
+        }
+
+        protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
+        {
+            if (fieldIdentifier.FieldEquals(() => ViewState.Country))
+            {
+                if (string.IsNullOrEmpty(ViewState.Country))
+                    AddError(() => ViewState.Country, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
+                else
+                    ClearError(() => ViewState.Country);
+            }
+        }
+
+        protected override async Task<IEnumerable<string>> OnValidateAsync(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger, CancellationToken cancellationToken = default)
+        {
+            if (fieldIdentifier.FieldEquals(() => ViewState.MobilePhone) && !string.IsNullOrEmpty(ViewState.MobilePhone))
+            {
+                try
+                {
+                    var phone = ViewState.MobilePhone;
+                    if (phone.StartsWith("+"))
+                        phone = phone.Substring(1);
+
+                    if (await _registrationService.ExistsAsync(phone, cancellationToken))
+                    {
+                        return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_MOBILE_PHONE_USED)) };
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Cannot validate phone.");
+                    return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_CANNOT_VALIDATE_PHONE)) };
+                }
+            }
+
+            return await base.OnValidateAsync(fieldIdentifier, validationTrigger, cancellationToken);
+        }
+
+        protected override AsyncValidatedDetermineResult OnDetermineIsAsyncPropertiesValidated()
+        {
+            if (IsAsyncValidated(() => ViewState.MobilePhone))
+                return AsyncValidatedDetermineResult.DefaultTrue;
+
+            return base.OnDetermineIsAsyncPropertiesValidated();
+        }
+
+        #endregion
+    }
+}

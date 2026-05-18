@@ -35,6 +35,7 @@ namespace Gizmo.Client.UI.Services
         public static IServiceCollection AddClientServices(this IServiceCollection services)
         {
             services.AddClientUIServices();
+            services.AddSingleton<IRegistrationSessionService, RegistrationSessionService>();
             services.AddClientViewServices();
             services.AddClientViewStates();
             services.AddWebApiSupport();

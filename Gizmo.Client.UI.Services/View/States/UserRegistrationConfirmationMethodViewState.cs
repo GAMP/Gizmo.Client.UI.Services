@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Gizmo.Client.UI.View.States
 {
     [Register()]
+    [Obsolete("Use Registration/RegistrationEmailViewState or RegistrationPhoneViewState")]
     public sealed class UserRegistrationConfirmationMethodViewState : ValidatingViewStateBase
     {
         #region PROPERTIES
