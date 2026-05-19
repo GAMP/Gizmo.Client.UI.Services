@@ -25,12 +25,14 @@ namespace Gizmo.Client.UI.View.Services
             ILocalizationService localizationService,
             IUserRegistrationService registrationService,
             IOptions<PasswordValidationOptions> passwordValidationOptions,
-            UserRegistrationViewState userRegistrationViewState) : base(viewState, logger, serviceProvider)
+            UserRegistrationViewState userRegistrationViewState,
+            IRegistrationSessionService registrationSession) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _registrationService = registrationService;
             _passwordValidationOptions = passwordValidationOptions;
             _userRegistrationViewState = userRegistrationViewState;
+            _registrationSession = registrationSession;
         }
         #endregion
 
@@ -39,6 +41,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IUserRegistrationService _registrationService;
         private readonly IOptions<PasswordValidationOptions> _passwordValidationOptions;
         private readonly UserRegistrationViewState _userRegistrationViewState;
+        private readonly IRegistrationSessionService _registrationSession;
         #endregion
 
         #region FUNCTIONS
@@ -132,74 +135,19 @@ namespace Gizmo.Client.UI.View.Services
                 return;
             }
 
-            var userRegistrationIndexViewState = ServiceProvider.GetRequiredService<UserRegistrationIndexViewState>();
+            var sessionEmail = _registrationSession.Flow == RegistrationFlow.Email
+                ? _registrationSession.ActualContact
+                : ViewState.Email;
 
-            var userRegistrationConfirmationMethodViewState = ServiceProvider.GetRequiredService<UserRegistrationConfirmationMethodViewState>();
+            _registrationSession.SetProfileBasics(
+                ViewState.Username, ViewState.Password,
+                ViewState.FirstName, ViewState.LastName,
+                ViewState.BirthDate, ViewState.Sex, sessionEmail);
 
-            bool confirmationRequired = _userRegistrationViewState.ConfirmationMethod != RegistrationVerificationMethod.None;
-            bool confirmationWithMobilePhone = _userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone; //TODO: A If both methods are available then get user selection.
+            ViewState.IsLoading = false;
+            ViewState.RaiseChanged();
 
-            var required = _userRegistrationViewState.DefaultUserGroupRequiredInfo;
-
-            if (required?.Address == true ||
-                required?.PostCode == true ||
-                ((required?.Country == true || required?.Mobile == true) && !confirmationWithMobilePhone))
-            {
-                ViewState.IsLoading = false;
-                ViewState.RaiseChanged();
-
-                //If any of the additional fields is required open the next page.
-                NavigationService.NavigateTo(ClientRoutes.RegistrationAdditionalFieldsRoute);
-            }
-            else
-            {
-                //If no additional fields are required then proceed with sign up.
-
-                try
-                {
-                    var profile = new RegistrationProfile
-                    {
-                        Username = ViewState.Username,
-                        FirstName = ViewState.FirstName,
-                        LastName = ViewState.LastName,
-                        BirthDate = ViewState.BirthDate,
-                        Sex = ViewState.Sex,
-                        Email = _userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.Email
-                            ? userRegistrationConfirmationMethodViewState.Email
-                            : ViewState.Email
-                    };
-
-                    // TODO: agreements are collected in ViewState but not sent — new API does not accept them in registration request
-                    var result = await _registrationService.CompleteAsync(new RegistrationCompleteRequest
-                    {
-                        Token = confirmationRequired ? userRegistrationConfirmationMethodViewState.Token : null,
-                        Profile = profile,
-                        Password = ViewState.Password
-                    });
-
-                    if (result != RegistrationCompleteCode.Success)
-                    {
-                        ViewState.HasError = true;
-                        ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_FAILED_MESSAGE));
-
-                        return;
-                    }
-
-                    NavigationService.NavigateTo(ClientRoutes.LoginRoute);
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "User create complete error.");
-
-                    ViewState.HasError = true;
-                    ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
-                }
-                finally
-                {
-                    ViewState.IsLoading = false;
-                    ViewState.RaiseChanged();
-                }
-            }
+            NavigationService.NavigateTo(ClientRoutes.RegistrationAdditionalFieldsRoute);
         }
 
         private void CheckPasswordRules(string password)
@@ -289,22 +237,15 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
-        //protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
-        //{
-        //    ValidateProperty(() => ViewState.Username);
-        //    CheckPasswordRules(ViewState.Password);
-        //    ValidateProperty(() => ViewState.Password);
-        //    ValidateProperty(() => ViewState.RepeatPassword);
-        //    ValidateProperty(() => ViewState.FirstName);
-        //    ValidateProperty(() => ViewState.LastName);
-        //    ValidateProperty(() => ViewState.BirthDate);
-        //    ValidateProperty(() => ViewState.Sex);
-        //    ValidateProperty(() => ViewState.Email);
-
-        //    ViewState.RaiseChanged();
-
-        //    return Task.CompletedTask;
-        //}
+        protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrEmpty(_registrationSession.Token) && _registrationSession.Flow != RegistrationFlow.None)
+            {
+                NavigationService.NavigateTo(ClientRoutes.RegistrationProvidersRoute);
+                return Task.CompletedTask;
+            }
+            return Task.CompletedTask;
+        }
 
         protected override Task OnInitializing(CancellationToken ct)
         {
@@ -401,7 +342,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.Email))
             {
-                if (_userRegistrationViewState.ConfirmationMethod != RegistrationVerificationMethod.Email)
+                if (_registrationSession.Flow != RegistrationFlow.Email)
                 {
                     if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.Email == true && string.IsNullOrEmpty(ViewState.Email))
                     {

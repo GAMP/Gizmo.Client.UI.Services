@@ -80,7 +80,7 @@ namespace Gizmo.Client.UI.View.Services
                 switch (result)
                 {
                     case RegistrationConfirmCode.Success:
-                        NavigationService.NavigateTo(ClientRoutes.RegistrationPasswordRoute);
+                        NavigationService.NavigateTo(ClientRoutes.RegistrationBasicFieldsRoute);
                         break;
 
                     case RegistrationConfirmCode.InvalidToken:

@@ -92,6 +92,7 @@ namespace Gizmo.Client.UI.View.Services
                             result.Destination ?? string.Empty,
                             result.CodeLength,
                             RegistrationFlow.Sms);
+                        _registrationSession.SetContactDetails(phone, ViewState.Country);
                         NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationRoute);
                         break;
 

@@ -20,11 +20,13 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
             IUserRegistrationService registrationService,
-            UserRegistrationViewState userRegistrationViewState) : base(viewState, logger, serviceProvider)
+            UserRegistrationViewState userRegistrationViewState,
+            IRegistrationSessionService registrationSession) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _registrationService = registrationService;
             _userRegistrationViewState = userRegistrationViewState;
+            _registrationSession = registrationSession;
         }
         #endregion
 
@@ -32,6 +34,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         private readonly IUserRegistrationService _registrationService;
         private readonly UserRegistrationViewState _userRegistrationViewState;
+        private readonly IRegistrationSessionService _registrationSession;
         #endregion
 
         #region FUNCTIONS
@@ -86,53 +89,35 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 
-            var userRegistrationIndexViewState = ServiceProvider.GetRequiredService<UserRegistrationIndexViewState>();
-
-            var userRegistrationViewState = ServiceProvider.GetRequiredService<UserRegistrationViewState>();
-            var userRegistrationConfirmationMethodViewState = ServiceProvider.GetRequiredService<UserRegistrationConfirmationMethodViewState>();
-            var userRegistrationBasicFieldsViewState = ServiceProvider.GetRequiredService<UserRegistrationBasicFieldsViewState>();
-
-            bool confirmationRequired = userRegistrationViewState.ConfirmationMethod != RegistrationVerificationMethod.None;
+            bool confirmationRequired = !string.IsNullOrEmpty(_registrationSession.Token);
 
             try
             {
-                string? country;
-                string? mobilePhone;
-
-                if (userRegistrationViewState.ConfirmationMethod == RegistrationVerificationMethod.MobilePhone)
-                {
-                    country = userRegistrationConfirmationMethodViewState.Country;
-                    var rawPhone = userRegistrationConfirmationMethodViewState.MobilePhone;
-                    mobilePhone = rawPhone?.StartsWith("+") == true ? rawPhone.Substring(1) : rawPhone;
-                }
-                else
-                {
-                    country = ViewState.Country;
-                    var rawPhone = ViewState.MobilePhone;
-                    mobilePhone = rawPhone?.StartsWith("+") == true ? rawPhone.Substring(1) : rawPhone;
-                }
+                string? mobilePhone = _registrationSession.Flow == RegistrationFlow.Sms
+                    ? _registrationSession.ActualContact
+                    : null;
 
                 var profile = new RegistrationProfile
                 {
-                    Username = userRegistrationBasicFieldsViewState.Username,
-                    FirstName = userRegistrationBasicFieldsViewState.FirstName,
-                    LastName = userRegistrationBasicFieldsViewState.LastName,
-                    BirthDate = userRegistrationBasicFieldsViewState.BirthDate,
-                    Sex = userRegistrationBasicFieldsViewState.Sex,
-                    Email = userRegistrationBasicFieldsViewState.Email,
+                    Username = _registrationSession.Username,
+                    FirstName = _registrationSession.FirstName,
+                    LastName = _registrationSession.LastName,
+                    BirthDate = _registrationSession.BirthDate,
+                    Sex = _registrationSession.Sex,
+                    Email = _registrationSession.Flow == RegistrationFlow.Email
+                        ? _registrationSession.ActualContact
+                        : _registrationSession.Email,
                     Address = ViewState.Address,
                     PostCode = ViewState.PostCode,
-                    Country = country,
+                    Country = ViewState.Country,
                     MobilePhone = mobilePhone
                 };
 
-                // TODO: agreements are collected in ViewState but not sent — new API does not accept them in registration request
-
                 var result = await _registrationService.CompleteAsync(new RegistrationCompleteRequest
                 {
-                    Token = confirmationRequired ? userRegistrationConfirmationMethodViewState.Token : null,
+                    Token = confirmationRequired ? _registrationSession.Token : null,
                     Profile = profile,
-                    Password = userRegistrationBasicFieldsViewState.Password
+                    Password = _registrationSession.Password
                 });
 
                 if (result != RegistrationCompleteCode.Success)
@@ -198,7 +183,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.MobilePhone))
             {
-                if (_userRegistrationViewState.ConfirmationMethod != RegistrationVerificationMethod.MobilePhone)
+                if (_registrationSession.Flow != RegistrationFlow.Sms)
                 {
                     if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.Mobile == true && string.IsNullOrEmpty(ViewState.MobilePhone))
                     {

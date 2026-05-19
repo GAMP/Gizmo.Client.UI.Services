@@ -82,6 +82,7 @@ namespace Gizmo.Client.UI.View.Services
                             result.Destination ?? string.Empty,
                             result.CodeLength,
                             RegistrationFlow.Email);
+                        _registrationSession.SetContactDetails(ViewState.Email);
                         NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationRoute);
                         break;
 
