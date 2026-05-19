@@ -10,5 +10,6 @@ namespace Gizmo.Client.UI.Services
         Task<RegistrationConfirmCode> ConfirmTokenAsync(string token, string confirmationCode, CancellationToken ct = default);
         Task<TokenConfirmedResult> IsTokenConfirmedAsync(string token, CancellationToken ct = default);
         Task<RegistrationCompleteCode> CompleteAsync(RegistrationCompleteRequest request, CancellationToken ct = default);
+        Task<RegistrationCompleteCode> DirectAsync(RegistrationCompleteRequest request, CancellationToken ct = default);
     }
 }

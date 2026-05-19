@@ -52,7 +52,8 @@ namespace Gizmo.Client.UI.View.Services
 
             if (provider.CanRedirect)
             {
-                SetProviderError(provider.ChannelGuid);
+                _userRegistrationViewService.SelectProvider(provider);
+                NavigationService.NavigateTo(ClientRoutes.RegistrationRedirectRoute);
                 return Task.CompletedTask;
             }
 

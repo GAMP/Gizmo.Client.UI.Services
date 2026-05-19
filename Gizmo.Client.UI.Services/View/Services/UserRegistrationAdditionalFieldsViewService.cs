@@ -113,12 +113,24 @@ namespace Gizmo.Client.UI.View.Services
                     MobilePhone = mobilePhone
                 };
 
-                var result = await _registrationService.CompleteAsync(new RegistrationCompleteRequest
+                RegistrationCompleteCode result;
+                if (confirmationRequired)
                 {
-                    Token = confirmationRequired ? _registrationSession.Token : null,
-                    Profile = profile,
-                    Password = _registrationSession.Password
-                });
+                    result = await _registrationService.CompleteAsync(new RegistrationCompleteRequest
+                    {
+                        Token = _registrationSession.Token,
+                        Profile = profile,
+                        Password = _registrationSession.Password
+                    });
+                }
+                else
+                {
+                    result = await _registrationService.DirectAsync(new RegistrationCompleteRequest
+                    {
+                        Profile = profile,
+                        Password = _registrationSession.Password
+                    });
+                }
 
                 if (result != RegistrationCompleteCode.Success)
                 {

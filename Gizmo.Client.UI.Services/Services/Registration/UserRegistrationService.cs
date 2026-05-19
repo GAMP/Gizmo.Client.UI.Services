@@ -145,20 +145,19 @@ namespace Gizmo.Client.UI.Services
         public async Task<RegistrationCompleteCode> CompleteAsync(RegistrationCompleteRequest request, CancellationToken ct = default)
         {
             var apiProfile = RegistrationProfileMapper.Map(request.Profile);
-
             // TODO: agreements are collected in ViewState but not sent — new API does not accept them in registration request (R1)
-            if (request.Token != null)
-            {
-                var result = await _registrationsClient.CompleteAsync(
-                    new RegistrationCompleteModel { Token = request.Token, Profile = apiProfile, Password = request.Password }, ct);
-                return RegistrationCompleteCodeMapper.Map(result);
-            }
-            else
-            {
-                var result = await _registrationsClient.DirectAsync(
-                    new RegistrationDirectModel { Profile = apiProfile, Password = request.Password }, ct);
-                return RegistrationCompleteCodeMapper.Map(result);
-            }
+            var result = await _registrationsClient.CompleteAsync(
+                new RegistrationCompleteModel { Token = request.Token!, Profile = apiProfile, Password = request.Password }, ct);
+            return RegistrationCompleteCodeMapper.Map(result);
+        }
+
+        public async Task<RegistrationCompleteCode> DirectAsync(RegistrationCompleteRequest request, CancellationToken ct = default)
+        {
+            var apiProfile = RegistrationProfileMapper.Map(request.Profile);
+            // TODO: agreements are collected in ViewState but not sent — new API does not accept them in registration request (R1)
+            var result = await _registrationsClient.DirectAsync(
+                new RegistrationDirectModel { Profile = apiProfile, Password = request.Password }, ct);
+            return RegistrationCompleteCodeMapper.Map(result);
         }
     }
 }
