@@ -22,11 +22,13 @@ namespace Gizmo.Client.UI.View.Services
             IUserRegistrationService registrationService,
             IRegistrationSessionService registrationSession,
             UserRegistrationViewState userRegistrationViewState,
+            RegistrationProvidersViewService registrationProvidersViewService,
             ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
         {
             _registrationService = registrationService;
             _registrationSession = registrationSession;
             _userRegistrationViewState = userRegistrationViewState;
+            _registrationProvidersViewService = registrationProvidersViewService;
             _localizationService = localizationService;
         }
         #endregion
@@ -35,6 +37,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IUserRegistrationService _registrationService;
         private readonly IRegistrationSessionService _registrationSession;
         private readonly UserRegistrationViewState _userRegistrationViewState;
+        private readonly RegistrationProvidersViewService _registrationProvidersViewService;
         private readonly ILocalizationService _localizationService;
         #endregion
 
@@ -66,7 +69,9 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 
-            var integrationPublicId = _userRegistrationViewState.SelectedProvider?.PublicId ?? Guid.Empty;
+            var provider = _userRegistrationViewState.SelectedProvider;
+            var integrationPublicId = provider?.PublicId ?? Guid.Empty;
+            var channelGuid = provider?.ChannelGuid ?? Guid.Empty;
 
             try
             {
@@ -83,26 +88,23 @@ namespace Gizmo.Client.UI.View.Services
                             result.Token ?? string.Empty,
                             result.Destination ?? string.Empty,
                             result.CodeLength,
+                            result.ExpiresInSeconds,
                             RegistrationFlow.None);
                         ViewState.RedirectUrl = result.RedirectUrl;
                         break;
 
-                    case RegistrationStartCode.Success:
-                        ViewState.HasError = true;
-                        ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
-                        break;
-
                     default:
-                        ViewState.HasError = true;
-                        ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED)) + $" {result.Result}";
+                        Logger.LogWarning("Redirect registration start failed: {Result}", result.Result);
+                        _registrationProvidersViewService.SetProviderError(channelGuid);
+                        NavigationService.NavigateTo(ClientRoutes.RegistrationProvidersRoute);
                         break;
                 }
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Redirect registration start error.");
-                ViewState.HasError = true;
-                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
+                _registrationProvidersViewService.SetProviderError(channelGuid);
+                NavigationService.NavigateTo(ClientRoutes.RegistrationProvidersRoute);
             }
             finally
             {

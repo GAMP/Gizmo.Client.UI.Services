@@ -9,6 +9,7 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
     public string Token { get; private set; } = string.Empty;
     public string Destination { get; private set; } = string.Empty;
     public int CodeLength { get; private set; }
+    public int ExpiresInSeconds { get; private set; }
     public RegistrationFlow Flow { get; private set; }
 
     public string? ActualContact { get; private set; }
@@ -22,11 +23,12 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
     public Sex Sex { get; private set; } = Sex.Unspecified;
     public string? Email { get; private set; }
 
-    public void SetStartResult(string token, string destination, int codeLength, RegistrationFlow flow)
+    public void SetStartResult(string token, string destination, int codeLength, int expiresInSeconds, RegistrationFlow flow)
     {
         Token = token;
         Destination = destination;
         CodeLength = codeLength;
+        ExpiresInSeconds = expiresInSeconds;
         Flow = flow;
         Changed?.Invoke(this, EventArgs.Empty);
     }
@@ -55,6 +57,7 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
         Token = string.Empty;
         Destination = string.Empty;
         CodeLength = 0;
+        ExpiresInSeconds = 0;
         Flow = RegistrationFlow.None;
         ActualContact = null;
         Country = null;

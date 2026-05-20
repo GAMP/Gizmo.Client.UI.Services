@@ -22,6 +22,12 @@ namespace Gizmo.Client.UI.View.States
 
         public string ErrorMessage { get; internal set; } = string.Empty;
 
+        public int SecondsLeft { get; internal set; }
+
+        public bool TimerExpired => SecondsLeft <= 0;
+
+        public string TimerDisplay => $"{SecondsLeft / 60:D2}:{SecondsLeft % 60:D2}";
+
         #endregion
     }
 }

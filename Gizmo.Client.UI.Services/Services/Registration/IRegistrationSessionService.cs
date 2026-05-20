@@ -9,6 +9,7 @@ public interface IRegistrationSessionService
     string Token { get; }
     string Destination { get; }
     int CodeLength { get; }
+    int ExpiresInSeconds { get; }
     RegistrationFlow Flow { get; }
 
     string? ActualContact { get; }
@@ -22,7 +23,7 @@ public interface IRegistrationSessionService
     Sex Sex { get; }
     string? Email { get; }
 
-    void SetStartResult(string token, string destination, int codeLength, RegistrationFlow flow);
+    void SetStartResult(string token, string destination, int codeLength, int expiresInSeconds, RegistrationFlow flow);
     void SetContactDetails(string? actualContact, string? country = null);
     void SetProfileBasics(string username, string password,
         string? firstName, string? lastName,

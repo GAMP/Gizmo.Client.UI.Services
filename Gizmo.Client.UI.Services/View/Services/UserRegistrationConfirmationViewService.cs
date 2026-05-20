@@ -22,11 +22,13 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
             IUserRegistrationService registrationService,
-            IRegistrationSessionService registrationSession) : base(viewState, logger, serviceProvider)
+            IRegistrationSessionService registrationSession,
+            UserRegistrationViewState userRegistrationViewState) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _registrationService = registrationService;
             _registrationSession = registrationSession;
+            _userRegistrationViewState = userRegistrationViewState;
         }
         #endregion
 
@@ -34,6 +36,8 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         private readonly IUserRegistrationService _registrationService;
         private readonly IRegistrationSessionService _registrationSession;
+        private readonly UserRegistrationViewState _userRegistrationViewState;
+        private readonly CountdownTimer _timer = new();
         #endregion
 
         #region FUNCTIONS
@@ -114,6 +118,50 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.ErrorMessage = string.Empty;
         }
 
+        public async ValueTask RestartTimerAsync()
+        {
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
+            ViewState.RaiseChanged();
+
+            try
+            {
+                var request = new RegistrationStartRequest
+                {
+                    DeliveryMethod = RegistrationDeliveryMethod.CodeDispatch,
+                    IntegrationPublicId = _userRegistrationViewState.SelectedProvider?.PublicId ?? Guid.Empty,
+                    Email = _registrationSession.Flow == RegistrationFlow.Email ? _registrationSession.ActualContact : null,
+                    Phone = _registrationSession.Flow == RegistrationFlow.Sms ? _registrationSession.ActualContact : null,
+                };
+
+                var result = await _registrationService.StartAsync(request);
+
+                if (result.Result == RegistrationStartCode.Success)
+                {
+                    _registrationSession.SetStartResult(
+                        result.Token ?? string.Empty,
+                        result.Destination ?? _registrationSession.Destination,
+                        result.CodeLength,
+                        result.ExpiresInSeconds,
+                        _registrationSession.Flow);
+                    _ = StartTimerAsync();
+                }
+                else
+                {
+                    ViewState.HasError = true;
+                    ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
+                    ViewState.RaiseChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Resend confirmation code error.");
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
+                ViewState.RaiseChanged();
+            }
+        }
+
         #endregion
 
         #region OVERRIDES
@@ -137,8 +185,28 @@ namespace Gizmo.Client.UI.View.Services
             ResetValidationState();
             ViewState.RaiseChanged();
 
+            _ = StartTimerAsync();
+
             return Task.CompletedTask;
         }
+
+        protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        {
+            CancelTimer();
+            return base.OnNavigatedOut(navigationParameters, cancellationToken);
+        }
+
+        private Task StartTimerAsync()
+        {
+            return _timer.StartAsync(60, secs =>
+            {
+                ViewState.SecondsLeft = secs;
+                ViewState.RaiseChanged();
+                return Task.CompletedTask;
+            }, Logger);
+        }
+
+        private void CancelTimer() => _timer.Cancel();
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
