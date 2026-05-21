@@ -95,7 +95,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 string? mobilePhone = _registrationSession.Flow == RegistrationFlow.Sms
                     ? _registrationSession.ActualContact
-                    : null;
+                    : _registrationSession.MobilePhone;
 
                 var profile = new RegistrationProfile
                 {

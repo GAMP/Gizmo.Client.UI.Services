@@ -95,6 +95,12 @@ namespace Gizmo.Client.UI.View.Services
             ValidateProperty(() => ViewState.Email);
         }
 
+        public void SetMobilePhone(string value)
+        {
+            ViewState.MobilePhone = value;
+            ValidateProperty(() => ViewState.MobilePhone);
+        }
+
         public void Clear()
         {
             ViewState.Username = string.Empty;
@@ -105,6 +111,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.BirthDate = null;
             ViewState.Sex = Sex.Unspecified;
             ViewState.Email = null;
+            ViewState.MobilePhone = null;
 
             ViewState.IsLoading = false;
             ViewState.HasError = false;
@@ -143,6 +150,9 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.Username, ViewState.Password,
                 ViewState.FirstName, ViewState.LastName,
                 ViewState.BirthDate, ViewState.Sex, sessionEmail);
+
+            if (_registrationSession.Flow == RegistrationFlow.Email)
+                _registrationSession.SetMobilePhone(ViewState.MobilePhone);
 
             ViewState.IsLoading = false;
             ViewState.RaiseChanged();

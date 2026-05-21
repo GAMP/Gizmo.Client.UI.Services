@@ -22,11 +22,13 @@ public interface IRegistrationSessionService
     DateTime? BirthDate { get; }
     Sex Sex { get; }
     string? Email { get; }
+    string? MobilePhone { get; }
 
     void SetStartResult(string token, string destination, int codeLength, int expiresInSeconds, RegistrationFlow flow);
     void SetContactDetails(string? actualContact, string? country = null);
     void SetProfileBasics(string username, string password,
         string? firstName, string? lastName,
         DateTime? birthDate, Sex sex, string? email);
+    void SetMobilePhone(string? mobilePhone);
     void Clear();
 }

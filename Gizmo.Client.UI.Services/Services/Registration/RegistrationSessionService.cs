@@ -22,6 +22,7 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
     public DateTime? BirthDate { get; private set; }
     public Sex Sex { get; private set; } = Sex.Unspecified;
     public string? Email { get; private set; }
+    public string? MobilePhone { get; private set; }
 
     public void SetStartResult(string token, string destination, int codeLength, int expiresInSeconds, RegistrationFlow flow)
     {
@@ -52,6 +53,11 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
         Email = email;
     }
 
+    public void SetMobilePhone(string? mobilePhone)
+    {
+        MobilePhone = mobilePhone;
+    }
+
     public void Clear()
     {
         Token = string.Empty;
@@ -68,6 +74,7 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
         BirthDate = null;
         Sex = Sex.Unspecified;
         Email = null;
+        MobilePhone = null;
         Changed?.Invoke(this, EventArgs.Empty);
     }
 }

@@ -59,7 +59,7 @@ namespace Gizmo.Client.UI.View.Services
 
             _userRegistrationViewService.SelectProvider(provider);
 
-            if (provider.CanProvideEmail)
+            if (provider.ChannelGuid == new Guid(CommunicationChannels.Email))
                 NavigationService.NavigateTo(ClientRoutes.RegistrationEmailRoute);
             else
                 NavigationService.NavigateTo(ClientRoutes.RegistrationPhoneRoute);
