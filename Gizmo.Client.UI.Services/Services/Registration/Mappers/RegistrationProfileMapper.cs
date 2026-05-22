@@ -7,7 +7,7 @@ namespace Gizmo.Client.UI.Services
         internal static UserProfileModelCreate Map(RegistrationProfile source) =>
             new()
             {
-                Username    = source.Username!,
+                Username    = source.Username,
                 FirstName   = source.FirstName,
                 LastName    = source.LastName,
                 BirthDate   = source.BirthDate,

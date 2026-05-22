@@ -82,65 +82,9 @@ namespace Gizmo.Client.UI.Services
 
         public async Task<RegistrationStartResult> StartAsync(RegistrationStartRequest request, CancellationToken ct = default)
         {
-            VerificationStartResultModel result;
-            string destination;
-
-            if (request.DeliveryMethod == RegistrationDeliveryMethod.Redirect)
-            {
-                result = await _registrationsClient.StartAsync(new RegistrationStartModel
-                {
-                    IntegrationPublicId = request.IntegrationPublicId,
-                    DeliveryMethod = RegistrationDeliveryMethodMapper.MapOutbound(request.DeliveryMethod)
-                }, ct);
-
-                destination = string.Empty;
-            }
-            else if (request.Email != null)
-            {
-                result = await _registrationsClient.StartAsync(new RegistrationStartModel
-                {
-                    IntegrationPublicId = request.IntegrationPublicId,
-                    DeliveryMethod = RegistrationDeliveryMethodMapper.MapOutbound(request.DeliveryMethod),
-                    Email = request.Email
-                }, ct);
-
-                destination = MaskEmail(request.Email);
-            }
-            else
-            {
-                result = await _registrationsClient.StartAsync(new RegistrationStartModel
-                {
-                    IntegrationPublicId = request.IntegrationPublicId,
-                    DeliveryMethod = RegistrationDeliveryMethodMapper.MapOutbound(request.DeliveryMethod),
-                    PhoneNumber = request.Phone!.TrimStart('+')
-                }, ct);
-
-                destination = MaskPhone(request.Phone!);
-            }
-
-            // R5: API does not return DeliveryMethod — flash-call fallback disabled for MVP
-            return new RegistrationStartResult(
-                RegistrationStartCodeMapper.Map(result.Result),
-                result.Token,
-                destination,
-                result.CodeLength,
-                null,
-                result.RedirectUrl,
-                result.ExpiresInSeconds);
-        }
-
-        private static string MaskEmail(string email)
-        {
-            var at = email.IndexOf('@');
-            if (at <= 1) return email;
-            return email[0] + "***" + email[at..];
-        }
-
-        private static string MaskPhone(string phone)
-        {
-            var digits = phone.TrimStart('+');
-            if (digits.Length <= 4) return digits;
-            return "****" + digits[^4..];
+            var model  = RegistrationStartRequestMapper.Map(request);
+            var result = await _registrationsClient.StartAsync(model, ct);
+            return RegistrationStartResultMapper.Map(result, request);
         }
 
         public async Task<RegistrationConfirmCode> ConfirmTokenAsync(string token, string confirmationCode, CancellationToken ct = default)
@@ -154,19 +98,15 @@ namespace Gizmo.Client.UI.Services
 
         public async Task<RegistrationCompleteCode> CompleteAsync(RegistrationCompleteRequest request, CancellationToken ct = default)
         {
-            var apiProfile = RegistrationProfileMapper.Map(request.Profile);
-            // TODO: agreements are collected in ViewState but not sent — new API does not accept them in registration request (R1)
-            var result = await _registrationsClient.CompleteAsync(
-                new RegistrationCompleteModel { Token = request.Token!, Profile = apiProfile, Password = request.Password }, ct);
+            var model  = RegistrationCompleteRequestMapper.MapComplete(request);
+            var result = await _registrationsClient.CompleteAsync(model, ct);
             return RegistrationCompleteCodeMapper.Map(result);
         }
 
         public async Task<RegistrationCompleteCode> DirectAsync(RegistrationCompleteRequest request, CancellationToken ct = default)
         {
-            var apiProfile = RegistrationProfileMapper.Map(request.Profile);
-            // TODO: agreements are collected in ViewState but not sent — new API does not accept them in registration request (R1)
-            var result = await _registrationsClient.DirectAsync(
-                new RegistrationDirectModel { Profile = apiProfile, Password = request.Password }, ct);
+            var model  = RegistrationCompleteRequestMapper.MapDirect(request);
+            var result = await _registrationsClient.DirectAsync(model, ct);
             return RegistrationCompleteCodeMapper.Map(result);
         }
     }
