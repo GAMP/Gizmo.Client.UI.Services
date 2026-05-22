@@ -85,7 +85,17 @@ namespace Gizmo.Client.UI.Services
             VerificationStartResultModel result;
             string destination;
 
-            if (request.Email != null)
+            if (request.DeliveryMethod == RegistrationDeliveryMethod.Redirect)
+            {
+                result = await _registrationsClient.StartAsync(new RegistrationStartModel
+                {
+                    IntegrationPublicId = request.IntegrationPublicId,
+                    DeliveryMethod = RegistrationDeliveryMethodMapper.MapOutbound(request.DeliveryMethod)
+                }, ct);
+
+                destination = string.Empty;
+            }
+            else if (request.Email != null)
             {
                 result = await _registrationsClient.StartAsync(new RegistrationStartModel
                 {

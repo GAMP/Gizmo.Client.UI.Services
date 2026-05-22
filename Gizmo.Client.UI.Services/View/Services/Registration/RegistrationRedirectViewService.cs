@@ -14,6 +14,8 @@ namespace Gizmo.Client.UI.View.Services
     [Route(ClientRoutes.RegistrationRedirectRoute)]
     public sealed class RegistrationRedirectViewService : ViewStateServiceBase<RegistrationRedirectViewState>
     {
+        private static readonly TimeSpan QrExpiryDelay = TimeSpan.FromMinutes(4);
+
         #region CONSTRUCTOR
         public RegistrationRedirectViewService(
             RegistrationRedirectViewState viewState,
@@ -23,13 +25,13 @@ namespace Gizmo.Client.UI.View.Services
             IRegistrationSessionService registrationSession,
             UserRegistrationViewState userRegistrationViewState,
             RegistrationProvidersViewService registrationProvidersViewService,
-            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
+            IQrCodeService qrCodeService) : base(viewState, logger, serviceProvider)
         {
             _registrationService = registrationService;
             _registrationSession = registrationSession;
             _userRegistrationViewState = userRegistrationViewState;
             _registrationProvidersViewService = registrationProvidersViewService;
-            _localizationService = localizationService;
+            _qrCodeService = qrCodeService;
         }
         #endregion
 
@@ -38,13 +40,23 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IRegistrationSessionService _registrationSession;
         private readonly UserRegistrationViewState _userRegistrationViewState;
         private readonly RegistrationProvidersViewService _registrationProvidersViewService;
-        private readonly ILocalizationService _localizationService;
+        private readonly IQrCodeService _qrCodeService;
+        private CancellationTokenSource? _qrExpiryCts;
         #endregion
 
         #region FUNCTIONS
 
         public Task NavigateBackAsync()
         {
+            CancelQrExpiry();
+            _registrationSession.Clear();
+            NavigationService.NavigateTo(ClientRoutes.RegistrationProvidersRoute);
+            return Task.CompletedTask;
+        }
+
+        public Task NavigateToProvidersAsync()
+        {
+            CancelQrExpiry();
             _registrationSession.Clear();
             NavigationService.NavigateTo(ClientRoutes.RegistrationProvidersRoute);
             return Task.CompletedTask;
@@ -63,12 +75,38 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
+            CancelQrExpiry();
             ViewState.RedirectUrl = null;
+            ViewState.QrCode = null;
+            ViewState.IsQrExpired = false;
             ViewState.HasError = false;
             ViewState.ErrorMessage = string.Empty;
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 
+            try
+            {
+                await LoadQrAsync(cancellationToken);
+            }
+            finally
+            {
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
+            }
+        }
+
+        protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        {
+            CancelQrExpiry();
+            return base.OnNavigatedOut(navigationParameters, cancellationToken);
+        }
+
+        #endregion
+
+        #region PRIVATE FUNCTIONS
+
+        private async Task LoadQrAsync(CancellationToken cancellationToken)
+        {
             var provider = _userRegistrationViewState.SelectedProvider;
             var integrationPublicId = provider?.PublicId ?? Guid.Empty;
             var channelGuid = provider?.ChannelGuid ?? Guid.Empty;
@@ -91,6 +129,8 @@ namespace Gizmo.Client.UI.View.Services
                             result.ExpiresInSeconds,
                             RegistrationFlow.None);
                         ViewState.RedirectUrl = result.RedirectUrl;
+                        ViewState.QrCode = _qrCodeService.GenerateFromUrl(result.RedirectUrl);
+                        StartQrExpiryTimer();
                         break;
 
                     default:
@@ -106,11 +146,38 @@ namespace Gizmo.Client.UI.View.Services
                 _registrationProvidersViewService.SetProviderError(channelGuid);
                 NavigationService.NavigateTo(ClientRoutes.RegistrationProvidersRoute);
             }
-            finally
+        }
+
+        private void StartQrExpiryTimer()
+        {
+            CancelQrExpiry();
+            _qrExpiryCts = new CancellationTokenSource();
+            var token = _qrExpiryCts.Token;
+            _ = ExpireQrAfterDelayAsync(token);
+        }
+
+        private async Task ExpireQrAfterDelayAsync(CancellationToken cancellationToken)
+        {
+            try
             {
-                ViewState.IsLoading = false;
+                await Task.Delay(QrExpiryDelay, cancellationToken);
+                ViewState.IsQrExpired = true;
                 ViewState.RaiseChanged();
             }
+            catch (OperationCanceledException)
+            {
+                // Navigation or refresh cancelled the timer.
+            }
+        }
+
+        private void CancelQrExpiry()
+        {
+            if (_qrExpiryCts is null)
+                return;
+
+            _qrExpiryCts.Cancel();
+            _qrExpiryCts.Dispose();
+            _qrExpiryCts = null;
         }
 
         #endregion

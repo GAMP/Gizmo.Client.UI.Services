@@ -87,6 +87,9 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
+            ViewState.FailedChannelGuid = null;
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 

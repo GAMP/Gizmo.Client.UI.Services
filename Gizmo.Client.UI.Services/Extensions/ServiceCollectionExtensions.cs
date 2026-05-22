@@ -192,6 +192,7 @@ namespace Gizmo.Client.UI.Services
             }
 
             services.AddSingleton<IUserRegistrationService, UserRegistrationService>();
+            services.AddSingleton<IQrCodeService, QrCodeService>();
 
             return services;
         }
