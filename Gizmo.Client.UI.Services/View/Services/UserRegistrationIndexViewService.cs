@@ -18,78 +18,42 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserRegistrationIndexViewService> logger,
             IServiceProvider serviceProvider,
             IUserRegistrationService registrationService,
-            IClientDialogService dialogService) : base(viewState, logger, serviceProvider)
+            IClientDialogService dialogService,
+            IRegistrationSessionService registrationSession) : base(viewState, logger, serviceProvider)
         {
             _registrationService = registrationService;
             _dialogService = dialogService;
+            _registrationSession = registrationSession;
         }
         #endregion
 
         #region FIELDS
         private readonly IUserRegistrationService _registrationService;
         private readonly IClientDialogService _dialogService;
+        private readonly IRegistrationSessionService _registrationSession;
         #endregion
 
-        public async Task<bool> ProcessUserAgreements(CancellationToken cancellationToken = default)
+        public async Task<bool> ProcessUserAgreements(IReadOnlyList<RegistrationAgreement> agreements, CancellationToken cancellationToken = default)
         {
-            var userAgreements = await _registrationService.GetAgreementsAsync(cancellationToken);
-
-            var userAgreementStates = userAgreements.Select(a => new UserAgreementViewState()
+            if (!agreements.Any())
             {
-                Id = a.Id,
-                Name = a.Name,
-                Agreement = a.Agreement,
-                IsRejectable = a.IsRejectable,
-                IgnoreState = a.IgnoreState,
-                AcceptState = UserAgreementAcceptState.None
-            }).ToList();
+                _registrationSession.SetAgreementsAccepted(true);
+                return true;
+            }
 
-            foreach (var userAgreement in userAgreementStates)
+            var addDialogResult = await _dialogService.ShowRegistrationAgreementsDialogAsync(agreements, cancellationToken);
+
+            if (addDialogResult.Result == AddComponentResultCode.Opened)
             {
-                var addDialogResult = await _dialogService.ShowUserAgreementDialogAsync(new UserAgreementDialogParameters()
+                var componentResult = await addDialogResult.WaitForResultAsync(cancellationToken);
+                if (addDialogResult.Result == AddComponentResultCode.Ok && componentResult?.AllMandatoryAccepted == true)
                 {
-                    Name = userAgreement.Name,
-                    Agreement = userAgreement.Agreement,
-                    IsRejectable = userAgreement.IsRejectable
-                }, cancellationToken);
-
-                if (addDialogResult.Result == AddComponentResultCode.Opened)
-                {
-                    var dialogResult = await addDialogResult.WaitForResultAsync(cancellationToken);
-                    if (addDialogResult.Result == AddComponentResultCode.Ok)
-                    {
-                        if (dialogResult!.Accepted)
-                        {
-                            userAgreement.AcceptState = UserAgreementAcceptState.Accepted;
-                        }
-                        else
-                        {
-                            userAgreement.AcceptState = UserAgreementAcceptState.Rejected;
-                        }
-                    }
-                    else if (addDialogResult.Result == AddComponentResultCode.Dismissed)
-                    {
-                        if (userAgreement.IsRejectable)
-                        {
-                            userAgreement.AcceptState = UserAgreementAcceptState.Rejected;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                    else if (addDialogResult.Result == AddComponentResultCode.Canceled)
-                    {
-                        //dialog was canceled, this will only happen if function caller have cancelled
-                        //or a global cancellation happened
-                        return false;
-                    }
+                    _registrationSession.SetAgreementsAccepted(true);
+                    return true;
                 }
             }
 
-            ViewState.UserAgreementStates = userAgreementStates;
-
-            return true;
+            return false; // Dismissed / Canceled / not accepted
         }
 
         public void ClearAll()
@@ -122,8 +86,9 @@ namespace Gizmo.Client.UI.View.Services
             try
             {
                 var providers = await _registrationService.GetProvidersAsync(cancellationToken);
+                var agreements = await _registrationService.GetAgreementsAsync(cancellationToken);
 
-                var agreementStatus = await ProcessUserAgreements(cancellationToken);
+                var agreementStatus = await ProcessUserAgreements(agreements, cancellationToken);
 
                 if (agreementStatus)
                 {

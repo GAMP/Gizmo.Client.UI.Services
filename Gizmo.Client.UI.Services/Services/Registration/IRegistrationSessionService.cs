@@ -25,6 +25,7 @@ public interface IRegistrationSessionService
     string? MobilePhone { get; }
 
     bool ShowAllProviders { get; }
+    bool AgreementsAccepted { get; }
 
     void SetStartResult(string token, string destination, int codeLength, int expiresInSeconds, RegistrationFlow flow);
     void SetContactDetails(string? actualContact, string? country = null);
@@ -33,5 +34,6 @@ public interface IRegistrationSessionService
         DateTime? birthDate, Sex sex, string? email);
     void SetMobilePhone(string? mobilePhone);
     void SetShowAllProviders(bool value);
+    void SetAgreementsAccepted(bool value);
     void Clear();
 }

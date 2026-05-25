@@ -14,5 +14,6 @@ namespace Gizmo.Client.UI.Services
         Task<AddDialogResult<AlertDialogResult>> ShowAlertDialogAsync(string title, string message, AlertDialogButtons buttons = AlertDialogButtons.OK, AlertTypes icon = AlertTypes.None, CancellationToken cancellationToken = default);
         Task<AddDialogResult<EmptyComponentResult>> ShowUserOnlineDepositsDialogAsync(CancellationToken cancellationToken = default);
         Task<AddDialogResult<EmptyComponentResult>> ShowConfirmReservationDialogAsync(CancellationToken cancellationToken = default);
+        Task<AddDialogResult<RegistrationAgreementsResult>> ShowRegistrationAgreementsDialogAsync(IReadOnlyList<RegistrationAgreement> agreements, CancellationToken cancellationToken = default);
     }
 }
