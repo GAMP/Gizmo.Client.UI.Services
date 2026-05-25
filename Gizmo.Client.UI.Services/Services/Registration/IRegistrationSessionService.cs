@@ -24,11 +24,14 @@ public interface IRegistrationSessionService
     string? Email { get; }
     string? MobilePhone { get; }
 
+    bool ShowAllProviders { get; }
+
     void SetStartResult(string token, string destination, int codeLength, int expiresInSeconds, RegistrationFlow flow);
     void SetContactDetails(string? actualContact, string? country = null);
     void SetProfileBasics(string username, string password,
         string? firstName, string? lastName,
         DateTime? birthDate, Sex sex, string? email);
     void SetMobilePhone(string? mobilePhone);
+    void SetShowAllProviders(bool value);
     void Clear();
 }

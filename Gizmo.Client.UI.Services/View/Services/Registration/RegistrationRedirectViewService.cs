@@ -16,6 +16,11 @@ namespace Gizmo.Client.UI.View.Services
     {
         private static readonly TimeSpan QrExpiryDelay = TimeSpan.FromMinutes(4);
 
+        // TODO: Временное решение — обычный polling каждые 20 сек, 12 попыток (4 мин, 3 запроса в минуту).
+        // Заменить на long polling после переделки IsTokenConfirmedAsync на сервере.
+        private static readonly TimeSpan PollingInterval = TimeSpan.FromSeconds(20);
+        private const int PollingMaxAttempts = 12;
+
         #region CONSTRUCTOR
         public RegistrationRedirectViewService(
             RegistrationRedirectViewState viewState,
@@ -131,6 +136,7 @@ namespace Gizmo.Client.UI.View.Services
                         ViewState.RedirectUrl = result.RedirectUrl;
                         ViewState.QrCode = _qrCodeService.GenerateFromUrl(result.RedirectUrl);
                         StartQrExpiryTimer();
+                        _ = StartTokenPollingAsync(_qrExpiryCts!.Token);
                         break;
 
                     default:
@@ -145,6 +151,53 @@ namespace Gizmo.Client.UI.View.Services
                 Logger.LogError(ex, "Redirect registration start error.");
                 _registrationProvidersViewService.SetProviderError(channelGuid);
                 NavigationService.NavigateTo(ClientRoutes.RegistrationProvidersRoute);
+            }
+        }
+
+        //TODO временное решение, заменить после правки на сервере
+        private async Task StartTokenPollingAsync(CancellationToken cancellationToken)
+        {
+            for (var attempt = 0; attempt < PollingMaxAttempts; attempt++)
+            {
+                try
+                {
+                    await Task.Delay(PollingInterval, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
+
+                try
+                {
+                    var result = await _registrationService.IsTokenConfirmedAsync(
+                        _registrationSession.Token, cancellationToken);
+
+                    if (result.UserAlreadyExists)
+                    {
+                        CancelQrExpiry();
+                        NavigationService.NavigateTo(ClientRoutes.LoginRoute);
+                        return;
+                    }
+
+                    if (result.IsConfirmed)
+                    {
+                        CancelQrExpiry();
+                        NavigationService.NavigateTo(ClientRoutes.RegistrationBasicFieldsRoute);
+                        return;
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Ошибка при проверке статуса токена (попытка {Attempt}).", attempt + 1);
+                    CancelQrExpiry();
+                    NavigationService.NavigateTo(ClientRoutes.RegistrationErrorRoute);
+                    return;
+                }
             }
         }
 

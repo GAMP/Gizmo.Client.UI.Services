@@ -24,6 +24,8 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
     public string? Email { get; private set; }
     public string? MobilePhone { get; private set; }
 
+    public bool ShowAllProviders { get; private set; }
+
     public void SetStartResult(string token, string destination, int codeLength, int expiresInSeconds, RegistrationFlow flow)
     {
         Token = token;
@@ -58,6 +60,11 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
         MobilePhone = mobilePhone;
     }
 
+    public void SetShowAllProviders(bool value)
+    {
+        ShowAllProviders = value;
+    }
+
     public void Clear()
     {
         Token = string.Empty;
@@ -75,6 +82,7 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
         Sex = Sex.Unspecified;
         Email = null;
         MobilePhone = null;
+        ShowAllProviders = false;
         Changed?.Invoke(this, EventArgs.Empty);
     }
 }

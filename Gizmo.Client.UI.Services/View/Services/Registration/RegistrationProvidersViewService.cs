@@ -19,11 +19,13 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<RegistrationProvidersViewService> logger,
             IServiceProvider serviceProvider,
             IUserRegistrationService registrationService,
+            IRegistrationSessionService registrationSession,
             UserRegistrationViewService userRegistrationViewService,
             UserRegistrationViewState userRegistrationViewState,
             ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
         {
             _registrationService = registrationService;
+            _registrationSession = registrationSession;
             _userRegistrationViewService = userRegistrationViewService;
             _userRegistrationViewState = userRegistrationViewState;
             _localizationService = localizationService;
@@ -32,6 +34,7 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FIELDS
         private readonly IUserRegistrationService _registrationService;
+        private readonly IRegistrationSessionService _registrationSession;
         private readonly UserRegistrationViewService _userRegistrationViewService;
         private readonly UserRegistrationViewState _userRegistrationViewState;
         private readonly ILocalizationService _localizationService;
@@ -90,6 +93,8 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.HasError = false;
             ViewState.ErrorMessage = string.Empty;
             ViewState.FailedChannelGuid = null;
+            ViewState.ShowAllProviders = _registrationSession.ShowAllProviders;
+            _registrationSession.SetShowAllProviders(false);
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 

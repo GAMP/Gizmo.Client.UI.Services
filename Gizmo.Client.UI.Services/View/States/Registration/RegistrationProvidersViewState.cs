@@ -25,6 +25,8 @@ namespace Gizmo.Client.UI.View.States
 
         public Guid? FailedChannelGuid { get; internal set; }
 
+        public bool ShowAllProviders { get; internal set; }
+
         #endregion
     }
 }
