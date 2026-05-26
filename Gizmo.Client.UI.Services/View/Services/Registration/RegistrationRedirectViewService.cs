@@ -15,11 +15,8 @@ namespace Gizmo.Client.UI.View.Services
     public sealed class RegistrationRedirectViewService : ViewStateServiceBase<RegistrationRedirectViewState>
     {
         private static readonly TimeSpan QrExpiryDelay = TimeSpan.FromMinutes(4);
-
-        // TODO: Временное решение — обычный polling каждые 20 сек, 12 попыток (4 мин, 3 запроса в минуту).
-        // Заменить на long polling после переделки IsTokenConfirmedAsync на сервере.
-        private static readonly TimeSpan PollingInterval = TimeSpan.FromSeconds(20);
-        private const int PollingMaxAttempts = 12;
+        private static readonly TimeSpan TransientFailureRetryDelay = TimeSpan.FromSeconds(1);
+        private const int MaxTransientFailureRetries = 1;
 
         #region CONSTRUCTOR
         public RegistrationRedirectViewService(
@@ -154,24 +151,18 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        //TODO временное решение, заменить после правки на сервере
         private async Task StartTokenPollingAsync(CancellationToken cancellationToken)
         {
-            for (var attempt = 0; attempt < PollingMaxAttempts; attempt++)
-            {
-                try
-                {
-                    await Task.Delay(PollingInterval, cancellationToken);
-                }
-                catch (OperationCanceledException)
-                {
-                    return;
-                }
+            var transientFailureCount = 0;
 
+            while (!cancellationToken.IsCancellationRequested)
+            {
                 try
                 {
                     var result = await _registrationService.IsTokenConfirmedAsync(
                         _registrationSession.Token, cancellationToken);
+
+                    transientFailureCount = 0;
 
                     if (result.UserAlreadyExists)
                     {
@@ -193,7 +184,24 @@ namespace Gizmo.Client.UI.View.Services
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "Ошибка при проверке статуса токена (попытка {Attempt}).", attempt + 1);
+                    if (transientFailureCount < MaxTransientFailureRetries)
+                    {
+                        transientFailureCount++;
+                        Logger.LogWarning(ex, "Ошибка при long polling проверке статуса токена. Повторная попытка {Attempt}/{MaxAttempts}.", transientFailureCount, MaxTransientFailureRetries);
+
+                        try
+                        {
+                            await Task.Delay(TransientFailureRetryDelay, cancellationToken);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            return;
+                        }
+
+                        continue;
+                    }
+
+                    Logger.LogError(ex, "Ошибка при long polling проверке статуса токена.");
                     CancelQrExpiry();
                     NavigationService.NavigateTo(ClientRoutes.RegistrationErrorRoute);
                     return;
