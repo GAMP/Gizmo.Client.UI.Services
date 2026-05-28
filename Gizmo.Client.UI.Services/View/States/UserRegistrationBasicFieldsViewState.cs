@@ -50,8 +50,11 @@ namespace Gizmo.Client.UI.View.States
         [EmailNullEmptyValidation(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_INVALID_FIELD")]
         public string? Email { get; internal set; }
 
-        [ValidatingProperty()]
+        [ValidatingProperty(IsAsync = true)]
         public string? MobilePhone { get; internal set; }
+
+        [ValidatingProperty()]
+        public string? PhoneRegionCode { get; internal set; }
 
         public bool IsLoading { get; internal set; }
 

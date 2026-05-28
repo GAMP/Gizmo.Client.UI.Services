@@ -23,12 +23,14 @@ namespace Gizmo.Client.UI.View.Services
             IUserRegistrationService registrationService,
             IRegistrationSessionService registrationSession,
             UserRegistrationViewState userRegistrationViewState,
-            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
+            ILocalizationService localizationService,
+            IPhoneValidationService phoneValidationService) : base(viewState, logger, serviceProvider)
         {
             _registrationService = registrationService;
             _registrationSession = registrationSession;
             _userRegistrationViewState = userRegistrationViewState;
             _localizationService = localizationService;
+            _phoneValidationService = phoneValidationService;
         }
         #endregion
 
@@ -37,6 +39,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IRegistrationSessionService _registrationSession;
         private readonly UserRegistrationViewState _userRegistrationViewState;
         private readonly ILocalizationService _localizationService;
+        private readonly IPhoneValidationService _phoneValidationService;
         #endregion
 
         #region FUNCTIONS
@@ -45,6 +48,12 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.Country = value;
             ValidateProperty(() => ViewState.Country);
+        }
+
+        public void SetRegionCode(string? value)
+        {
+            ViewState.RegionCode = value;
+            ValidateProperty(() => ViewState.MobilePhone);
         }
 
         public void SetMobilePhone(string value)
@@ -69,7 +78,7 @@ namespace Gizmo.Client.UI.View.Services
                 return;
             }
 
-            var phone = ViewState.MobilePhone ?? string.Empty;
+            var phone = _registrationSession.PhoneE164 ?? ViewState.MobilePhone ?? string.Empty;
             if (phone.StartsWith("+"))
                 phone = phone.Substring(1);
 
@@ -139,6 +148,7 @@ namespace Gizmo.Client.UI.View.Services
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
             ViewState.Country = null;
+            ViewState.RegionCode = null;
             ViewState.MobilePhone = null;
             ViewState.IsLoading = false;
             ViewState.HasError = false;
@@ -157,15 +167,32 @@ namespace Gizmo.Client.UI.View.Services
                 else
                     ClearError(() => ViewState.Country);
             }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.RegionCode))
+            {
+                if (string.IsNullOrEmpty(ViewState.RegionCode))
+                    AddError(() => ViewState.RegionCode, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
+                else
+                    ClearError(() => ViewState.RegionCode);
+            }
         }
 
         protected override async Task<IEnumerable<string>> OnValidateAsync(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger, CancellationToken cancellationToken = default)
         {
             if (fieldIdentifier.FieldEquals(() => ViewState.MobilePhone) && !string.IsNullOrEmpty(ViewState.MobilePhone))
             {
+                if (string.IsNullOrEmpty(ViewState.RegionCode))
+                    return new string[] { _localizationService.GetString("GIZ_REGISTRATION_VE_SELECT_COUNTRY") };
+
+                var formatResult = await _phoneValidationService.ValidateAsync(ViewState.MobilePhone, ViewState.RegionCode, cancellationToken);
+                if (!formatResult.IsValid)
+                    return new string[] { _localizationService.GetString(formatResult.ErrorKey ?? nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED)) };
+
+                _registrationSession.SetPhoneE164(formatResult.E164);
+
                 try
                 {
-                    var phone = ViewState.MobilePhone;
+                    var phone = formatResult.E164 ?? ViewState.MobilePhone;
                     if (phone.StartsWith("+"))
                         phone = phone.Substring(1);
 

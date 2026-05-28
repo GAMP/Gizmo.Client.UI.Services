@@ -26,13 +26,15 @@ namespace Gizmo.Client.UI.View.Services
             IUserRegistrationService registrationService,
             IOptions<PasswordValidationOptions> passwordValidationOptions,
             UserRegistrationViewState userRegistrationViewState,
-            IRegistrationSessionService registrationSession) : base(viewState, logger, serviceProvider)
+            IRegistrationSessionService registrationSession,
+            IPhoneValidationService phoneValidationService) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _registrationService = registrationService;
             _passwordValidationOptions = passwordValidationOptions;
             _userRegistrationViewState = userRegistrationViewState;
             _registrationSession = registrationSession;
+            _phoneValidationService = phoneValidationService;
         }
         #endregion
 
@@ -42,6 +44,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IOptions<PasswordValidationOptions> _passwordValidationOptions;
         private readonly UserRegistrationViewState _userRegistrationViewState;
         private readonly IRegistrationSessionService _registrationSession;
+        private readonly IPhoneValidationService _phoneValidationService;
         #endregion
 
         #region FUNCTIONS
@@ -101,6 +104,12 @@ namespace Gizmo.Client.UI.View.Services
             ValidateProperty(() => ViewState.MobilePhone);
         }
 
+        public void SetPhoneRegionCode(string? value)
+        {
+            ViewState.PhoneRegionCode = value;
+            ValidateProperty(() => ViewState.MobilePhone);
+        }
+
         public void Clear()
         {
             ViewState.Username = string.Empty;
@@ -112,6 +121,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Sex = Sex.Unspecified;
             ViewState.Email = null;
             ViewState.MobilePhone = null;
+            ViewState.PhoneRegionCode = null;
 
             ViewState.IsLoading = false;
             ViewState.HasError = false;
@@ -152,7 +162,11 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.BirthDate, ViewState.Sex, sessionEmail);
 
             if (_registrationSession.Flow == RegistrationFlow.Email)
-                _registrationSession.SetMobilePhone(ViewState.MobilePhone);
+            {
+                if (_registrationSession.PhoneE164 == null && !string.IsNullOrEmpty(ViewState.MobilePhone))
+                    _registrationSession.SetPhoneE164(ViewState.MobilePhone);
+                _registrationSession.SetMobilePhone(_registrationSession.PhoneE164 ?? ViewState.MobilePhone);
+            }
 
             ViewState.IsLoading = false;
             ViewState.RaiseChanged();
@@ -383,7 +397,36 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
+            if (fieldIdentifier.FieldEquals(() => ViewState.MobilePhone)
+                && _registrationSession.Flow == RegistrationFlow.Email
+                && !string.IsNullOrEmpty(ViewState.MobilePhone)
+                && !string.IsNullOrEmpty(ViewState.PhoneRegionCode))
+            {
+                var result = await _phoneValidationService.ValidateAsync(ViewState.MobilePhone, ViewState.PhoneRegionCode, cancellationToken);
+                if (!result.IsValid)
+                    return new string[] { _localizationService.GetString(result.ErrorKey ?? nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED)) };
+
+                _registrationSession.SetPhoneE164(result.E164);
+            }
+
             return await base.OnValidateAsync(fieldIdentifier, validationTrigger, cancellationToken);
+        }
+
+        protected override AsyncValidatedDetermineResult OnDetermineIsAsyncPropertiesValidated()
+        {
+            // Username is required: always check it first
+            if (!IsAsyncValidated(() => ViewState.Username))
+                return base.OnDetermineIsAsyncPropertiesValidated();
+
+            // MobilePhone is optional: only require async validation when Flow==Email and phone entered
+            if (_registrationSession.Flow == RegistrationFlow.Email
+                && !string.IsNullOrEmpty(ViewState.MobilePhone)
+                && !IsAsyncValidated(() => ViewState.MobilePhone))
+            {
+                return base.OnDetermineIsAsyncPropertiesValidated();
+            }
+
+            return AsyncValidatedDetermineResult.DefaultTrue;
         }
 
         #endregion

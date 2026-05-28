@@ -13,8 +13,10 @@ namespace Gizmo.Client.UI.View.States
         [ValidatingProperty()]
         public string? Country { get; internal set; }
 
+        [ValidatingProperty()]
+        public string? RegionCode { get; internal set; }
+
         [ValidatingProperty(IsAsync = true)]
-        [PhoneNullEmptyValidation(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_REGISTRATION_VE_MOBILE_PHONE_INVALID")]
         public string? MobilePhone { get; internal set; }
 
         public bool IsLoading { get; internal set; }

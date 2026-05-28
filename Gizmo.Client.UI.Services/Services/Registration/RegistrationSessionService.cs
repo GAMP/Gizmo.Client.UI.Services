@@ -23,6 +23,7 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
     public Sex Sex { get; private set; } = Sex.Unspecified;
     public string? Email { get; private set; }
     public string? MobilePhone { get; private set; }
+    public string? PhoneE164 { get; private set; }
 
     public bool ShowAllProviders { get; private set; }
     public bool AgreementsAccepted { get; private set; }
@@ -61,6 +62,11 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
         MobilePhone = mobilePhone;
     }
 
+    public void SetPhoneE164(string? e164)
+    {
+        PhoneE164 = e164;
+    }
+
     public void SetShowAllProviders(bool value)
     {
         ShowAllProviders = value;
@@ -88,6 +94,7 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
         Sex = Sex.Unspecified;
         Email = null;
         MobilePhone = null;
+        PhoneE164 = null;
         ShowAllProviders = false;
         AgreementsAccepted = false;
         Changed?.Invoke(this, EventArgs.Empty);

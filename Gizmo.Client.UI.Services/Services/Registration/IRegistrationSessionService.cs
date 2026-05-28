@@ -23,6 +23,7 @@ public interface IRegistrationSessionService
     Sex Sex { get; }
     string? Email { get; }
     string? MobilePhone { get; }
+    string? PhoneE164 { get; }
 
     bool ShowAllProviders { get; }
     bool AgreementsAccepted { get; }
@@ -33,6 +34,7 @@ public interface IRegistrationSessionService
         string? firstName, string? lastName,
         DateTime? birthDate, Sex sex, string? email);
     void SetMobilePhone(string? mobilePhone);
+    void SetPhoneE164(string? e164);
     void SetShowAllProviders(bool value);
     void SetAgreementsAccepted(bool value);
     void Clear();
