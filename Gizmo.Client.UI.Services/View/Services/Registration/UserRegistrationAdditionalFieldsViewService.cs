@@ -20,12 +20,10 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
             IUserRegistrationService registrationService,
-            UserRegistrationViewState userRegistrationViewState,
             IRegistrationSessionService registrationSession) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _registrationService = registrationService;
-            _userRegistrationViewState = userRegistrationViewState;
             _registrationSession = registrationSession;
         }
         #endregion
@@ -33,7 +31,6 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly ILocalizationService _localizationService;
         private readonly IUserRegistrationService _registrationService;
-        private readonly UserRegistrationViewState _userRegistrationViewState;
         private readonly IRegistrationSessionService _registrationSession;
         #endregion
 
@@ -171,7 +168,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (fieldIdentifier.FieldEquals(() => ViewState.Country))
             {
-                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.Country == true && string.IsNullOrEmpty(ViewState.Country))
+                if (_registrationSession.RequiredUserInfo?.Country == true && string.IsNullOrEmpty(ViewState.Country))
                 {
                     AddError(() => ViewState.Country, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
@@ -179,7 +176,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.Address))
             {
-                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.Address == true && string.IsNullOrEmpty(ViewState.Address))
+                if (_registrationSession.RequiredUserInfo?.Address == true && string.IsNullOrEmpty(ViewState.Address))
                 {
                     AddError(() => ViewState.Address, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
@@ -187,7 +184,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.PostCode))
             {
-                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.PostCode == true && string.IsNullOrEmpty(ViewState.PostCode))
+                if (_registrationSession.RequiredUserInfo?.PostCode == true && string.IsNullOrEmpty(ViewState.PostCode))
                 {
                     AddError(() => ViewState.PostCode, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
@@ -197,7 +194,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (_registrationSession.Flow != RegistrationFlow.Sms)
                 {
-                    if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.Mobile == true && string.IsNullOrEmpty(ViewState.MobilePhone))
+                    if (_registrationSession.RequiredUserInfo?.Mobile == true && string.IsNullOrEmpty(ViewState.MobilePhone))
                     {
                         AddError(() => ViewState.MobilePhone, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                     }

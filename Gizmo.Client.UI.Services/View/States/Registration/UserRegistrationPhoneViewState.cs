@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Gizmo.Client.UI.View.States
 {
     [Register()]
-    public sealed class RegistrationPhoneViewState : ValidatingViewStateBase
+    public sealed class UserRegistrationPhoneViewState : ValidatingViewStateBase
     {
         #region PROPERTIES
 

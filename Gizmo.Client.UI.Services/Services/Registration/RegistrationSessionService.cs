@@ -28,6 +28,10 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
     public bool ShowAllProviders { get; private set; }
     public bool AgreementsAccepted { get; private set; }
 
+    public RegistrationProvider? SelectedProvider { get; private set; }
+    public RegistrationRequiredInfo? RequiredUserInfo { get; private set; }
+    public Guid? FailedProviderChannelGuid { get; private set; }
+
     public void SetStartResult(string token, string destination, int codeLength, int expiresInSeconds, RegistrationFlow flow)
     {
         Token = token;
@@ -77,6 +81,21 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
         AgreementsAccepted = value;
     }
 
+    public void SetSelectedProvider(RegistrationProvider? provider)
+    {
+        SelectedProvider = provider;
+    }
+
+    public void SetRequiredUserInfo(RegistrationRequiredInfo? info)
+    {
+        RequiredUserInfo = info;
+    }
+
+    public void SetFailedProviderChannelGuid(Guid? channelGuid)
+    {
+        FailedProviderChannelGuid = channelGuid;
+    }
+
     public void Clear()
     {
         Token = string.Empty;
@@ -97,6 +116,9 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
         PhoneE164 = null;
         ShowAllProviders = false;
         AgreementsAccepted = false;
+        SelectedProvider = null;
+        RequiredUserInfo = null;
+        FailedProviderChannelGuid = null;
         Changed?.Invoke(this, EventArgs.Empty);
     }
 }

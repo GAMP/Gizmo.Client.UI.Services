@@ -22,13 +22,11 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
             IUserRegistrationService registrationService,
-            IRegistrationSessionService registrationSession,
-            UserRegistrationViewState userRegistrationViewState) : base(viewState, logger, serviceProvider)
+            IRegistrationSessionService registrationSession) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _registrationService = registrationService;
             _registrationSession = registrationSession;
-            _userRegistrationViewState = userRegistrationViewState;
         }
         #endregion
 
@@ -36,7 +34,6 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         private readonly IUserRegistrationService _registrationService;
         private readonly IRegistrationSessionService _registrationSession;
-        private readonly UserRegistrationViewState _userRegistrationViewState;
         private readonly CountdownTimer _timer = new();
         #endregion
 
@@ -129,7 +126,7 @@ namespace Gizmo.Client.UI.View.Services
                 var request = new RegistrationStartRequest
                 {
                     DeliveryMethod = RegistrationDeliveryMethod.CodeDispatch,
-                    IntegrationPublicId = _userRegistrationViewState.SelectedProvider?.PublicId ?? Guid.Empty,
+                    IntegrationPublicId = _registrationSession.SelectedProvider?.PublicId ?? Guid.Empty,
                     Email = _registrationSession.Flow == RegistrationFlow.Email ? _registrationSession.ActualContact : null,
                     Phone = _registrationSession.Flow == RegistrationFlow.Sms ? _registrationSession.ActualContact : null,
                 };

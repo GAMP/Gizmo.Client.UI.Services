@@ -13,21 +13,19 @@ namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
     [Route(ClientRoutes.RegistrationEmailRoute)]
-    public sealed class RegistrationEmailViewService : ValidatingViewStateServiceBase<RegistrationEmailViewState>
+    public sealed class UserRegistrationEmailViewService : ValidatingViewStateServiceBase<UserRegistrationEmailViewState>
     {
         #region CONSTRUCTOR
-        public RegistrationEmailViewService(
-            RegistrationEmailViewState viewState,
-            ILogger<RegistrationEmailViewService> logger,
+        public UserRegistrationEmailViewService(
+            UserRegistrationEmailViewState viewState,
+            ILogger<UserRegistrationEmailViewService> logger,
             IServiceProvider serviceProvider,
             IUserRegistrationService registrationService,
             IRegistrationSessionService registrationSession,
-            UserRegistrationViewState userRegistrationViewState,
             ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
         {
             _registrationService = registrationService;
             _registrationSession = registrationSession;
-            _userRegistrationViewState = userRegistrationViewState;
             _localizationService = localizationService;
         }
         #endregion
@@ -35,7 +33,6 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly IUserRegistrationService _registrationService;
         private readonly IRegistrationSessionService _registrationSession;
-        private readonly UserRegistrationViewState _userRegistrationViewState;
         private readonly ILocalizationService _localizationService;
         #endregion
 
@@ -63,7 +60,7 @@ namespace Gizmo.Client.UI.View.Services
                 return;
             }
 
-            var integrationPublicId = _userRegistrationViewState.SelectedProvider?.PublicId ?? Guid.Empty;
+            var integrationPublicId = _registrationSession.SelectedProvider?.PublicId ?? Guid.Empty;
 
             try
             {

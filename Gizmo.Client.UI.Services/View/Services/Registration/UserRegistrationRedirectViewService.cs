@@ -12,27 +12,23 @@ namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
     [Route(ClientRoutes.RegistrationRedirectRoute)]
-    public sealed class RegistrationRedirectViewService : ViewStateServiceBase<RegistrationRedirectViewState>
+    public sealed class UserRegistrationRedirectViewService : ViewStateServiceBase<UserRegistrationRedirectViewState>
     {
         private static readonly TimeSpan QrExpiryDelay = TimeSpan.FromMinutes(4);
         private static readonly TimeSpan TransientFailureRetryDelay = TimeSpan.FromSeconds(1);
         private const int MaxTransientFailureRetries = 1;
 
         #region CONSTRUCTOR
-        public RegistrationRedirectViewService(
-            RegistrationRedirectViewState viewState,
-            ILogger<RegistrationRedirectViewService> logger,
+        public UserRegistrationRedirectViewService(
+            UserRegistrationRedirectViewState viewState,
+            ILogger<UserRegistrationRedirectViewService> logger,
             IServiceProvider serviceProvider,
             IUserRegistrationService registrationService,
             IRegistrationSessionService registrationSession,
-            UserRegistrationViewState userRegistrationViewState,
-            RegistrationProvidersViewService registrationProvidersViewService,
             IQrCodeService qrCodeService) : base(viewState, logger, serviceProvider)
         {
             _registrationService = registrationService;
             _registrationSession = registrationSession;
-            _userRegistrationViewState = userRegistrationViewState;
-            _registrationProvidersViewService = registrationProvidersViewService;
             _qrCodeService = qrCodeService;
         }
         #endregion
@@ -40,8 +36,6 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly IUserRegistrationService _registrationService;
         private readonly IRegistrationSessionService _registrationSession;
-        private readonly UserRegistrationViewState _userRegistrationViewState;
-        private readonly RegistrationProvidersViewService _registrationProvidersViewService;
         private readonly IQrCodeService _qrCodeService;
         private CancellationTokenSource? _qrExpiryCts;
         #endregion
@@ -109,7 +103,7 @@ namespace Gizmo.Client.UI.View.Services
 
         private async Task LoadQrAsync(CancellationToken cancellationToken)
         {
-            var provider = _userRegistrationViewState.SelectedProvider;
+            var provider = _registrationSession.SelectedProvider;
             var integrationPublicId = provider?.PublicId ?? Guid.Empty;
             var channelGuid = provider?.ChannelGuid ?? Guid.Empty;
 
@@ -138,7 +132,7 @@ namespace Gizmo.Client.UI.View.Services
 
                     default:
                         Logger.LogWarning("Redirect registration start failed: {Result}", result.Result);
-                        _registrationProvidersViewService.SetProviderError(channelGuid);
+                        _registrationSession.SetFailedProviderChannelGuid(channelGuid);
                         NavigationService.NavigateTo(ClientRoutes.RegistrationProvidersRoute);
                         break;
                 }
@@ -146,7 +140,7 @@ namespace Gizmo.Client.UI.View.Services
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Redirect registration start error.");
-                _registrationProvidersViewService.SetProviderError(channelGuid);
+                _registrationSession.SetFailedProviderChannelGuid(channelGuid);
                 NavigationService.NavigateTo(ClientRoutes.RegistrationProvidersRoute);
             }
         }

@@ -11,23 +11,19 @@ namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
     [Route(ClientRoutes.RegistrationProvidersRoute)]
-    public sealed class RegistrationProvidersViewService : ViewStateServiceBase<RegistrationProvidersViewState>
+    public sealed class UserRegistrationProvidersViewService : ViewStateServiceBase<UserRegistrationProvidersViewState>
     {
         #region CONSTRUCTOR
-        public RegistrationProvidersViewService(
-            RegistrationProvidersViewState viewState,
-            ILogger<RegistrationProvidersViewService> logger,
+        public UserRegistrationProvidersViewService(
+            UserRegistrationProvidersViewState viewState,
+            ILogger<UserRegistrationProvidersViewService> logger,
             IServiceProvider serviceProvider,
             IUserRegistrationService registrationService,
             IRegistrationSessionService registrationSession,
-            UserRegistrationViewService userRegistrationViewService,
-            UserRegistrationViewState userRegistrationViewState,
             ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
         {
             _registrationService = registrationService;
             _registrationSession = registrationSession;
-            _userRegistrationViewService = userRegistrationViewService;
-            _userRegistrationViewState = userRegistrationViewState;
             _localizationService = localizationService;
         }
         #endregion
@@ -35,8 +31,6 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly IUserRegistrationService _registrationService;
         private readonly IRegistrationSessionService _registrationSession;
-        private readonly UserRegistrationViewService _userRegistrationViewService;
-        private readonly UserRegistrationViewState _userRegistrationViewState;
         private readonly ILocalizationService _localizationService;
         #endregion
 
@@ -55,12 +49,12 @@ namespace Gizmo.Client.UI.View.Services
 
             if (provider.CanRedirect)
             {
-                _userRegistrationViewService.SelectProvider(provider);
+                _registrationSession.SetSelectedProvider(provider);
                 NavigationService.NavigateTo(ClientRoutes.RegistrationRedirectRoute);
                 return Task.CompletedTask;
             }
 
-            _userRegistrationViewService.SelectProvider(provider);
+            _registrationSession.SetSelectedProvider(provider);
 
             if (provider.ChannelGuid == new Guid(CommunicationChannels.Email))
                 NavigationService.NavigateTo(ClientRoutes.RegistrationEmailRoute);
@@ -68,14 +62,6 @@ namespace Gizmo.Client.UI.View.Services
                 NavigationService.NavigateTo(ClientRoutes.RegistrationPhoneRoute);
 
             return Task.CompletedTask;
-        }
-
-        public void SetProviderError(Guid channelGuid)
-        {
-            ViewState.HasError = true;
-            ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_PROVIDER_REDIRECT_NOT_IMPLEMENTED));
-            ViewState.FailedChannelGuid = channelGuid;
-            ViewState.RaiseChanged();
         }
 
         public Task NavigateBackAsync()
@@ -90,9 +76,22 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            ViewState.HasError = false;
-            ViewState.ErrorMessage = string.Empty;
-            ViewState.FailedChannelGuid = null;
+            var failedChannelGuid = _registrationSession.FailedProviderChannelGuid;
+            _registrationSession.SetFailedProviderChannelGuid(null);
+
+            if (failedChannelGuid.HasValue)
+            {
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_PROVIDER_REDIRECT_NOT_IMPLEMENTED));
+                ViewState.FailedChannelGuid = failedChannelGuid;
+            }
+            else
+            {
+                ViewState.HasError = false;
+                ViewState.ErrorMessage = string.Empty;
+                ViewState.FailedChannelGuid = null;
+            }
+
             ViewState.ShowAllProviders = _registrationSession.ShowAllProviders;
             _registrationSession.SetShowAllProviders(false);
             ViewState.IsLoading = true;

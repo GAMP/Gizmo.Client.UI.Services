@@ -25,14 +25,12 @@ namespace Gizmo.Client.UI.View.Services
             ILocalizationService localizationService,
             IUserRegistrationService registrationService,
             IOptions<PasswordValidationOptions> passwordValidationOptions,
-            UserRegistrationViewState userRegistrationViewState,
             IRegistrationSessionService registrationSession,
             IPhoneValidationService phoneValidationService) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _registrationService = registrationService;
             _passwordValidationOptions = passwordValidationOptions;
-            _userRegistrationViewState = userRegistrationViewState;
             _registrationSession = registrationSession;
             _phoneValidationService = phoneValidationService;
         }
@@ -42,7 +40,6 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         private readonly IUserRegistrationService _registrationService;
         private readonly IOptions<PasswordValidationOptions> _passwordValidationOptions;
-        private readonly UserRegistrationViewState _userRegistrationViewState;
         private readonly IRegistrationSessionService _registrationSession;
         private readonly IPhoneValidationService _phoneValidationService;
         #endregion
@@ -334,7 +331,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.FirstName))
             {
-                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.FirstName == true && string.IsNullOrEmpty(ViewState.FirstName))
+                if (_registrationSession.RequiredUserInfo?.FirstName == true && string.IsNullOrEmpty(ViewState.FirstName))
                 {
                     AddError(() => ViewState.FirstName, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
@@ -342,7 +339,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.LastName))
             {
-                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.LastName == true && string.IsNullOrEmpty(ViewState.LastName))
+                if (_registrationSession.RequiredUserInfo?.LastName == true && string.IsNullOrEmpty(ViewState.LastName))
                 {
                     AddError(() => ViewState.LastName, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
@@ -350,7 +347,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.BirthDate))
             {
-                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.BirthDate == true && !ViewState.BirthDate.HasValue)
+                if (_registrationSession.RequiredUserInfo?.BirthDate == true && !ViewState.BirthDate.HasValue)
                 {
                     AddError(() => ViewState.BirthDate, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
@@ -358,7 +355,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.Sex))
             {
-                if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.Sex == true && ViewState.Sex == Sex.Unspecified)
+                if (_registrationSession.RequiredUserInfo?.Sex == true && ViewState.Sex == Sex.Unspecified)
                 {
                     AddError(() => ViewState.Sex, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
@@ -368,7 +365,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 if (_registrationSession.Flow != RegistrationFlow.Email)
                 {
-                    if (_userRegistrationViewState.DefaultUserGroupRequiredInfo?.Email == true && string.IsNullOrEmpty(ViewState.Email))
+                    if (_registrationSession.RequiredUserInfo?.Email == true && string.IsNullOrEmpty(ViewState.Email))
                     {
                         AddError(() => ViewState.Email, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                     }

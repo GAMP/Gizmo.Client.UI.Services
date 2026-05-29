@@ -28,6 +28,10 @@ public interface IRegistrationSessionService
     bool ShowAllProviders { get; }
     bool AgreementsAccepted { get; }
 
+    RegistrationProvider? SelectedProvider { get; }
+    RegistrationRequiredInfo? RequiredUserInfo { get; }
+    Guid? FailedProviderChannelGuid { get; }
+
     void SetStartResult(string token, string destination, int codeLength, int expiresInSeconds, RegistrationFlow flow);
     void SetContactDetails(string? actualContact, string? country = null);
     void SetProfileBasics(string username, string password,
@@ -37,5 +41,8 @@ public interface IRegistrationSessionService
     void SetPhoneE164(string? e164);
     void SetShowAllProviders(bool value);
     void SetAgreementsAccepted(bool value);
+    void SetSelectedProvider(RegistrationProvider? provider);
+    void SetRequiredUserInfo(RegistrationRequiredInfo? info);
+    void SetFailedProviderChannelGuid(Guid? channelGuid);
     void Clear();
 }

@@ -13,22 +13,20 @@ namespace Gizmo.Client.UI.View.Services
 {
     [Register()]
     [Route(ClientRoutes.RegistrationPhoneRoute)]
-    public sealed class RegistrationPhoneViewService : ValidatingViewStateServiceBase<RegistrationPhoneViewState>
+    public sealed class UserRegistrationPhoneViewService : ValidatingViewStateServiceBase<UserRegistrationPhoneViewState>
     {
         #region CONSTRUCTOR
-        public RegistrationPhoneViewService(
-            RegistrationPhoneViewState viewState,
-            ILogger<RegistrationPhoneViewService> logger,
+        public UserRegistrationPhoneViewService(
+            UserRegistrationPhoneViewState viewState,
+            ILogger<UserRegistrationPhoneViewService> logger,
             IServiceProvider serviceProvider,
             IUserRegistrationService registrationService,
             IRegistrationSessionService registrationSession,
-            UserRegistrationViewState userRegistrationViewState,
             ILocalizationService localizationService,
             IPhoneValidationService phoneValidationService) : base(viewState, logger, serviceProvider)
         {
             _registrationService = registrationService;
             _registrationSession = registrationSession;
-            _userRegistrationViewState = userRegistrationViewState;
             _localizationService = localizationService;
             _phoneValidationService = phoneValidationService;
         }
@@ -37,7 +35,6 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly IUserRegistrationService _registrationService;
         private readonly IRegistrationSessionService _registrationSession;
-        private readonly UserRegistrationViewState _userRegistrationViewState;
         private readonly ILocalizationService _localizationService;
         private readonly IPhoneValidationService _phoneValidationService;
         #endregion
@@ -82,7 +79,7 @@ namespace Gizmo.Client.UI.View.Services
             if (phone.StartsWith("+"))
                 phone = phone.Substring(1);
 
-            var integrationPublicId = _userRegistrationViewState.SelectedProvider?.PublicId ?? Guid.Empty;
+            var integrationPublicId = _registrationSession.SelectedProvider?.PublicId ?? Guid.Empty;
 
             try
             {

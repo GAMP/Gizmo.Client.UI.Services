@@ -58,21 +58,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public void ClearAll()
         {
-            var userRegistrationConfirmationService = ServiceProvider.GetRequiredService<UserRegistrationConfirmationViewService>();
-            var userRegistrationConfirmationMethodService = ServiceProvider.GetRequiredService<UserRegistrationConfirmationMethodViewService>();
-            var userRegistrationBasicFieldsService = ServiceProvider.GetRequiredService<UserRegistrationBasicFieldsViewService>();
-            var userRegistrationAdditionalFieldsService = ServiceProvider.GetRequiredService<UserRegistrationAdditionalFieldsViewService>();
-            var userRegistrationService = ServiceProvider.GetRequiredService<UserRegistrationViewService>();
-
-            userRegistrationConfirmationService.Clear();
-            userRegistrationConfirmationMethodService.Clear();
-            userRegistrationBasicFieldsService.Clear();
-            userRegistrationAdditionalFieldsService.Clear();
-            userRegistrationService.ClearProvider();
-
-            var registrationSession = ServiceProvider.GetRequiredService<IRegistrationSessionService>();
-            registrationSession.Clear();
-
+            _registrationSession.Clear();
             ViewState.UserAgreementStates = Enumerable.Empty<UserAgreementViewState>();
             DebounceViewStateChanged();
         }
@@ -92,11 +78,9 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (agreementStatus)
                 {
-                    var userRegistrationService = ServiceProvider.GetRequiredService<UserRegistrationViewService>();
-
                     var userGroupDefaultRequiredInfo = await _registrationService.GetRequiredUserInfoAsync(cancellationToken);
 
-                    userRegistrationService.SetUserGroupDefaultRequiredInfo(userGroupDefaultRequiredInfo);
+                    _registrationSession.SetRequiredUserInfo(userGroupDefaultRequiredInfo);
 
                     if (providers.Count > 0)
                     {
