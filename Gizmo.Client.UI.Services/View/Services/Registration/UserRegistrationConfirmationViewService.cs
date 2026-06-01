@@ -195,7 +195,11 @@ namespace Gizmo.Client.UI.View.Services
 
         private Task StartTimerAsync()
         {
-            return _timer.StartAsync(60, secs =>
+            var seconds = _registrationSession.ExpiresInSeconds > 0
+                ? _registrationSession.ExpiresInSeconds
+                : 60;
+
+            return _timer.StartAsync(seconds, secs =>
             {
                 ViewState.SecondsLeft = secs;
                 ViewState.RaiseChanged();

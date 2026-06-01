@@ -15,6 +15,7 @@ namespace Gizmo.Client.UI.View.Services
     public sealed class UserRegistrationRedirectViewService : ViewStateServiceBase<UserRegistrationRedirectViewState>
     {
         private static readonly TimeSpan QrExpiryDelay = TimeSpan.FromMinutes(4);
+        private static readonly TimeSpan TokenPollInterval = TimeSpan.FromSeconds(2);
         private static readonly TimeSpan TransientFailureRetryDelay = TimeSpan.FromSeconds(1);
         private const int MaxTransientFailureRetries = 1;
 
@@ -171,6 +172,8 @@ namespace Gizmo.Client.UI.View.Services
                         NavigationService.NavigateTo(ClientRoutes.RegistrationBasicFieldsRoute);
                         return;
                     }
+
+                    await Task.Delay(TokenPollInterval, cancellationToken);
                 }
                 catch (OperationCanceledException)
                 {
@@ -218,6 +221,7 @@ namespace Gizmo.Client.UI.View.Services
                 await Task.Delay(QrExpiryDelay, cancellationToken);
                 ViewState.IsQrExpired = true;
                 ViewState.RaiseChanged();
+                CancelQrExpiry();
             }
             catch (OperationCanceledException)
             {

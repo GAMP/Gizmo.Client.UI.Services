@@ -160,9 +160,11 @@ namespace Gizmo.Client.UI.View.Services
 
             if (_registrationSession.Flow == RegistrationFlow.Email)
             {
-                if (_registrationSession.PhoneE164 == null && !string.IsNullOrEmpty(ViewState.MobilePhone))
-                    _registrationSession.SetPhoneE164(ViewState.MobilePhone);
-                _registrationSession.SetMobilePhone(_registrationSession.PhoneE164 ?? ViewState.MobilePhone);
+                var validatedPhone = !string.IsNullOrEmpty(ViewState.MobilePhone)
+                    ? _registrationSession.PhoneE164
+                    : null;
+
+                _registrationSession.SetMobilePhone(validatedPhone);
             }
 
             ViewState.IsLoading = false;

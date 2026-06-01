@@ -138,6 +138,7 @@ namespace Gizmo.Client.UI.View.Services
                 }
 
                 //TODO: AAA SUCCESS MESSAGE?
+                _registrationSession.Clear();
                 NavigationService.NavigateTo(ClientRoutes.LoginRoute);
             }
             catch (Exception ex)
