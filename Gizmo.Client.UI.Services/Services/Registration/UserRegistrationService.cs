@@ -9,7 +9,7 @@ namespace Gizmo.Client.UI.Services
     {
         private readonly RegistrationsWebApiClient _registrationsClient;
         private readonly TokensWebApiClient _tokensClient;
-        private readonly UserAgreementsWebApiClient _agreementsClient;
+        private readonly Gizmo.Web.Api.User.Clients.UserAgreementsWebApiClient _agreementsClient;
         private readonly UserGroupsWebApiClient _userGroupsClient;
         private readonly UsersWebApiClient _usersClient;
         private readonly ILogger<UserRegistrationService> _logger;
@@ -18,7 +18,7 @@ namespace Gizmo.Client.UI.Services
         public UserRegistrationService(
             RegistrationsWebApiClient registrationsClient,
             TokensWebApiClient tokensClient,
-            UserAgreementsWebApiClient agreementsClient,
+            Gizmo.Web.Api.User.Clients.UserAgreementsWebApiClient agreementsClient,
             UserGroupsWebApiClient userGroupsClient,
             UsersWebApiClient usersClient,
             ILogger<UserRegistrationService> logger)
