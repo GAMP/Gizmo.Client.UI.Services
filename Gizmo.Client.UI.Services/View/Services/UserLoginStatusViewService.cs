@@ -17,6 +17,8 @@ namespace Gizmo.Client.UI.View.Services
     {
         public UserLoginStatusViewService(UserLoginStatusViewState viewState,
             IGizmoClient gizmoClient,
+            UserAccessTokenHandler userAccessTokenHandler,
+            IAuthenticationSessionService authenticationSession,
             ILogger<UserLoginStatusViewService> logger,
             IServiceProvider serviceProvider,
             IClientDialogService dialogService,
@@ -26,6 +28,8 @@ namespace Gizmo.Client.UI.View.Services
             IUICompositionService uICompositionService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
+            _userAccessTokenHandler = userAccessTokenHandler;
+            _authenticationSession = authenticationSession;
             _userChangePasswordViewService = userChangePasswordViewService;
             _userChangeProfileViewService = userChangeProfileViewService;
             _dialogService = dialogService;
@@ -34,6 +38,8 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         private readonly IGizmoClient _gizmoClient;
+        private readonly UserAccessTokenHandler _userAccessTokenHandler;
+        private readonly IAuthenticationSessionService _authenticationSession;
         private readonly UserChangePasswordViewService _userChangePasswordViewService;
         private readonly UserChangeProfileViewService _userChangeProfileViewService;
         private readonly IClientDialogService _dialogService;
@@ -182,7 +188,7 @@ namespace Gizmo.Client.UI.View.Services
                                     {
                                         //if user dismisses the agreement and its not allowed by agreement configuration
                                         //we need to log out the user
-                                        await _gizmoClient.UserLogoutAsync();
+                                        await LogoutUserAsync();
                                         return;
                                     }
                                 }
@@ -286,6 +292,13 @@ namespace Gizmo.Client.UI.View.Services
                 return true;
 
             return false;
+        }
+
+        private async Task LogoutUserAsync()
+        {
+            await _userAccessTokenHandler.SetCurrentAsync(null);
+            _authenticationSession.Clear();
+            NavigationService.NavigateTo(ClientRoutes.LoginRoute);
         }
     }
 }

@@ -15,6 +15,8 @@ namespace Gizmo.Client.UI.View.Services
     {
         public UserViewService(UserViewState viewState,
             IGizmoClient gizmoClient,
+            UserAccessTokenHandler userAccessTokenHandler,
+            IAuthenticationSessionService authenticationSession,
             ILogger<UserViewService> logger,
             IServiceProvider serviceProvider,
             IClientDialogService dialogService,
@@ -22,6 +24,8 @@ namespace Gizmo.Client.UI.View.Services
             IOptions<ClientInterfaceOptions> clientInterfaceOptions) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
+            _userAccessTokenHandler = userAccessTokenHandler;
+            _authenticationSession = authenticationSession;
             _dialogService = dialogService;
             _localizationService = localizationService;
             _clientInterfaceOptions = clientInterfaceOptions;
@@ -29,6 +33,8 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
+        private readonly UserAccessTokenHandler _userAccessTokenHandler;
+        private readonly IAuthenticationSessionService _authenticationSession;
         private readonly IClientDialogService _dialogService;
         private readonly ILocalizationService _localizationService;
         private readonly IOptions<ClientInterfaceOptions> _clientInterfaceOptions;
@@ -44,7 +50,7 @@ namespace Gizmo.Client.UI.View.Services
                     var result = await s.WaitForResultAsync();
 
                     if (s.Result == AddComponentResultCode.Ok && result!.Button == AlertDialogResultButton.Yes)
-                        await _gizmoClient.UserLogoutAsync();
+                        await LogoutUserAsync();
                 }
             }
             catch (Exception ex)
@@ -57,12 +63,19 @@ namespace Gizmo.Client.UI.View.Services
         {
             try
             {
-                await _gizmoClient.UserLogoutAsync();
+                await LogoutUserAsync();
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, "User initiated logout failed.");
             }
+        }
+
+        private async Task LogoutUserAsync()
+        {
+            await _userAccessTokenHandler.SetCurrentAsync(null);
+            _authenticationSession.Clear();
+            NavigationService.NavigateTo(ClientRoutes.LoginRoute);
         }
 
         protected override Task OnInitializing(CancellationToken ct)
