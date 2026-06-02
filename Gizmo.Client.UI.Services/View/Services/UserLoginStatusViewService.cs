@@ -53,6 +53,7 @@ namespace Gizmo.Client.UI.View.Services
         protected override Task OnInitializing(CancellationToken ct)
         {
             _gizmoClient.LoginStateChange += OnUserLoginStateChange;
+            _authenticationSession.Changed += OnAuthenticationSessionChanged;
 
             return base.OnInitializing(ct);
         }
@@ -61,7 +62,36 @@ namespace Gizmo.Client.UI.View.Services
         {
             base.OnDisposing(isDisposing);
 
-            _gizmoClient.LoginStateChange += OnUserLoginStateChange;
+            _gizmoClient.LoginStateChange -= OnUserLoginStateChange;
+            _authenticationSession.Changed -= OnAuthenticationSessionChanged;
+        }
+
+        private void OnAuthenticationSessionChanged(object? sender, EventArgs e)
+        {
+            try
+            {
+                switch (_authenticationSession.State)
+                {
+                    case AuthenticationState.LoggedIn:
+                        ViewState.IsLoggedIn = true;
+                        ViewState.Username = _authenticationSession.Username;
+                        _isLoggedIn = true;
+                        NavigateToAuthenticatedLanding();
+                        break;
+                    case AuthenticationState.LoggedOut:
+                        ViewState.IsLoggedIn = false;
+                        ViewState.Username = null;
+                        _isLoggedIn = false;
+                        NavigationService.NavigateTo(ClientRoutes.LoginRoute);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Processing authentication session change failed.");
+            }
         }
 
         private async void OnUserLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
@@ -92,25 +122,7 @@ namespace Gizmo.Client.UI.View.Services
             switch (e.State)
             {
                 case LoginState.LoginCompleted:
-
-                    var firstCustomModule = _uICompositionService.PageModules.Where(a => a.DisplayOrder < 0).OrderBy(a => a.DisplayOrder).FirstOrDefault();
-
-                    if (firstCustomModule != null)
-                    {
-                        NavigationService.NavigateTo(firstCustomModule.DefaultRoute);
-                    }
-                    else
-                    {
-                        if (!_clientHomeOptions.Value.Disabled)
-                        {
-                            NavigationService.NavigateTo(ClientRoutes.HomeRoute);
-                        }
-                        else
-                        {
-                            NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute);
-                        }
-                    }
-
+                    NavigateToAuthenticatedLanding();
                     break;
                 case LoginState.LoggingOut:
                     NavigationService.NavigateTo(ClientRoutes.LoginRoute);
@@ -238,23 +250,7 @@ namespace Gizmo.Client.UI.View.Services
                 //TODO temprary fix, we need to fix the mouse buttons problem
                 if (_isLoggedIn && e.Location == BASE_ROUTE_URL)
                 {
-                    var firstCustomModule = _uICompositionService.PageModules.Where(a => a.DisplayOrder < 0).OrderBy(a => a.DisplayOrder).FirstOrDefault();
-
-                    if (firstCustomModule != null)
-                    {
-                        NavigationService.NavigateTo(firstCustomModule.DefaultRoute);
-                    }
-                    else
-                    {
-                        if (!_clientHomeOptions.Value.Disabled)
-                        {
-                            NavigationService.NavigateTo(ClientRoutes.HomeRoute);
-                        }
-                        else
-                        {
-                            NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute);
-                        }
-                    }
+                    NavigateToAuthenticatedLanding();
                 }
                 else if (!_isLoggedIn && IsLoggedInRoute(e.Location))
                 {
@@ -267,6 +263,28 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             return base.OnLocationChanged(sender, e);
+        }
+
+        private void NavigateToAuthenticatedLanding()
+        {
+            var firstCustomModule = _uICompositionService.PageModules
+                .Where(a => a.DisplayOrder < 0)
+                .OrderBy(a => a.DisplayOrder)
+                .FirstOrDefault();
+
+            if (firstCustomModule != null)
+            {
+                NavigationService.NavigateTo(firstCustomModule.DefaultRoute);
+                return;
+            }
+
+            if (!_clientHomeOptions.Value.Disabled)
+            {
+                NavigationService.NavigateTo(ClientRoutes.HomeRoute);
+                return;
+            }
+
+            NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute);
         }
 
         private bool IsLoggedInRoute(string routeName)
