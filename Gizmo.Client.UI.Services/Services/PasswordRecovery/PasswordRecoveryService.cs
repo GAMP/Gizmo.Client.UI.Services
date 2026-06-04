@@ -21,30 +21,33 @@ public sealed class PasswordRecoveryService : IPasswordRecoveryService
         _verificationCompleteClient = verificationCompleteClient;
     }
 
+    public async Task<IReadOnlyList<PasswordRecoveryProvider>> GetProvidersAsync(CancellationToken ct = default)
+    {
+        var raw = await _recoveriesClient.GetProvidersAsync(matchValue: null, ct);
+        var result = new List<PasswordRecoveryProvider>();
+        foreach (var p in raw)
+        {
+            if (!p.CanDispatchCode)
+                continue;
+            var channel = PasswordRecoveryProviderMapper.TryGetChannel(p.ChannelGuid);
+            if (channel is null)
+                continue;
+            result.Add(new PasswordRecoveryProvider { PublicId = p.PublicId, Channel = channel.Value });
+        }
+        return result;
+    }
+
     public async Task<PasswordRecoveryStartResult> StartAsync(PasswordRecoveryStartRequest request, CancellationToken ct = default)
     {
-        var providers = await _recoveriesClient.GetProvidersAsync(request.MatchValue, ct);
-        var provider = providers.FirstOrDefault(p => p.CanDispatchCode);
-
-        if (provider is null)
-        {
-            return new PasswordRecoveryStartResult(
-                PasswordRecoveryStartCode.NoRouteForDelivery,
-                Token: null,
-                Destination: null,
-                CodeLength: 0,
-                ExpiresInSeconds: 0);
-        }
-
         var model = new UserPasswordRecoveryStartModel
         {
             MatchValue = request.MatchValue,
-            IntegrationPublicId = provider.PublicId,
+            IntegrationPublicId = request.IntegrationPublicId,
             DeliveryMethod = VerificationDeliveryMethod.CodeDispatch
         };
 
         var result = await _recoveriesClient.PasswordRecoveryStartAsync(model, ct);
-        return PasswordRecoveryStartResultMapper.Map(result, request.MatchValue);
+        return PasswordRecoveryStartResultMapper.Map(result, request.MatchValue, request.Channel);
     }
 
     public async Task<PasswordRecoveryConfirmCode> ConfirmCodeAsync(string token, string confirmationCode, CancellationToken ct = default)

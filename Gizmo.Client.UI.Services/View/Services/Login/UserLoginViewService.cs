@@ -18,16 +18,22 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             IAuthenticationService authenticationService,
             IAuthenticationSessionService authenticationSession,
-            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
+            ILocalizationService localizationService,
+            IPasswordRecoveryService passwordRecoveryService,
+            IPasswordRecoverySessionService passwordRecoverySession) : base(viewState, logger, serviceProvider)
         {
             _authenticationService = authenticationService;
             _authenticationSession = authenticationSession;
             _localizationService = localizationService;
+            _passwordRecoveryService = passwordRecoveryService;
+            _passwordRecoverySession = passwordRecoverySession;
         }
 
         private readonly IAuthenticationService _authenticationService;
         private readonly IAuthenticationSessionService _authenticationSession;
         private readonly ILocalizationService _localizationService;
+        private readonly IPasswordRecoveryService _passwordRecoveryService;
+        private readonly IPasswordRecoverySessionService _passwordRecoverySession;
 
         public void SetLoginMethod(UserLoginType userLoginType)
         {
@@ -152,9 +158,38 @@ namespace Gizmo.Client.UI.View.Services
             return base.OnNavigatedOut(navigationParameters, cancellationToken);
         }
 
-        protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            return base.OnNavigatedIn(navigationParameters, cancellationToken);
+            await base.OnNavigatedIn(navigationParameters, cancellationToken);
+            await LoadRecoveryAvailabilityAsync(cancellationToken);
+        }
+
+        private async Task LoadRecoveryAvailabilityAsync(CancellationToken ct)
+        {
+            try
+            {
+                var providers = await _passwordRecoveryService.GetProvidersAsync(ct);
+                if (providers.Count == 1)
+                {
+                    ViewState.IsPasswordRecoveryAvailable = true;
+                    _passwordRecoverySession.SetActiveProvider(providers[0]);
+                }
+                else
+                {
+                    ViewState.IsPasswordRecoveryAvailable = false;
+                    if (providers.Count > 1)
+                        Logger.LogWarning("Password recovery provider contract violation: {Count} supported providers returned; expected at most 1.", providers.Count);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to load password recovery providers.");
+                ViewState.IsPasswordRecoveryAvailable = false;
+            }
+            finally
+            {
+                ViewState.RaiseChanged();
+            }
         }
 
         private void ApplyLoginError(AuthenticationLoginError error)

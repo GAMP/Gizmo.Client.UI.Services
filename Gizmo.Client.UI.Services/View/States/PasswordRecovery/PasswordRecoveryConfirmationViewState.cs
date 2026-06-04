@@ -14,6 +14,10 @@ namespace Gizmo.Client.UI.View.States
 
         public string ConfirmationCodeMessage { get; internal set; } = string.Empty;
 
+        public int SecondsLeft { get; internal set; }
+
+        public bool TimerExpired => SecondsLeft <= 0;
+
         public bool IsLoading { get; internal set; }
 
         public bool HasError { get; internal set; }

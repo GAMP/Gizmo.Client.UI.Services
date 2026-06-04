@@ -4,6 +4,8 @@ public interface IPasswordRecoverySessionService
 {
     event EventHandler? Changed;
 
+    PasswordRecoveryProvider? ActiveProvider { get; }
+
     string MatchValue { get; }
 
     string Token { get; }
@@ -15,6 +17,8 @@ public interface IPasswordRecoverySessionService
     int ExpiresInSeconds { get; }
 
     bool IsCodeConfirmed { get; }
+
+    void SetActiveProvider(PasswordRecoveryProvider provider);
 
     void SetMatchValue(string value);
 

@@ -18,6 +18,7 @@ namespace Gizmo.Client.UI.View.States
         private bool _isPasswordVisible;
         private bool _hasLoginError;
         private string? _loginError;
+        private bool _isPasswordRecoveryAvailable;
         #endregion
 
         #region PROPERTIES
@@ -92,6 +93,12 @@ namespace Gizmo.Client.UI.View.States
             internal set { _loginError = value; }
         }
 
+        public bool IsPasswordRecoveryAvailable
+        {
+            get { return _isPasswordRecoveryAvailable; }
+            internal set { _isPasswordRecoveryAvailable = value; }
+        }
+
         #endregion
 
         public override void SetDefaults()
@@ -104,6 +111,7 @@ namespace Gizmo.Client.UI.View.States
             HasLoginError = false;
             IsPasswordVisible = false;
             LoginError = null;
+            IsPasswordRecoveryAvailable = false;
             base.SetDefaults();
         }
     }

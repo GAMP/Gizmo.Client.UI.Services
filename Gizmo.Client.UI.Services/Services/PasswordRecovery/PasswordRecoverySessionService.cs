@@ -4,6 +4,8 @@ public sealed class PasswordRecoverySessionService : IPasswordRecoverySessionSer
 {
     public event EventHandler? Changed;
 
+    public PasswordRecoveryProvider? ActiveProvider { get; private set; }
+
     public string MatchValue { get; private set; } = string.Empty;
 
     public string Token { get; private set; } = string.Empty;
@@ -15,6 +17,11 @@ public sealed class PasswordRecoverySessionService : IPasswordRecoverySessionSer
     public int ExpiresInSeconds { get; private set; }
 
     public bool IsCodeConfirmed { get; private set; }
+
+    public void SetActiveProvider(PasswordRecoveryProvider provider)
+    {
+        ActiveProvider = provider;
+    }
 
     public void SetMatchValue(string value)
     {
@@ -40,6 +47,7 @@ public sealed class PasswordRecoverySessionService : IPasswordRecoverySessionSer
 
     public void Clear()
     {
+        ActiveProvider = null;
         MatchValue = string.Empty;
         Token = string.Empty;
         Destination = string.Empty;
