@@ -261,6 +261,7 @@ namespace Gizmo.Client.UI.View.Services
                 else
                 {
                     ViewState.IsPasswordRecoveryAvailable = false;
+                    _passwordRecoverySession.Clear();
                     if (providers.Count > 1)
                         Logger.LogWarning("Password recovery provider contract violation: {Count} supported providers returned; expected at most 1.", providers.Count);
                 }
@@ -269,6 +270,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 Logger.LogError(ex, "Failed to load password recovery providers.");
                 ViewState.IsPasswordRecoveryAvailable = false;
+                _passwordRecoverySession.Clear();
             }
             finally
             {
