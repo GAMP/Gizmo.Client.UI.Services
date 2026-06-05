@@ -1,4 +1,4 @@
-﻿using Gizmo.UI;
+using Gizmo.UI;
 using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel.DataAnnotations;

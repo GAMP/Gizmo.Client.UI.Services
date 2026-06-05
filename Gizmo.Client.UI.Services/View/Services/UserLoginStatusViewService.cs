@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Gizmo.Client.Options;
 using Gizmo.Client.UI.Services;
@@ -17,8 +17,6 @@ namespace Gizmo.Client.UI.View.Services
     {
         public UserLoginStatusViewService(UserLoginStatusViewState viewState,
             IGizmoClient gizmoClient,
-            UserAccessTokenHandler userAccessTokenHandler,
-            IAuthenticationSessionService authenticationSession,
             ILogger<UserLoginStatusViewService> logger,
             IServiceProvider serviceProvider,
             IClientDialogService dialogService,
@@ -28,8 +26,6 @@ namespace Gizmo.Client.UI.View.Services
             IUICompositionService uICompositionService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
-            _userAccessTokenHandler = userAccessTokenHandler;
-            _authenticationSession = authenticationSession;
             _userChangePasswordViewService = userChangePasswordViewService;
             _userChangeProfileViewService = userChangeProfileViewService;
             _dialogService = dialogService;
@@ -38,8 +34,6 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         private readonly IGizmoClient _gizmoClient;
-        private readonly UserAccessTokenHandler _userAccessTokenHandler;
-        private readonly IAuthenticationSessionService _authenticationSession;
         private readonly UserChangePasswordViewService _userChangePasswordViewService;
         private readonly UserChangeProfileViewService _userChangeProfileViewService;
         private readonly IClientDialogService _dialogService;
@@ -53,7 +47,6 @@ namespace Gizmo.Client.UI.View.Services
         protected override Task OnInitializing(CancellationToken ct)
         {
             _gizmoClient.LoginStateChange += OnUserLoginStateChange;
-            _authenticationSession.Changed += OnAuthenticationSessionChanged;
 
             return base.OnInitializing(ct);
         }
@@ -63,35 +56,6 @@ namespace Gizmo.Client.UI.View.Services
             base.OnDisposing(isDisposing);
 
             _gizmoClient.LoginStateChange -= OnUserLoginStateChange;
-            _authenticationSession.Changed -= OnAuthenticationSessionChanged;
-        }
-
-        private void OnAuthenticationSessionChanged(object? sender, EventArgs e)
-        {
-            try
-            {
-                switch (_authenticationSession.State)
-                {
-                    case AuthenticationState.LoggedIn:
-                        ViewState.IsLoggedIn = true;
-                        ViewState.Username = _authenticationSession.Username;
-                        _isLoggedIn = true;
-                        NavigateToAuthenticatedLanding();
-                        break;
-                    case AuthenticationState.LoggedOut:
-                        ViewState.IsLoggedIn = false;
-                        ViewState.Username = null;
-                        _isLoggedIn = false;
-                        NavigationService.NavigateTo(ClientRoutes.LoginRoute);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Processing authentication session change failed.");
-            }
         }
 
         private async void OnUserLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
@@ -173,10 +137,10 @@ namespace Gizmo.Client.UI.View.Services
                                             //user accepted the agreement
                                             agreementPassed = true;
 
-                                            //if agreement does not ignore state we need to accept it 
+                                            //if agreement does not ignore state we need to accept it
                                             //this will cause agreement not to show up again for the current user
                                             if (!userAgreement.IgnoreState)
-                                                await _gizmoClient.UserAgreementAcceptAsync(userAgreement.Id);                                          
+                                                await _gizmoClient.UserAgreementAcceptAsync(userAgreement.Id);
                                         }
                                         else
                                         {
@@ -187,7 +151,7 @@ namespace Gizmo.Client.UI.View.Services
                                     else if (addDialogResult.Result == AddComponentResultCode.Dismissed)
                                     {
                                         //agreement will be considered passed only if its not rejectable
-                                        agreementPassed = userAgreement.IsRejectable;  
+                                        agreementPassed = userAgreement.IsRejectable;
                                     }
                                     else if (addDialogResult.Result == AddComponentResultCode.Canceled)
                                     {
@@ -200,7 +164,7 @@ namespace Gizmo.Client.UI.View.Services
                                     {
                                         //if user dismisses the agreement and its not allowed by agreement configuration
                                         //we need to log out the user
-                                        await LogoutUserAsync();
+                                        await _gizmoClient.UserLogoutAsync();
                                         return;
                                     }
                                 }
@@ -310,13 +274,6 @@ namespace Gizmo.Client.UI.View.Services
                 return true;
 
             return false;
-        }
-
-        private async Task LogoutUserAsync()
-        {
-            await _userAccessTokenHandler.SetCurrentAsync(null);
-            _authenticationSession.Clear();
-            NavigationService.NavigateTo(ClientRoutes.LoginRoute);
         }
     }
 }
