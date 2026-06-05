@@ -1,4 +1,4 @@
-﻿using Gizmo.UI;
+using Gizmo.UI;
 using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel.DataAnnotations;
@@ -12,17 +12,13 @@ namespace Gizmo.Client.UI.View.States
         private bool _isLogginIn;
         private bool _isLogginOut;
         private UserLoginType _userLoginType;
-#if RELEASE
         private string? _loginName;
-        private string? _password; 
-#else
-        private string? _loginName = "user";
-        private string? _password = "user";
-#endif
+        private string? _password;
         private string? _pin;
         private bool _isPasswordVisible;
         private bool _hasLoginError;
         private string? _loginError;
+        private bool _isPasswordRecoveryAvailable;
         #endregion
 
         #region PROPERTIES
@@ -97,6 +93,12 @@ namespace Gizmo.Client.UI.View.States
             internal set { _loginError = value; }
         }
 
+        public bool IsPasswordRecoveryAvailable
+        {
+            get { return _isPasswordRecoveryAvailable; }
+            internal set { _isPasswordRecoveryAvailable = value; }
+        }
+
         #endregion
 
         public override void SetDefaults()
@@ -109,6 +111,7 @@ namespace Gizmo.Client.UI.View.States
             HasLoginError = false;
             IsPasswordVisible = false;
             LoginError = null;
+            IsPasswordRecoveryAvailable = false;
             base.SetDefaults();
         }
     }

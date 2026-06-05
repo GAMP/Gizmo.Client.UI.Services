@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
@@ -16,14 +17,20 @@ namespace Gizmo.Client.UI.View.Services
             ILogger<UserLoginViewService> logger,
             IServiceProvider serviceProvider,
             IGizmoClient gizmoClient,
-            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
+            ILocalizationService localizationService,
+            IPasswordRecoveryService passwordRecoveryService,
+            IPasswordRecoverySessionService passwordRecoverySession) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _localizationService = localizationService;
+            _passwordRecoveryService = passwordRecoveryService;
+            _passwordRecoverySession = passwordRecoverySession;
         }
 
         private readonly IGizmoClient _gizmoClient;
-        private readonly ILocalizationService _localizationService;        
+        private readonly ILocalizationService _localizationService;
+        private readonly IPasswordRecoveryService _passwordRecoveryService;
+        private readonly IPasswordRecoverySessionService _passwordRecoverySession;
 
         public void SetLoginMethod(UserLoginType userLoginType)
         {
@@ -110,9 +117,10 @@ namespace Gizmo.Client.UI.View.Services
             return base.OnNavigatedOut(navigationParameters, cancellationToken);
         }
 
-        protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            return base.OnNavigatedIn(navigationParameters, cancellationToken);
+            await base.OnNavigatedIn(navigationParameters, cancellationToken);
+            await LoadRecoveryAvailabilityAsync(cancellationToken);
         }
 
         protected override Task OnInitializing(CancellationToken ct)
@@ -238,6 +246,36 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             DebounceViewStateChanged();
-        }      
+        }
+
+        private async Task LoadRecoveryAvailabilityAsync(CancellationToken ct)
+        {
+            try
+            {
+                var providers = await _passwordRecoveryService.GetProvidersAsync(ct);
+                if (providers.Count == 1)
+                {
+                    ViewState.IsPasswordRecoveryAvailable = true;
+                    _passwordRecoverySession.SetActiveProvider(providers[0]);
+                }
+                else
+                {
+                    ViewState.IsPasswordRecoveryAvailable = false;
+                    _passwordRecoverySession.Clear();
+                    if (providers.Count > 1)
+                        Logger.LogWarning("Password recovery provider contract violation: {Count} supported providers returned; expected at most 1.", providers.Count);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to load password recovery providers.");
+                ViewState.IsPasswordRecoveryAvailable = false;
+                _passwordRecoverySession.Clear();
+            }
+            finally
+            {
+                ViewState.RaiseChanged();
+            }
+        }
     }
 }

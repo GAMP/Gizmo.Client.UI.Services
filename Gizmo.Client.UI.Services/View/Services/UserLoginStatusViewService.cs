@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Gizmo.Client.Options;
 using Gizmo.Client.UI.Services;
@@ -55,7 +55,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             base.OnDisposing(isDisposing);
 
-            _gizmoClient.LoginStateChange += OnUserLoginStateChange;
+            _gizmoClient.LoginStateChange -= OnUserLoginStateChange;
         }
 
         private async void OnUserLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
@@ -86,25 +86,7 @@ namespace Gizmo.Client.UI.View.Services
             switch (e.State)
             {
                 case LoginState.LoginCompleted:
-
-                    var firstCustomModule = _uICompositionService.PageModules.Where(a => a.DisplayOrder < 0).OrderBy(a => a.DisplayOrder).FirstOrDefault();
-
-                    if (firstCustomModule != null)
-                    {
-                        NavigationService.NavigateTo(firstCustomModule.DefaultRoute);
-                    }
-                    else
-                    {
-                        if (!_clientHomeOptions.Value.Disabled)
-                        {
-                            NavigationService.NavigateTo(ClientRoutes.HomeRoute);
-                        }
-                        else
-                        {
-                            NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute);
-                        }
-                    }
-
+                    NavigateToAuthenticatedLanding();
                     break;
                 case LoginState.LoggingOut:
                     NavigationService.NavigateTo(ClientRoutes.LoginRoute);
@@ -155,10 +137,10 @@ namespace Gizmo.Client.UI.View.Services
                                             //user accepted the agreement
                                             agreementPassed = true;
 
-                                            //if agreement does not ignore state we need to accept it 
+                                            //if agreement does not ignore state we need to accept it
                                             //this will cause agreement not to show up again for the current user
                                             if (!userAgreement.IgnoreState)
-                                                await _gizmoClient.UserAgreementAcceptAsync(userAgreement.Id);                                          
+                                                await _gizmoClient.UserAgreementAcceptAsync(userAgreement.Id);
                                         }
                                         else
                                         {
@@ -169,7 +151,7 @@ namespace Gizmo.Client.UI.View.Services
                                     else if (addDialogResult.Result == AddComponentResultCode.Dismissed)
                                     {
                                         //agreement will be considered passed only if its not rejectable
-                                        agreementPassed = userAgreement.IsRejectable;  
+                                        agreementPassed = userAgreement.IsRejectable;
                                     }
                                     else if (addDialogResult.Result == AddComponentResultCode.Canceled)
                                     {
@@ -232,23 +214,7 @@ namespace Gizmo.Client.UI.View.Services
                 //TODO temprary fix, we need to fix the mouse buttons problem
                 if (_isLoggedIn && e.Location == BASE_ROUTE_URL)
                 {
-                    var firstCustomModule = _uICompositionService.PageModules.Where(a => a.DisplayOrder < 0).OrderBy(a => a.DisplayOrder).FirstOrDefault();
-
-                    if (firstCustomModule != null)
-                    {
-                        NavigationService.NavigateTo(firstCustomModule.DefaultRoute);
-                    }
-                    else
-                    {
-                        if (!_clientHomeOptions.Value.Disabled)
-                        {
-                            NavigationService.NavigateTo(ClientRoutes.HomeRoute);
-                        }
-                        else
-                        {
-                            NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute);
-                        }
-                    }
+                    NavigateToAuthenticatedLanding();
                 }
                 else if (!_isLoggedIn && IsLoggedInRoute(e.Location))
                 {
@@ -261,6 +227,28 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             return base.OnLocationChanged(sender, e);
+        }
+
+        private void NavigateToAuthenticatedLanding()
+        {
+            var firstCustomModule = _uICompositionService.PageModules
+                .Where(a => a.DisplayOrder < 0)
+                .OrderBy(a => a.DisplayOrder)
+                .FirstOrDefault();
+
+            if (firstCustomModule != null)
+            {
+                NavigationService.NavigateTo(firstCustomModule.DefaultRoute);
+                return;
+            }
+
+            if (!_clientHomeOptions.Value.Disabled)
+            {
+                NavigationService.NavigateTo(ClientRoutes.HomeRoute);
+                return;
+            }
+
+            NavigationService.NavigateTo(ClientRoutes.ApplicationsRoute);
         }
 
         private bool IsLoggedInRoute(string routeName)

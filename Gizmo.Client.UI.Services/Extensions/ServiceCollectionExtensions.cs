@@ -36,6 +36,7 @@ namespace Gizmo.Client.UI.Services
         {
             services.AddClientUIServices();
             services.AddSingleton<IRegistrationSessionService, RegistrationSessionService>();
+            services.AddSingleton<IPasswordRecoverySessionService, PasswordRecoverySessionService>();
             services.AddClientViewServices();
             services.AddClientViewStates();
             services.AddWebApiSupport();
@@ -192,6 +193,7 @@ namespace Gizmo.Client.UI.Services
             }
 
             services.AddSingleton<IUserRegistrationService, UserRegistrationService>();
+            services.AddSingleton<IPasswordRecoveryService, PasswordRecoveryService>();
             services.AddSingleton<IPhoneValidationService, PhoneValidationService>();
             services.AddSingleton<IQrCodeService, QrCodeService>();
 

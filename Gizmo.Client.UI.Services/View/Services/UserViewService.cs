@@ -1,4 +1,4 @@
-﻿using Gizmo.Client.Options;
+using Gizmo.Client.Options;
 using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
@@ -76,7 +76,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             base.OnDisposing(isDisposing);
 
-            _gizmoClient.LoginStateChange += OnUserLoginStateChange;
+            _gizmoClient.LoginStateChange -= OnUserLoginStateChange;
         }
 
         private void OnUserLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
