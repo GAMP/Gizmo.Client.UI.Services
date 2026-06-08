@@ -22,6 +22,9 @@ public sealed class ServerInfoService : IServerInfoService
     private string? _cachedDefaultCulture;
     private bool _cultureLoaded;
 
+    private bool _cachedRegistrationEnabled;
+    private bool _registrationEnabledLoaded;
+
     public ServerInfoService(
         Gizmo.Web.Api.User.Clients.OptionsWebApiClient optionsClient,
         Gizmo.Web.Api.User.Clients.SystemWebApiClient systemClient,
@@ -94,5 +97,23 @@ public sealed class ServerInfoService : IServerInfoService
         }
 
         return _cachedDefaultCulture;
+    }
+
+    public async Task<bool> GetRegistrationEnabledAsync(CancellationToken ct = default)
+    {
+        if (_registrationEnabledLoaded)
+            return _cachedRegistrationEnabled;
+
+        try
+        {
+            _cachedRegistrationEnabled = await _optionsClient.RegistrationEnabledAsync(ct);
+            _registrationEnabledLoaded = true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to fetch registration enabled flag.");
+        }
+
+        return _cachedRegistrationEnabled;
     }
 }

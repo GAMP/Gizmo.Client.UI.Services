@@ -8,4 +8,5 @@ public interface IServerInfoService
     Task<string?> GetRegionCodeAsync(CancellationToken ct = default);
     Task<string?> GetVersionAsync(CancellationToken ct = default);
     Task<string?> GetDefaultCultureAsync(CancellationToken ct = default);
+    Task<bool> GetRegistrationEnabledAsync(CancellationToken ct = default);
 }

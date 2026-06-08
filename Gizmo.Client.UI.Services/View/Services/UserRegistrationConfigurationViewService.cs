@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,27 +14,23 @@ namespace Gizmo.Client.UI.View.Services
     public sealed class UserRegistrationConfigurationViewService : ViewStateServiceBase<UserRegistrationConfigurationViewState>
     {
         public UserRegistrationConfigurationViewService(UserRegistrationConfigurationViewState viewState,
-            IGizmoClient gizmoClient,
+            IServerInfoService serverInfo,
             ILogger<UserRegistrationConfigurationViewService> logger,
             IServiceProvider serviceProvider)
             : base(viewState, logger, serviceProvider)
         {
-            _gizmoClient = gizmoClient;
+            _serverInfo = serverInfo;
         }
 
-        private readonly IGizmoClient _gizmoClient;
+        private readonly IServerInfoService _serverInfo;
 
         protected override async Task OnInitializing(CancellationToken ct)
         {
             try
             {
-                //If there is no default user group this will fail.
-                var userGroupDefaultRequiredInfo = await _gizmoClient.UserGroupDefaultRequiredInfoGetAsync(ct).ConfigureAwait(false);
-
                 //just obtain the parameters on initialization, client should be connected at this point
-                //we might re-query the parameters on client connection state change or change event once we have one
-
-                ViewState.IsEnabled = await _gizmoClient.IsClientRegistrationEnabledGetAsync(ct).ConfigureAwait(false);
+                //we might re-query on connection/state change once we have one
+                ViewState.IsEnabled = await _serverInfo.GetRegistrationEnabledAsync(ct).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
