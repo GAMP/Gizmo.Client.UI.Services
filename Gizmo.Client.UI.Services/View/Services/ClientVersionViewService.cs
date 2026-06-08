@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,11 +18,16 @@ namespace Gizmo.Client.UI.View.Services
     {
         public ClientVersionViewService(ClientVersionViewState state,
             ILogger<ClientVersionViewService> logger,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            IServerInfoService serverInfo)
             : base(state, logger, serviceProvider)
-        { }
+        {
+            _serverInfo = serverInfo;
+        }
 
-        protected override Task OnInitializing(CancellationToken ct)
+        private readonly IServerInfoService _serverInfo;
+
+        protected override async Task OnInitializing(CancellationToken ct)
         {
             try
             {
@@ -45,7 +51,21 @@ namespace Gizmo.Client.UI.View.Services
                 Logger.LogError(ex, "Could not obtain client version from entry assembly.");
             }
 
-            return base.OnInitializing(ct);
-        } 
+            try
+            {
+                var sv = await _serverInfo.GetVersionAsync(ct);
+                if (!string.IsNullOrWhiteSpace(sv))
+                {
+                    ViewState.ServerVersion = sv;
+                    ViewState.RaiseChanged();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Could not obtain server version.");
+            }
+
+            await base.OnInitializing(ct);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using Gizmo.Client.Options;
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
@@ -19,12 +20,14 @@ namespace Gizmo.Client.UI.View.Services
             NavigationService navigationService,
             IOptionsMonitor<ClientInterfaceOptions> clientInterfaceOptions,
             ILocalizationService localizationService,
+            IServerInfoService serverInfo,
             ILogger<ClientLocalizationViewService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _navigationService = navigationService;
             _clientInterfaceOptions = clientInterfaceOptions;
+            _serverInfo = serverInfo;
             _localizationService.LocalizationOptionsChanged += OnLocalizationOptionsChanged;
             _logger = logger;
         }
@@ -35,6 +38,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILogger<ClientLocalizationViewService> _logger;
         private readonly IOptionsMonitor<ClientInterfaceOptions> _clientInterfaceOptions;
         private readonly NavigationService _navigationService;
+        private readonly IServerInfoService _serverInfo;
 
         #endregion
 
@@ -45,8 +49,14 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.AvailableCultures = await _localizationService.GetSupportedCulturesAsync(cToken);
 
             var preferredLanguage = _clientInterfaceOptions.CurrentValue.PreferredLanguage;
-            CultureInfo? preferredCulture = null;
+            if (string.IsNullOrWhiteSpace(preferredLanguage))
+            {
+                var serverCulture = await _serverInfo.GetDefaultCultureAsync(cToken);
+                if (!string.IsNullOrWhiteSpace(serverCulture))
+                    preferredLanguage = serverCulture;
+            }
 
+            CultureInfo? preferredCulture = null;
             if (!string.IsNullOrWhiteSpace(preferredLanguage))
                 preferredCulture = GetViewStatesCulture(preferredLanguage);
 

@@ -195,6 +195,7 @@ namespace Gizmo.Client.UI.Services
             services.AddSingleton<IUserRegistrationService, UserRegistrationService>();
             services.AddSingleton<IPasswordRecoveryService, PasswordRecoveryService>();
             services.AddSingleton<IPhoneValidationService, PhoneValidationService>();
+            services.AddSingleton<IServerInfoService, ServerInfoService>();
             services.AddSingleton<IQrCodeService, QrCodeService>();
 
             return services;

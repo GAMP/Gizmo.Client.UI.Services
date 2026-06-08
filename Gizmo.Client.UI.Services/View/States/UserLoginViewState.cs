@@ -47,13 +47,19 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets or sets username,email or mobile phone used for login.
         /// </summary>
-        [ValidatingProperty()]
+        [ValidatingProperty(IsAsync = true)]
         [Required(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_REQUIRED_FIELD")]
         public string? LoginName
         {
             get { return _loginName; }
             internal set { _loginName = value; }
         }
+
+        public string? Country { get; internal set; }
+
+        public string? RegionCode { get; internal set; }
+
+        public string? PhoneE164 { get; internal set; }
 
         /// <summary>
         /// Gets or sets user password.
@@ -112,6 +118,9 @@ namespace Gizmo.Client.UI.View.States
             IsPasswordVisible = false;
             LoginError = null;
             IsPasswordRecoveryAvailable = false;
+            Country = null;
+            RegionCode = null;
+            PhoneE164 = null;
             base.SetDefaults();
         }
     }

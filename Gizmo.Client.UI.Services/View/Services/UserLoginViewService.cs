@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
+using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -19,32 +22,50 @@ namespace Gizmo.Client.UI.View.Services
             IGizmoClient gizmoClient,
             ILocalizationService localizationService,
             IPasswordRecoveryService passwordRecoveryService,
-            IPasswordRecoverySessionService passwordRecoverySession) : base(viewState, logger, serviceProvider)
+            IPasswordRecoverySessionService passwordRecoverySession,
+            IPhoneValidationService phoneValidationService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _localizationService = localizationService;
             _passwordRecoveryService = passwordRecoveryService;
             _passwordRecoverySession = passwordRecoverySession;
+            _phoneValidationService = phoneValidationService;
         }
 
         private readonly IGizmoClient _gizmoClient;
         private readonly ILocalizationService _localizationService;
         private readonly IPasswordRecoveryService _passwordRecoveryService;
         private readonly IPasswordRecoverySessionService _passwordRecoverySession;
+        private readonly IPhoneValidationService _phoneValidationService;
 
         public void SetLoginMethod(UserLoginType userLoginType)
         {
             if (ViewState.LoginType != userLoginType)
             {
                 ViewState.LoginType = userLoginType;
+                ViewState.Country = null;
+                ViewState.RegionCode = null;
+                ViewState.PhoneE164 = null;
                 SetLoginName(string.Empty);
                 DebounceViewStateChanged();
             }
         }
 
+        public void SetCountry(string? value)
+        {
+            ViewState.Country = value;
+        }
+
+        public void SetRegionCode(string? value)
+        {
+            ViewState.RegionCode = value;
+            ValidateProperty(() => ViewState.LoginName);
+        }
+
         public void SetLoginName(string value)
         {
             ViewState.LoginName = value;
+            ViewState.PhoneE164 = null;
             ValidateProperty(() => ViewState.LoginName);
         }
 
@@ -80,12 +101,18 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return;
 
-            string? loginName = ViewState.LoginName;
+            string? loginName = ViewState.LoginType == UserLoginType.MobilePhone
+                ? (ViewState.PhoneE164 ?? ViewState.LoginName)
+                : ViewState.LoginName;
+
             string? password = ViewState.Password;
             string? pin = ViewState.Pin;
 
             if (string.IsNullOrEmpty(loginName))
                 return;
+
+            if (ViewState.LoginType == UserLoginType.MobilePhone && loginName.StartsWith("+"))
+                loginName = loginName.Substring(1);
 
             try
             {
@@ -96,6 +123,60 @@ namespace Gizmo.Client.UI.View.Services
             {
                 Logger.LogError(ex, "User initiated client login error.");
             }
+        }
+
+        protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
+        {
+            if (ViewState.LoginType != UserLoginType.MobilePhone)
+                return;
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.Country))
+            {
+                if (string.IsNullOrEmpty(ViewState.Country))
+                    AddError(() => ViewState.Country, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
+                else
+                    ClearError(() => ViewState.Country);
+            }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.RegionCode))
+            {
+                if (string.IsNullOrEmpty(ViewState.RegionCode))
+                    AddError(() => ViewState.RegionCode, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
+                else
+                    ClearError(() => ViewState.RegionCode);
+            }
+        }
+
+        protected override async Task<IEnumerable<string>> OnValidateAsync(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger, CancellationToken cancellationToken = default)
+        {
+            if (ViewState.LoginType == UserLoginType.MobilePhone &&
+                fieldIdentifier.FieldEquals(() => ViewState.LoginName) &&
+                !string.IsNullOrEmpty(ViewState.LoginName))
+            {
+                if (string.IsNullOrEmpty(ViewState.RegionCode))
+                    return new string[] { _localizationService.GetString("GIZ_REGISTRATION_VE_SELECT_COUNTRY") };
+
+                var formatResult = await _phoneValidationService.ValidateAsync(ViewState.LoginName, ViewState.RegionCode, cancellationToken);
+                if (!formatResult.IsValid)
+                    return new string[] { _localizationService.GetString(formatResult.ErrorKey ?? nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED)) };
+
+                ViewState.PhoneE164 = formatResult.E164;
+            }
+
+            return await base.OnValidateAsync(fieldIdentifier, validationTrigger, cancellationToken);
+        }
+
+        protected override AsyncValidatedDetermineResult OnDetermineIsAsyncPropertiesValidated()
+        {
+            if (ViewState.LoginType == UserLoginType.MobilePhone)
+            {
+                if (IsAsyncValidated(() => ViewState.LoginName))
+                    return AsyncValidatedDetermineResult.DefaultTrue;
+
+                return base.OnDetermineIsAsyncPropertiesValidated();
+            }
+
+            return AsyncValidatedDetermineResult.DefaultTrue;
         }
 
         public Task OpenRegistrationAsync()

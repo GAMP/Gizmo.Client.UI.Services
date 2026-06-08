@@ -24,7 +24,9 @@ namespace Gizmo.Client.UI.View.States
             {
                 _version = value;
             }
-        } 
+        }
+
+        public string ServerVersion { get; internal set; } = string.Empty;
         #endregion
     }
 }
