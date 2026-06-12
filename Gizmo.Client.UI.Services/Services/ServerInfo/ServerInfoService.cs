@@ -25,6 +25,17 @@ public sealed class ServerInfoService : IServerInfoService
     private bool _cachedRegistrationEnabled;
     private bool _registrationEnabledLoaded;
 
+    private PasswordPolicy? _cachedPasswordPolicy;
+
+    private static readonly PasswordPolicy _defaultPasswordPolicy = new()
+    {
+        MinimumLength    = 4,
+        MaximumLength    = 24,
+        RequireLowerCase = false,
+        RequireUpperCase = false,
+        RequireNumbers   = false,
+    };
+
     public ServerInfoService(
         Gizmo.Web.Api.User.Clients.OptionsWebApiClient optionsClient,
         Gizmo.Web.Api.User.Clients.SystemWebApiClient systemClient,
@@ -115,5 +126,24 @@ public sealed class ServerInfoService : IServerInfoService
         }
 
         return _cachedRegistrationEnabled;
+    }
+
+    public async Task<PasswordPolicy> GetPasswordPolicyAsync(CancellationToken ct = default)
+    {
+        if (_cachedPasswordPolicy is not null)
+            return _cachedPasswordPolicy;
+
+        try
+        {
+            var options = await _optionsClient.UserPasswordPolicyAsync(ct);
+            _cachedPasswordPolicy = PasswordPolicyMapper.Map(options);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to fetch server password policy.");
+            return _defaultPasswordPolicy;
+        }
+
+        return _cachedPasswordPolicy;
     }
 }

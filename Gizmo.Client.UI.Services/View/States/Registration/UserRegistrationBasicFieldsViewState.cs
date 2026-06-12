@@ -22,7 +22,6 @@ namespace Gizmo.Client.UI.View.States
         /// Gets or sets new password.
         /// </summary>
         [ValidatingProperty()]
-        [Required(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_REQUIRED_FIELD")]
         [StringLength(24, ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_MAX_LENGTH")]
         public string Password { get; internal set; } = string.Empty;
 
@@ -30,7 +29,6 @@ namespace Gizmo.Client.UI.View.States
         /// Gets or sets repeat password.
         /// </summary>
         [ValidatingProperty()]
-        [Required(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_REQUIRED_FIELD")]
         [StringLength(24, ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_MAX_LENGTH")]
         public string RepeatPassword { get; internal set; } = string.Empty;
 
@@ -52,6 +50,9 @@ namespace Gizmo.Client.UI.View.States
 
         [ValidatingProperty(IsAsync = true)]
         public string? MobilePhone { get; internal set; }
+
+        [ValidatingProperty()]
+        public string? Phone { get; internal set; }
 
         [ValidatingProperty()]
         public string? PhoneRegionCode { get; internal set; }

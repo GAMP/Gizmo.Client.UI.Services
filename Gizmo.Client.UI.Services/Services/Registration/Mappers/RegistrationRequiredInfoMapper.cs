@@ -19,7 +19,7 @@ namespace Gizmo.Client.UI.Services
                 Phone      = source.Phone,
                 Mobile     = source.Mobile,
                 Sex        = source.Sex,
-                Password   = source.Password,
+                Password   = true,
             };
     }
 }

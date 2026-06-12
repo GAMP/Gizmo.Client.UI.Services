@@ -18,7 +18,6 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets or sets mobile phone.
         /// </summary>
-        [ValidatingProperty()]
         [PhoneNullEmptyValidation(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_INVALID_FIELD")]
         public string? MobilePhone { get; internal set; }
 
@@ -27,6 +26,12 @@ namespace Gizmo.Client.UI.View.States
         /// </summary>
         [ValidatingProperty()]
         public string? Address { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets city.
+        /// </summary>
+        [ValidatingProperty()]
+        public string? City { get; internal set; }
 
         /// <summary>
         /// Gets or sets post code.

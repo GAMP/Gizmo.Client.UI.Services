@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using Gizmo.Client.Options;
 using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
@@ -8,7 +7,6 @@ using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -22,12 +20,12 @@ namespace Gizmo.Client.UI.View.Services
             ILocalizationService localizationService,
             IClientDialogService dialogService,
             IGizmoClient gizmoClient,
-            IOptions<PasswordValidationOptions> passwordValidationOptions) : base(viewState, logger, serviceProvider)
+            IServerInfoService serverInfo) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _dialogService = dialogService;
             _gizmoClient = gizmoClient;
-            _passwordValidationOptions = passwordValidationOptions;
+            _serverInfo = serverInfo;
         }
         #endregion
 
@@ -35,7 +33,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         private readonly IClientDialogService _dialogService;
         private readonly IGizmoClient _gizmoClient;
-        private readonly IOptions<PasswordValidationOptions> _passwordValidationOptions;
+        private readonly IServerInfoService _serverInfo;
         #endregion
 
         #region FUNCTIONS
@@ -219,13 +217,15 @@ namespace Gizmo.Client.UI.View.Services
 
         #endregion
 
-        protected override Task OnInitializing(CancellationToken ct)
+        protected override async Task OnInitializing(CancellationToken ct)
         {
-            ViewState.PasswordTooltip.MinimumLengthRule = _passwordValidationOptions.Value.MinimumLength;
-            ViewState.PasswordTooltip.MaximumLengthRule = _passwordValidationOptions.Value.MaximumLength;
-            ViewState.PasswordTooltip.HasLowerCaseCharactersRule = _passwordValidationOptions.Value.LowerCaseCharactersRequired;
-            ViewState.PasswordTooltip.HasUpperCaseCharactersRule = _passwordValidationOptions.Value.UpperCaseCharactersRequired;
-            ViewState.PasswordTooltip.HasNumbersRule = _passwordValidationOptions.Value.NumbersRequired;
+            var policy = await _serverInfo.GetPasswordPolicyAsync(ct);
+
+            ViewState.PasswordTooltip.MinimumLengthRule = policy.MinimumLength;
+            ViewState.PasswordTooltip.MaximumLengthRule = policy.MaximumLength;
+            ViewState.PasswordTooltip.HasLowerCaseCharactersRule = policy.RequireLowerCase;
+            ViewState.PasswordTooltip.HasUpperCaseCharactersRule = policy.RequireUpperCase;
+            ViewState.PasswordTooltip.HasNumbersRule = policy.RequireNumbers;
 
             ViewState.PasswordTooltip.TotalRules = 0;
 
@@ -245,7 +245,7 @@ namespace Gizmo.Client.UI.View.Services
 
             ViewState.PasswordTooltip.RaiseChanged();
 
-            return base.OnInitializing(ct);
+            await base.OnInitializing(ct);
         }
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)

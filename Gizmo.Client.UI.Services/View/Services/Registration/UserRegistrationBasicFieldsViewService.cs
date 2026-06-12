@@ -1,6 +1,5 @@
 ﻿using System.Text.RegularExpressions;
 using Gizmo.Web.Api.Models;
-using Gizmo.Client.Options;
 using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
@@ -10,7 +9,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -24,13 +22,13 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
             IUserRegistrationService registrationService,
-            IOptions<PasswordValidationOptions> passwordValidationOptions,
+            IServerInfoService serverInfo,
             IRegistrationSessionService registrationSession,
             IPhoneValidationService phoneValidationService) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _registrationService = registrationService;
-            _passwordValidationOptions = passwordValidationOptions;
+            _serverInfo = serverInfo;
             _registrationSession = registrationSession;
             _phoneValidationService = phoneValidationService;
         }
@@ -39,9 +37,18 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly ILocalizationService _localizationService;
         private readonly IUserRegistrationService _registrationService;
-        private readonly IOptions<PasswordValidationOptions> _passwordValidationOptions;
+        private readonly IServerInfoService _serverInfo;
         private readonly IRegistrationSessionService _registrationSession;
         private readonly IPhoneValidationService _phoneValidationService;
+
+        private bool ShowPassword => true;
+        private bool ShowFirstName => _registrationSession.RequiredUserInfo?.FirstName == true;
+        private bool ShowLastName => _registrationSession.RequiredUserInfo?.LastName == true;
+        private bool ShowBirthDate => _registrationSession.RequiredUserInfo?.BirthDate == true;
+        private bool ShowSex => _registrationSession.RequiredUserInfo?.Sex == true;
+        private bool ShowEmail => _registrationSession.Flow != RegistrationFlow.Email && _registrationSession.RequiredUserInfo?.Email == true;
+        private bool ShowMobilePhone => _registrationSession.Flow != RegistrationFlow.Sms && _registrationSession.RequiredUserInfo?.Mobile == true;
+        private bool ShowPhone => _registrationSession.RequiredUserInfo?.Phone == true;
         #endregion
 
         #region FUNCTIONS
@@ -57,6 +64,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Password = value;
             CheckPasswordRules(ViewState.Password);
             ValidateProperty(() => ViewState.Password);
+            ValidateProperty(() => ViewState.RepeatPassword);
         }
 
         public void SetRepeatPassword(string value)
@@ -98,12 +106,20 @@ namespace Gizmo.Client.UI.View.Services
         public void SetMobilePhone(string value)
         {
             ViewState.MobilePhone = value;
+            _registrationSession.SetPhoneE164(null);
             ValidateProperty(() => ViewState.MobilePhone);
+        }
+
+        public void SetPhone(string value)
+        {
+            ViewState.Phone = value;
+            ValidateProperty(() => ViewState.Phone);
         }
 
         public void SetPhoneRegionCode(string? value)
         {
             ViewState.PhoneRegionCode = value;
+            _registrationSession.SetPhoneE164(null);
             ValidateProperty(() => ViewState.MobilePhone);
         }
 
@@ -118,6 +134,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Sex = Sex.Unspecified;
             ViewState.Email = null;
             ViewState.MobilePhone = null;
+            ViewState.Phone = null;
             ViewState.PhoneRegionCode = null;
 
             ViewState.IsLoading = false;
@@ -128,16 +145,12 @@ namespace Gizmo.Client.UI.View.Services
             DebounceViewStateChanged();
         }
 
+        private void OnRegistrationSessionCleared(object? sender, EventArgs e) => Clear();
+
         public async Task SubmitAsync()
         {
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
-
-            ValidateProperty(() => ViewState.FirstName);
-            ValidateProperty(() => ViewState.LastName);
-            ValidateProperty(() => ViewState.BirthDate);
-            ValidateProperty(() => ViewState.Sex);
-            ValidateProperty(() => ViewState.Email);
 
             Validate();
 
@@ -151,21 +164,23 @@ namespace Gizmo.Client.UI.View.Services
 
             var sessionEmail = _registrationSession.Flow == RegistrationFlow.Email
                 ? _registrationSession.ActualContact
-                : ViewState.Email;
+                : ShowEmail ? ViewState.Email : null;
 
             _registrationSession.SetProfileBasics(
-                ViewState.Username, ViewState.Password,
-                ViewState.FirstName, ViewState.LastName,
-                ViewState.BirthDate, ViewState.Sex, sessionEmail);
+                ViewState.Username,
+                ViewState.Password,
+                ShowFirstName ? ViewState.FirstName : null,
+                ShowLastName ? ViewState.LastName : null,
+                ShowBirthDate ? ViewState.BirthDate : null,
+                ShowSex ? ViewState.Sex : Sex.Unspecified,
+                sessionEmail);
 
-            if (_registrationSession.Flow == RegistrationFlow.Email)
-            {
-                var validatedPhone = !string.IsNullOrEmpty(ViewState.MobilePhone)
-                    ? _registrationSession.PhoneE164
-                    : null;
+            var mobilePhone = ShowMobilePhone && !string.IsNullOrEmpty(ViewState.MobilePhone)
+                ? _registrationSession.PhoneE164
+                : null;
 
-                _registrationSession.SetMobilePhone(validatedPhone);
-            }
+            _registrationSession.SetMobilePhone(mobilePhone);
+            _registrationSession.SetPhone(ShowPhone ? ViewState.Phone : null);
 
             ViewState.IsLoading = false;
             ViewState.RaiseChanged();
@@ -270,13 +285,24 @@ namespace Gizmo.Client.UI.View.Services
             return Task.CompletedTask;
         }
 
-        protected override Task OnInitializing(CancellationToken ct)
+        protected override void OnDisposing(bool isDisposing)
         {
-            ViewState.PasswordTooltip.MinimumLengthRule = _passwordValidationOptions.Value.MinimumLength;
-            ViewState.PasswordTooltip.MaximumLengthRule = _passwordValidationOptions.Value.MaximumLength;
-            ViewState.PasswordTooltip.HasLowerCaseCharactersRule = _passwordValidationOptions.Value.LowerCaseCharactersRequired;
-            ViewState.PasswordTooltip.HasUpperCaseCharactersRule = _passwordValidationOptions.Value.UpperCaseCharactersRequired;
-            ViewState.PasswordTooltip.HasNumbersRule = _passwordValidationOptions.Value.NumbersRequired;
+            _registrationSession.Cleared -= OnRegistrationSessionCleared;
+
+            base.OnDisposing(isDisposing);
+        }
+
+        protected override async Task OnInitializing(CancellationToken ct)
+        {
+            _registrationSession.Cleared += OnRegistrationSessionCleared;
+
+            var policy = await _serverInfo.GetPasswordPolicyAsync(ct);
+
+            ViewState.PasswordTooltip.MinimumLengthRule = policy.MinimumLength;
+            ViewState.PasswordTooltip.MaximumLengthRule = policy.MaximumLength;
+            ViewState.PasswordTooltip.HasLowerCaseCharactersRule = policy.RequireLowerCase;
+            ViewState.PasswordTooltip.HasUpperCaseCharactersRule = policy.RequireUpperCase;
+            ViewState.PasswordTooltip.HasNumbersRule = policy.RequireNumbers;
 
             ViewState.PasswordTooltip.TotalRules = 0;
 
@@ -296,7 +322,7 @@ namespace Gizmo.Client.UI.View.Services
 
             ViewState.PasswordTooltip.RaiseChanged();
 
-            return base.OnInitializing(ct);
+            await base.OnInitializing(ct);
         }
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
@@ -311,29 +337,38 @@ namespace Gizmo.Client.UI.View.Services
             }
             else if (fieldIdentifier.FieldEquals(() => ViewState.Password) || fieldIdentifier.FieldEquals(() => ViewState.RepeatPassword))
             {
-                if (fieldIdentifier.FieldEquals(() => ViewState.Password))
+                if (ShowPassword)
                 {
-                    if (ViewState.PasswordTooltip.PassedRules < ViewState.PasswordTooltip.TotalRules)
+                    if (fieldIdentifier.FieldEquals(() => ViewState.Password))
                     {
-                        AddError(() => ViewState.Password, ViewState.PasswordTooltip.ErrorMessage);
+                        if (string.IsNullOrEmpty(ViewState.Password))
+                        {
+                            AddError(() => ViewState.Password, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
+                        }
+                        else if (ViewState.PasswordTooltip.PassedRules < ViewState.PasswordTooltip.TotalRules)
+                        {
+                            AddError(() => ViewState.Password, ViewState.PasswordTooltip.ErrorMessage);
+                        }
                     }
-                }   
 
-                if(validationTrigger == ValidationTrigger.Input)
-                {
-                    //only clear reeat password errors on input
-                    ClearError(() => ViewState.RepeatPassword);
-                    if (!string.IsNullOrEmpty(ViewState.Password) && !string.IsNullOrEmpty(ViewState.RepeatPassword) && string.Compare(ViewState.Password, ViewState.RepeatPassword) != 0)
+                    if (fieldIdentifier.FieldEquals(() => ViewState.RepeatPassword))
                     {
-                        AddError(() => ViewState.RepeatPassword, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_PASSWORDS_DO_NOT_MATCH)));
+                        if (string.IsNullOrEmpty(ViewState.RepeatPassword))
+                        {
+                            AddError(() => ViewState.RepeatPassword, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
+                        }
+                        else if (!string.IsNullOrEmpty(ViewState.Password) && string.Compare(ViewState.Password, ViewState.RepeatPassword) != 0)
+                        {
+                            AddError(() => ViewState.RepeatPassword, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_PASSWORDS_DO_NOT_MATCH)));
+                        }
                     }
-                }               
+                }
             }
 
 
             if (fieldIdentifier.FieldEquals(() => ViewState.FirstName))
             {
-                if (_registrationSession.RequiredUserInfo?.FirstName == true && string.IsNullOrEmpty(ViewState.FirstName))
+                if (ShowFirstName && string.IsNullOrEmpty(ViewState.FirstName))
                 {
                     AddError(() => ViewState.FirstName, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
@@ -341,7 +376,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.LastName))
             {
-                if (_registrationSession.RequiredUserInfo?.LastName == true && string.IsNullOrEmpty(ViewState.LastName))
+                if (ShowLastName && string.IsNullOrEmpty(ViewState.LastName))
                 {
                     AddError(() => ViewState.LastName, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
@@ -349,7 +384,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.BirthDate))
             {
-                if (_registrationSession.RequiredUserInfo?.BirthDate == true && !ViewState.BirthDate.HasValue)
+                if (ShowBirthDate && !ViewState.BirthDate.HasValue)
                 {
                     AddError(() => ViewState.BirthDate, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
@@ -357,7 +392,7 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.Sex))
             {
-                if (_registrationSession.RequiredUserInfo?.Sex == true && ViewState.Sex == Sex.Unspecified)
+                if (ShowSex && ViewState.Sex == Sex.Unspecified)
                 {
                     AddError(() => ViewState.Sex, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
@@ -365,12 +400,28 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.Email))
             {
-                if (_registrationSession.Flow != RegistrationFlow.Email)
+                if (ShowEmail)
                 {
-                    if (_registrationSession.RequiredUserInfo?.Email == true && string.IsNullOrEmpty(ViewState.Email))
+                    if (string.IsNullOrEmpty(ViewState.Email))
                     {
                         AddError(() => ViewState.Email, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                     }
+                }
+            }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.MobilePhone))
+            {
+                if (ShowMobilePhone && string.IsNullOrEmpty(ViewState.MobilePhone))
+                {
+                    AddError(() => ViewState.MobilePhone, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
+                }
+            }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.Phone))
+            {
+                if (ShowPhone && string.IsNullOrEmpty(ViewState.Phone))
+                {
+                    AddError(() => ViewState.Phone, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
             }
         }
@@ -397,15 +448,38 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             if (fieldIdentifier.FieldEquals(() => ViewState.MobilePhone)
-                && _registrationSession.Flow == RegistrationFlow.Email
+                && ShowMobilePhone
                 && !string.IsNullOrEmpty(ViewState.MobilePhone)
-                && !string.IsNullOrEmpty(ViewState.PhoneRegionCode))
+                )
             {
+                if (string.IsNullOrEmpty(ViewState.PhoneRegionCode))
+                    return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_SELECT_COUNTRY)) };
+
                 var result = await _phoneValidationService.ValidateAsync(ViewState.MobilePhone, ViewState.PhoneRegionCode, cancellationToken);
                 if (!result.IsValid)
                     return new string[] { _localizationService.GetString(result.ErrorKey ?? nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED)) };
 
+                if (string.IsNullOrWhiteSpace(result.E164))
+                    return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_CANNOT_VALIDATE_PHONE)) };
+
                 _registrationSession.SetPhoneE164(result.E164);
+
+                try
+                {
+                    var phone = result.E164;
+                    if (phone.StartsWith("+"))
+                        phone = phone.Substring(1);
+
+                    if (await _registrationService.ExistsAsync(phone, cancellationToken))
+                    {
+                        return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_MOBILE_PHONE_USED)) };
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Cannot validate phone.");
+                    return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_CANNOT_VALIDATE_PHONE)) };
+                }
             }
 
             return await base.OnValidateAsync(fieldIdentifier, validationTrigger, cancellationToken);
@@ -417,8 +491,7 @@ namespace Gizmo.Client.UI.View.Services
             if (!IsAsyncValidated(() => ViewState.Username))
                 return base.OnDetermineIsAsyncPropertiesValidated();
 
-            // MobilePhone is optional: only require async validation when Flow==Email and phone entered
-            if (_registrationSession.Flow == RegistrationFlow.Email
+            if (ShowMobilePhone
                 && !string.IsNullOrEmpty(ViewState.MobilePhone)
                 && !IsAsyncValidated(() => ViewState.MobilePhone))
             {

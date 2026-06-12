@@ -14,8 +14,10 @@ namespace Gizmo.Client.UI.Services
                 Sex         = source.Sex,
                 Email       = source.Email,
                 MobilePhone = source.MobilePhone,
+                Phone       = source.Phone,
                 Country     = source.Country,
                 Address     = source.Address,
+                City        = source.City,
                 PostCode    = source.PostCode,
             };
     }

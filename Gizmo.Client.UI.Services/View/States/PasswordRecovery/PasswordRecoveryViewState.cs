@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
+using System;
 using Gizmo.Client.UI.Services;
 using Gizmo.UI;
 using Gizmo.UI.View.States;
@@ -9,6 +11,8 @@ namespace Gizmo.Client.UI.View.States
     [Register]
     public sealed class PasswordRecoveryViewState : ValidatingViewStateBase
     {
+        public IReadOnlyList<PasswordRecoveryProvider> AvailableProviders { get; internal set; } = Array.Empty<PasswordRecoveryProvider>();
+
         public PasswordRecoveryChannel Channel { get; internal set; }
 
         [ValidatingProperty]

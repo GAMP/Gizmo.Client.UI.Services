@@ -11,8 +11,10 @@ namespace Gizmo.Client.UI.Services
         public Sex Sex { get; init; }
         public string? Email { get; init; }
         public string? MobilePhone { get; init; }
+        public string? Phone { get; init; }
         public string? Country { get; init; }
         public string? Address { get; init; }
+        public string? City { get; init; }
         public string? PostCode { get; init; }
     }
 }

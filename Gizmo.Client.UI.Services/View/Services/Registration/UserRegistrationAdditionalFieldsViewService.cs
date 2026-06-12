@@ -32,6 +32,11 @@ namespace Gizmo.Client.UI.View.Services
         private readonly ILocalizationService _localizationService;
         private readonly IUserRegistrationService _registrationService;
         private readonly IRegistrationSessionService _registrationSession;
+
+        private bool ShowCountry => _registrationSession.RequiredUserInfo?.Country == true;
+        private bool ShowAddress => _registrationSession.RequiredUserInfo?.Address == true;
+        private bool ShowCity => _registrationSession.RequiredUserInfo?.City == true;
+        private bool ShowPostCode => _registrationSession.RequiredUserInfo?.PostCode == true;
         #endregion
 
         #region FUNCTIONS
@@ -40,6 +45,12 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.Address = value;
             ValidateProperty(() => ViewState.Address);
+        }
+
+        public void SetCity(string value)
+        {
+            ViewState.City = value;
+            ValidateProperty(() => ViewState.City);
         }
 
         public void SetPostCode(string value)
@@ -63,6 +74,7 @@ namespace Gizmo.Client.UI.View.Services
         public void Clear()
         {
             ViewState.Address = null;
+            ViewState.City = null;
             ViewState.PostCode = null;
             ViewState.Country = null;
             //ViewState.Prefix = null;
@@ -75,6 +87,8 @@ namespace Gizmo.Client.UI.View.Services
             ResetValidationState();
             DebounceViewStateChanged();
         }
+
+        private void OnRegistrationSessionCleared(object? sender, EventArgs e) => Clear();
 
         public async Task SubmitAsync()
         {
@@ -104,10 +118,12 @@ namespace Gizmo.Client.UI.View.Services
                     Email = _registrationSession.Flow == RegistrationFlow.Email
                         ? _registrationSession.ActualContact
                         : _registrationSession.Email,
-                    Address = ViewState.Address,
-                    PostCode = ViewState.PostCode,
-                    Country = ViewState.Country,
-                    MobilePhone = mobilePhone
+                    Address = ShowAddress ? ViewState.Address : null,
+                    City = ShowCity ? ViewState.City : null,
+                    PostCode = ShowPostCode ? ViewState.PostCode : null,
+                    Country = ShowCountry ? ViewState.Country : null,
+                    MobilePhone = mobilePhone,
+                    Phone = _registrationSession.Phone
                 };
 
                 RegistrationCompleteCode result;
@@ -165,11 +181,25 @@ namespace Gizmo.Client.UI.View.Services
 
         #region OVERRIDES
 
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            _registrationSession.Cleared += OnRegistrationSessionCleared;
+
+            return base.OnInitializing(ct);
+        }
+
+        protected override void OnDisposing(bool isDisposing)
+        {
+            _registrationSession.Cleared -= OnRegistrationSessionCleared;
+
+            base.OnDisposing(isDisposing);
+        }
+
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
             if (fieldIdentifier.FieldEquals(() => ViewState.Country))
             {
-                if (_registrationSession.RequiredUserInfo?.Country == true && string.IsNullOrEmpty(ViewState.Country))
+                if (ShowCountry && string.IsNullOrEmpty(ViewState.Country))
                 {
                     AddError(() => ViewState.Country, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
@@ -177,30 +207,28 @@ namespace Gizmo.Client.UI.View.Services
 
             if (fieldIdentifier.FieldEquals(() => ViewState.Address))
             {
-                if (_registrationSession.RequiredUserInfo?.Address == true && string.IsNullOrEmpty(ViewState.Address))
+                if (ShowAddress && string.IsNullOrEmpty(ViewState.Address))
                 {
                     AddError(() => ViewState.Address, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
             }
 
+            if (fieldIdentifier.FieldEquals(() => ViewState.City))
+            {
+                if (ShowCity && string.IsNullOrEmpty(ViewState.City))
+                {
+                    AddError(() => ViewState.City, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
+                }
+            }
+
             if (fieldIdentifier.FieldEquals(() => ViewState.PostCode))
             {
-                if (_registrationSession.RequiredUserInfo?.PostCode == true && string.IsNullOrEmpty(ViewState.PostCode))
+                if (ShowPostCode && string.IsNullOrEmpty(ViewState.PostCode))
                 {
                     AddError(() => ViewState.PostCode, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
                 }
             }
 
-            if (fieldIdentifier.FieldEquals(() => ViewState.MobilePhone))
-            {
-                if (_registrationSession.Flow != RegistrationFlow.Sms)
-                {
-                    if (_registrationSession.RequiredUserInfo?.Mobile == true && string.IsNullOrEmpty(ViewState.MobilePhone))
-                    {
-                        AddError(() => ViewState.MobilePhone, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
-                    }
-                }
-            }
         }
 
         #endregion

@@ -26,23 +26,10 @@ namespace Gizmo.Client.UI.Services
             IOptionsMonitor<ClientInterfaceOptions> interfaceOptions) : base(logger, localizer, assemblyResourcesLocalizationService, options, interfaceOptions) { }
         #endregion
 
-        // TODO: FOR EXAMPLE ONLY, REMOVE THIS
-        public override ValueTask<IEnumerable<CultureInfo>> GetSupportedCulturesAsync(CancellationToken cancellationToken = default)
-        {
-            var supportedCultures = new List<CultureInfo>()
-            {
-                new CultureInfo("en-US"),
-                new CultureInfo("el-GR"),
-                new CultureInfo("ru-RU")
-            };
-
-            ConfigureLocalizationOptions(supportedCultures);
-
-            return new(supportedCultures);
-        }
-
         public override Task SetCurrentCultureAsync(CultureInfo culture)
         {
+            CultureInfo.CurrentCulture = culture;
+            CultureInfo.CurrentUICulture = culture;
             CultureInfo.DefaultThreadCurrentCulture = culture;
             CultureInfo.DefaultThreadCurrentUICulture = culture;
             return base.SetCurrentCultureAsync(culture);

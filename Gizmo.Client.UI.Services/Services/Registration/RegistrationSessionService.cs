@@ -5,6 +5,7 @@ namespace Gizmo.Client.UI.Services;
 public sealed class RegistrationSessionService : IRegistrationSessionService
 {
     public event EventHandler? Changed;
+    public event EventHandler? Cleared;
 
     public string Token { get; private set; } = string.Empty;
     public string Destination { get; private set; } = string.Empty;
@@ -16,13 +17,14 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
     public string? Country { get; private set; }
 
     public string Username { get; private set; } = string.Empty;
-    public string Password { get; private set; } = string.Empty;
+    public string? Password { get; private set; }
     public string? FirstName { get; private set; }
     public string? LastName { get; private set; }
     public DateTime? BirthDate { get; private set; }
     public Sex Sex { get; private set; } = Sex.Unspecified;
     public string? Email { get; private set; }
     public string? MobilePhone { get; private set; }
+    public string? Phone { get; private set; }
     public string? PhoneE164 { get; private set; }
 
     public bool ShowAllProviders { get; private set; }
@@ -48,7 +50,7 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
         Country = country;
     }
 
-    public void SetProfileBasics(string username, string password,
+    public void SetProfileBasics(string username, string? password,
         string? firstName, string? lastName,
         DateTime? birthDate, Sex sex, string? email)
     {
@@ -64,6 +66,11 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
     public void SetMobilePhone(string? mobilePhone)
     {
         MobilePhone = mobilePhone;
+    }
+
+    public void SetPhone(string? phone)
+    {
+        Phone = phone;
     }
 
     public void SetPhoneE164(string? e164)
@@ -106,13 +113,14 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
         ActualContact = null;
         Country = null;
         Username = string.Empty;
-        Password = string.Empty;
+        Password = null;
         FirstName = null;
         LastName = null;
         BirthDate = null;
         Sex = Sex.Unspecified;
         Email = null;
         MobilePhone = null;
+        Phone = null;
         PhoneE164 = null;
         ShowAllProviders = false;
         AgreementsAccepted = false;
@@ -120,5 +128,6 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
         RequiredUserInfo = null;
         FailedProviderChannelGuid = null;
         Changed?.Invoke(this, EventArgs.Empty);
+        Cleared?.Invoke(this, EventArgs.Empty);
     }
 }

@@ -1,6 +1,5 @@
 using System.Text.RegularExpressions;
 using Gizmo.Client;
-using Gizmo.Client.Options;
 using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
@@ -10,7 +9,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -21,7 +19,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IPasswordRecoveryService _passwordRecoveryService;
         private readonly IPasswordRecoverySessionService _session;
         private readonly ILocalizationService _localizationService;
-        private readonly IOptions<PasswordValidationOptions> _passwordValidationOptions;
+        private readonly IServerInfoService _serverInfo;
 
         public PasswordRecoverySetNewPasswordViewService(
             PasswordRecoverySetNewPasswordViewState viewState,
@@ -30,12 +28,12 @@ namespace Gizmo.Client.UI.View.Services
             IPasswordRecoveryService passwordRecoveryService,
             IPasswordRecoverySessionService session,
             ILocalizationService localizationService,
-            IOptions<PasswordValidationOptions> passwordValidationOptions) : base(viewState, logger, serviceProvider)
+            IServerInfoService serverInfo) : base(viewState, logger, serviceProvider)
         {
             _passwordRecoveryService = passwordRecoveryService;
             _session = session;
             _localizationService = localizationService;
-            _passwordValidationOptions = passwordValidationOptions;
+            _serverInfo = serverInfo;
         }
 
         public void SetNewPassword(string value)
@@ -116,13 +114,15 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.ErrorMessage = string.Empty;
         }
 
-        protected override Task OnInitializing(CancellationToken ct)
+        protected override async Task OnInitializing(CancellationToken ct)
         {
-            ViewState.PasswordTooltip.MinimumLengthRule = _passwordValidationOptions.Value.MinimumLength;
-            ViewState.PasswordTooltip.MaximumLengthRule = _passwordValidationOptions.Value.MaximumLength;
-            ViewState.PasswordTooltip.HasLowerCaseCharactersRule = _passwordValidationOptions.Value.LowerCaseCharactersRequired;
-            ViewState.PasswordTooltip.HasUpperCaseCharactersRule = _passwordValidationOptions.Value.UpperCaseCharactersRequired;
-            ViewState.PasswordTooltip.HasNumbersRule = _passwordValidationOptions.Value.NumbersRequired;
+            var policy = await _serverInfo.GetPasswordPolicyAsync(ct);
+
+            ViewState.PasswordTooltip.MinimumLengthRule = policy.MinimumLength;
+            ViewState.PasswordTooltip.MaximumLengthRule = policy.MaximumLength;
+            ViewState.PasswordTooltip.HasLowerCaseCharactersRule = policy.RequireLowerCase;
+            ViewState.PasswordTooltip.HasUpperCaseCharactersRule = policy.RequireUpperCase;
+            ViewState.PasswordTooltip.HasNumbersRule = policy.RequireNumbers;
 
             ViewState.PasswordTooltip.TotalRules = 0;
 
@@ -142,7 +142,7 @@ namespace Gizmo.Client.UI.View.Services
 
             ViewState.PasswordTooltip.RaiseChanged();
 
-            return base.OnInitializing(ct);
+            await base.OnInitializing(ct);
         }
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)

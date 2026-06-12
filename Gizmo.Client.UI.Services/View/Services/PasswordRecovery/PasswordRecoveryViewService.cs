@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -58,6 +60,18 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.MobilePhone = value;
             ViewState.PhoneE164 = null;
             ValidateProperty(() => ViewState.MobilePhone);
+        }
+
+        public void SetActiveProvider(PasswordRecoveryProvider? provider)
+        {
+            if (provider is null || _session.ActiveProvider?.PublicId == provider.PublicId)
+                return;
+
+            _session.SetActiveProvider(provider);
+            ViewState.Channel = provider.Channel;
+            ClearInputState();
+            ResetValidationState();
+            ViewState.RaiseChanged();
         }
 
         public async Task SubmitAsync()
@@ -142,43 +156,68 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            var provider = _session.ActiveProvider;
+            var activeProvider = _session.ActiveProvider;
+            IReadOnlyList<PasswordRecoveryProvider> providers;
+
+            try
+            {
+                providers = NormalizeProviders(await _passwordRecoveryService.GetProvidersAsync(cancellationToken));
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Password recovery providers load error on navigate-in.");
+                NavigationService.NavigateTo(ClientRoutes.LoginRoute);
+                return;
+            }
+
+            var provider = activeProvider is not null
+                ? providers.FirstOrDefault(item => item.PublicId == activeProvider.PublicId)
+                : null;
+
+            provider ??= providers.FirstOrDefault();
 
             if (provider is null)
             {
-                try
-                {
-                    var providers = await _passwordRecoveryService.GetProvidersAsync(cancellationToken);
-                    if (providers.Count == 1)
-                        provider = providers[0];
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Password recovery providers load error on navigate-in.");
-                }
-
-                if (provider is null)
-                {
-                    NavigationService.NavigateTo(ClientRoutes.LoginRoute);
-                    return;
-                }
+                NavigationService.NavigateTo(ClientRoutes.LoginRoute);
+                return;
             }
 
             _session.Clear();
             _session.SetActiveProvider(provider);
 
+            ViewState.AvailableProviders = providers;
             ViewState.Channel = provider.Channel;
-            ViewState.MatchValue = string.Empty;
-            ViewState.Country = null;
-            ViewState.RegionCode = null;
-            ViewState.MobilePhone = null;
-            ViewState.PhoneE164 = null;
+            ClearInputState();
             ViewState.IsLoading = false;
             ViewState.HasError = false;
             ViewState.ErrorMessage = string.Empty;
             ResetValidationState();
             ViewState.RaiseChanged();
         }
+
+        private void ClearInputState()
+        {
+            ViewState.MatchValue = string.Empty;
+            ViewState.Country = null;
+            ViewState.RegionCode = null;
+            ViewState.MobilePhone = null;
+            ViewState.PhoneE164 = null;
+        }
+
+        private static IReadOnlyList<PasswordRecoveryProvider> NormalizeProviders(IEnumerable<PasswordRecoveryProvider> providers) =>
+            providers
+                .GroupBy(provider => provider.Channel)
+                .Select(group => group.First())
+                .OrderBy(GetProviderOrder)
+                .ToList();
+
+        private static int GetProviderOrder(PasswordRecoveryProvider provider) =>
+            provider.Channel switch
+            {
+                PasswordRecoveryChannel.Email => 0,
+                PasswordRecoveryChannel.Sms => 1,
+                _ => 2
+            };
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {

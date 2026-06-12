@@ -9,4 +9,5 @@ public interface IServerInfoService
     Task<string?> GetVersionAsync(CancellationToken ct = default);
     Task<string?> GetDefaultCultureAsync(CancellationToken ct = default);
     Task<bool> GetRegistrationEnabledAsync(CancellationToken ct = default);
+    Task<PasswordPolicy> GetPasswordPolicyAsync(CancellationToken ct = default);
 }

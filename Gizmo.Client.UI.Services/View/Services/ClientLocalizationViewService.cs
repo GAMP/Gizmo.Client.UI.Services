@@ -8,6 +8,7 @@ using Gizmo.UI.View.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.JSInterop;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -21,6 +22,7 @@ namespace Gizmo.Client.UI.View.Services
             IOptionsMonitor<ClientInterfaceOptions> clientInterfaceOptions,
             ILocalizationService localizationService,
             IServerInfoService serverInfo,
+            IJSRuntime jsRuntime,
             ILogger<ClientLocalizationViewService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
@@ -28,6 +30,7 @@ namespace Gizmo.Client.UI.View.Services
             _navigationService = navigationService;
             _clientInterfaceOptions = clientInterfaceOptions;
             _serverInfo = serverInfo;
+            _jsRuntime = jsRuntime;
             _localizationService.LocalizationOptionsChanged += OnLocalizationOptionsChanged;
             _logger = logger;
         }
@@ -39,6 +42,8 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IOptionsMonitor<ClientInterfaceOptions> _clientInterfaceOptions;
         private readonly NavigationService _navigationService;
         private readonly IServerInfoService _serverInfo;
+        private readonly IJSRuntime _jsRuntime;
+        private const string CultureStorageKey = "Gizmo.Client.UI.Culture";
 
         #endregion
 
@@ -46,23 +51,21 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnInitializing(CancellationToken cToken)
         {
-            ViewState.AvailableCultures = await _localizationService.GetSupportedCulturesAsync(cToken);
+            var availableCultures = (await _localizationService.GetSupportedCulturesAsync(cToken)).ToList();
+            ViewState.AvailableCultures = availableCultures;
 
+            var savedLanguage = await GetSavedCultureNameAsync(cToken);
             var preferredLanguage = _clientInterfaceOptions.CurrentValue.PreferredLanguage;
-            if (string.IsNullOrWhiteSpace(preferredLanguage))
+
+            string? serverCulture = null;
+            if (string.IsNullOrWhiteSpace(savedLanguage) && string.IsNullOrWhiteSpace(preferredLanguage))
             {
-                var serverCulture = await _serverInfo.GetDefaultCultureAsync(cToken);
-                if (!string.IsNullOrWhiteSpace(serverCulture))
-                    preferredLanguage = serverCulture;
+                serverCulture = await GetServerDefaultCultureAsync(cToken);
             }
 
-            CultureInfo? preferredCulture = null;
-            if (!string.IsNullOrWhiteSpace(preferredLanguage))
-                preferredCulture = GetViewStatesCulture(preferredLanguage);
-
-            preferredCulture ??= GetViewStatesCulture("en");
-
-            ViewState.CurrentCulture = preferredCulture;
+            ViewState.CurrentCulture =
+                ResolveCulture(availableCultures, savedLanguage, preferredLanguage, serverCulture, "en-US", "en")
+                ?? GetFallbackCulture(availableCultures);
 
             await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
@@ -83,10 +86,20 @@ namespace Gizmo.Client.UI.View.Services
 
         #region PUBLIC FUNCTIONS
 
-        public async void SetCurrentCultureAsync(string cultureName)
+        public async Task SetCurrentCultureAsync(string cultureName)
         {
-            ViewState.CurrentCulture = GetViewStatesCulture(cultureName);
+            var availableCultures = ViewState.AvailableCultures.ToList();
+            var culture = ResolveCulture(availableCultures, cultureName, "en-US", "en") ?? availableCultures.FirstOrDefault();
 
+            if (culture is null)
+            {
+                _logger.LogWarning("Culture '{cultureName}' was not found and no fallback culture is available.", cultureName);
+                return;
+            }
+
+            ViewState.CurrentCulture = culture;
+
+            await PersistCultureNameAsync(ViewState.CurrentCulture.Name);
             await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
             ViewState.RaiseChanged();
@@ -100,31 +113,95 @@ namespace Gizmo.Client.UI.View.Services
 
         #region PRIVATE FUNCTIONS
 
-        private CultureInfo GetViewStatesCulture(string cultureName)
+        private static CultureInfo? ResolveCulture(IEnumerable<CultureInfo> availableCultures, params string?[] cultureNames)
         {
-            var culture = ViewState.AvailableCultures.FirstOrDefault(x => string.Compare(x.Name,cultureName,true) == 0);
-
-            if (culture == null)
+            var cultures = availableCultures.ToList();
+            foreach (var cultureName in cultureNames)
             {
-                _logger.LogWarning("Culture '{twoLetterName}' was not found. Using default culture 'en-us'.", cultureName);
+                if (string.IsNullOrWhiteSpace(cultureName))
+                    continue;
 
-                culture = ViewState.AvailableCultures.FirstOrDefault(x => string.Compare(x.Name, "en-us", true) == 0);
+                var exactMatch = cultures.FirstOrDefault(x => string.Equals(x.Name, cultureName, StringComparison.OrdinalIgnoreCase));
+                if (exactMatch is not null)
+                    return exactMatch;
 
-                if (culture == null)
-                    throw new CultureNotFoundException($"Culture {cultureName} not found.");
+                var neutralName = GetNeutralCultureName(cultureName);
+                if (string.IsNullOrWhiteSpace(neutralName))
+                    continue;
+
+                var neutralMatch = cultures.FirstOrDefault(x => string.Equals(x.TwoLetterISOLanguageName, neutralName, StringComparison.OrdinalIgnoreCase));
+                if (neutralMatch is not null)
+                    return neutralMatch;
             }
 
-            return culture;
+            return null;
         }
 
         private async void OnLocalizationOptionsChanged(object? _, EventArgs __)
         {
-            ViewState.AvailableCultures = await _localizationService.GetSupportedCulturesAsync(default);
-            ViewState.CurrentCulture = GetViewStatesCulture(ViewState.CurrentCulture.Name);
+            var availableCultures = (await _localizationService.GetSupportedCulturesAsync(default)).ToList();
+            ViewState.AvailableCultures = availableCultures;
+            ViewState.CurrentCulture =
+                ResolveCulture(availableCultures, ViewState.CurrentCulture?.Name, "en-US", "en")
+                ?? GetFallbackCulture(availableCultures);
             await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
             ViewState.RaiseChanged();
         }
+
+        private async Task<string?> GetSavedCultureNameAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                return await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", cancellationToken, CultureStorageKey);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to read saved UI culture from browser storage.");
+                return null;
+            }
+        }
+
+        private async Task<string?> GetServerDefaultCultureAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                return await _serverInfo.GetDefaultCultureAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to load default culture from server.");
+                return null;
+            }
+        }
+
+        private async Task PersistCultureNameAsync(string cultureName)
+        {
+            try
+            {
+                await _jsRuntime.InvokeVoidAsync("localStorage.setItem", CultureStorageKey, cultureName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to persist UI culture to browser storage.");
+            }
+        }
+
+        private static string? GetNeutralCultureName(string cultureName)
+        {
+            try
+            {
+                return CultureInfo.GetCultureInfo(cultureName).TwoLetterISOLanguageName;
+            }
+            catch (CultureNotFoundException)
+            {
+                var separatorIndex = cultureName.IndexOf('-');
+                return separatorIndex > 0 ? cultureName[..separatorIndex] : cultureName;
+            }
+        }
+
+        private static CultureInfo GetFallbackCulture(IEnumerable<CultureInfo> availableCultures) =>
+            availableCultures.FirstOrDefault() ?? CultureInfo.GetCultureInfo("en-US");
 
         #endregion
     }

@@ -2,24 +2,26 @@ using System.Linq;
 using Gizmo.Web.Api.Clients;
 using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.Logging;
+using UserTokensWebApiClient = Gizmo.Web.Api.User.Clients.TokensWebApiClient;
+using UserUserGroupsWebApiClient = Gizmo.Web.Api.User.Clients.UserGroupsWebApiClient;
 
 namespace Gizmo.Client.UI.Services
 {
     public sealed class UserRegistrationService : IUserRegistrationService
     {
         private readonly RegistrationsWebApiClient _registrationsClient;
-        private readonly TokensWebApiClient _tokensClient;
+        private readonly UserTokensWebApiClient _tokensClient;
         private readonly Gizmo.Web.Api.User.Clients.UserAgreementsWebApiClient _agreementsClient;
-        private readonly UserGroupsWebApiClient _userGroupsClient;
+        private readonly UserUserGroupsWebApiClient _userGroupsClient;
         private readonly UsersWebApiClient _usersClient;
         private readonly ILogger<UserRegistrationService> _logger;
         private IReadOnlyList<RegistrationProvider>? _cachedProviders;
 
         public UserRegistrationService(
             RegistrationsWebApiClient registrationsClient,
-            TokensWebApiClient tokensClient,
+            UserTokensWebApiClient tokensClient,
             Gizmo.Web.Api.User.Clients.UserAgreementsWebApiClient agreementsClient,
-            UserGroupsWebApiClient userGroupsClient,
+            UserUserGroupsWebApiClient userGroupsClient,
             UsersWebApiClient usersClient,
             ILogger<UserRegistrationService> logger)
         {
@@ -45,11 +47,10 @@ namespace Gizmo.Client.UI.Services
         {
             try
             {
-                var result = await _userGroupsClient.GetAsync(new UserGroupsFilter(), ct);
-                var defaultGroup = result.Data?.FirstOrDefault(g => g.IsDefault == true);
-                if (defaultGroup?.RequiredUserInfo == null)
+                var requiredInfo = await _userGroupsClient.GetDefaultRequiredInfoAsync(ct);
+                if (requiredInfo == null)
                     return null;
-                return RegistrationRequiredInfoMapper.Map(defaultGroup.RequiredUserInfo);
+                return RegistrationRequiredInfoMapper.Map(requiredInfo);
             }
             catch (Exception ex)
             {

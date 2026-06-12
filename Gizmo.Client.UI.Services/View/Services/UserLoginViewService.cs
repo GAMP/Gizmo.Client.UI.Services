@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
@@ -334,17 +335,16 @@ namespace Gizmo.Client.UI.View.Services
             try
             {
                 var providers = await _passwordRecoveryService.GetProvidersAsync(ct);
-                if (providers.Count == 1)
+                if (providers.Count > 0)
                 {
                     ViewState.IsPasswordRecoveryAvailable = true;
-                    _passwordRecoverySession.SetActiveProvider(providers[0]);
+                    _passwordRecoverySession.SetActiveProvider(
+                        providers.OrderBy(GetPasswordRecoveryProviderOrder).First());
                 }
                 else
                 {
                     ViewState.IsPasswordRecoveryAvailable = false;
                     _passwordRecoverySession.Clear();
-                    if (providers.Count > 1)
-                        Logger.LogWarning("Password recovery provider contract violation: {Count} supported providers returned; expected at most 1.", providers.Count);
                 }
             }
             catch (Exception ex)
@@ -358,5 +358,13 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.RaiseChanged();
             }
         }
+
+        private static int GetPasswordRecoveryProviderOrder(PasswordRecoveryProvider provider) =>
+            provider.Channel switch
+            {
+                PasswordRecoveryChannel.Email => 0,
+                PasswordRecoveryChannel.Sms => 1,
+                _ => 2
+            };
     }
 }
