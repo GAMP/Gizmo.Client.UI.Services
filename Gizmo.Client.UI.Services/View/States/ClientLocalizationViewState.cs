@@ -10,11 +10,6 @@ namespace Gizmo.Client.UI.View.States
         #region PROPERTIES
 
         /// <summary>
-        /// Gets aveliable cultures.
-        /// </summary>
-        public IEnumerable<CultureInfo> AvailableCultures { get; internal set; } = Enumerable.Empty<CultureInfo>();
-
-        /// <summary>
         /// Gets current culture.
         /// </summary>
         public CultureInfo CurrentCulture { get; internal set; } = null!;
