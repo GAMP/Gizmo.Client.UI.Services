@@ -1,4 +1,4 @@
-using Gizmo.Client.UI.Services;
+using Gizmo.Client;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.UI.View.States;
@@ -14,15 +14,15 @@ namespace Gizmo.Client.UI.View.Services
     public sealed class UserRegistrationConfigurationViewService : ViewStateServiceBase<UserRegistrationConfigurationViewState>
     {
         public UserRegistrationConfigurationViewService(UserRegistrationConfigurationViewState viewState,
-            IServerInfoService serverInfo,
+            IGizmoClient gizmoClient,
             ILogger<UserRegistrationConfigurationViewService> logger,
             IServiceProvider serviceProvider)
             : base(viewState, logger, serviceProvider)
         {
-            _serverInfo = serverInfo;
+            _gizmoClient = gizmoClient;
         }
 
-        private readonly IServerInfoService _serverInfo;
+        private readonly IGizmoClient _gizmoClient;
 
         protected override async Task OnInitializing(CancellationToken ct)
         {
@@ -30,7 +30,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 //just obtain the parameters on initialization, client should be connected at this point
                 //we might re-query on connection/state change once we have one
-                ViewState.IsEnabled = await _serverInfo.GetRegistrationEnabledAsync(ct).ConfigureAwait(false);
+                ViewState.IsEnabled = await _gizmoClient.IsClientRegistrationEnabledGetAsync(ct).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

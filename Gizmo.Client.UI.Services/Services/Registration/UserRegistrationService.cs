@@ -1,9 +1,9 @@
 using System.Linq;
+using Gizmo.Client;
 using Gizmo.Web.Api.Clients;
 using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.Logging;
 using UserTokensWebApiClient = Gizmo.Web.Api.User.Clients.TokensWebApiClient;
-using UserUserGroupsWebApiClient = Gizmo.Web.Api.User.Clients.UserGroupsWebApiClient;
 
 namespace Gizmo.Client.UI.Services
 {
@@ -12,7 +12,7 @@ namespace Gizmo.Client.UI.Services
         private readonly RegistrationsWebApiClient _registrationsClient;
         private readonly UserTokensWebApiClient _tokensClient;
         private readonly Gizmo.Web.Api.User.Clients.UserAgreementsWebApiClient _agreementsClient;
-        private readonly UserUserGroupsWebApiClient _userGroupsClient;
+        private readonly IGizmoClient _gizmoClient;
         private readonly UsersWebApiClient _usersClient;
         private readonly ILogger<UserRegistrationService> _logger;
         private IReadOnlyList<RegistrationProvider>? _cachedProviders;
@@ -21,14 +21,14 @@ namespace Gizmo.Client.UI.Services
             RegistrationsWebApiClient registrationsClient,
             UserTokensWebApiClient tokensClient,
             Gizmo.Web.Api.User.Clients.UserAgreementsWebApiClient agreementsClient,
-            UserUserGroupsWebApiClient userGroupsClient,
+            IGizmoClient gizmoClient,
             UsersWebApiClient usersClient,
             ILogger<UserRegistrationService> logger)
         {
             _registrationsClient = registrationsClient;
             _tokensClient = tokensClient;
             _agreementsClient = agreementsClient;
-            _userGroupsClient = userGroupsClient;
+            _gizmoClient = gizmoClient;
             _usersClient = usersClient;
             _logger = logger;
         }
@@ -47,7 +47,7 @@ namespace Gizmo.Client.UI.Services
         {
             try
             {
-                var requiredInfo = await _userGroupsClient.GetDefaultRequiredInfoAsync(ct);
+                var requiredInfo = await _gizmoClient.UserGroupDefaultRequiredInfoGetAsync(ct);
                 if (requiredInfo == null)
                     return null;
                 return RegistrationRequiredInfoMapper.Map(requiredInfo);

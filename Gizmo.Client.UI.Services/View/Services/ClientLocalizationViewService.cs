@@ -1,11 +1,13 @@
 using System.Globalization;
-using Gizmo.Client.UI.Services;
+using Gizmo.Client.Options;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -15,13 +17,15 @@ namespace Gizmo.Client.UI.View.Services
         #region CONSTRUCTOR
         public ClientLocalizationViewService(
             ClientLocalizationViewState viewState,
+            NavigationService navigationService,
+            IOptionsMonitor<ClientInterfaceOptions> clientInterfaceOptions,
             ILocalizationService localizationService,
-            IServerInfoService serverInfo,
             ILogger<ClientLocalizationViewService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
-            _serverInfo = serverInfo;
+            _navigationService = navigationService;
+            _clientInterfaceOptions = clientInterfaceOptions;
             _localizationService.LocalizationOptionsChanged += OnLocalizationOptionsChanged;
             _logger = logger;
         }
@@ -30,8 +34,8 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly ILocalizationService _localizationService;
         private readonly ILogger<ClientLocalizationViewService> _logger;
-        private readonly IServerInfoService _serverInfo;
-        private static readonly CultureInfo _fallbackCulture = CultureInfo.GetCultureInfo("en-US");
+        private readonly IOptionsMonitor<ClientInterfaceOptions> _clientInterfaceOptions;
+        private readonly NavigationService _navigationService;
 
         #endregion
 
@@ -39,7 +43,18 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task OnInitializing(CancellationToken cToken)
         {
-            ViewState.CurrentCulture = await ResolveServerCultureAsync(cToken);
+            ViewState.AvailableCultures = await _localizationService.GetSupportedCulturesAsync(cToken);
+
+            var preferredLanguage = _clientInterfaceOptions.CurrentValue.PreferredLanguage;
+            CultureInfo? preferredCulture = null;
+
+            if (!string.IsNullOrWhiteSpace(preferredLanguage))
+                preferredCulture = GetViewStatesCulture(preferredLanguage);
+
+            preferredCulture ??= GetViewStatesCulture("en");
+
+            ViewState.CurrentCulture = preferredCulture;
+
             await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
             await base.OnInitializing(cToken);
@@ -57,43 +72,49 @@ namespace Gizmo.Client.UI.View.Services
 
         #endregion
 
+        #region PUBLIC FUNCTIONS
+
+        public async Task SetCurrentCultureAsync(string cultureName)
+        {
+            ViewState.CurrentCulture = GetViewStatesCulture(cultureName);
+
+            await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
+
+            ViewState.RaiseChanged();
+
+            // TODO: Find a better way to refresh localized resources in Blazor WebAssembly.
+            var currentUri = _navigationService.GetUri();
+            _navigationService.NavigateTo(currentUri ?? "/", new NavigationOptions() { ForceLoad = true });
+        }
+
+        #endregion
+
         #region PRIVATE FUNCTIONS
+
+        private CultureInfo GetViewStatesCulture(string cultureName)
+        {
+            var culture = ViewState.AvailableCultures.FirstOrDefault(x => string.Compare(x.Name, cultureName, true) == 0);
+
+            if (culture == null)
+            {
+                _logger.LogWarning("Culture '{twoLetterName}' was not found. Using default culture 'en-us'.", cultureName);
+
+                culture = ViewState.AvailableCultures.FirstOrDefault(x => string.Compare(x.Name, "en-us", true) == 0);
+
+                if (culture == null)
+                    throw new CultureNotFoundException($"Culture {cultureName} not found.");
+            }
+
+            return culture;
+        }
 
         private async void OnLocalizationOptionsChanged(object? _, EventArgs __)
         {
-            // Re-apply the current culture so localization options (e.g. currency) are reconfigured.
-            if (ViewState.CurrentCulture is not null)
-                await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
+            ViewState.AvailableCultures = await _localizationService.GetSupportedCulturesAsync(default);
+            ViewState.CurrentCulture = GetViewStatesCulture(ViewState.CurrentCulture.Name);
+            await _localizationService.SetCurrentCultureAsync(ViewState.CurrentCulture);
 
             ViewState.RaiseChanged();
-        }
-
-        private async Task<CultureInfo> ResolveServerCultureAsync(CancellationToken cancellationToken)
-        {
-            string? serverCulture;
-            try
-            {
-                serverCulture = await _serverInfo.GetDefaultCultureAsync(cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to load default culture from server.");
-                serverCulture = null;
-            }
-
-            if (string.IsNullOrWhiteSpace(serverCulture))
-                return _fallbackCulture;
-
-            try
-            {
-                var culture = CultureInfo.GetCultureInfo(serverCulture);
-                return culture.IsNeutralCulture ? CultureInfo.CreateSpecificCulture(culture.Name) : culture;
-            }
-            catch (CultureNotFoundException ex)
-            {
-                _logger.LogWarning(ex, "Server default culture '{culture}' is not valid. Falling back to '{fallback}'.", serverCulture, _fallbackCulture.Name);
-                return _fallbackCulture;
-            }
         }
 
         #endregion

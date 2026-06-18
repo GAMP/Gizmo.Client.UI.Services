@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Gizmo.Client.Options;
 using Gizmo.Web.Api.Models;
 using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -22,13 +24,13 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             ILocalizationService localizationService,
             IUserRegistrationService registrationService,
-            IServerInfoService serverInfo,
+            IOptions<PasswordValidationOptions> passwordValidationOptions,
             IRegistrationSessionService registrationSession,
             IPhoneValidationService phoneValidationService) : base(viewState, logger, serviceProvider)
         {
             _localizationService = localizationService;
             _registrationService = registrationService;
-            _serverInfo = serverInfo;
+            _passwordValidationOptions = passwordValidationOptions;
             _registrationSession = registrationSession;
             _phoneValidationService = phoneValidationService;
         }
@@ -37,7 +39,7 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly ILocalizationService _localizationService;
         private readonly IUserRegistrationService _registrationService;
-        private readonly IServerInfoService _serverInfo;
+        private readonly IOptions<PasswordValidationOptions> _passwordValidationOptions;
         private readonly IRegistrationSessionService _registrationSession;
         private readonly IPhoneValidationService _phoneValidationService;
 
@@ -292,17 +294,15 @@ namespace Gizmo.Client.UI.View.Services
             base.OnDisposing(isDisposing);
         }
 
-        protected override async Task OnInitializing(CancellationToken ct)
+        protected override Task OnInitializing(CancellationToken ct)
         {
             _registrationSession.Cleared += OnRegistrationSessionCleared;
 
-            var policy = await _serverInfo.GetPasswordPolicyAsync(ct);
-
-            ViewState.PasswordTooltip.MinimumLengthRule = policy.MinimumLength;
-            ViewState.PasswordTooltip.MaximumLengthRule = policy.MaximumLength;
-            ViewState.PasswordTooltip.HasLowerCaseCharactersRule = policy.RequireLowerCase;
-            ViewState.PasswordTooltip.HasUpperCaseCharactersRule = policy.RequireUpperCase;
-            ViewState.PasswordTooltip.HasNumbersRule = policy.RequireNumbers;
+            ViewState.PasswordTooltip.MinimumLengthRule = _passwordValidationOptions.Value.MinimumLength;
+            ViewState.PasswordTooltip.MaximumLengthRule = _passwordValidationOptions.Value.MaximumLength;
+            ViewState.PasswordTooltip.HasLowerCaseCharactersRule = _passwordValidationOptions.Value.LowerCaseCharactersRequired;
+            ViewState.PasswordTooltip.HasUpperCaseCharactersRule = _passwordValidationOptions.Value.UpperCaseCharactersRequired;
+            ViewState.PasswordTooltip.HasNumbersRule = _passwordValidationOptions.Value.NumbersRequired;
 
             ViewState.PasswordTooltip.TotalRules = 0;
 
@@ -322,7 +322,7 @@ namespace Gizmo.Client.UI.View.Services
 
             ViewState.PasswordTooltip.RaiseChanged();
 
-            await base.OnInitializing(ct);
+            return base.OnInitializing(ct);
         }
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
