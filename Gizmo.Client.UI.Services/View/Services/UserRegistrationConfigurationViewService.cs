@@ -28,8 +28,12 @@ namespace Gizmo.Client.UI.View.Services
         {
             try
             {
+                //If there is no default user group this will fail.
+                var userGroupDefaultRequiredInfo = await _gizmoClient.UserGroupDefaultRequiredInfoGetAsync(ct).ConfigureAwait(false);
+
                 //just obtain the parameters on initialization, client should be connected at this point
-                //we might re-query on connection/state change once we have one
+                //we might re-query the parameters on client connection state change or change event once we have one
+
                 ViewState.IsEnabled = await _gizmoClient.IsClientRegistrationEnabledGetAsync(ct).ConfigureAwait(false);
             }
             catch (Exception ex)
