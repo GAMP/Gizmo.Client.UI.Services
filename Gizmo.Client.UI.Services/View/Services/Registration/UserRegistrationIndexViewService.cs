@@ -37,23 +37,70 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (!agreements.Any())
             {
+                ViewState.UserAgreementStates = Enumerable.Empty<UserAgreementViewState>();
                 _registrationSession.SetAgreementsAccepted(true);
                 return true;
             }
 
-            var addDialogResult = await _dialogService.ShowRegistrationAgreementsDialogAsync(agreements, cancellationToken);
-
-            if (addDialogResult.Result == AddComponentResultCode.Opened)
+            var userAgreementStates = agreements.Select(a => new UserAgreementViewState()
             {
-                var componentResult = await addDialogResult.WaitForResultAsync(cancellationToken);
-                if (addDialogResult.Result == AddComponentResultCode.Ok && componentResult?.AllMandatoryAccepted == true)
+                Id = a.Id,
+                Name = a.Name,
+                Agreement = a.Agreement,
+                IsRejectable = a.IsRejectable,
+                IgnoreState = a.IgnoreState,
+                AcceptState = UserAgreementAcceptState.None
+            }).ToList();
+
+            foreach (var userAgreement in userAgreementStates)
+            {
+                var addDialogResult = await _dialogService.ShowUserAgreementDialogAsync(new UserAgreementDialogParameters()
                 {
-                    _registrationSession.SetAgreementsAccepted(true);
-                    return true;
+                    Name = userAgreement.Name ?? string.Empty,
+                    Agreement = userAgreement.Agreement ?? string.Empty,
+                    IsRejectable = userAgreement.IsRejectable
+                }, cancellationToken);
+
+                if (addDialogResult.Result == AddComponentResultCode.Opened)
+                {
+                    var dialogResult = await addDialogResult.WaitForResultAsync(cancellationToken);
+                    if (addDialogResult.Result == AddComponentResultCode.Ok)
+                    {
+                        if (dialogResult?.Accepted == true)
+                        {
+                            userAgreement.AcceptState = UserAgreementAcceptState.Accepted;
+                        }
+                        else if (userAgreement.IsRejectable)
+                        {
+                            userAgreement.AcceptState = UserAgreementAcceptState.Rejected;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else if (addDialogResult.Result == AddComponentResultCode.Dismissed)
+                    {
+                        if (userAgreement.IsRejectable)
+                        {
+                            userAgreement.AcceptState = UserAgreementAcceptState.Rejected;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else if (addDialogResult.Result == AddComponentResultCode.Canceled)
+                    {
+                        return false;
+                    }
                 }
             }
 
-            return false; // Dismissed / Canceled / not accepted
+            ViewState.UserAgreementStates = userAgreementStates;
+            _registrationSession.SetAgreementsAccepted(true);
+
+            return true;
         }
 
         public void ClearAll()
