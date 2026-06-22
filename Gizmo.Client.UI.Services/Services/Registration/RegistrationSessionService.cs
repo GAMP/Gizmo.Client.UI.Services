@@ -29,6 +29,7 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
 
     public bool ShowAllProviders { get; private set; }
     public bool AgreementsAccepted { get; private set; }
+    public IReadOnlyList<RegistrationAgreementChoice> AgreementChoices { get; private set; } = Array.Empty<RegistrationAgreementChoice>();
 
     public RegistrationProvider? SelectedProvider { get; private set; }
     public RegistrationRequiredInfo? RequiredUserInfo { get; private set; }
@@ -88,6 +89,11 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
         AgreementsAccepted = value;
     }
 
+    public void SetAgreementChoices(IEnumerable<RegistrationAgreementChoice> choices)
+    {
+        AgreementChoices = choices?.ToList() ?? new();
+    }
+
     public void SetSelectedProvider(RegistrationProvider? provider)
     {
         SelectedProvider = provider;
@@ -124,6 +130,7 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
         PhoneE164 = null;
         ShowAllProviders = false;
         AgreementsAccepted = false;
+        AgreementChoices = Array.Empty<RegistrationAgreementChoice>();
         SelectedProvider = null;
         RequiredUserInfo = null;
         FailedProviderChannelGuid = null;

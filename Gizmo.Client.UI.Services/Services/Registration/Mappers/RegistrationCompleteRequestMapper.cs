@@ -1,3 +1,5 @@
+using Gizmo.Web.Api.Models;
+
 namespace Gizmo.Client.UI.Services;
 
 internal static class RegistrationCompleteRequestMapper
@@ -7,9 +9,10 @@ internal static class RegistrationCompleteRequestMapper
         ArgumentNullException.ThrowIfNull(request);
         return new Gizmo.Web.Api.Models.RegistrationCompleteModel
         {
-            Token    = request.Token,
-            Password = request.Password,
-            Profile  = RegistrationProfileMapper.Map(request.Profile)
+            Token          = request.Token,
+            Password       = request.Password,
+            Profile        = RegistrationProfileMapper.Map(request.Profile),
+            AgreementStates = MapAgreementStates(request.AgreementStates)
         };
     }
 
@@ -18,8 +21,20 @@ internal static class RegistrationCompleteRequestMapper
         ArgumentNullException.ThrowIfNull(request);
         return new Gizmo.Web.Api.Models.RegistrationDirectModel
         {
-            Password = request.Password,
-            Profile  = RegistrationProfileMapper.Map(request.Profile)
+            Password       = request.Password,
+            Profile        = RegistrationProfileMapper.Map(request.Profile),
+            AgreementStates = MapAgreementStates(request.AgreementStates)
         };
     }
+
+    private static List<UserAgreementModelState> MapAgreementStates(
+        IReadOnlyList<RegistrationAgreementChoice> choices)
+        => choices is null
+            ? new()
+            : choices.Select(c => new UserAgreementModelState
+            {
+                UserId = 0,
+                UserAgreementId = c.AgreementId,
+                AcceptState = c.AcceptState
+            }).ToList();
 }

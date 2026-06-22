@@ -29,6 +29,7 @@ public interface IRegistrationSessionService
 
     bool ShowAllProviders { get; }
     bool AgreementsAccepted { get; }
+    IReadOnlyList<RegistrationAgreementChoice> AgreementChoices { get; }
 
     RegistrationProvider? SelectedProvider { get; }
     RegistrationRequiredInfo? RequiredUserInfo { get; }
@@ -44,6 +45,7 @@ public interface IRegistrationSessionService
     void SetPhoneE164(string? e164);
     void SetShowAllProviders(bool value);
     void SetAgreementsAccepted(bool value);
+    void SetAgreementChoices(IEnumerable<RegistrationAgreementChoice> choices);
     void SetSelectedProvider(RegistrationProvider? provider);
     void SetRequiredUserInfo(RegistrationRequiredInfo? info);
     void SetFailedProviderChannelGuid(Guid? channelGuid);

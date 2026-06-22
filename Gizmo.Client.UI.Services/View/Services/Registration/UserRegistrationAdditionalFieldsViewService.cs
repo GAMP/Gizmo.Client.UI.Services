@@ -133,7 +133,8 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         Token = _registrationSession.Token,
                         Profile = profile,
-                        Password = _registrationSession.Password
+                        Password = _registrationSession.Password,
+                        AgreementStates = _registrationSession.AgreementChoices
                     });
                 }
                 else
@@ -141,7 +142,8 @@ namespace Gizmo.Client.UI.View.Services
                     result = await _registrationService.DirectAsync(new RegistrationCompleteRequest
                     {
                         Profile = profile,
-                        Password = _registrationSession.Password
+                        Password = _registrationSession.Password,
+                        AgreementStates = _registrationSession.AgreementChoices
                     });
                 }
 

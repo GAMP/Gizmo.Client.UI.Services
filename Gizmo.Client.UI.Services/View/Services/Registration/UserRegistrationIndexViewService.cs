@@ -39,6 +39,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 ViewState.UserAgreementStates = Enumerable.Empty<UserAgreementViewState>();
                 _registrationSession.SetAgreementsAccepted(true);
+                _registrationSession.SetAgreementChoices(Enumerable.Empty<RegistrationAgreementChoice>());
                 return true;
             }
 
@@ -99,6 +100,12 @@ namespace Gizmo.Client.UI.View.Services
 
             ViewState.UserAgreementStates = userAgreementStates;
             _registrationSession.SetAgreementsAccepted(true);
+            _registrationSession.SetAgreementChoices(
+                userAgreementStates.Select(a => new RegistrationAgreementChoice
+                {
+                    AgreementId = a.Id,
+                    AcceptState = a.AcceptState
+                }));
 
             return true;
         }
