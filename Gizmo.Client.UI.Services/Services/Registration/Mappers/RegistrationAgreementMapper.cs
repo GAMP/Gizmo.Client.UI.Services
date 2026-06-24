@@ -4,14 +4,13 @@ namespace Gizmo.Client.UI.Services
 {
     internal static class RegistrationAgreementMapper
     {
-        internal static RegistrationAgreement Map(UserAgreementModel source) =>
+        internal static RegistrationAgreement Map(PublicUserAgreementModel source) =>
             new()
             {
                 Id           = source.Id,
                 Name         = source.Name,
                 Agreement    = source.Agreement,
                 IsRejectable = source.IsRejectable,
-                IgnoreState  = source.IgnoreState,
             };
     }
 }

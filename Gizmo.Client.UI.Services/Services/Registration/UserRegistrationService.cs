@@ -63,7 +63,7 @@ namespace Gizmo.Client.UI.Services
         {
             try
             {
-                var result = await _agreementsClient.GetAsync(new UserAgreementsFilter { IsEnabled = true }, ct);
+                var result = await _agreementsClient.GetAsync(new PublicUserAgreementsFilter(), ct);
                 if (result.Data is null)
                     return Array.Empty<RegistrationAgreement>();
                 return result.Data.Select(RegistrationAgreementMapper.Map).ToList();

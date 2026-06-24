@@ -49,7 +49,6 @@ namespace Gizmo.Client.UI.View.Services
                 Name = a.Name,
                 Agreement = a.Agreement,
                 IsRejectable = a.IsRejectable,
-                IgnoreState = a.IgnoreState,
                 AcceptState = UserAgreementAcceptState.None
             }).ToList();
 

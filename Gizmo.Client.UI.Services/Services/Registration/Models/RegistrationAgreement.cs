@@ -6,6 +6,5 @@ namespace Gizmo.Client.UI.Services
         public string? Name { get; init; }
         public string? Agreement { get; init; }
         public bool IsRejectable { get; init; }
-        public bool IgnoreState { get; init; }
     }
 }

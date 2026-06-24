@@ -17,8 +17,6 @@ namespace Gizmo.Client.UI.View.States
 
         public bool IsRejectable { get; internal set; }
 
-        public bool IgnoreState { get; internal set; }
-
         public UserAgreementAcceptState AcceptState { get; internal set; }
 
         #endregion
