@@ -43,6 +43,12 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IRegistrationSessionService _registrationSession;
         private readonly IPhoneValidationService _phoneValidationService;
 
+        private bool HasAdditionalFields =>
+            _registrationSession.RequiredUserInfo?.Country == true ||
+            _registrationSession.RequiredUserInfo?.Address == true ||
+            _registrationSession.RequiredUserInfo?.City == true ||
+            _registrationSession.RequiredUserInfo?.PostCode == true;
+
         private bool ShowPassword => true;
         private bool ShowFirstName => _registrationSession.RequiredUserInfo?.FirstName == true;
         private bool ShowLastName => _registrationSession.RequiredUserInfo?.LastName == true;
@@ -185,10 +191,81 @@ namespace Gizmo.Client.UI.View.Services
             _registrationSession.SetMobilePhone(mobilePhone);
             _registrationSession.SetPhone(ShowPhone ? ViewState.Phone : null);
 
-            ViewState.IsLoading = false;
-            ViewState.RaiseChanged();
+            if (!HasAdditionalFields)
+            {
+                try
+                {
+                    string? profileMobilePhone = _registrationSession.Flow == RegistrationFlow.Sms
+                        ? _registrationSession.ActualContact
+                        : _registrationSession.MobilePhone;
 
-            NavigationService.NavigateTo(ClientRoutes.RegistrationAdditionalFieldsRoute);
+                    var profile = new RegistrationProfile
+                    {
+                        Username = _registrationSession.Username,
+                        FirstName = _registrationSession.FirstName,
+                        LastName = _registrationSession.LastName,
+                        BirthDate = _registrationSession.BirthDate,
+                        Sex = _registrationSession.Sex,
+                        Email = _registrationSession.Flow == RegistrationFlow.Email
+                            ? _registrationSession.ActualContact
+                            : _registrationSession.Email,
+                        MobilePhone = profileMobilePhone,
+                        Phone = _registrationSession.Phone
+                    };
+
+                    bool confirmationRequired = !string.IsNullOrEmpty(_registrationSession.Token);
+
+                    RegistrationCompleteCode result;
+                    if (confirmationRequired)
+                    {
+                        result = await _registrationService.CompleteAsync(new RegistrationCompleteRequest
+                        {
+                            Token = _registrationSession.Token,
+                            Profile = profile,
+                            Password = _registrationSession.Password,
+                            AgreementStates = _registrationSession.AgreementChoices
+                        });
+                    }
+                    else
+                    {
+                        result = await _registrationService.DirectAsync(new RegistrationCompleteRequest
+                        {
+                            Profile = profile,
+                            Password = _registrationSession.Password,
+                            AgreementStates = _registrationSession.AgreementChoices
+                        });
+                    }
+
+                    if (result != RegistrationCompleteCode.Success)
+                    {
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_FAILED_MESSAGE));
+                        return;
+                    }
+
+                    _registrationSession.Clear();
+                    NavigationService.NavigateTo(ClientRoutes.LoginRoute);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "User create complete error.");
+
+                    ViewState.HasError = true;
+                    ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
+                }
+                finally
+                {
+                    ViewState.IsLoading = false;
+                    ViewState.RaiseChanged();
+                }
+            }
+            else
+            {
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
+
+                NavigationService.NavigateTo(ClientRoutes.RegistrationAdditionalFieldsRoute);
+            }
         }
 
         private void CheckPasswordRules(string password)
