@@ -59,7 +59,10 @@ namespace Gizmo.Client.UI.View.Services
                     Name = userAgreement.Name ?? string.Empty,
                     Agreement = userAgreement.Agreement ?? string.Empty,
                     IsRejectable = userAgreement.IsRejectable
-                }, cancellationToken);
+                },
+                //registration allows declining a mandatory agreement; the routing below sends the user back to login
+                allowContinueWithoutAccept: true,
+                cancellationToken: cancellationToken);
 
                 if (addDialogResult.Result == AddComponentResultCode.Opened)
                 {
