@@ -210,7 +210,7 @@ namespace Gizmo.Client.UI.View.Services
 
         private Task StartTimerAsync()
         {
-            var seconds = _session.ExpiresInSeconds > 0 ? _session.ExpiresInSeconds : 60;
+            const int seconds = 90;
             return _timer.StartAsync(seconds, secs =>
             {
                 ViewState.SecondsLeft = secs;
