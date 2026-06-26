@@ -106,6 +106,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.IsLoading = false;
             ViewState.HasError = false;
             ViewState.ErrorMessage = string.Empty;
+            CheckPasswordRules(ViewState.NewPassword);
             ResetValidationState();
             DebounceViewStateChanged();
         }

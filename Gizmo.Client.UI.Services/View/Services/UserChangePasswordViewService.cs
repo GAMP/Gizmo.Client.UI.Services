@@ -127,6 +127,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.HasError = false;
             ViewState.ErrorMessage = string.Empty;
 
+            CheckPasswordRules(ViewState.NewPassword);
             ResetValidationState();
 
             ViewState.RaiseChanged();
