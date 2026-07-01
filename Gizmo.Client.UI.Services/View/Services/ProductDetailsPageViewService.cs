@@ -4,7 +4,6 @@ using Gizmo.Client.Options;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.View.Services;
-
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -23,7 +22,7 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             UserProductViewStateLookupService userProductViewStateLookupService,
             IOptions<ClientInterfaceOptions> clientUIOptions,
-            IOptions<ClientShopOptions> shopOptions) : base(viewState, logger, serviceProvider)
+            IOptionsMonitor<ClientShopOptions> shopOptions) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _userProductViewStateLookupService = userProductViewStateLookupService;
@@ -36,7 +35,8 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IGizmoClient _gizmoClient;
         private readonly UserProductViewStateLookupService _userProductViewStateLookupService;
         private readonly IOptions<ClientInterfaceOptions> _clientUIOptions;
-        private readonly IOptions<ClientShopOptions> _shopOptions;
+        private readonly IOptionsMonitor<ClientShopOptions> _shopOptions;
+        private IDisposable? _shopOptionsSubscription;
         #endregion
 
         #region OVERRIDES
@@ -44,7 +44,23 @@ namespace Gizmo.Client.UI.View.Services
         protected override Task OnInitializing(CancellationToken ct)
         {
             ViewState.DisableProductDetails = _clientUIOptions.Value.DisableProductDetails;
+            ViewState.IsShopEnabled = !_shopOptions.CurrentValue.Disabled;
+
+            _shopOptionsSubscription = _shopOptions.OnChange(options =>
+            {
+                ViewState.IsShopEnabled = !options.Disabled;
+                ViewState.RaiseChanged();
+            });
+
             return base.OnInitializing(ct);
+        }
+
+        protected override void OnDisposing(bool isDisposing)
+        {
+            if (isDisposing)
+                _shopOptionsSubscription?.Dispose();
+
+            base.OnDisposing(isDisposing);
         }
 
         protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
@@ -59,9 +75,12 @@ namespace Gizmo.Client.UI.View.Services
                         var productViewState = await _userProductViewStateLookupService.GetStateAsync(id, false, cancellationToken);
                         ViewState.Product = productViewState;
 
-                        //TODO: A DEMO
-                        var products = await _userProductViewStateLookupService.GetFilteredStatesAsync(null, cancellationToken);
-                        ViewState.RelatedProducts = products.Take(2);
+                        if (ViewState.ProductDetailsNavigationEnabled)
+                        {
+                            //TODO: there is no current logic implemented for this
+                            var products = await _userProductViewStateLookupService.GetFilteredStatesAsync(null, cancellationToken);
+                            ViewState.RelatedProducts = products.Take(2);
+                        }
                     }
                 }
             }
@@ -69,7 +88,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public override bool ValidateCommand<TCommand>(TCommand command)
         {
-            if (_shopOptions.Value.Disabled || _clientUIOptions.Value.DisableProductDetails)
+            if (_shopOptions.CurrentValue.Disabled || _clientUIOptions.Value.DisableProductDetails)
                 return false;
 
             if (command.Type != ViewServiceCommandType.Navigate)
@@ -88,7 +107,7 @@ namespace Gizmo.Client.UI.View.Services
 
         public override async Task ExecuteCommandAsync<TCommand>(TCommand command, CancellationToken cToken = default)
         {
-            if (_shopOptions.Value.Disabled || _clientUIOptions.Value.DisableProductDetails)
+            if (_shopOptions.CurrentValue.Disabled || _clientUIOptions.Value.DisableProductDetails)
                 return;
 
             if (command.Params?.Any() != true)
