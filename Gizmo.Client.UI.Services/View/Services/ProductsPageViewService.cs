@@ -1,9 +1,11 @@
-﻿using Gizmo.Client.UI.View.States;
+﻿using Gizmo.Client.Options;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.Web.Api.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -14,6 +16,8 @@ namespace Gizmo.Client.UI.View.Services
         private readonly UserProductViewStateLookupService _userProductService;
         private readonly UserProductGroupViewStateLookupService _userProductGroupService;
         private readonly HostGroupViewState _hostGroupViewState;
+        private readonly IOptionsMonitor<ClientShopOptions> _shopOptions;
+        private IDisposable? _shopOptionsSubscription;
 
         public ProductsPageViewService(
             IServiceProvider serviceProvider,
@@ -21,11 +25,34 @@ namespace Gizmo.Client.UI.View.Services
             ProductsPageViewState viewState,
             UserProductViewStateLookupService userProductService,
             UserProductGroupViewStateLookupService userProductGroupService,
-            HostGroupViewState hostGroupViewState) : base(viewState, logger, serviceProvider)
+            HostGroupViewState hostGroupViewState,
+            IOptionsMonitor<ClientShopOptions> shopOptions) : base(viewState, logger, serviceProvider)
         {
             _userProductService = userProductService;
             _userProductGroupService = userProductGroupService;
             _hostGroupViewState = hostGroupViewState;
+            _shopOptions = shopOptions;
+        }
+
+        protected override Task OnInitializing(CancellationToken ct)
+        {
+            ViewState.IsShopEnabled = !_shopOptions.CurrentValue.Disabled;
+
+            _shopOptionsSubscription = _shopOptions.OnChange(options =>
+            {
+                ViewState.IsShopEnabled = !options.Disabled;
+                ViewState.RaiseChanged();
+            });
+
+            return base.OnInitializing(ct);
+        }
+
+        protected override void OnDisposing(bool isDisposing)
+        {
+            if (isDisposing)
+                _shopOptionsSubscription?.Dispose();
+
+            base.OnDisposing(isDisposing);
         }
 
         private async Task RefilterRequest(CancellationToken cToken)

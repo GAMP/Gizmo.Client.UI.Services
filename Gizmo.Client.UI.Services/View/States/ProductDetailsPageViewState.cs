@@ -14,6 +14,15 @@ namespace Gizmo.Client.UI.View.States
 
         public bool DisableProductDetails { get; internal set; }
 
+        public bool IsShopEnabled { get; internal set; }
+
+        /// <summary>
+        /// Gets whether the product details page can be navigated to / purchased from.
+        /// False when the shop is disabled or product details are disabled, in which case
+        /// the page is view-only and navigation links to it should be suppressed.
+        /// </summary>
+        public bool ProductDetailsNavigationEnabled => IsShopEnabled && !DisableProductDetails;
+
         #endregion
     }
 }

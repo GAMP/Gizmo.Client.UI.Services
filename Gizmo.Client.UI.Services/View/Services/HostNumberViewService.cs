@@ -71,15 +71,14 @@ namespace Gizmo.Client.UI.View.Services
 
                 var allTimeDuration = Positions.Count * (hostNumberOptionsValue.TimeoutBetweenPosition +
                     hostNumberOptionsValue.AnimationDuration);
-                var countOfCircles = Math.Floor(3600 / allTimeDuration);
-                
-                List<TimeSpan> startTimes = new List<TimeSpan>();
-                var currentTimeSeconds = 0d;
-                
-                for (var i = 0; i < countOfCircles; i++)
+
+                //if there are no positions to move between or the movement durations are not configured,
+                //allTimeDuration is zero. Continuing would divide by zero below and there is nothing to animate,
+                //so fall back to a fixed position instead.
+                if (allTimeDuration <= 0)
                 {
-                    startTimes.Add(TimeSpan.FromSeconds(currentTimeSeconds));
-                    currentTimeSeconds += allTimeDuration;
+                    ViewState.CurrentPosition = hostNumberOptionsValue.FixedPosition.ToStringValue();
+                    return;
                 }
 
                 var positionTimeout = TimeSpan.FromSeconds(hostNumberOptionsValue.TimeoutBetweenPosition);

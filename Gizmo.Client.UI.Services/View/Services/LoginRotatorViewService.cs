@@ -167,15 +167,48 @@ namespace Gizmo.Client.UI.View.Services
 
                 if (!string.IsNullOrEmpty(rotateFolder))
                 {
+                    static IEnumerable<string> GetRelativePaths(string root)
+                    {
+                        int rootLength = root.Length + (root[^1] == '\\' ? 0 : 1);
+
+                        foreach (string path in Directory.GetFiles(root, "*.*", SearchOption.AllDirectories)
+                                               .Where(fileName => ALL_EXTENSIONS.Any(extension => fileName.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))))
+                        {
+                            yield return path.Remove(0, rootLength);
+                        }
+                    }
+
+                    var items = new List<LoginRotatorItemViewState>();
+
+                    try
+                    {
+                        if (!Directory.Exists(rotateFolder))
+                        {
+                            Logger.LogError("Login rotator directory {directory} not found.", rotateFolder);
+                        }
+                        else
+                        {
+                            items = GetRelativePaths(rotateFolder).Select(fileName => new LoginRotatorItemViewState()
+                            {
+                                MediaPath = Path.Combine("https://", "rotator", fileName).Replace('\\', '/'),
+                                IsVideo = VIDEO_EXTENSIONS.Any(extension => fileName.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))
+                            }).ToList();
+
+                            items.Shuffle(); //randomize
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "Failed to initialize login rotator.");
+                    }
+
+                    //swap in the freshly built list under lock and restart from the beginning
                     if (Monitor.TryEnter(_itemsLock, Timeout.Infinite))
                     {
                         try
                         {
-                            _items.Clear();
-                        }
-                        catch
-                        {
-                            throw;
+                            _items = items;
+                            _index = 0;
                         }
                         finally
                         {
@@ -183,40 +216,7 @@ namespace Gizmo.Client.UI.View.Services
                         }
                     }
 
-                    IEnumerable<string> GetRelativePaths(string root)
-                    {
-                        if (!Directory.Exists(rotateFolder))
-                        {
-                            Logger.LogError("Login rotator directory {directory} not found.", rotateFolder);
-                            yield break;
-                        }
-
-                        int rootLength = root.Length + (root[^1] == '\\' ? 0 : 1);
-
-                        foreach (string path in Directory.GetFiles(root, "*.*", SearchOption.AllDirectories)
-                                               .Where(fileName => ALL_EXTENSIONS.Any(EXTESNSION => fileName.EndsWith(EXTESNSION, StringComparison.InvariantCultureIgnoreCase))))
-                        {
-                            yield return path.Remove(0, rootLength);
-                        }
-                    }
-
-                    try
-                    {
-                        var mediaFilesRelativePaths = GetRelativePaths(rotateFolder);
-                        _items = mediaFilesRelativePaths.Select(fileName => new LoginRotatorItemViewState()
-                        {
-                            MediaPath = Path.Combine("https://", "static", "rotator", fileName).Replace('\\', '/'),
-                            IsVideo = VIDEO_EXTENSIONS.Any(EXTENSION => fileName.EndsWith(EXTENSION, StringComparison.InvariantCultureIgnoreCase))
-                        }).ToList();
-
-                        _items.Shuffle(); //randomize
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError(ex, "Failed to initialize login rotator.");
-                    }
-
-                    if (_items.Any())
+                    if (_items.Count != 0)
                     {
                         ViewState.IsEnabled = _loginRotatorOptions.CurrentValue.Enabled;
                         ViewState.CurrentItem = _items[_index];
@@ -251,15 +251,13 @@ namespace Gizmo.Client.UI.View.Services
 
     static class ShuffleListExtension
     {
-        private static Random rng = new Random();
-
         public static void Shuffle<T>(this IList<T> list)
         {
             int n = list.Count;
             while (n > 1)
             {
                 n--;
-                int k = rng.Next(n + 1);
+                int k = Random.Shared.Next(n + 1);
                 T value = list[k];
                 list[k] = list[n];
                 list[n] = value;

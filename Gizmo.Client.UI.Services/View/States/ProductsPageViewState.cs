@@ -13,5 +13,7 @@ namespace Gizmo.Client.UI.View.States
         public string? SearchPattern { get; internal set; }
 
         public int? SelectedUserProductGroupId { get; internal set; }
+
+        public bool IsShopEnabled { get; internal set; }
     }
 }
