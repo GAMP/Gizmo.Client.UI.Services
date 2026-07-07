@@ -4,6 +4,7 @@ using Gizmo.Web.Api.Clients;
 using Gizmo.Web.Api.Models;
 using Microsoft.Extensions.Logging;
 using UserTokensWebApiClient = Gizmo.Web.Api.User.Clients.TokensWebApiClient;
+using UserUsersWebApiClient = Gizmo.Web.Api.User.Clients.UsersWebApiClient;
 
 namespace Gizmo.Client.UI.Services
 {
@@ -13,7 +14,7 @@ namespace Gizmo.Client.UI.Services
         private readonly UserTokensWebApiClient _tokensClient;
         private readonly Gizmo.Web.Api.User.Clients.UserAgreementsWebApiClient _agreementsClient;
         private readonly IGizmoClient _gizmoClient;
-        private readonly UsersWebApiClient _usersClient;
+        private readonly UserUsersWebApiClient _usersClient;
         private readonly ILogger<UserRegistrationService> _logger;
         private IReadOnlyList<RegistrationProvider>? _cachedProviders;
 
@@ -22,7 +23,7 @@ namespace Gizmo.Client.UI.Services
             UserTokensWebApiClient tokensClient,
             Gizmo.Web.Api.User.Clients.UserAgreementsWebApiClient agreementsClient,
             IGizmoClient gizmoClient,
-            UsersWebApiClient usersClient,
+            UserUsersWebApiClient usersClient,
             ILogger<UserRegistrationService> logger)
         {
             _registrationsClient = registrationsClient;
@@ -75,10 +76,19 @@ namespace Gizmo.Client.UI.Services
             }
         }
 
-        public async Task<bool> ExistsAsync(string value, CancellationToken ct = default)
+        public async Task<bool> UserNameExistAsync(string userName, CancellationToken ct = default)
         {
-            var result = await _usersClient.UsernameExistAsync(value, ct);
-            return result.Id.HasValue;
+            return await _usersClient.UsernameExistAsync(userName, ct);
+        }
+
+        public async Task<bool> EmailExistAsync(string email, CancellationToken ct = default)
+        {
+            return await _usersClient.EmailExistAsync(email, ct);
+        }
+
+        public async Task<bool> MobilePhoneExistAsync(string mobilePhone, CancellationToken ct = default)
+        {
+            return await _usersClient.MobilePhoneExistAsync(mobilePhone, ct);
         }
 
         public async Task<RegistrationStartResult> StartAsync(RegistrationStartRequest request, CancellationToken ct = default)

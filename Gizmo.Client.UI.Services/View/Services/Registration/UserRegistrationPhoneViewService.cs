@@ -193,7 +193,7 @@ namespace Gizmo.Client.UI.View.Services
                     if (phone.StartsWith("+"))
                         phone = phone.Substring(1);
 
-                    if (await _registrationService.ExistsAsync(phone, cancellationToken))
+                    if (await _registrationService.MobilePhoneExistAsync(phone, cancellationToken))
                     {
                         return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_MOBILE_PHONE_USED)) };
                     }

@@ -140,7 +140,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 try
                 {
-                    if (await _registrationService.ExistsAsync(ViewState.Email, cancellationToken))
+                    if (await _registrationService.EmailExistAsync(ViewState.Email, cancellationToken))
                     {
                         return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_EMAIL_ADDRESS_USED)) };
                     }
