@@ -13,6 +13,8 @@ namespace Gizmo.Client.UI.View.States
     {
         public IReadOnlyList<PasswordRecoveryProvider> AvailableProviders { get; internal set; } = Array.Empty<PasswordRecoveryProvider>();
 
+        public Guid? ActiveProviderPublicId { get; internal set; }
+
         public PasswordRecoveryChannel Channel { get; internal set; }
 
         [ValidatingProperty]

@@ -12,10 +12,10 @@ namespace Gizmo.Client.UI.View.States
         public IReadOnlyList<RegistrationProvider> Providers { get; internal set; } = [];
 
         public IReadOnlyList<RegistrationProvider> PriorityProviders =>
-            Providers.Where(p => p.Priority).ToList();
+            Providers.Where(p => p.IsPrimary).ToList();
 
         public IReadOnlyList<RegistrationProvider> AltProviders =>
-            Providers.Where(p => !p.Priority).ToList();
+            Providers.Where(p => !p.IsPrimary).ToList();
 
         public bool IsLoading { get; internal set; }
 

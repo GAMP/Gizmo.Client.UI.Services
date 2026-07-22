@@ -8,8 +8,10 @@ internal static class PasswordRecoveryProviderMapper
     internal static PasswordRecoveryProvider Map(VerificationProviderModel source) =>
         new()
         {
-            PublicId = source.PublicId,
-            Channel  = ToChannel(source.ChannelGuid)
+            PublicId  = source.PublicId,
+            Name      = source.Name ?? string.Empty,
+            Channel   = ToChannel(source.ChannelGuid),
+            IsPrimary = source.IsPrimary,
         };
 
     internal static PasswordRecoveryChannel? TryGetChannel(Guid channelGuid)

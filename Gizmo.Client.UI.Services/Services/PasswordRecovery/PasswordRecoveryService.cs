@@ -27,13 +27,12 @@ public sealed class PasswordRecoveryService : IPasswordRecoveryService
         var result = new List<PasswordRecoveryProvider>();
         foreach (var p in raw)
         {
-            if (!p.CanDispatchCode)
-                continue;
             var channel = PasswordRecoveryProviderMapper.TryGetChannel(p.ChannelGuid);
             if (channel is null)
                 continue;
-            result.Add(new PasswordRecoveryProvider { PublicId = p.PublicId, Channel = channel.Value });
+            result.Add(PasswordRecoveryProviderMapper.Map(p));
         }
+
         return result;
     }
 

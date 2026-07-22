@@ -1,4 +1,3 @@
-using Gizmo;
 using Gizmo.Web.Api.Models;
 
 namespace Gizmo.Client.UI.Services
@@ -16,7 +15,7 @@ namespace Gizmo.Client.UI.Services
                 CanProvideEmail = source.CanProvideEmail,
                 CanProvidePhone = source.CanProvidePhone,
                 HasChannel      = source.HasChannel,
-                Priority        = source.ChannelGuid == new Guid(CommunicationChannels.Telegram),
+                IsPrimary       = source.IsPrimary,
             };
     }
 }

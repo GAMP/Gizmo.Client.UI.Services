@@ -68,6 +68,7 @@ namespace Gizmo.Client.UI.View.Services
                 return;
 
             _session.SetActiveProvider(provider);
+            ViewState.ActiveProviderPublicId = provider.PublicId;
             ViewState.Channel = provider.Channel;
             ClearInputState();
             ResetValidationState();
@@ -161,7 +162,7 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                providers = NormalizeProviders(await _passwordRecoveryService.GetProvidersAsync(cancellationToken));
+                providers = await _passwordRecoveryService.GetProvidersAsync(cancellationToken);
             }
             catch (Exception ex)
             {
@@ -170,11 +171,13 @@ namespace Gizmo.Client.UI.View.Services
                 return;
             }
 
+            var visibleProviders = GetVisibleProviders(providers);
+
             var provider = activeProvider is not null
-                ? providers.FirstOrDefault(item => item.PublicId == activeProvider.PublicId)
+                ? visibleProviders.FirstOrDefault(item => item.PublicId == activeProvider.PublicId)
                 : null;
 
-            provider ??= providers.FirstOrDefault();
+            provider ??= GetDefaultProvider(visibleProviders);
 
             if (provider is null)
             {
@@ -185,7 +188,8 @@ namespace Gizmo.Client.UI.View.Services
             _session.Clear();
             _session.SetActiveProvider(provider);
 
-            ViewState.AvailableProviders = providers;
+            ViewState.AvailableProviders = visibleProviders;
+            ViewState.ActiveProviderPublicId = provider.PublicId;
             ViewState.Channel = provider.Channel;
             ClearInputState();
             ViewState.IsLoading = false;
@@ -204,20 +208,14 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.PhoneE164 = null;
         }
 
-        private static IReadOnlyList<PasswordRecoveryProvider> NormalizeProviders(IEnumerable<PasswordRecoveryProvider> providers) =>
-            providers
-                .GroupBy(provider => provider.Channel)
-                .Select(group => group.First())
-                .OrderBy(GetProviderOrder)
-                .ToList();
+        private static IReadOnlyList<PasswordRecoveryProvider> GetVisibleProviders(IReadOnlyList<PasswordRecoveryProvider> providers)
+        {
+            var primaryProviders = providers.Where(provider => provider.IsPrimary).ToArray();
+            return primaryProviders.Length > 0 ? primaryProviders : providers;
+        }
 
-        private static int GetProviderOrder(PasswordRecoveryProvider provider) =>
-            provider.Channel switch
-            {
-                PasswordRecoveryChannel.Email => 0,
-                PasswordRecoveryChannel.Sms => 1,
-                _ => 2
-            };
+        private static PasswordRecoveryProvider? GetDefaultProvider(IEnumerable<PasswordRecoveryProvider> providers) =>
+            providers.FirstOrDefault(provider => provider.IsPrimary) ?? providers.FirstOrDefault();
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {

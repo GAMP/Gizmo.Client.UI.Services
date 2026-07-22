@@ -109,8 +109,11 @@ namespace Gizmo.Client.UI.View.Services
                         break;
 
                     case RegistrationStartCode.NoRouteForDelivery:
-                        ViewState.HasError = true;
-                        ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CONFIRMATION_ERROR_PROVIDER_NO_ROUTE_FOR_DELIVERY));
+                    case RegistrationStartCode.DeliveryFailed:
+                    case RegistrationStartCode.Failed:
+                    case RegistrationStartCode.Unknown:
+                        Logger.LogWarning("Registration phone start failed for provider {ProviderPublicId}: {Result}", integrationPublicId, result.Result);
+                        NavigateToProvidersWithProviderFailure();
                         break;
 
                     default:
@@ -122,14 +125,19 @@ namespace Gizmo.Client.UI.View.Services
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Registration phone start error.");
-                ViewState.HasError = true;
-                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
+                NavigateToProvidersWithProviderFailure();
             }
             finally
             {
                 ViewState.IsLoading = false;
                 ViewState.RaiseChanged();
             }
+        }
+
+        private void NavigateToProvidersWithProviderFailure()
+        {
+            _registrationSession.SetFailedProviderChannelGuid(_registrationSession.SelectedProvider?.ChannelGuid ?? Guid.Empty);
+            NavigationService.NavigateTo(ClientRoutes.RegistrationProvidersRoute);
         }
 
         #endregion

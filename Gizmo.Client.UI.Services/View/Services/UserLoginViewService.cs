@@ -335,11 +335,11 @@ namespace Gizmo.Client.UI.View.Services
             try
             {
                 var providers = await _passwordRecoveryService.GetProvidersAsync(ct);
-                if (providers.Count > 0)
+                var provider = GetDefaultPasswordRecoveryProvider(providers);
+                if (provider is not null)
                 {
                     ViewState.IsPasswordRecoveryAvailable = true;
-                    _passwordRecoverySession.SetActiveProvider(
-                        providers.OrderBy(GetPasswordRecoveryProviderOrder).First());
+                    _passwordRecoverySession.SetActiveProvider(provider);
                 }
                 else
                 {
@@ -359,12 +359,7 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        private static int GetPasswordRecoveryProviderOrder(PasswordRecoveryProvider provider) =>
-            provider.Channel switch
-            {
-                PasswordRecoveryChannel.Email => 0,
-                PasswordRecoveryChannel.Sms => 1,
-                _ => 2
-            };
+        private static PasswordRecoveryProvider? GetDefaultPasswordRecoveryProvider(IEnumerable<PasswordRecoveryProvider> providers) =>
+            providers.FirstOrDefault(provider => provider.IsPrimary) ?? providers.FirstOrDefault();
     }
 }
