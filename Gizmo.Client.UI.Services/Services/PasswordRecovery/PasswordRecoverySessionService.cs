@@ -18,6 +18,10 @@ public sealed class PasswordRecoverySessionService : IPasswordRecoverySessionSer
 
     public bool IsCodeConfirmed { get; private set; }
 
+    public Guid? FailedProviderChannelGuid { get; private set; }
+
+    public bool ShowAllProviders { get; private set; }
+
     public void SetActiveProvider(PasswordRecoveryProvider provider)
     {
         ActiveProvider = provider;
@@ -45,6 +49,16 @@ public sealed class PasswordRecoverySessionService : IPasswordRecoverySessionSer
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
+    public void SetFailedProviderChannelGuid(Guid? channelGuid)
+    {
+        FailedProviderChannelGuid = channelGuid;
+    }
+
+    public void SetShowAllProviders(bool value)
+    {
+        ShowAllProviders = value;
+    }
+
     public void Clear()
     {
         ActiveProvider = null;
@@ -54,6 +68,8 @@ public sealed class PasswordRecoverySessionService : IPasswordRecoverySessionSer
         CodeLength = 0;
         ExpiresInSeconds = 0;
         IsCodeConfirmed = false;
+        FailedProviderChannelGuid = null;
+        ShowAllProviders = false;
         Changed?.Invoke(this, EventArgs.Empty);
     }
 }

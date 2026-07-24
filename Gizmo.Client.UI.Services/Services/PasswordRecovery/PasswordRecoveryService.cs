@@ -30,6 +30,8 @@ public sealed class PasswordRecoveryService : IPasswordRecoveryService
             var channel = PasswordRecoveryProviderMapper.TryGetChannel(p.ChannelGuid);
             if (channel is null)
                 continue;
+            if (!p.CanDispatchCode || p.CanRedirect)
+                continue;
             result.Add(PasswordRecoveryProviderMapper.Map(p));
         }
 

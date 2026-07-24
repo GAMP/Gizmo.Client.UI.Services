@@ -18,6 +18,10 @@ public interface IPasswordRecoverySessionService
 
     bool IsCodeConfirmed { get; }
 
+    Guid? FailedProviderChannelGuid { get; }
+
+    bool ShowAllProviders { get; }
+
     void SetActiveProvider(PasswordRecoveryProvider provider);
 
     void SetMatchValue(string value);
@@ -25,6 +29,10 @@ public interface IPasswordRecoverySessionService
     void SetStartResult(string token, string destination, int codeLength, int expiresInSeconds);
 
     void SetCodeConfirmed(bool value);
+
+    void SetFailedProviderChannelGuid(Guid? channelGuid);
+
+    void SetShowAllProviders(bool value);
 
     void Clear();
 }
