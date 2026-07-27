@@ -16,6 +16,10 @@ public sealed class RegistrationSessionService : IRegistrationSessionService
     public string? ActualContact { get; private set; }
     public string? Country { get; private set; }
 
+    public bool HasConfirmedMobilePhone =>
+        Flow is RegistrationFlow.Sms or RegistrationFlow.Redirect
+        && !string.IsNullOrEmpty(ActualContact);
+
     public string Username { get; private set; } = string.Empty;
     public string? Password { get; private set; }
     public string? FirstName { get; private set; }

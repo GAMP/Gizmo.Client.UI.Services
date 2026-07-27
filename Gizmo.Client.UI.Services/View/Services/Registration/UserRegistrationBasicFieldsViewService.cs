@@ -55,7 +55,7 @@ namespace Gizmo.Client.UI.View.Services
         private bool ShowBirthDate => _registrationSession.RequiredUserInfo?.BirthDate == true;
         private bool ShowSex => _registrationSession.RequiredUserInfo?.Sex == true;
         private bool ShowEmail => _registrationSession.Flow != RegistrationFlow.Email && _registrationSession.RequiredUserInfo?.Email == true;
-        private bool ShowMobilePhone => _registrationSession.Flow != RegistrationFlow.Sms && _registrationSession.RequiredUserInfo?.Mobile == true;
+        private bool ShowMobilePhone => !_registrationSession.HasConfirmedMobilePhone && _registrationSession.RequiredUserInfo?.Mobile == true;
         private bool ShowPhone => _registrationSession.RequiredUserInfo?.Phone == true;
         #endregion
 
@@ -195,7 +195,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 try
                 {
-                    string? profileMobilePhone = _registrationSession.Flow == RegistrationFlow.Sms
+                    string? profileMobilePhone = _registrationSession.HasConfirmedMobilePhone
                         ? _registrationSession.ActualContact
                         : _registrationSession.MobilePhone;
 

@@ -124,7 +124,7 @@ namespace Gizmo.Client.UI.View.Services
                             result.Destination ?? string.Empty,
                             result.CodeLength,
                             result.ExpiresInSeconds,
-                            RegistrationFlow.None);
+                            RegistrationFlow.Redirect);
                         ViewState.RedirectUrl = result.RedirectUrl;
                         ViewState.QrCode = _qrCodeService.GenerateFromUrl(result.RedirectUrl);
                         StartQrExpiryTimer();
@@ -169,6 +169,16 @@ namespace Gizmo.Client.UI.View.Services
                     if (result.IsConfirmed)
                     {
                         CancelQrExpiry();
+
+                        if (!string.IsNullOrEmpty(result.Phone))
+                        {
+                            var confirmedPhone = result.Phone.StartsWith("+")
+                                ? result.Phone.Substring(1)
+                                : result.Phone;
+
+                            _registrationSession.SetContactDetails(confirmedPhone);
+                        }
+
                         NavigationService.NavigateTo(ClientRoutes.RegistrationBasicFieldsRoute);
                         return;
                     }

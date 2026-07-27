@@ -16,6 +16,12 @@ public interface IRegistrationSessionService
     string? ActualContact { get; }
     string? Country { get; }
 
+    /// <summary>
+    /// Gets a value indicating that the mobile phone was already confirmed by the registration provider
+    /// and must not be asked for again.
+    /// </summary>
+    bool HasConfirmedMobilePhone { get; }
+
     string Username { get; }
     string? Password { get; }
     string? FirstName { get; }

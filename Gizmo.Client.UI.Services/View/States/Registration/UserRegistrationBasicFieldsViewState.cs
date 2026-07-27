@@ -16,6 +16,7 @@ namespace Gizmo.Client.UI.View.States
         [ValidatingProperty(IsAsync = true)]
         [Required(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_REQUIRED_FIELD")]
         [FileInvalidCharactersValidation]
+        [StringLength(30, ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_MAX_LENGTH")]
         public string Username { get; internal set; } = string.Empty;
 
         /// <summary>
@@ -33,9 +34,11 @@ namespace Gizmo.Client.UI.View.States
         public string RepeatPassword { get; internal set; } = string.Empty;
 
         [ValidatingProperty()]
+        [StringLength(45, ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_MAX_LENGTH")]
         public string? FirstName { get; internal set; }
 
         [ValidatingProperty()]
+        [StringLength(45, ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_MAX_LENGTH")]
         public string? LastName { get; internal set; }
 
         [ValidatingProperty()]
@@ -46,12 +49,14 @@ namespace Gizmo.Client.UI.View.States
 
         [ValidatingProperty()]
         [EmailNullEmptyValidation(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_INVALID_FIELD")]
+        [StringLength(254, ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_MAX_LENGTH")]
         public string? Email { get; internal set; }
 
         [ValidatingProperty(IsAsync = true)]
         public string? MobilePhone { get; internal set; }
 
         [ValidatingProperty()]
+        [StringLength(20, ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_MAX_LENGTH")]
         public string? Phone { get; internal set; }
 
         [ValidatingProperty()]

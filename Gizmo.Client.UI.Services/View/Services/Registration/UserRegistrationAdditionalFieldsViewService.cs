@@ -104,7 +104,7 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                string? mobilePhone = _registrationSession.Flow == RegistrationFlow.Sms
+                string? mobilePhone = _registrationSession.HasConfirmedMobilePhone
                     ? _registrationSession.ActualContact
                     : _registrationSession.MobilePhone;
 

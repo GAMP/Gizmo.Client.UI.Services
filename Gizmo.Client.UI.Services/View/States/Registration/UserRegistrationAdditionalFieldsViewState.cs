@@ -11,6 +11,7 @@ namespace Gizmo.Client.UI.View.States
         #region PROPERTIES
 
         [ValidatingProperty()]
+        [StringLength(45, ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_MAX_LENGTH")]
         public string? Country { get; internal set; }
 
         //public string? Prefix { get; internal set; }
@@ -25,18 +26,21 @@ namespace Gizmo.Client.UI.View.States
         /// Gets or sets address.
         /// </summary>
         [ValidatingProperty()]
+        [StringLength(255, ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_MAX_LENGTH")]
         public string? Address { get; internal set; }
 
         /// <summary>
         /// Gets or sets city.
         /// </summary>
         [ValidatingProperty()]
+        [StringLength(45, ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_MAX_LENGTH")]
         public string? City { get; internal set; }
 
         /// <summary>
         /// Gets or sets post code.
         /// </summary>
         [ValidatingProperty()]
+        [StringLength(20, ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_MAX_LENGTH")]
         public string? PostCode { get; internal set; }
 
         public bool IsLoading { get; internal set; }
