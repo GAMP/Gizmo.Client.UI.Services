@@ -171,6 +171,13 @@ namespace Gizmo.Client.UI.View.Services
                 return;
             }
 
+            if (!await ValidateProfileEmailAvailabilityAsync())
+            {
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
+                return;
+            }
+
             var sessionEmail = _registrationSession.Flow == RegistrationFlow.Email
                 ? _registrationSession.ActualContact
                 : ShowEmail ? ViewState.Email : null;
@@ -265,6 +272,27 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.RaiseChanged();
 
                 NavigationService.NavigateTo(ClientRoutes.RegistrationAdditionalFieldsRoute);
+            }
+        }
+
+        private async Task<bool> ValidateProfileEmailAvailabilityAsync()
+        {
+            if (!ShowEmail || _registrationSession.Flow == RegistrationFlow.Email || string.IsNullOrWhiteSpace(ViewState.Email))
+                return true;
+
+            try
+            {
+                if (!await _registrationService.EmailExistAsync(ViewState.Email))
+                    return true;
+
+                AddError(() => ViewState.Email, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_EMAIL_ADDRESS_USED)));
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Cannot validate email.");
+                AddError(() => ViewState.Email, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_CANNOT_VALIDATE_EMAIL)));
+                return false;
             }
         }
 
@@ -525,6 +553,24 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
+            if (fieldIdentifier.FieldEquals(() => ViewState.Email)
+                && ShowEmail
+                && !string.IsNullOrEmpty(ViewState.Email))
+            {
+                try
+                {
+                    if (await _registrationService.EmailExistAsync(ViewState.Email, cancellationToken))
+                    {
+                        return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_EMAIL_ADDRESS_USED)) };
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Cannot validate email.");
+                    return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_CANNOT_VALIDATE_EMAIL)) };
+                }
+            }
+
             if (fieldIdentifier.FieldEquals(() => ViewState.MobilePhone)
                 && ShowMobilePhone
                 && !string.IsNullOrEmpty(ViewState.MobilePhone)
@@ -572,6 +618,13 @@ namespace Gizmo.Client.UI.View.Services
             if (ShowMobilePhone
                 && !string.IsNullOrEmpty(ViewState.MobilePhone)
                 && !IsAsyncValidated(() => ViewState.MobilePhone))
+            {
+                return base.OnDetermineIsAsyncPropertiesValidated();
+            }
+
+            if (ShowEmail
+                && !string.IsNullOrEmpty(ViewState.Email)
+                && !IsAsyncValidated(() => ViewState.Email))
             {
                 return base.OnDetermineIsAsyncPropertiesValidated();
             }

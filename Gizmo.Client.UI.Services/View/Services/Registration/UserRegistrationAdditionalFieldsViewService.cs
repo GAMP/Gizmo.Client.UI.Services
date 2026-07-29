@@ -100,6 +100,13 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 
+            if (!await ValidateProfileEmailAvailabilityAsync())
+            {
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
+                return;
+            }
+
             bool confirmationRequired = !string.IsNullOrEmpty(_registrationSession.Token);
 
             try
@@ -170,6 +177,30 @@ namespace Gizmo.Client.UI.View.Services
             {
                 ViewState.IsLoading = false;
                 ViewState.RaiseChanged();
+            }
+        }
+
+        private async Task<bool> ValidateProfileEmailAvailabilityAsync()
+        {
+            if (_registrationSession.Flow == RegistrationFlow.Email || string.IsNullOrWhiteSpace(_registrationSession.Email))
+                return true;
+
+            try
+            {
+                if (!await _registrationService.EmailExistAsync(_registrationSession.Email))
+                    return true;
+
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_EMAIL_ADDRESS_USED));
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Cannot validate email.");
+
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_CANNOT_VALIDATE_EMAIL));
+                return false;
             }
         }
 

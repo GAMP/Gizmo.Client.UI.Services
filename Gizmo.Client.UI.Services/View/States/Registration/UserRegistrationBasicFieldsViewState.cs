@@ -47,7 +47,7 @@ namespace Gizmo.Client.UI.View.States
         [ValidatingProperty()]
         public Web.Api.Models.Sex Sex { get; internal set; }
 
-        [ValidatingProperty()]
+        [ValidatingProperty(IsAsync = true)]
         [EmailNullEmptyValidation(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_INVALID_FIELD")]
         [StringLength(254, ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_MAX_LENGTH")]
         public string? Email { get; internal set; }
