@@ -116,23 +116,23 @@ namespace Gizmo.Client.UI.View.Services
                     IntegrationPublicId = integrationPublicId
                 }, cancellationToken);
 
-                switch (result.Result)
+                switch (result)
                 {
-                    case RegistrationStartCode.Success when result.RedirectUrl is not null:
+                    case RegistrationStartResult.RedirectRequired r:
                         _registrationSession.SetStartResult(
-                            result.Token ?? string.Empty,
-                            result.Destination ?? string.Empty,
-                            result.CodeLength,
-                            result.ExpiresInSeconds,
+                            r.Token,
+                            string.Empty,
+                            0,
+                            r.ExpiresInSeconds,
                             RegistrationFlow.Redirect);
-                        ViewState.RedirectUrl = result.RedirectUrl;
-                        ViewState.QrCode = _qrCodeService.GenerateFromUrl(result.RedirectUrl);
+                        ViewState.RedirectUrl = r.RedirectUrl;
+                        ViewState.QrCode = _qrCodeService.GenerateFromUrl(r.RedirectUrl);
                         StartQrExpiryTimer();
                         _ = StartTokenPollingAsync(_qrExpiryCts!.Token);
                         break;
 
                     default:
-                        Logger.LogWarning("Redirect registration start failed: {Result}", result.Result);
+                        Logger.LogWarning("Redirect registration start failed: {Result}", result);
                         _registrationSession.SetFailedProviderChannelGuid(channelGuid);
                         NavigationService.NavigateTo(ClientRoutes.RegistrationProvidersRoute);
                         break;

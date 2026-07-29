@@ -99,15 +99,15 @@ namespace Gizmo.Client.UI.View.Services
                     MatchValue = matchValue
                 });
 
-                switch (result.Result)
+                switch (result)
                 {
-                    case PasswordRecoveryStartCode.Success:
+                    case PasswordRecoveryStartResult.CodeInputRequired r:
                         _session.SetMatchValue(matchValue);
                         _session.SetStartResult(
-                            result.Token ?? string.Empty,
-                            result.Destination ?? string.Empty,
-                            result.CodeLength,
-                            result.ExpiresInSeconds);
+                            r.Token,
+                            r.Destination ?? string.Empty,
+                            r.CodeLength,
+                            r.ExpiresInSeconds);
                         NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryConfirmationRoute);
                         break;
 

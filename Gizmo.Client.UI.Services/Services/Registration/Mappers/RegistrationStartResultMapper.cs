@@ -1,43 +1,41 @@
+using Gizmo.Web.Api.Models;
+
 namespace Gizmo.Client.UI.Services;
 
 internal static class RegistrationStartResultMapper
 {
-    public static RegistrationStartResult Map(Gizmo.Web.Api.Models.VerificationStartResultModel model,
+    public static RegistrationStartResult Map(VerificationStartResultModelBase model,
                                               RegistrationStartRequest request)
     {
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(request);
-        return new RegistrationStartResult(
-            Result:           RegistrationStartCodeMapper.Map(model.Result),
-            Token:            model.Token,
-            Destination:      ComputeDestination(request),
-            CodeLength:       model.CodeLength,
-            DeliveryMethod:   null,  // R5: API не возвращает DeliveryMethod
-            RedirectUrl:      model.RedirectUrl,
-            ExpiresInSeconds: model.ExpiresInSeconds
-        );
+
+        return model switch
+        {
+            CodeInputRequiredResult codeInputRequired => new RegistrationStartResult.CodeInputRequired(
+                Token:            codeInputRequired.Token,
+                Destination:      ComputeDestination(request),
+                CodeLength:       codeInputRequired.CodeLength,
+                ExpiresInSeconds: codeInputRequired.ExpiresInSeconds),
+
+            RedirectRequiredResult redirectRequired => new RegistrationStartResult.RedirectRequired(
+                Token:            redirectRequired.Token,
+                RedirectUrl:      redirectRequired.RedirectUrl,
+                ExpiresInSeconds: redirectRequired.ExpiresInSeconds),
+
+            VerificationStartFailedResult failed => new RegistrationStartResult.Failed(RegistrationStartCodeMapper.Map(failed.Result)),
+
+            CallRequiredResult => new RegistrationStartResult.Failed(RegistrationStartCode.Unknown),
+
+            _ => new RegistrationStartResult.Failed(RegistrationStartCode.Unknown),
+        };
     }
 
     private static string? ComputeDestination(RegistrationStartRequest request) =>
         request.DeliveryMethod switch
         {
-            RegistrationDeliveryMethod.Redirect => null,
-            _ when request.Email != null        => MaskEmail(request.Email),
-            _ when request.Phone != null        => MaskPhone(request.Phone),
-            _                                   => null
+            _ when request.Email != null => ContactMasking.MaskEmail(request.Email),
+            _ when request.Phone != null => ContactMasking.MaskPhone(request.Phone),
+            _                             => null
         };
-
-    private static string MaskEmail(string email)
-    {
-        var at = email.IndexOf('@');
-        if (at <= 1) return email;
-        return email[0] + "***" + email[at..];
-    }
-
-    private static string MaskPhone(string phone)
-    {
-        var digits = phone.TrimStart('+');
-        if (digits.Length <= 4) return digits;
-        return "****" + digits[^4..];
-    }
 }

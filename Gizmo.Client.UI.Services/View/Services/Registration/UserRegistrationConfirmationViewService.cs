@@ -133,13 +133,13 @@ namespace Gizmo.Client.UI.View.Services
 
                 var result = await _registrationService.StartAsync(request);
 
-                if (result.Result == RegistrationStartCode.Success)
+                if (result is RegistrationStartResult.CodeInputRequired r)
                 {
                     _registrationSession.SetStartResult(
-                        result.Token ?? string.Empty,
-                        result.Destination ?? _registrationSession.Destination,
-                        result.CodeLength,
-                        result.ExpiresInSeconds,
+                        r.Token,
+                        r.Destination ?? _registrationSession.Destination,
+                        r.CodeLength,
+                        r.ExpiresInSeconds,
                         _registrationSession.Flow);
                     _ = StartTimerAsync();
                 }

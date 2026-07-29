@@ -123,13 +123,13 @@ namespace Gizmo.Client.UI.View.Services
                     MatchValue = _session.MatchValue
                 });
 
-                if (result.Result == PasswordRecoveryStartCode.Success)
+                if (result is PasswordRecoveryStartResult.CodeInputRequired r)
                 {
                     _session.SetStartResult(
-                        result.Token ?? string.Empty,
-                        result.Destination ?? _session.Destination,
-                        result.CodeLength,
-                        result.ExpiresInSeconds);
+                        r.Token,
+                        r.Destination ?? _session.Destination,
+                        r.CodeLength,
+                        r.ExpiresInSeconds);
                     _ = StartTimerAsync();
                 }
                 else

@@ -90,35 +90,32 @@ namespace Gizmo.Client.UI.View.Services
                     IntegrationPublicId = integrationPublicId
                 });
 
-                switch (result.Result)
+                switch (result)
                 {
-                    case RegistrationStartCode.Success:
+                    case RegistrationStartResult.CodeInputRequired r:
                         _registrationSession.SetStartResult(
-                            result.Token ?? string.Empty,
-                            result.Destination ?? string.Empty,
-                            result.CodeLength,
-                            result.ExpiresInSeconds,
+                            r.Token,
+                            r.Destination ?? string.Empty,
+                            r.CodeLength,
+                            r.ExpiresInSeconds,
                             RegistrationFlow.Sms);
                         _registrationSession.SetContactDetails(phone, ViewState.Country);
                         NavigationService.NavigateTo(ClientRoutes.RegistrationConfirmationRoute);
                         break;
 
-                    case RegistrationStartCode.NonUniqueInput:
+                    case RegistrationStartResult.Failed { Code: RegistrationStartCode.NonUniqueInput }:
                         ViewState.HasError = true;
                         ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_MOBILE_PHONE_USED));
                         break;
 
-                    case RegistrationStartCode.NoRouteForDelivery:
-                    case RegistrationStartCode.DeliveryFailed:
-                    case RegistrationStartCode.Failed:
-                    case RegistrationStartCode.Unknown:
-                        Logger.LogWarning("Registration phone start failed for provider {ProviderPublicId}: {Result}", integrationPublicId, result.Result);
+                    case RegistrationStartResult.Failed f:
+                        Logger.LogWarning("Registration phone start failed for provider {ProviderPublicId}: {Result}", integrationPublicId, f.Code);
                         NavigateToProvidersWithProviderFailure();
                         break;
 
                     default:
-                        ViewState.HasError = true;
-                        ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED)) + $" {result.Result}";
+                        Logger.LogWarning("Registration phone start returned an unexpected result shape for provider {ProviderPublicId}.", integrationPublicId);
+                        NavigateToProvidersWithProviderFailure();
                         break;
                 }
             }
