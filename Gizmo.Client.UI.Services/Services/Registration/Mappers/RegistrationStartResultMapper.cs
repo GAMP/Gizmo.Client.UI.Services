@@ -14,28 +14,34 @@ internal static class RegistrationStartResultMapper
         {
             CodeInputRequiredResult codeInputRequired => new RegistrationStartResult.CodeInputRequired(
                 Token:            codeInputRequired.Token,
-                Destination:      ComputeDestination(request),
+                Destination:      codeInputRequired.MaskedRecipientAddress ?? ComputeDestination(request),
                 CodeLength:       codeInputRequired.CodeLength,
-                ExpiresInSeconds: codeInputRequired.ExpiresInSeconds),
+                ExpiresInSeconds: codeInputRequired.ExpiresInSeconds,
+                CapabilityGuid:   codeInputRequired.CapabilityGuid),
 
             RedirectRequiredResult redirectRequired => new RegistrationStartResult.RedirectRequired(
                 Token:            redirectRequired.Token,
                 RedirectUrl:      redirectRequired.RedirectUrl,
-                ExpiresInSeconds: redirectRequired.ExpiresInSeconds),
+                ExpiresInSeconds: redirectRequired.ExpiresInSeconds,
+                CapabilityGuid:   redirectRequired.CapabilityGuid),
 
             VerificationStartFailedResult failed => new RegistrationStartResult.Failed(RegistrationStartCodeMapper.Map(failed.Result)),
 
-            CallRequiredResult => new RegistrationStartResult.Failed(RegistrationStartCode.Unknown),
+            CallRequiredResult callRequired => new RegistrationStartResult.CallRequired(
+                Token:            callRequired.Token,
+                PhoneNumber:      callRequired.PhoneNumber,
+                ExpiresInSeconds: callRequired.ExpiresInSeconds,
+                CapabilityGuid:   callRequired.CapabilityGuid),
 
             _ => new RegistrationStartResult.Failed(RegistrationStartCode.Unknown),
         };
     }
 
     private static string? ComputeDestination(RegistrationStartRequest request) =>
-        request.DeliveryMethod switch
+        request.Kind switch
         {
-            _ when request.Email != null => ContactMasking.MaskEmail(request.Email),
-            _ when request.Phone != null => ContactMasking.MaskPhone(request.Phone),
-            _                             => null
+            RegistrationStartKind.Email when request.Value != null       => ContactMasking.MaskEmail(request.Value),
+            RegistrationStartKind.MobilePhone when request.Value != null => ContactMasking.MaskPhone(request.Value),
+            _                                                           => null
         };
 }

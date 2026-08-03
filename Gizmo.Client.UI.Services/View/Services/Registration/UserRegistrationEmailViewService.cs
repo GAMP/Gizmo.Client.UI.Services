@@ -60,15 +60,15 @@ namespace Gizmo.Client.UI.View.Services
                 return;
             }
 
-            var integrationPublicId = _registrationSession.SelectedProvider?.PublicId ?? Guid.Empty;
+            var methodId = _registrationSession.SelectedProvider?.MethodId ?? 0;
 
             try
             {
                 var result = await _registrationService.StartAsync(new RegistrationStartRequest
                 {
-                    Email = ViewState.Email,
-                    DeliveryMethod = RegistrationDeliveryMethod.CodeDispatch,
-                    IntegrationPublicId = integrationPublicId
+                    MethodId = methodId,
+                    Kind = RegistrationStartKind.Email,
+                    Value = ViewState.Email
                 });
 
                 switch (result)
@@ -89,13 +89,18 @@ namespace Gizmo.Client.UI.View.Services
                         ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_EMAIL_ADDRESS_USED));
                         break;
 
+                    case RegistrationStartResult.Failed { Code: RegistrationStartCode.InvalidInput }:
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_EMAIL_INVALID));
+                        break;
+
                     case RegistrationStartResult.Failed f:
-                        Logger.LogWarning("Registration email start failed for provider {ProviderPublicId}: {Result}", integrationPublicId, f.Code);
+                        Logger.LogWarning("Registration email start failed for method {MethodId}: {Result}", methodId, f.Code);
                         NavigateToProvidersWithProviderFailure();
                         break;
 
                     default:
-                        Logger.LogWarning("Registration email start returned an unexpected result shape for provider {ProviderPublicId}.", integrationPublicId);
+                        Logger.LogWarning("Registration email start returned an unexpected result shape for method {MethodId}.", methodId);
                         NavigateToProvidersWithProviderFailure();
                         break;
                 }

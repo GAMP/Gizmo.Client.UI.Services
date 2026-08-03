@@ -33,9 +33,9 @@ namespace Gizmo.Client.UI.View.Services
             _localizationService = localizationService;
         }
 
-        public Task SelectProviderAsync(Guid publicId)
+        public Task SelectProviderAsync(int methodId)
         {
-            var provider = ViewState.Providers.FirstOrDefault(p => p.PublicId == publicId);
+            var provider = ViewState.Providers.FirstOrDefault(p => p.MethodId == methodId);
             if (provider is null)
                 return Task.CompletedTask;
 
@@ -70,7 +70,7 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                providers = await _passwordRecoveryService.GetProvidersAsync(cancellationToken);
+                providers = await _passwordRecoveryService.GetMethodsAsync(cancellationToken);
             }
             catch (Exception ex)
             {

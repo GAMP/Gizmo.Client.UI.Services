@@ -43,6 +43,26 @@ namespace Gizmo.Client.UI.View.Services
             ValidateProperty(() => ViewState.MatchValue);
         }
 
+        public void SetIdentifierKind(PasswordRecoveryIdentifierKind identifierKind)
+        {
+            if (ViewState.IdentifierKind == identifierKind)
+                return;
+
+            ViewState.IdentifierKind = identifierKind;
+            ClearInputState();
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
+            ResetValidationState();
+            ViewState.RaiseChanged();
+        }
+
+        public void Reset()
+        {
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
+            ViewState.RaiseChanged();
+        }
+
         public void SetCountry(string? value)
         {
             ViewState.Country = value;
@@ -94,21 +114,54 @@ namespace Gizmo.Client.UI.View.Services
 
                 var result = await _passwordRecoveryService.StartAsync(new PasswordRecoveryStartRequest
                 {
-                    IntegrationPublicId = provider.PublicId,
-                    Channel = provider.Channel,
-                    MatchValue = matchValue
+                    MethodId = provider.MethodId,
+                    IdentifierKind = ViewState.IdentifierKind,
+                    Value = matchValue
                 });
 
                 switch (result)
                 {
                     case PasswordRecoveryStartResult.CodeInputRequired r:
-                        _session.SetMatchValue(matchValue);
+                        _session.SetMatchValue(matchValue, ViewState.IdentifierKind);
                         _session.SetStartResult(
                             r.Token,
                             r.Destination ?? string.Empty,
                             r.CodeLength,
                             r.ExpiresInSeconds);
                         NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryConfirmationRoute);
+                        break;
+
+                    case PasswordRecoveryStartResult.RedirectRequired r:
+                        _session.SetMatchValue(matchValue, ViewState.IdentifierKind);
+                        _session.SetRedirectStartResult(
+                            r.Token,
+                            r.RedirectUrl,
+                            r.ExpiresInSeconds);
+                        NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryConfirmationRoute);
+                        break;
+
+                    case PasswordRecoveryStartResult.CallRequired r:
+                        _session.SetMatchValue(matchValue, ViewState.IdentifierKind);
+                        _session.SetCallStartResult(
+                            r.Token,
+                            r.PhoneNumber,
+                            r.ExpiresInSeconds);
+                        NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryConfirmationRoute);
+                        break;
+
+                    case PasswordRecoveryStartResult.Failed { Code: PasswordRecoveryStartCode.NonUniqueInput }:
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_RECOVERY_NON_UNIQUE_INPUT));
+                        break;
+
+                    case PasswordRecoveryStartResult.Failed { Code: PasswordRecoveryStartCode.UserNotFound or PasswordRecoveryStartCode.InvalidUserId }:
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_RECOVERY_USER_NOT_FOUND));
+                        break;
+
+                    case PasswordRecoveryStartResult.Failed { Code: PasswordRecoveryStartCode.InvalidInput }:
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_INVALID_FIELD));
                         break;
 
                     default:
@@ -144,7 +197,9 @@ namespace Gizmo.Client.UI.View.Services
                 return Task.CompletedTask;
             }
 
-            ViewState.Channel = provider.Channel;
+            ViewState.CanUseEmail = provider.Channel == PasswordRecoveryChannel.Email;
+            ViewState.CanUseMobilePhone = provider.Channel == PasswordRecoveryChannel.Sms;
+            ViewState.IdentifierKind = PasswordRecoveryIdentifierKind.Username;
             ClearInputState();
             ViewState.IsLoading = false;
             ViewState.HasError = false;
@@ -166,7 +221,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
-            if (ViewState.Channel == PasswordRecoveryChannel.Email)
+            if (ViewState.IdentifierKind is PasswordRecoveryIdentifierKind.Username or PasswordRecoveryIdentifierKind.Email)
             {
                 if (fieldIdentifier.FieldEquals(() => ViewState.MatchValue))
                 {
@@ -176,7 +231,7 @@ namespace Gizmo.Client.UI.View.Services
                         ClearError(() => ViewState.MatchValue);
                 }
             }
-            else if (ViewState.Channel == PasswordRecoveryChannel.Sms)
+            else if (ViewState.IdentifierKind == PasswordRecoveryIdentifierKind.MobilePhone)
             {
                 if (fieldIdentifier.FieldEquals(() => ViewState.Country))
                 {
@@ -198,7 +253,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override async Task<IEnumerable<string>> OnValidateAsync(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger, CancellationToken cancellationToken = default)
         {
-            if (ViewState.Channel == PasswordRecoveryChannel.Sms &&
+            if (ViewState.IdentifierKind == PasswordRecoveryIdentifierKind.MobilePhone &&
                 fieldIdentifier.FieldEquals(() => ViewState.MobilePhone) &&
                 !string.IsNullOrEmpty(ViewState.MobilePhone))
             {
@@ -218,7 +273,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override AsyncValidatedDetermineResult OnDetermineIsAsyncPropertiesValidated()
         {
-            if (ViewState.Channel == PasswordRecoveryChannel.Sms)
+            if (ViewState.IdentifierKind == PasswordRecoveryIdentifierKind.MobilePhone)
             {
                 if (IsAsyncValidated(() => ViewState.MobilePhone))
                     return AsyncValidatedDetermineResult.DefaultTrue;
@@ -229,7 +284,7 @@ namespace Gizmo.Client.UI.View.Services
 
         private string GetNormalizedMatchValue()
         {
-            if (_session.ActiveProvider?.Channel == PasswordRecoveryChannel.Sms)
+            if (ViewState.IdentifierKind == PasswordRecoveryIdentifierKind.MobilePhone)
             {
                 var e164 = ViewState.PhoneE164;
                 if (!string.IsNullOrEmpty(e164))

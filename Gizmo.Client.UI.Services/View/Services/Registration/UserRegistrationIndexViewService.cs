@@ -127,7 +127,7 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                var providers = await _registrationService.GetProvidersAsync(cancellationToken);
+                var providers = await _registrationService.GetMethodsAsync(cancellationToken);
                 var agreements = await _registrationService.GetAgreementsAsync(cancellationToken);
 
                 var agreementStatus = await ProcessUserAgreements(agreements, cancellationToken);

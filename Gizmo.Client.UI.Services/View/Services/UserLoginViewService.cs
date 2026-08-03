@@ -334,7 +334,7 @@ namespace Gizmo.Client.UI.View.Services
         {
             try
             {
-                var providers = await _passwordRecoveryService.GetProvidersAsync(ct);
+                var providers = await _passwordRecoveryService.GetMethodsAsync(ct);
                 var provider = GetDefaultPasswordRecoveryProvider(providers);
                 if (provider is not null)
                 {

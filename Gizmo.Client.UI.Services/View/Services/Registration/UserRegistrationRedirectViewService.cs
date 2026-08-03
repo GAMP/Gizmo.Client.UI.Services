@@ -105,15 +105,15 @@ namespace Gizmo.Client.UI.View.Services
         private async Task LoadQrAsync(CancellationToken cancellationToken)
         {
             var provider = _registrationSession.SelectedProvider;
-            var integrationPublicId = provider?.PublicId ?? Guid.Empty;
+            var methodId = provider?.MethodId ?? 0;
             var channelGuid = provider?.ChannelGuid ?? Guid.Empty;
 
             try
             {
                 var result = await _registrationService.StartAsync(new RegistrationStartRequest
                 {
-                    DeliveryMethod = RegistrationDeliveryMethod.Redirect,
-                    IntegrationPublicId = integrationPublicId
+                    MethodId = methodId,
+                    Kind = RegistrationStartKind.Redirect
                 }, cancellationToken);
 
                 switch (result)

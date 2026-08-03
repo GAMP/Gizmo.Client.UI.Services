@@ -11,6 +11,8 @@ internal static class PasswordRecoveryStartCodeMapper
             Gizmo.VerificationStartResultCode.DeliveryFailed     => PasswordRecoveryStartCode.DeliveryFailed,
             Gizmo.VerificationStartResultCode.InvalidInput       => PasswordRecoveryStartCode.InvalidInput,
             Gizmo.VerificationStartResultCode.NonUniqueInput     => PasswordRecoveryStartCode.NonUniqueInput,
+            Gizmo.VerificationStartResultCode.InvalidUserId      => PasswordRecoveryStartCode.InvalidUserId,
+            Gizmo.VerificationStartResultCode.UserNotFound       => PasswordRecoveryStartCode.UserNotFound,
             _                                                     => PasswordRecoveryStartCode.Unknown,
         };
 }

@@ -11,6 +11,8 @@ internal static class RegistrationStartCodeMapper
             Gizmo.VerificationStartResultCode.DeliveryFailed     => RegistrationStartCode.DeliveryFailed,
             Gizmo.VerificationStartResultCode.InvalidInput       => RegistrationStartCode.InvalidInput,
             Gizmo.VerificationStartResultCode.NonUniqueInput     => RegistrationStartCode.NonUniqueInput,
+            Gizmo.VerificationStartResultCode.InvalidUserId      => RegistrationStartCode.InvalidUserId,
+            Gizmo.VerificationStartResultCode.UserNotFound       => RegistrationStartCode.UserNotFound,
             _                                                     => RegistrationStartCode.Unknown,
         };
 }

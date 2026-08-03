@@ -16,7 +16,7 @@ namespace Gizmo.Client.UI.Services
         private readonly IGizmoClient _gizmoClient;
         private readonly UserUsersWebApiClient _usersClient;
         private readonly ILogger<UserRegistrationService> _logger;
-        private IReadOnlyList<RegistrationProvider>? _cachedProviders;
+        private IReadOnlyList<RegistrationProvider>? _cachedMethods;
 
         public UserRegistrationService(
             RegistrationsWebApiClient registrationsClient,
@@ -34,14 +34,14 @@ namespace Gizmo.Client.UI.Services
             _logger = logger;
         }
 
-        public async Task<IReadOnlyList<RegistrationProvider>> GetProvidersAsync(CancellationToken ct = default)
+        public async Task<IReadOnlyList<RegistrationProvider>> GetMethodsAsync(CancellationToken ct = default)
         {
-            if (_cachedProviders is not null)
-                return _cachedProviders;
+            if (_cachedMethods is not null)
+                return _cachedMethods;
 
-            var providers = await _registrationsClient.GetProvidersAsync(ct);
-            _cachedProviders = providers.Select(RegistrationProviderMapper.Map).ToList();
-            return _cachedProviders;
+            var methods = await _registrationsClient.GetMethodsAsync(ct);
+            _cachedMethods = methods.Select(RegistrationProviderMapper.Map).ToList();
+            return _cachedMethods;
         }
 
         public async Task<RegistrationRequiredInfo?> GetRequiredUserInfoAsync(CancellationToken ct = default)

@@ -4,28 +4,43 @@ namespace Gizmo.Client.UI.Services;
 
 internal static class PasswordRecoveryStartResultMapper
 {
-    internal static PasswordRecoveryStartResult Map(VerificationStartResultModelBase model, string matchValue, PasswordRecoveryChannel channel)
+    internal static PasswordRecoveryStartResult Map(VerificationStartResultModelBase model, PasswordRecoveryStartRequest request)
     {
         ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(request);
 
         return model switch
         {
             CodeInputRequiredResult codeInputRequired => new PasswordRecoveryStartResult.CodeInputRequired(
                 Token:            codeInputRequired.Token,
-                Destination:      ComputeDestination(matchValue, channel),
+                Destination:      codeInputRequired.MaskedRecipientAddress ?? ComputeDestination(request),
                 CodeLength:       codeInputRequired.CodeLength,
-                ExpiresInSeconds: codeInputRequired.ExpiresInSeconds),
+                ExpiresInSeconds: codeInputRequired.ExpiresInSeconds,
+                CapabilityGuid:   codeInputRequired.CapabilityGuid),
+
+            RedirectRequiredResult redirectRequired => new PasswordRecoveryStartResult.RedirectRequired(
+                Token:            redirectRequired.Token,
+                RedirectUrl:      redirectRequired.RedirectUrl,
+                ExpiresInSeconds: redirectRequired.ExpiresInSeconds,
+                CapabilityGuid:   redirectRequired.CapabilityGuid),
+
+            CallRequiredResult callRequired => new PasswordRecoveryStartResult.CallRequired(
+                Token:            callRequired.Token,
+                PhoneNumber:      callRequired.PhoneNumber,
+                ExpiresInSeconds: callRequired.ExpiresInSeconds,
+                CapabilityGuid:   callRequired.CapabilityGuid),
 
             VerificationStartFailedResult failed => new PasswordRecoveryStartResult.Failed(PasswordRecoveryStartCodeMapper.Map(failed.Result)),
-
-            RedirectRequiredResult => new PasswordRecoveryStartResult.Failed(PasswordRecoveryStartCode.Unknown),
-
-            CallRequiredResult => new PasswordRecoveryStartResult.Failed(PasswordRecoveryStartCode.Unknown),
 
             _ => new PasswordRecoveryStartResult.Failed(PasswordRecoveryStartCode.Unknown),
         };
     }
 
-    private static string ComputeDestination(string matchValue, PasswordRecoveryChannel channel) =>
-        channel == PasswordRecoveryChannel.Email ? ContactMasking.MaskEmail(matchValue) : ContactMasking.MaskPhone(matchValue);
+    private static string? ComputeDestination(PasswordRecoveryStartRequest request) =>
+        request.IdentifierKind switch
+        {
+            PasswordRecoveryIdentifierKind.Email       => ContactMasking.MaskEmail(request.Value),
+            PasswordRecoveryIdentifierKind.MobilePhone => ContactMasking.MaskPhone(request.Value),
+            _                                          => null
+        };
 }

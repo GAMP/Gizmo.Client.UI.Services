@@ -2,7 +2,7 @@ namespace Gizmo.Client.UI.Services;
 
 public sealed class PasswordRecoveryStartRequest
 {
-    public Guid IntegrationPublicId { get; init; }
-    public PasswordRecoveryChannel Channel { get; init; }
-    public string MatchValue { get; init; } = string.Empty;
+    public int MethodId { get; init; }
+    public PasswordRecoveryIdentifierKind IdentifierKind { get; init; }
+    public string Value { get; init; } = string.Empty;
 }

@@ -11,7 +11,11 @@ namespace Gizmo.Client.UI.View.States
     [Register]
     public sealed class PasswordRecoveryDestinationViewState : ValidatingViewStateBase
     {
-        public PasswordRecoveryChannel Channel { get; internal set; }
+        public PasswordRecoveryIdentifierKind IdentifierKind { get; internal set; }
+
+        public bool CanUseEmail { get; internal set; }
+
+        public bool CanUseMobilePhone { get; internal set; }
 
         [ValidatingProperty]
         public string MatchValue { get; internal set; } = string.Empty;

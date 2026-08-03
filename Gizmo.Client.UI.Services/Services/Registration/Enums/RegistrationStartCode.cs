@@ -8,6 +8,8 @@ namespace Gizmo.Client.UI.Services
         DeliveryFailed,
         InvalidInput,
         NonUniqueInput,
+        InvalidUserId,
+        UserNotFound,
         Unknown
     }
 }

@@ -79,15 +79,15 @@ namespace Gizmo.Client.UI.View.Services
             if (phone.StartsWith("+"))
                 phone = phone.Substring(1);
 
-            var integrationPublicId = _registrationSession.SelectedProvider?.PublicId ?? Guid.Empty;
+            var methodId = _registrationSession.SelectedProvider?.MethodId ?? 0;
 
             try
             {
                 var result = await _registrationService.StartAsync(new RegistrationStartRequest
                 {
-                    Phone = phone,
-                    DeliveryMethod = RegistrationDeliveryMethod.CodeDispatch,
-                    IntegrationPublicId = integrationPublicId
+                    MethodId = methodId,
+                    Kind = RegistrationStartKind.MobilePhone,
+                    Value = phone
                 });
 
                 switch (result)
@@ -108,13 +108,18 @@ namespace Gizmo.Client.UI.View.Services
                         ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_MOBILE_PHONE_USED));
                         break;
 
+                    case RegistrationStartResult.Failed { Code: RegistrationStartCode.InvalidInput }:
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_MOBILE_PHONE_INVALID));
+                        break;
+
                     case RegistrationStartResult.Failed f:
-                        Logger.LogWarning("Registration phone start failed for provider {ProviderPublicId}: {Result}", integrationPublicId, f.Code);
+                        Logger.LogWarning("Registration phone start failed for method {MethodId}: {Result}", methodId, f.Code);
                         NavigateToProvidersWithProviderFailure();
                         break;
 
                     default:
-                        Logger.LogWarning("Registration phone start returned an unexpected result shape for provider {ProviderPublicId}.", integrationPublicId);
+                        Logger.LogWarning("Registration phone start returned an unexpected result shape for method {MethodId}.", methodId);
                         NavigateToProvidersWithProviderFailure();
                         break;
                 }

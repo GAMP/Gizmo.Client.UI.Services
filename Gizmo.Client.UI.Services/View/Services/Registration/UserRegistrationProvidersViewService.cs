@@ -3,6 +3,7 @@ using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Gizmo.Extensibility;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -36,9 +37,9 @@ namespace Gizmo.Client.UI.View.Services
 
         #region FUNCTIONS
 
-        public Task SelectProviderAsync(Guid publicId)
+        public Task SelectProviderAsync(int methodId)
         {
-            var provider = ViewState.Providers.FirstOrDefault(p => p.PublicId == publicId);
+            var provider = ViewState.Providers.FirstOrDefault(p => p.MethodId == methodId);
             if (provider is null)
                 return Task.CompletedTask;
 
@@ -47,7 +48,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.FailedChannelGuid = null;
             ViewState.RaiseChanged();
 
-            if (provider.CanRedirect)
+            if (provider.CapabilityGuid == IntegrationCapabilities.VerificationRedirect)
             {
                 _registrationSession.SetSelectedProvider(provider);
                 NavigationService.NavigateTo(ClientRoutes.RegistrationRedirectRoute);
@@ -99,7 +100,7 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                var providers = await _registrationService.GetProvidersAsync(cancellationToken);
+                var providers = await _registrationService.GetMethodsAsync(cancellationToken);
                 ViewState.Providers = providers;
             }
             catch (Exception ex)

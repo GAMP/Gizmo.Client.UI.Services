@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Gizmo.Client.UI.Services;
 using Gizmo.UI;
 using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +14,16 @@ namespace Gizmo.Client.UI.View.States
         public string ConfirmationCode { get; internal set; } = string.Empty;
 
         public string ConfirmationCodeMessage { get; internal set; } = string.Empty;
+
+        public PasswordRecoveryAction Action { get; internal set; }
+
+        public string? RedirectUrl { get; internal set; }
+
+        public string? QrCode { get; internal set; }
+
+        public string? CallPhoneNumber { get; internal set; }
+
+        public bool IsQrExpired { get; internal set; }
 
         public int SecondsLeft { get; internal set; }
 

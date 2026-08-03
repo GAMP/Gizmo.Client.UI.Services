@@ -4,18 +4,15 @@ namespace Gizmo.Client.UI.Services
 {
     internal static class RegistrationProviderMapper
     {
-        internal static RegistrationProvider Map(VerificationProviderModel source) =>
+        internal static RegistrationProvider Map(AvailableVerificationMethodModel source) =>
             new()
             {
-                PublicId        = source.PublicId,
-                Name            = source.Name,
-                ChannelGuid     = source.ChannelGuid,
-                CanRedirect     = source.CanRedirect,
-                CanDispatchCode = source.CanDispatchCode,
-                CanProvideEmail = source.CanProvideEmail,
-                CanProvidePhone = source.CanProvidePhone,
-                HasChannel      = source.HasChannel,
-                IsPrimary       = source.IsPrimary,
+                MethodId       = source.MethodId,
+                Name           = source.Name,
+                ChannelGuid    = source.ChannelGuid,
+                CapabilityGuid = source.CapabilityGuid,
+                HasChannel     = source.HasChannel,
+                IsPrimary      = source.IsPrimary,
             };
     }
 }

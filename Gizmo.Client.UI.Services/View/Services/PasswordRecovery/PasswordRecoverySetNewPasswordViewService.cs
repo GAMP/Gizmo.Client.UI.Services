@@ -61,7 +61,7 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return;
 
-            if (string.IsNullOrEmpty(_session.Token) || !_session.IsCodeConfirmed)
+            if (string.IsNullOrEmpty(_session.Token) || !_session.IsTokenConfirmed)
             {
                 NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryRoute);
                 return;
@@ -148,7 +148,7 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrEmpty(_session.Token) || !_session.IsCodeConfirmed)
+            if (string.IsNullOrEmpty(_session.Token) || !_session.IsTokenConfirmed)
             {
                 NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryRoute);
                 return Task.CompletedTask;

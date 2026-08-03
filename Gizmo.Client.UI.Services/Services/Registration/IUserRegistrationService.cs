@@ -2,7 +2,7 @@ namespace Gizmo.Client.UI.Services
 {
     public interface IUserRegistrationService
     {
-        Task<IReadOnlyList<RegistrationProvider>> GetProvidersAsync(CancellationToken ct = default);
+        Task<IReadOnlyList<RegistrationProvider>> GetMethodsAsync(CancellationToken ct = default);
         Task<RegistrationRequiredInfo?> GetRequiredUserInfoAsync(CancellationToken ct = default);
         Task<IReadOnlyList<RegistrationAgreement>> GetAgreementsAsync(CancellationToken ct = default);
         Task<bool> UserNameExistAsync(string userName, CancellationToken ct = default);

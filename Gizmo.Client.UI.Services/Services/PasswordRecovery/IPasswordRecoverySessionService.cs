@@ -8,13 +8,23 @@ public interface IPasswordRecoverySessionService
 
     string MatchValue { get; }
 
+    PasswordRecoveryIdentifierKind IdentifierKind { get; }
+
     string Token { get; }
 
     string Destination { get; }
 
+    string RedirectUrl { get; }
+
+    string CallPhoneNumber { get; }
+
     int CodeLength { get; }
 
     int ExpiresInSeconds { get; }
+
+    PasswordRecoveryAction Action { get; }
+
+    bool IsTokenConfirmed { get; }
 
     bool IsCodeConfirmed { get; }
 
@@ -24,9 +34,15 @@ public interface IPasswordRecoverySessionService
 
     void SetActiveProvider(PasswordRecoveryProvider provider);
 
-    void SetMatchValue(string value);
+    void SetMatchValue(string value, PasswordRecoveryIdentifierKind identifierKind);
 
     void SetStartResult(string token, string destination, int codeLength, int expiresInSeconds);
+
+    void SetRedirectStartResult(string token, string redirectUrl, int expiresInSeconds);
+
+    void SetCallStartResult(string token, string phoneNumber, int expiresInSeconds);
+
+    void SetTokenConfirmed(bool value);
 
     void SetCodeConfirmed(bool value);
 

@@ -9,46 +9,32 @@ public sealed class PasswordRecoveryService : IPasswordRecoveryService
 {
     private readonly UserRecoveriesWebApiClient _recoveriesClient;
     private readonly UserTokensWebApiClient _tokensUserClient;
+    private readonly RegistrationsWebApiClient _registrationsClient;
     private readonly VerificationCompleteWebApiClient _verificationCompleteClient;
 
     public PasswordRecoveryService(
         UserRecoveriesWebApiClient recoveriesClient,
         UserTokensWebApiClient tokensUserClient,
+        RegistrationsWebApiClient registrationsClient,
         VerificationCompleteWebApiClient verificationCompleteClient)
     {
         _recoveriesClient = recoveriesClient;
         _tokensUserClient = tokensUserClient;
+        _registrationsClient = registrationsClient;
         _verificationCompleteClient = verificationCompleteClient;
     }
 
-    public async Task<IReadOnlyList<PasswordRecoveryProvider>> GetProvidersAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<PasswordRecoveryProvider>> GetMethodsAsync(CancellationToken ct = default)
     {
-        var raw = await _recoveriesClient.GetProvidersAsync(matchValue: null, ct);
-        var result = new List<PasswordRecoveryProvider>();
-        foreach (var p in raw)
-        {
-            var channel = PasswordRecoveryProviderMapper.TryGetChannel(p.ChannelGuid);
-            if (channel is null)
-                continue;
-            if (!p.CanDispatchCode || p.CanRedirect)
-                continue;
-            result.Add(PasswordRecoveryProviderMapper.Map(p));
-        }
-
-        return result;
+        var raw = await _recoveriesClient.GetMethodsAsync(ct);
+        return raw.Select(PasswordRecoveryProviderMapper.Map).ToList();
     }
 
     public async Task<PasswordRecoveryStartResult> StartAsync(PasswordRecoveryStartRequest request, CancellationToken ct = default)
     {
-        var model = new UserPasswordRecoveryStartModel
-        {
-            MatchValue = request.MatchValue,
-            IntegrationPublicId = request.IntegrationPublicId,
-            DeliveryMethod = VerificationDeliveryMethod.CodeDispatch
-        };
-
+        var model = PasswordRecoveryStartRequestMapper.Map(request);
         var result = await _recoveriesClient.PasswordRecoveryStartAsync(model, ct);
-        return PasswordRecoveryStartResultMapper.Map(result, request.MatchValue, request.Channel);
+        return PasswordRecoveryStartResultMapper.Map(result, request);
     }
 
     public async Task<PasswordRecoveryConfirmCode> ConfirmCodeAsync(string token, string confirmationCode, CancellationToken ct = default)
@@ -60,6 +46,18 @@ public sealed class PasswordRecoveryService : IPasswordRecoveryService
         }, ct);
 
         return PasswordRecoveryConfirmCodeMapper.Map(result);
+    }
+
+    /// <remarks>
+    /// Polls the registrations token endpoint - the api exposes no recovery specific
+    /// "confirmed" route. Only reachable for redirect/call recovery methods, which no
+    /// current server configuration returns, so the endpoint has not been verified
+    /// against a password recovery token.
+    /// </remarks>
+    public async Task<TokenConfirmedResult> IsTokenConfirmedAsync(string token, CancellationToken ct = default)
+    {
+        var result = await _registrationsClient.ConfirmedAsync(new TokenCheckModel { Token = token }, ct);
+        return TokenConfirmedResultMapper.Map(result);
     }
 
     public async Task<PasswordRecoveryCompleteCode> CompleteAsync(string token, string newPassword, CancellationToken ct = default)

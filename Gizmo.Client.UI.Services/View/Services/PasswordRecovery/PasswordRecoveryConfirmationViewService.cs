@@ -15,10 +15,17 @@ namespace Gizmo.Client.UI.View.Services
     [Route(ClientRoutes.PasswordRecoveryConfirmationRoute)]
     public sealed class PasswordRecoveryConfirmationViewService : ValidatingViewStateServiceBase<PasswordRecoveryConfirmationViewState>
     {
+        private static readonly TimeSpan QrExpiryDelay = TimeSpan.FromMinutes(4);
+        private static readonly TimeSpan TokenPollInterval = TimeSpan.FromSeconds(2);
+        private static readonly TimeSpan TransientFailureRetryDelay = TimeSpan.FromSeconds(1);
+        private const int MaxTransientFailureRetries = 1;
+
         private readonly IPasswordRecoveryService _passwordRecoveryService;
         private readonly IPasswordRecoverySessionService _session;
         private readonly ILocalizationService _localizationService;
+        private readonly IQrCodeService _qrCodeService;
         private readonly CountdownTimer _timer = new();
+        private CancellationTokenSource? _asyncActionCts;
 
         public PasswordRecoveryConfirmationViewService(
             PasswordRecoveryConfirmationViewState viewState,
@@ -26,11 +33,13 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             IPasswordRecoveryService passwordRecoveryService,
             IPasswordRecoverySessionService session,
-            ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
+            ILocalizationService localizationService,
+            IQrCodeService qrCodeService) : base(viewState, logger, serviceProvider)
         {
             _passwordRecoveryService = passwordRecoveryService;
             _session = session;
             _localizationService = localizationService;
+            _qrCodeService = qrCodeService;
         }
 
         public void SetConfirmationCode(string value)
@@ -65,7 +74,7 @@ namespace Gizmo.Client.UI.View.Services
                 switch (result)
                 {
                     case PasswordRecoveryConfirmCode.Success:
-                        _session.SetCodeConfirmed(true);
+                        _session.SetTokenConfirmed(true);
                         NavigationService.NavigateTo(ClientRoutes.PasswordRecoverySetNewPasswordRoute);
                         break;
 
@@ -101,6 +110,9 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsLoading)
                 return;
 
+            if (_session.Action != PasswordRecoveryAction.Code)
+                return;
+
             ViewState.IsLoading = true;
             ViewState.HasError = false;
             ViewState.ErrorMessage = string.Empty;
@@ -118,9 +130,9 @@ namespace Gizmo.Client.UI.View.Services
 
                 var result = await _passwordRecoveryService.StartAsync(new PasswordRecoveryStartRequest
                 {
-                    IntegrationPublicId = provider.PublicId,
-                    Channel = provider.Channel,
-                    MatchValue = _session.MatchValue
+                    MethodId = provider.MethodId,
+                    IdentifierKind = _session.IdentifierKind,
+                    Value = _session.MatchValue
                 });
 
                 if (result is PasswordRecoveryStartResult.CodeInputRequired r)
@@ -161,6 +173,12 @@ namespace Gizmo.Client.UI.View.Services
         {
             ViewState.ConfirmationCode = string.Empty;
             ViewState.ConfirmationCodeMessage = string.Empty;
+            ViewState.Action = PasswordRecoveryAction.None;
+            ViewState.RedirectUrl = null;
+            ViewState.QrCode = null;
+            ViewState.CallPhoneNumber = null;
+            ViewState.IsQrExpired = false;
+            ViewState.SecondsLeft = 0;
             ViewState.IsLoading = false;
             ViewState.HasError = false;
             ViewState.ErrorMessage = string.Empty;
@@ -170,25 +188,62 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
+            CancelTimer();
+            CancelAsyncActionPolling();
+
             if (string.IsNullOrEmpty(_session.Token))
             {
                 NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryRoute);
                 return Task.CompletedTask;
             }
 
-            var channel = _session.ActiveProvider?.Channel ?? PasswordRecoveryChannel.Email;
-            ViewState.ConfirmationCodeMessage = channel == PasswordRecoveryChannel.Email
-                ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CONFIRMATION_EMAIL_MESSAGE), _session.Destination)
-                : _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_RECOVERY_PLEASE_ENTER_RECOVERY_CODE), _session.Destination);
-
             ViewState.ConfirmationCode = string.Empty;
+            ViewState.Action = _session.Action;
+            ViewState.RedirectUrl = _session.RedirectUrl;
+            ViewState.QrCode = null;
+            ViewState.CallPhoneNumber = _session.CallPhoneNumber;
+            ViewState.IsQrExpired = false;
             ViewState.IsLoading = false;
             ViewState.HasError = false;
             ViewState.ErrorMessage = string.Empty;
             ResetValidationState();
-            ViewState.RaiseChanged();
 
-            _ = StartTimerAsync();
+            switch (_session.Action)
+            {
+                case PasswordRecoveryAction.Code:
+                    var channel = _session.ActiveProvider?.Channel ?? PasswordRecoveryChannel.Email;
+                    ViewState.ConfirmationCodeMessage = channel == PasswordRecoveryChannel.Email
+                        ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CONFIRMATION_EMAIL_MESSAGE), _session.Destination)
+                        : _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_RECOVERY_PLEASE_ENTER_RECOVERY_CODE), _session.Destination);
+                    ViewState.RaiseChanged();
+                    _ = StartTimerAsync();
+                    break;
+
+                case PasswordRecoveryAction.Redirect:
+                    if (string.IsNullOrEmpty(_session.RedirectUrl))
+                    {
+                        Logger.LogWarning("Password recovery redirect result carried no redirect url.");
+                        NavigateBackWithFailure();
+                        break;
+                    }
+
+                    ViewState.ConfirmationCodeMessage = string.Empty;
+                    ViewState.QrCode = _qrCodeService.GenerateFromUrl(_session.RedirectUrl);
+                    ViewState.RaiseChanged();
+                    StartAsyncActionPolling();
+                    StartQrExpiryTimer();
+                    break;
+
+                case PasswordRecoveryAction.Call:
+                    ViewState.ConfirmationCodeMessage = string.Empty;
+                    ViewState.RaiseChanged();
+                    StartAsyncActionPolling();
+                    break;
+
+                default:
+                    NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryRoute);
+                    break;
+            }
 
             return Task.CompletedTask;
         }
@@ -196,6 +251,7 @@ namespace Gizmo.Client.UI.View.Services
         protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
             CancelTimer();
+            CancelAsyncActionPolling();
             return base.OnNavigatedOut(navigationParameters, cancellationToken);
         }
 
@@ -220,5 +276,106 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         private void CancelTimer() => _timer.Cancel();
+
+        private void StartAsyncActionPolling()
+        {
+            CancelAsyncActionPolling();
+            _asyncActionCts = new CancellationTokenSource();
+            _ = PollTokenConfirmationAsync(_asyncActionCts.Token);
+        }
+
+        private async Task PollTokenConfirmationAsync(CancellationToken cancellationToken)
+        {
+            var transientFailureCount = 0;
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    var result = await _passwordRecoveryService.IsTokenConfirmedAsync(_session.Token, cancellationToken);
+                    transientFailureCount = 0;
+
+                    if (result.IsConfirmed)
+                    {
+                        _session.SetTokenConfirmed(true);
+                        CancelAsyncActionPolling();
+                        NavigationService.NavigateTo(ClientRoutes.PasswordRecoverySetNewPasswordRoute);
+                        return;
+                    }
+
+                    await Task.Delay(TokenPollInterval, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    if (transientFailureCount < MaxTransientFailureRetries)
+                    {
+                        transientFailureCount++;
+                        Logger.LogWarning(ex, "Password recovery token polling failed. Retrying {Attempt}/{MaxAttempts}.", transientFailureCount, MaxTransientFailureRetries);
+
+                        try
+                        {
+                            await Task.Delay(TransientFailureRetryDelay, cancellationToken);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            return;
+                        }
+
+                        continue;
+                    }
+
+                    Logger.LogError(ex, "Password recovery token polling failed.");
+                    NavigateBackWithFailure();
+                    return;
+                }
+            }
+        }
+
+        private void StartQrExpiryTimer()
+        {
+            var token = _asyncActionCts?.Token;
+            if (token is null)
+                return;
+
+            _ = ExpireQrAfterDelayAsync(token.Value);
+        }
+
+        private async Task ExpireQrAfterDelayAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                await Task.Delay(QrExpiryDelay, cancellationToken);
+                ViewState.IsQrExpired = true;
+                ViewState.RaiseChanged();
+                CancelAsyncActionPolling();
+            }
+            catch (OperationCanceledException)
+            {
+                // Navigation or successful confirmation cancelled the timer.
+            }
+        }
+
+        private void NavigateBackWithFailure()
+        {
+            var channelGuid = _session.ActiveProvider?.ChannelGuid;
+            _session.SetFailedProviderChannelGuid(channelGuid);
+            _session.SetShowAllProviders(true);
+            CancelAsyncActionPolling();
+            NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryRoute);
+        }
+
+        private void CancelAsyncActionPolling()
+        {
+            if (_asyncActionCts is null)
+                return;
+
+            _asyncActionCts.Cancel();
+            _asyncActionCts.Dispose();
+            _asyncActionCts = null;
+        }
     }
 }

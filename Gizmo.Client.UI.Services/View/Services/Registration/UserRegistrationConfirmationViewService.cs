@@ -125,10 +125,11 @@ namespace Gizmo.Client.UI.View.Services
             {
                 var request = new RegistrationStartRequest
                 {
-                    DeliveryMethod = RegistrationDeliveryMethod.CodeDispatch,
-                    IntegrationPublicId = _registrationSession.SelectedProvider?.PublicId ?? Guid.Empty,
-                    Email = _registrationSession.Flow == RegistrationFlow.Email ? _registrationSession.ActualContact : null,
-                    Phone = _registrationSession.Flow == RegistrationFlow.Sms ? _registrationSession.ActualContact : null,
+                    MethodId = _registrationSession.SelectedProvider?.MethodId ?? 0,
+                    Kind = _registrationSession.Flow == RegistrationFlow.Email
+                        ? RegistrationStartKind.Email
+                        : RegistrationStartKind.MobilePhone,
+                    Value = _registrationSession.ActualContact,
                 };
 
                 var result = await _registrationService.StartAsync(request);
