@@ -41,6 +41,7 @@ namespace Gizmo.Client.UI.View.States
         /// </summary>
         [ValidatingProperty()]
         [StringLength(20, ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_MAX_LENGTH")]
+        [RegularExpression("^[0-9]*$", ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_INVALID_FIELD")]
         public string? PostCode { get; internal set; }
 
         public bool IsLoading { get; internal set; }
