@@ -40,8 +40,6 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IOptions<ClientHomeOptions> _clientHomeOptions;
         private readonly IUICompositionService _uICompositionService;
 
-        private const string BASE_ROUTE_URL = "https://0.0.0.0/";
-
         private bool _isLoggedIn = false;
 
         protected override Task OnInitializing(CancellationToken ct)
@@ -212,7 +210,9 @@ namespace Gizmo.Client.UI.View.Services
             try
             {
                 //TODO temprary fix, we need to fix the mouse buttons problem
-                if (_isLoggedIn && e.Location == BASE_ROUTE_URL)
+                //base url must come from the current navigation manager, the host origin differs between hosts
+                //(wpf client serves the ui from https://0.0.0.1/), a hardcoded origin never matches there
+                if (_isLoggedIn && e.Location == NavigationService.GetBaseUri())
                 {
                     NavigateToAuthenticatedLanding();
                 }
