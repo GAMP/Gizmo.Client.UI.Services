@@ -8,7 +8,9 @@ public interface IPasswordRecoverySessionService
 
     string MatchValue { get; }
 
-    PasswordRecoveryIdentifierKind IdentifierKind { get; }
+    PasswordRecoveryIdentifierKind? IdentifierKind { get; }
+
+    IReadOnlyList<PasswordRecoveryProvider> AvailableMethods { get; }
 
     string Token { get; }
 
@@ -33,6 +35,10 @@ public interface IPasswordRecoverySessionService
     bool ShowAllProviders { get; }
 
     void SetActiveProvider(PasswordRecoveryProvider provider);
+
+    void SetIdentifierKind(PasswordRecoveryIdentifierKind identifierKind);
+
+    void SetAvailableMethods(IReadOnlyList<PasswordRecoveryProvider> methods);
 
     void SetMatchValue(string value, PasswordRecoveryIdentifierKind identifierKind);
 

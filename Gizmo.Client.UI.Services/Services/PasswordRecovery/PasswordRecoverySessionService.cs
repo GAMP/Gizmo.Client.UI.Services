@@ -8,7 +8,9 @@ public sealed class PasswordRecoverySessionService : IPasswordRecoverySessionSer
 
     public string MatchValue { get; private set; } = string.Empty;
 
-    public PasswordRecoveryIdentifierKind IdentifierKind { get; private set; }
+    public PasswordRecoveryIdentifierKind? IdentifierKind { get; private set; }
+
+    public IReadOnlyList<PasswordRecoveryProvider> AvailableMethods { get; private set; } = Array.Empty<PasswordRecoveryProvider>();
 
     public string Token { get; private set; } = string.Empty;
 
@@ -35,6 +37,16 @@ public sealed class PasswordRecoverySessionService : IPasswordRecoverySessionSer
     public void SetActiveProvider(PasswordRecoveryProvider provider)
     {
         ActiveProvider = provider;
+    }
+
+    public void SetIdentifierKind(PasswordRecoveryIdentifierKind identifierKind)
+    {
+        IdentifierKind = identifierKind;
+    }
+
+    public void SetAvailableMethods(IReadOnlyList<PasswordRecoveryProvider> methods)
+    {
+        AvailableMethods = methods ?? Array.Empty<PasswordRecoveryProvider>();
     }
 
     public void SetMatchValue(string value, PasswordRecoveryIdentifierKind identifierKind)
@@ -105,7 +117,8 @@ public sealed class PasswordRecoverySessionService : IPasswordRecoverySessionSer
     {
         ActiveProvider = null;
         MatchValue = string.Empty;
-        IdentifierKind = PasswordRecoveryIdentifierKind.Username;
+        IdentifierKind = null;
+        AvailableMethods = Array.Empty<PasswordRecoveryProvider>();
         Token = string.Empty;
         Destination = string.Empty;
         RedirectUrl = string.Empty;

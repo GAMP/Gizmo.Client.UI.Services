@@ -33,28 +33,81 @@ namespace Gizmo.Client.UI.View.Services
             _localizationService = localizationService;
         }
 
-        public Task SelectProviderAsync(int methodId)
+        public async Task SelectProviderAsync(int methodId)
         {
+            if (ViewState.IsLoading)
+                return;
+
             var provider = ViewState.Providers.FirstOrDefault(p => p.MethodId == methodId);
             if (provider is null)
-                return Task.CompletedTask;
+                return;
 
+            var identifierKind = _session.IdentifierKind;
+            if (identifierKind is null)
+            {
+                NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryKindRoute);
+                return;
+            }
+
+            ViewState.IsLoading = true;
             ViewState.HasError = false;
             ViewState.ErrorMessage = string.Empty;
             ViewState.RaiseChanged();
 
             _session.SetActiveProvider(provider);
-            NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryDestinationRoute);
 
-            return Task.CompletedTask;
+            try
+            {
+                var matchValue = _session.MatchValue;
+
+                var startResult = await _passwordRecoveryService.StartAsync(new PasswordRecoveryStartRequest
+                {
+                    MethodId = provider.MethodId,
+                    IdentifierKind = identifierKind.Value,
+                    Value = matchValue
+                });
+
+                var outcome = PasswordRecoveryStartOutcome.Apply(startResult, _session, _localizationService);
+
+                switch (outcome)
+                {
+                    case PasswordRecoveryStartOutcome.Result.Started:
+                        NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryConfirmationRoute);
+                        break;
+
+                    case PasswordRecoveryStartOutcome.Result.Failed failed:
+                        ViewState.HasError = true;
+                        ViewState.ErrorMessage = failed.Message;
+                        ViewState.ShowAllProviders = true;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Password recovery start error.");
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
+                ViewState.ShowAllProviders = true;
+            }
+            finally
+            {
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
+            }
         }
 
-        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
+        protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
             var failedProviderChannelGuid = _session.FailedProviderChannelGuid;
             var showAllProviders = _session.ShowAllProviders;
             _session.SetFailedProviderChannelGuid(null);
             _session.SetShowAllProviders(false);
+
+            if (_session.IdentifierKind is null || _session.AvailableMethods.Count == 0)
+            {
+                NavigationService.NavigateTo(ClientRoutes.PasswordRecoveryKindRoute);
+                return Task.CompletedTask;
+            }
 
             var hasError = failedProviderChannelGuid.HasValue;
 
@@ -63,31 +116,11 @@ namespace Gizmo.Client.UI.View.Services
                 ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PASSWORD_RECOVERY_PASSWORD_RESET_FAILED_MESSAGE))
                 : string.Empty;
             ViewState.ShowAllProviders = showAllProviders;
-            ViewState.IsLoading = true;
-            ViewState.RaiseChanged();
-
-            IReadOnlyList<PasswordRecoveryProvider> providers;
-
-            try
-            {
-                providers = await _passwordRecoveryService.GetMethodsAsync(cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError(ex, "Password recovery providers load error on navigate-in.");
-                NavigationService.NavigateTo(ClientRoutes.LoginRoute);
-                return;
-            }
-
-            if (providers.Count == 0)
-            {
-                NavigationService.NavigateTo(ClientRoutes.LoginRoute);
-                return;
-            }
-
-            ViewState.Providers = providers;
+            ViewState.Providers = _session.AvailableMethods;
             ViewState.IsLoading = false;
             ViewState.RaiseChanged();
+
+            return Task.CompletedTask;
         }
     }
 }

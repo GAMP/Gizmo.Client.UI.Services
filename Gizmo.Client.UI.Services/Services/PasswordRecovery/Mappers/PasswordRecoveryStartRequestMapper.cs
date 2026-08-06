@@ -4,28 +4,24 @@ namespace Gizmo.Client.UI.Services;
 
 internal static class PasswordRecoveryStartRequestMapper
 {
-    internal static PasswordRecoveryMethodStartModel Map(PasswordRecoveryStartRequest request)
+    internal static VerificationMethodStartModelBase Map(PasswordRecoveryStartRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        return request.IdentifierKind switch
+        return new VerificationMethodStartModelBase
         {
-            PasswordRecoveryIdentifierKind.Username => new PasswordRecoveryByUsernameMethodStartModel
-            {
-                MethodId = request.MethodId,
-                Value    = request.Value
-            },
-            PasswordRecoveryIdentifierKind.Email => new PasswordRecoveryByEmailMethodStartModel
-            {
-                MethodId = request.MethodId,
-                Value    = request.Value
-            },
-            PasswordRecoveryIdentifierKind.MobilePhone => new PasswordRecoveryByMobilePhoneMethodStartModel
-            {
-                MethodId = request.MethodId,
-                Value    = request.Value
-            },
-            _ => throw new ArgumentOutOfRangeException(nameof(request.IdentifierKind), request.IdentifierKind, "Unsupported password recovery identifier kind.")
+            MethodId  = request.MethodId,
+            Value     = request.Value,
+            ValueKind = ToValueKind(request.IdentifierKind)
         };
     }
+
+    internal static VerificationMethodValueKind ToValueKind(PasswordRecoveryIdentifierKind identifierKind) =>
+        identifierKind switch
+        {
+            PasswordRecoveryIdentifierKind.Username    => VerificationMethodValueKind.Username,
+            PasswordRecoveryIdentifierKind.Email       => VerificationMethodValueKind.Email,
+            PasswordRecoveryIdentifierKind.MobilePhone => VerificationMethodValueKind.MobilePhone,
+            _ => throw new ArgumentOutOfRangeException(nameof(identifierKind), identifierKind, "Unsupported password recovery identifier kind.")
+        };
 }

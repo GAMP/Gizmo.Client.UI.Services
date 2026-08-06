@@ -121,7 +121,8 @@ namespace Gizmo.Client.UI.View.Services
             try
             {
                 var provider = _session.ActiveProvider;
-                if (provider is null)
+                var identifierKind = _session.IdentifierKind;
+                if (provider is null || identifierKind is null)
                 {
                     ViewState.HasError = true;
                     ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
@@ -131,7 +132,7 @@ namespace Gizmo.Client.UI.View.Services
                 var result = await _passwordRecoveryService.StartAsync(new PasswordRecoveryStartRequest
                 {
                     MethodId = provider.MethodId,
-                    IdentifierKind = _session.IdentifierKind,
+                    IdentifierKind = identifierKind.Value,
                     Value = _session.MatchValue
                 });
 
