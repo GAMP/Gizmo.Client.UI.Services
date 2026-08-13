@@ -2,8 +2,6 @@ namespace Gizmo.Client.UI.Services;
 
 public interface IPasswordRecoveryService
 {
-    Task<IReadOnlyList<PasswordRecoveryProvider>> GetConfiguredMethodsAsync(CancellationToken ct = default);
-
     Task<IReadOnlyList<PasswordRecoveryProvider>> GetMethodsAsync(PasswordRecoveryIdentifierKind identifierKind, string value, CancellationToken ct = default);
 
     Task<PasswordRecoveryStartResult> StartAsync(PasswordRecoveryStartRequest request, CancellationToken ct = default);

@@ -4,11 +4,11 @@ namespace Gizmo.Client.UI.Services;
 
 internal static class PasswordRecoveryStartRequestMapper
 {
-    internal static VerificationMethodStartModelBase Map(PasswordRecoveryStartRequest request)
+    internal static UserPasswordRecoveryMethodStartModel Map(PasswordRecoveryStartRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        return new VerificationMethodStartModelBase
+        return new UserPasswordRecoveryMethodStartModel
         {
             MethodId  = request.MethodId,
             Value     = request.Value,

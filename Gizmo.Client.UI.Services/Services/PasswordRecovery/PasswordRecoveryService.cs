@@ -24,16 +24,14 @@ public sealed class PasswordRecoveryService : IPasswordRecoveryService
         _verificationCompleteClient = verificationCompleteClient;
     }
 
-    public async Task<IReadOnlyList<PasswordRecoveryProvider>> GetConfiguredMethodsAsync(CancellationToken ct = default)
-    {
-        var raw = await _recoveriesClient.GetMethodsAsync(ct);
-        return raw.Select(PasswordRecoveryProviderMapper.Map).ToList();
-    }
-
     public async Task<IReadOnlyList<PasswordRecoveryProvider>> GetMethodsAsync(PasswordRecoveryIdentifierKind identifierKind, string value, CancellationToken ct = default)
     {
-        var valueKind = PasswordRecoveryStartRequestMapper.ToValueKind(identifierKind);
-        var raw = await _recoveriesClient.GetMethodsAsync(valueKind, value, ct);
+        var model = new GetRecoveryMethodsModel
+        {
+            Value = value,
+            ValueKind = PasswordRecoveryStartRequestMapper.ToValueKind(identifierKind)
+        };
+        var raw = await _recoveriesClient.GetMethodsAsync(model, ct);
         return raw.Select(PasswordRecoveryProviderMapper.Map).ToList();
     }
 
