@@ -1,4 +1,4 @@
-﻿using Gizmo.UI;
+using Gizmo.UI;
 using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel.DataAnnotations;
@@ -12,13 +12,8 @@ namespace Gizmo.Client.UI.View.States
         private bool _isLogginIn;
         private bool _isLogginOut;
         private UserLoginType _userLoginType;
-#if RELEASE
         private string? _loginName;
-        private string? _password; 
-#else
-        private string? _loginName = "user";
-        private string? _password = "user";
-#endif
+        private string? _password;
         private string? _pin;
         private bool _isPasswordVisible;
         private bool _hasLoginError;
@@ -51,13 +46,19 @@ namespace Gizmo.Client.UI.View.States
         /// <summary>
         /// Gets or sets username,email or mobile phone used for login.
         /// </summary>
-        [ValidatingProperty()]
+        [ValidatingProperty(IsAsync = true)]
         [Required(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_REQUIRED_FIELD")]
         public string? LoginName
         {
             get { return _loginName; }
             internal set { _loginName = value; }
         }
+
+        public string? Country { get; internal set; }
+
+        public string? RegionCode { get; internal set; }
+
+        public string? PhoneE164 { get; internal set; }
 
         /// <summary>
         /// Gets or sets user password.
@@ -109,6 +110,9 @@ namespace Gizmo.Client.UI.View.States
             HasLoginError = false;
             IsPasswordVisible = false;
             LoginError = null;
+            Country = null;
+            RegionCode = null;
+            PhoneE164 = null;
             base.SetDefaults();
         }
     }

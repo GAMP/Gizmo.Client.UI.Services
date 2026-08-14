@@ -24,7 +24,7 @@ namespace Gizmo.Client.UI.View.States
             {
                 _version = value;
             }
-        } 
+        }
         #endregion
     }
 }

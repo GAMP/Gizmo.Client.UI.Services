@@ -46,6 +46,6 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             return base.OnInitializing(ct);
-        } 
+        }
     }
 }

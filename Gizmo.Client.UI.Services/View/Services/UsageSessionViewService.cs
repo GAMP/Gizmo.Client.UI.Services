@@ -90,7 +90,7 @@ namespace Gizmo.Client.UI.View.Services
                     ViewState.CurrentTimeProductName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USAGE_TYPE_RATE));
                     break;
                 case Web.Api.Models.UsageType.TimeFixed:
-                    ViewState.CurrentTimeProductName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USAGE_TYPE_TIME_FIXED)); 
+                    ViewState.CurrentTimeProductName = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USAGE_TYPE_TIME_FIXED));
                     break;
                 case Web.Api.Models.UsageType.TimeOffer:
                     // fallback to default localized value in case product name not provided

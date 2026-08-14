@@ -35,6 +35,8 @@ namespace Gizmo.Client.UI.Services
         public static IServiceCollection AddClientServices(this IServiceCollection services)
         {
             services.AddClientUIServices();
+            services.AddSingleton<IRegistrationSessionService, RegistrationSessionService>();
+            services.AddSingleton<IPasswordRecoverySessionService, PasswordRecoverySessionService>();
             services.AddClientViewServices();
             services.AddClientViewStates();
             services.AddWebApiSupport();
@@ -136,8 +138,10 @@ namespace Gizmo.Client.UI.Services
         {
             services.AddSingleton<UserAccessTokenHandler>();
             services.AddTransient<UserApiClientDelegatingHandler>();
-            services.AddSecureWebApiClients(Constants.SecureWebApiClientsName, httpClientConfig);
-            services.AddUnsecureWebApiClients(Constants.UnsecureWebApiClientsName, httpClientConfig);
+            // TODO: these two calls duplicate the registrations below (lines ~161, ~166) with the same names
+            // but without builder chain — investigate whether they have any effect and remove if not needed
+            //services.AddSecureWebApiClients(Constants.SecureWebApiClientsName, httpClientConfig);
+            //services.AddUnsecureWebApiClients(Constants.UnsecureWebApiClientsName, httpClientConfig);
 
             static void httpClientConfig(IServiceProvider serviceProvider, HttpClient client)
             {
@@ -187,6 +191,11 @@ namespace Gizmo.Client.UI.Services
                     };
                 });
             }
+
+            services.AddSingleton<IUserRegistrationService, UserRegistrationService>();
+            services.AddSingleton<IPasswordRecoveryService, PasswordRecoveryService>();
+            services.AddSingleton<IPhoneValidationService, PhoneValidationService>();
+            services.AddSingleton<IQrCodeService, QrCodeService>();
 
             return services;
         }

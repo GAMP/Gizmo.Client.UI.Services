@@ -1,9 +1,10 @@
-﻿using System.Globalization;
+using System.Globalization;
 using Gizmo.Client.Options;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
 
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -73,7 +74,7 @@ namespace Gizmo.Client.UI.View.Services
 
         #region PUBLIC FUNCTIONS
 
-        public async void SetCurrentCultureAsync(string cultureName)
+        public async Task SetCurrentCultureAsync(string cultureName)
         {
             ViewState.CurrentCulture = GetViewStatesCulture(cultureName);
 
@@ -81,9 +82,9 @@ namespace Gizmo.Client.UI.View.Services
 
             ViewState.RaiseChanged();
 
-            //TODO need to find a better way to do this
+            // TODO: Find a better way to refresh localized resources in Blazor WebAssembly.
             var currentUri = _navigationService.GetUri();
-            _navigationService.NavigateTo(currentUri ?? "/", new Microsoft.AspNetCore.Components.NavigationOptions() { ForceLoad = true });
+            _navigationService.NavigateTo(currentUri ?? "/", new NavigationOptions() { ForceLoad = true });
         }
 
         #endregion
@@ -92,7 +93,7 @@ namespace Gizmo.Client.UI.View.Services
 
         private CultureInfo GetViewStatesCulture(string cultureName)
         {
-            var culture = ViewState.AvailableCultures.FirstOrDefault(x => string.Compare(x.Name,cultureName,true) == 0);
+            var culture = ViewState.AvailableCultures.FirstOrDefault(x => string.Compare(x.Name, cultureName, true) == 0);
 
             if (culture == null)
             {

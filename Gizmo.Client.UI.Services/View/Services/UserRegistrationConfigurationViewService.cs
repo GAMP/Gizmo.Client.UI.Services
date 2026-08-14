@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.View.States;
+using Gizmo.Client;
+using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Gizmo.UI.View.States;
 using Microsoft.Extensions.DependencyInjection;
