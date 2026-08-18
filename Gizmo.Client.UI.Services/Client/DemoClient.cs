@@ -1874,16 +1874,6 @@ namespace Gizmo.Client
             return Task.FromResult(true);
         }
 
-        public Task<bool> IsClientRegistrationDirectEnabledGetAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(false);
-        }
-
-        public Task<bool> IsClientPasswordRecoveryEnabledGetAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(true);
-        }
-
         public async Task<PagedList<UserHostGroupModel>> UserHostGroupsGetAsync(UserHostGroupsFilter filters, CancellationToken cancellationToken = default)
         {
             await Task.Delay(1000);
