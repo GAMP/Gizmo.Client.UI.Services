@@ -11,6 +11,8 @@ namespace Gizmo.Client.UI.View.States
     {
         #region FIELDS
         private bool _isEnabled;
+        private bool _isDirectEnabled;
+        private bool _isPasswordRecoveryEnabled;
         #endregion
 
         #region PROPERTIES   
@@ -19,6 +21,18 @@ namespace Gizmo.Client.UI.View.States
         {
             get { return _isEnabled; }
             internal set { _isEnabled = value; }
+        }
+
+        public bool IsDirectEnabled
+        {
+            get { return _isDirectEnabled; }
+            internal set { _isDirectEnabled = value; }
+        }
+
+        public bool IsPasswordRecoveryEnabled
+        {
+            get { return _isPasswordRecoveryEnabled; }
+            internal set { _isPasswordRecoveryEnabled = value; }
         }
 
         #endregion

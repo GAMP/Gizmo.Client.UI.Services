@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.UI.Services;
+﻿using Gizmo.Client.Options;
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
@@ -6,6 +7,7 @@ using Gizmo.Web.Api.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Gizmo.Client.UI.View.Services
 {
@@ -19,11 +21,13 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             IUserRegistrationService registrationService,
             IClientDialogService dialogService,
-            IRegistrationSessionService registrationSession) : base(viewState, logger, serviceProvider)
+            IRegistrationSessionService registrationSession,
+            IOptions<UserLoginOptions> userLoginOptions) : base(viewState, logger, serviceProvider)
         {
             _registrationService = registrationService;
             _dialogService = dialogService;
             _registrationSession = registrationSession;
+            _userLoginOptions = userLoginOptions;
         }
         #endregion
 
@@ -31,6 +35,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IUserRegistrationService _registrationService;
         private readonly IClientDialogService _dialogService;
         private readonly IRegistrationSessionService _registrationSession;
+        private readonly IOptions<UserLoginOptions> _userLoginOptions;
         #endregion
 
         public async Task<bool> ProcessUserAgreements(IReadOnlyList<RegistrationAgreement> agreements, CancellationToken cancellationToken = default)
@@ -127,7 +132,18 @@ namespace Gizmo.Client.UI.View.Services
 
             try
             {
-                var providers = await _registrationService.GetMethodsAsync(cancellationToken);
+                var useProviderFlow = !_userLoginOptions.Value.IsDirectRegistrationEnabled;
+
+                if (useProviderFlow)
+                {
+                    var providers = await _registrationService.GetMethodsAsync(cancellationToken);
+                    if (providers.Count == 0)
+                    {
+                        NavigationService.NavigateTo(ClientRoutes.RegistrationErrorRoute);
+                        return;
+                    }
+                }
+
                 var agreements = await _registrationService.GetAgreementsAsync(cancellationToken);
 
                 var agreementStatus = await ProcessUserAgreements(agreements, cancellationToken);
@@ -138,7 +154,7 @@ namespace Gizmo.Client.UI.View.Services
 
                     _registrationSession.SetRequiredUserInfo(userGroupDefaultRequiredInfo);
 
-                    if (providers.Count > 0)
+                    if (useProviderFlow)
                     {
                         NavigationService.NavigateTo(ClientRoutes.RegistrationProvidersRoute);
                     }
