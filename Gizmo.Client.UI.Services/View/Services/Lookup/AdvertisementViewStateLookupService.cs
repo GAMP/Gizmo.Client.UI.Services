@@ -93,6 +93,18 @@ public sealed class AdvertisementViewStateLookupService : ViewStateLookupService
 
             (result.Url, result.Command) = ParseUrl(model.Url);
         }
+        else
+        {
+            //a custom template owns its whole visual, these fields are not part of it.
+            //this map runs against an existing view state on update, so an entry that
+            //switched to a custom template would otherwise keep the media url, thumbnail
+            //and command it had before and still render the media badge and click action.
+            result.MediaUrlType = AdvertisementMediaUrlType.None;
+            result.MediaUrl = null;
+            result.ThumbnailUrl = null;
+            result.Url = null;
+            result.Command = null;
+        }
 
         return result;
     }
