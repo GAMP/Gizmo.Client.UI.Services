@@ -19,7 +19,9 @@ namespace Gizmo.Client.UI.View.States
 
         public bool AllowCustomValue { get; internal set; }
 
-        public decimal MinimumAmount { get; internal set; }
+        public decimal? MinimumAmount { get; internal set; }
+
+        public decimal? MaximumAmount { get; internal set; }
 
         [ValidatingProperty()]
         [Required(ErrorMessageResourceType = typeof(Resources.Properties.Resources), ErrorMessageResourceName = "GIZ_GEN_VE_REQUIRED_FIELD")]

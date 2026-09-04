@@ -50,6 +50,8 @@ namespace Gizmo.Client.UI.View.Services
             if (!value.HasValue)
             {
                 ViewState.Amount = null;
+                ValidateProperty(() => ViewState.Amount);
+                return;
             }
 
             if (!ViewState.AllowCustomValue && !ViewState.Presets.Contains(value.Value))
@@ -148,13 +150,24 @@ namespace Gizmo.Client.UI.View.Services
         {
             if (fieldIdentifier.FieldEquals(() => ViewState.Amount))
             {
-                if (ViewState.Amount < ViewState.MinimumAmount)
+                //the configured limits bound a custom amount only, a preset is an amount the operator published and
+                //stands on its own even when it falls outside them. the required attribute covers an empty amount.
+                if (!ViewState.Amount.HasValue || ViewState.Presets.Contains(ViewState.Amount.Value))
+                    return;
+
+                //the local maximum caps a manually entered deposit regardless of the configuration, so the one that
+                //binds is the lower of the two.
+                var maximumAmount = ViewState.MaximumAmount.HasValue
+                    ? Math.Min(ViewState.MaximumAmount.Value, _userOnlineDepositOptions.Value.MaximumAmount)
+                    : _userOnlineDepositOptions.Value.MaximumAmount;
+
+                if (ViewState.MinimumAmount.HasValue && ViewState.Amount < ViewState.MinimumAmount.Value)
                 {
-                    AddError(() => ViewState.Amount, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_ONLINE_DEPOSIT_MINIMUM_AMOUNT_IS), ViewState.MinimumAmount));
+                    AddError(() => ViewState.Amount, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_ONLINE_DEPOSIT_MINIMUM_AMOUNT_IS), ViewState.MinimumAmount.Value));
                 }
-                else if (ViewState.Amount > _userOnlineDepositOptions.Value.MaximumAmount)
+                else if (ViewState.Amount > maximumAmount)
                 {
-                    AddError(() => ViewState.Amount, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_ONLINE_DEPOSIT_MAXIMUM_AMOUNT_IS), _userOnlineDepositOptions.Value.MaximumAmount));
+                    AddError(() => ViewState.Amount, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_ONLINE_DEPOSIT_MAXIMUM_AMOUNT_IS), maximumAmount));
                 }
             }
         }
@@ -188,6 +201,7 @@ namespace Gizmo.Client.UI.View.Services
                             ViewState.Presets = configuration.Presets;
                             ViewState.AllowCustomValue = configuration.AllowCustomValue;
                             ViewState.MinimumAmount = configuration.MinimumAmount;
+                            ViewState.MaximumAmount = configuration.MaximumAmount;
                         }
                     }
 
