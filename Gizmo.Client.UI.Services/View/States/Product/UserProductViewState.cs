@@ -42,6 +42,11 @@ namespace Gizmo.Client.UI.View.States
         public bool IsRestrictedForUserGroup { get; internal set; }
 
         /// <summary>
+        /// Whether the product is not enabled for the branch of the current user session.
+        /// </summary>
+        public bool IsRestrictedForBranch { get; internal set; }
+
+        /// <summary>
         /// The list of host group where this product is hidden.
         /// </summary>
         public IEnumerable<int> HiddenHostGroups { get; internal set; } = Enumerable.Empty<int>();

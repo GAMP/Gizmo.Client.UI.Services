@@ -109,6 +109,13 @@ namespace Gizmo.Client.UI.View.Services
                 return;
             }
 
+            if (product.IsRestrictedForBranch)
+            {
+                product.DisallowPurchase = true;
+                product.DisallowPurchaseReason = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_PRODUCT_NOT_AVAILABLE_AT_THIS_LOCATION));
+                return;
+            }
+
             if (product.OrderOptions.HasFlag(OrderOptionType.DisallowAllowOrder) ||
                 product.OrderOptions.HasFlag(OrderOptionType.RestrictSale))
             {
@@ -347,6 +354,7 @@ namespace Gizmo.Client.UI.View.Services
             result.IsStockLimited = model.IsStockLimited;
             result.IsRestrictedForGuest = model.IsRestrictedForGuest;
             result.IsRestrictedForUserGroup = model.IsRestrictedForUserGroup;
+            result.IsRestrictedForBranch = model.IsRestrictedForBranch;
             result.HiddenHostGroups = model.HiddenHostGroups;
 
             if (model.ProductType == ProductType.ProductBundle)
@@ -472,6 +480,9 @@ namespace Gizmo.Client.UI.View.Services
 
             //only include products that is allowed for specified user group
             states = states.Where(a => !a.IsRestrictedForUserGroup);
+
+            //only include products that is enabled for the branch of the current session
+            states = states.Where(a => !a.IsRestrictedForBranch);
 
             if (_hostGroupViewState.HostGroupId.HasValue)
             {
