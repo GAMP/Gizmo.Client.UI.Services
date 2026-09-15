@@ -268,6 +268,9 @@ namespace Gizmo.Client.UI.View.Services
                 uri.AbsolutePath == ClientRoutes.UserDepositsRoute ||
                 uri.AbsolutePath == ClientRoutes.UserProductsRoute ||
                 uri.AbsolutePath == ClientRoutes.UserPurchasesRoute ||
+                uri.AbsolutePath == ClientRoutes.UserLadderRoute ||
+                uri.AbsolutePath == ClientRoutes.UserAchievementsRoute ||
+                uri.AbsolutePath == ClientRoutes.UserChallengesRoute ||
                 uri.AbsolutePath == ClientRoutes.UserSettingsRoute ||
                 _uICompositionService.PageModules.Where(a => a.DefaultRoute.Equals(uri.AbsolutePath)).Count() > 0
                 )
