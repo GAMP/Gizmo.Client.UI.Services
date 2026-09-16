@@ -79,10 +79,12 @@ namespace Gizmo.Client.UI.View.Services
         /// </summary>
         private void OnLanguageChanged(object? sender, EventArgs e)
         {
-            if (_loaded.Count == 0)
-                return;
-
+            // the header counter ("0 completed") and the error text are localized too — re-map even when nothing was loaded
             Apply();
+
+            if (ViewState.HasError)
+                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
+
             ViewState.RaiseChanged();
         }
 

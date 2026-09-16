@@ -69,6 +69,10 @@ namespace Gizmo.Client.UI.View.Services
                 _highlightedId = achievementId;
             }
 
+            // the previous list may still be rendered until the load replaces it — drop its sticky highlight
+            foreach (var item in ViewState.Achievements)
+                item.IsHighlighted = false;
+
             return LoadAsync(cToken);
         }
 
