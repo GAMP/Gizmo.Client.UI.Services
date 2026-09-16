@@ -134,7 +134,7 @@ namespace Gizmo.Client.UI.View.Services
                         Kind = r.Kind,
                         Text = r.Kind == ChallengeRewardKind.Points
                             ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CHALLENGES_REWARD_POINTS), r.Amount)
-                            : _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CHALLENGES_REWARD_TIME), AchievementValueFormat.Duration(r.Amount)),
+                            : _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CHALLENGES_REWARD_TIME), AchievementValueFormat.Duration(r.Amount, _localizationService)),
                         StatusText = isDone && r.Status is { } status ? GetRewardStatusText(status) : string.Empty,
                     }).ToList(),
                 PopupWindowText = GetWindowText(c, isEnded, hasChip, popup: true),

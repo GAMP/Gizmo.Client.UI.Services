@@ -161,7 +161,7 @@ namespace Gizmo.Client.UI.View.Services
                 return _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_ACHIEVEMENTS_NOT_COLLECTED));
 
             decimal remainder = progress / 100m * a.TargetValue;
-            string pair = AchievementValueFormat.Pair(remainder, a.TargetValue, a.Unit);
+            string pair = AchievementValueFormat.Pair(remainder, a.TargetValue, a.Unit, _localizationService);
 
             // duration/currency carry their own unit; points/days read in a localized short unit name;
             // count has no noun on the user API (see Tech Debt 1)
