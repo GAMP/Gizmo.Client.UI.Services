@@ -1,4 +1,4 @@
-using System.Globalization;
+using System.Web;
 using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
@@ -26,6 +26,7 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IUserAchievementsService _achievementsService;
         private readonly ILocalizationService _localizationService;
         private IReadOnlyList<UserAchievement> _loaded = Array.Empty<UserAchievement>();
+        private int? _highlightedId;
 
         public async Task LoadAsync(CancellationToken cToken = default)
         {
@@ -59,7 +60,33 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
-            => LoadAsync(cToken);
+        {
+            // deep-link from a challenge requirement (or, later, the ladder): /profile/achievements?AchievementId=5
+            _highlightedId = null;
+            if (Uri.TryCreate(NavigationService.GetUri(), UriKind.Absolute, out var uri)
+                && int.TryParse(HttpUtility.ParseQueryString(uri.Query).Get("AchievementId"), out int achievementId))
+            {
+                _highlightedId = achievementId;
+            }
+
+            return LoadAsync(cToken);
+        }
+
+        /// <summary>
+        /// Moves the sticky highlight to one card (card click). Hover is CSS-only and unaffected.
+        /// </summary>
+        public void Highlight(int achievementId)
+        {
+            if (_highlightedId == achievementId)
+                return;
+
+            _highlightedId = achievementId;
+
+            foreach (var item in ViewState.Achievements)
+                item.IsHighlighted = item.AchievementId == achievementId;
+
+            ViewState.RaiseChanged();
+        }
 
         protected override Task OnInitializing(CancellationToken ct)
         {
@@ -120,19 +147,10 @@ namespace Gizmo.Client.UI.View.Services
                 PopupDescription = string.IsNullOrWhiteSpace(a.Description) ? a.Name : a.Description,
                 PopupProgressText = standing,
                 PopupResetText = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_ACHIEVEMENTS_RESETS),
-                    FormatResetDate(a.InstanceEnd)),
+                    ProfileDateFormat.MonthDay(a.InstanceEnd)),
                 PopupCompletedText = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_ACHIEVEMENTS_EARNED_FOR_LIFE)),
+                IsHighlighted = a.AchievementId == _highlightedId,
             };
-        }
-
-        /// <summary>
-        /// Culture-ordered month/day with an abbreviated month: "Oct 1" (en-US), "1 окт." (ru-RU).
-        /// </summary>
-        private static string FormatResetDate(DateTime instanceEndUtc)
-        {
-            var culture = CultureInfo.CurrentCulture;
-            var pattern = culture.DateTimeFormat.MonthDayPattern.Replace("MMMM", "MMM");
-            return instanceEndUtc.ToLocalTime().ToString(pattern, culture);
         }
 
         private string GetStandingText(UserAchievement a, bool isEarned, string rangeWord)
