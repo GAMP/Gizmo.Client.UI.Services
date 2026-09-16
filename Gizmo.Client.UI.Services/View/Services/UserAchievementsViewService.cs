@@ -61,7 +61,6 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
         {
-            // deep-link from a challenge requirement (or, later, the ladder): /profile/achievements?AchievementId=5
             _highlightedId = null;
             if (Uri.TryCreate(NavigationService.GetUri(), UriKind.Absolute, out var uri)
                 && int.TryParse(HttpUtility.ParseQueryString(uri.Query).Get("AchievementId"), out int achievementId))
@@ -69,16 +68,12 @@ namespace Gizmo.Client.UI.View.Services
                 _highlightedId = achievementId;
             }
 
-            // the previous list may still be rendered until the load replaces it — drop its sticky highlight
             foreach (var item in ViewState.Achievements)
                 item.IsHighlighted = false;
 
             return LoadAsync(cToken);
         }
 
-        /// <summary>
-        /// Moves the sticky highlight to one card (card click). Hover is CSS-only and unaffected.
-        /// </summary>
         public void Highlight(int achievementId)
         {
             if (_highlightedId == achievementId)

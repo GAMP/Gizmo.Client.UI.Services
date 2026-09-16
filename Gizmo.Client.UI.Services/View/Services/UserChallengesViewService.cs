@@ -40,7 +40,6 @@ namespace Gizmo.Client.UI.View.Services
             }
             catch (OperationCanceledException)
             {
-                // navigation cancelled — leave state as is
             }
             catch (Exception ex)
             {
@@ -73,13 +72,8 @@ namespace Gizmo.Client.UI.View.Services
             base.OnDisposing(isDisposing);
         }
 
-        /// <summary>
-        /// All card/popup texts are computed at load time in the current culture — re-map the last
-        /// loaded data so an open challenges page follows a language change without a reload.
-        /// </summary>
         private void OnLanguageChanged(object? sender, EventArgs e)
         {
-            // the header counter ("0 completed") and the error text are localized too — re-map even when nothing was loaded
             Apply();
 
             if (ViewState.HasError)
@@ -134,7 +128,7 @@ namespace Gizmo.Client.UI.View.Services
                     IsMet = r.IsMet,
                 }).ToList(),
                 Rewards = c.Rewards
-                    .Where(r => r.Kind != ChallengeRewardKind.Product) // no name on the user API, not in Figma (tech debt 2)
+                    .Where(r => r.Kind != ChallengeRewardKind.Product)
                     .Select(r => new UserChallengeRewardViewState
                     {
                         Kind = r.Kind,
@@ -148,10 +142,6 @@ namespace Gizmo.Client.UI.View.Services
             };
         }
 
-        /// <summary>
-        /// Window line: "Ended Sep 14" (orange) once the window closed, "Ends Sep 30 · 21d left" while
-        /// active with an end, nothing for evergreen challenges or states shown as a chip.
-        /// </summary>
         private string GetWindowText(UserChallenge c, bool isEnded, bool hasChip, bool popup)
         {
             if (c.EndTime is not { } end)

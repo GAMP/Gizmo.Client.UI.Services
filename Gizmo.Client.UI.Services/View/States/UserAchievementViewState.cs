@@ -28,7 +28,6 @@ namespace Gizmo.Client.UI.View.States
         public string PopupResetText { get; internal set; } = string.Empty;
         public string PopupCompletedText { get; internal set; } = string.Empty;
 
-        /// <summary>Sticky highlight — set by the deep-link or by clicking the card; independent of hover.</summary>
         public bool IsHighlighted { get; internal set; }
     }
 }
