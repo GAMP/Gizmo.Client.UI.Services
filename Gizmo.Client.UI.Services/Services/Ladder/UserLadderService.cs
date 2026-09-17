@@ -42,9 +42,11 @@ public sealed class UserLadderService : IUserLadderService
     // failures are not logged here: the view service logs them as a warning together with the fallback it applies
     public async Task<IReadOnlyList<UserLadderTransition>> GetTransitionsAsync(CancellationToken ct = default)
     {
+        // sorted by Id, not CreatedTime: the server only sorts by [Sortable] model properties and
+        // UserAchievementLadderEventModel has none — Id is the identity column, so it is creation-ordered
         var filter = new UserAchievementLadderEventsFilter();
         filter.Pagination.Limit = TransitionsPageSize;
-        filter.Pagination.SortBy = nameof(UserAchievementLadderEventModel.CreatedTime);
+        filter.Pagination.SortBy = nameof(UserAchievementLadderEventModel.Id);
         filter.Pagination.IsAsc = false;
 
         var result = await _client.GetEventsAsync(filter, ct);

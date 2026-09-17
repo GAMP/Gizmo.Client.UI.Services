@@ -180,7 +180,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.CurrentLevelName = current?.Name ?? s.LevelNameByRank(s.CurrentRank);
 
             ViewState.ShowScore = s.Mode == LadderMode.Points && s.Score is not null;
-            ViewState.ScoreText = s.Score is decimal score ? AchievementValueFormat.Trim(score) : string.Empty;
+            ViewState.ScoreText = s.Score is decimal score ? AchievementValueFormat.Trim(decimal.Floor(score)) : string.Empty;
             ViewState.ScoreUnitText = GetScoreUnitText(s.PeriodKind);
 
             int? keep = (atEntry || s.IsOnlyLevel()) ? null : current?.Threshold;
@@ -221,7 +221,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.BannerDetailText = next is null
                 ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_BANNER_TOP))
                 : s.Score is decimal sc && next.Threshold is int t
-                    ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_BANNER_NEXT), AchievementValueFormat.Trim(Math.Max(0m, t - sc)), next.Name)
+                    ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_BANNER_NEXT), AchievementValueFormat.Trim(decimal.Ceiling(Math.Max(0m, t - sc))), next.Name)
                     : string.Empty;
         }
 
