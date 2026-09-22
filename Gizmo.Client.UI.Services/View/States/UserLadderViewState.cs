@@ -23,10 +23,24 @@ namespace Gizmo.Client.UI.View.States
         public string ScoreText { get; internal set; } = string.Empty;
         public string ScoreUnitText { get; internal set; } = string.Empty;
 
+        public bool ShowStatusLine { get; internal set; }
+        public string StatusLineText { get; internal set; } = string.Empty;
+
         public bool ShowProgress { get; internal set; }
         public decimal ProgressPercent { get; internal set; }
         public bool ProgressIsSecured { get; internal set; }
         public string ProgressGoalText { get; internal set; } = string.Empty;
+
+        public bool ShowSegments { get; internal set; }
+        public int SegmentCount { get; internal set; }
+        public int SegmentsLit { get; internal set; }
+        public string ProgressLabelText { get; internal set; } = string.Empty;
+        public string ProgressCountText { get; internal set; } = string.Empty;
+        public string ProgressUnitText { get; internal set; } = string.Empty;
+
+        public bool ShowRequirements { get; internal set; }
+        public string RequirementsLabelText { get; internal set; } = string.Empty;
+        public IEnumerable<UserLadderRequirementViewState> Requirements { get; internal set; } = Enumerable.Empty<UserLadderRequirementViewState>();
 
         public bool ShowBanner { get; internal set; }
         public string BannerTitleText { get; internal set; } = string.Empty;

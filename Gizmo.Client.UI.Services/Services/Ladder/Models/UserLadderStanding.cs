@@ -65,6 +65,12 @@ public sealed class UserLadderStanding
     public IReadOnlyList<UserLadderLevel> Levels { get; init; } = Array.Empty<UserLadderLevel>();
 
     /// <summary>
+    /// Every achievement referenced by the levels' requirements, name-ordered; empty in points
+    /// mode. Requirement rows join it by achievement id.
+    /// </summary>
+    public IReadOnlyList<UserLadderAchievement> Achievements { get; init; } = Array.Empty<UserLadderAchievement>();
+
+    /// <summary>
     /// The newest level transitions shipped with the standing (at most three, newest first);
     /// the fallback history source when the full transition log cannot be loaded.
     /// </summary>

@@ -26,6 +26,12 @@ public sealed class UserLadderLevel
     public int? Threshold { get; init; }
 
     /// <summary>
+    /// The level's requirements in configuration order (requirements mode); null in points
+    /// mode, an empty list on a level with no requirements such as the entry level.
+    /// </summary>
+    public IReadOnlyList<UserLadderRequirement>? Requirements { get; init; }
+
+    /// <summary>
     /// The user's live completion of this level in percent (0–100); null when not collected or frozen.
     /// </summary>
     public decimal? Progress { get; init; }

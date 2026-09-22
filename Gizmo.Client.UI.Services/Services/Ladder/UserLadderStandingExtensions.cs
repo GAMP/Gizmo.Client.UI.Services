@@ -61,4 +61,11 @@ public static class UserLadderStandingExtensions
 
         return rank;
     }
+
+    /// <summary>
+    /// The achievement behind a requirement's id; null when the standing's lookup does not
+    /// contain it (the server guarantees it does — callers skip the row defensively).
+    /// </summary>
+    public static UserLadderAchievement? FindAchievement(this UserLadderStanding standing, int achievementId) =>
+        standing.Achievements.FirstOrDefault(achievement => achievement.AchievementId == achievementId);
 }
