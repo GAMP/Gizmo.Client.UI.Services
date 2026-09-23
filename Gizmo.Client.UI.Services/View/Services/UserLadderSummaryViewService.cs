@@ -91,7 +91,9 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.EmblemUrl = null;
                 ViewState.LevelName = string.Empty;
                 ViewState.HeaderStatusText = string.Empty;
-                ViewState.TopBarProgressText = string.Empty;
+                ViewState.ShowTopBarProgress = false;
+                ViewState.TopBarProgressPercent = 0m;
+                ViewState.TopBarProgressIsFull = false;
                 return;
             }
 
@@ -101,7 +103,11 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.HeaderStatusText = s.Mode == LadderMode.Requirements
                 ? UserLadderStatusText.RequirementsStatus(_localizationService, s)
                 : UserLadderStatusText.HeaderPointsStatus(_localizationService, s);
-            ViewState.TopBarProgressText = UserLadderStatusText.TopBarProgress(_localizationService, s);
+
+            var progress = UserLadderStatusText.TopBarProgressPercent(s);
+            ViewState.ShowTopBarProgress = progress is not null;
+            ViewState.TopBarProgressPercent = progress ?? 0m;
+            ViewState.TopBarProgressIsFull = progress >= 100m;
         }
     }
 }
