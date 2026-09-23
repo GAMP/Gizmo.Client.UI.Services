@@ -18,5 +18,8 @@ namespace Gizmo.Client.UI.View.States
         public string? EmblemUrl { get; internal set; }
         public string Description { get; internal set; } = string.Empty;
         public bool HasDescription { get; internal set; }
+        public IReadOnlyList<string> PerkTexts { get; internal set; } = Array.Empty<string>();
+        public bool HasPerks { get; internal set; }
+        public bool HasInfo { get; internal set; }
     }
 }

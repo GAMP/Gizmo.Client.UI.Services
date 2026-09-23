@@ -14,17 +14,21 @@ namespace Gizmo.Client.UI.View.Services
     {
         public UserChallengesViewService(UserChallengesViewState viewState,
             IUserChallengesService challengesService,
+            UserProductViewStateLookupService productLookupService,
             ILocalizationService localizationService,
             ILogger<UserChallengesViewService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _challengesService = challengesService;
+            _productLookupService = productLookupService;
             _localizationService = localizationService;
         }
 
         private readonly IUserChallengesService _challengesService;
+        private readonly UserProductViewStateLookupService _productLookupService;
         private readonly ILocalizationService _localizationService;
         private IReadOnlyList<UserChallenge> _loaded = Array.Empty<UserChallenge>();
+        private IReadOnlyDictionary<int, string> _productNames = new Dictionary<int, string>();
 
         public async Task LoadAsync(CancellationToken cToken = default)
         {
@@ -36,6 +40,7 @@ namespace Gizmo.Client.UI.View.Services
             try
             {
                 _loaded = await _challengesService.GetChallengesAsync(cToken);
+                _productNames = await LoadProductNamesAsync(_loaded, cToken);
                 Apply();
             }
             catch (OperationCanceledException)
@@ -45,6 +50,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 Logger.LogError(ex, "Failed to load user challenges.");
                 _loaded = Array.Empty<UserChallenge>();
+                _productNames = new Dictionary<int, string>();
                 ViewState.Challenges = Enumerable.Empty<UserChallengeViewState>();
                 ViewState.CompletedCountText = string.Empty;
                 ViewState.HasError = true;
@@ -54,6 +60,36 @@ namespace Gizmo.Client.UI.View.Services
             {
                 ViewState.IsLoading = false;
                 ViewState.RaiseChanged();
+            }
+        }
+
+        // names come from the shop's product lookup: the user API carries product ids only
+        private async Task<IReadOnlyDictionary<int, string>> LoadProductNamesAsync(IReadOnlyList<UserChallenge> challenges, CancellationToken cToken)
+        {
+            var ids = challenges
+                .SelectMany(challenge => challenge.Rewards)
+                .Where(reward => reward.Kind == ChallengeRewardKind.Product && reward.ProductId is not null)
+                .Select(reward => reward.ProductId!.Value)
+                .ToHashSet();
+
+            if (ids.Count == 0)
+                return new Dictionary<int, string>();
+
+            try
+            {
+                var products = await _productLookupService.GetStatesAsync(cToken);
+                return products
+                    .Where(product => ids.Contains(product.Id) && !string.IsNullOrWhiteSpace(product.Name))
+                    .ToDictionary(product => product.Id, product => product.Name);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Failed to resolve challenge product reward names.");
+                return new Dictionary<int, string>();
             }
         }
 
@@ -128,18 +164,31 @@ namespace Gizmo.Client.UI.View.Services
                     IsMet = r.IsMet,
                 }).ToList(),
                 Rewards = c.Rewards
-                    .Where(r => r.Kind != ChallengeRewardKind.Product)
                     .Select(r => new UserChallengeRewardViewState
                     {
                         Kind = r.Kind,
-                        Text = r.Kind == ChallengeRewardKind.Points
-                            ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CHALLENGES_REWARD_POINTS), r.Amount)
-                            : _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CHALLENGES_REWARD_TIME), AchievementValueFormat.Duration(r.Amount, _localizationService)),
+                        Text = r.Kind switch
+                        {
+                            ChallengeRewardKind.Points => _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CHALLENGES_REWARD_POINTS), r.Amount),
+                            ChallengeRewardKind.Time   => _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CHALLENGES_REWARD_TIME), AchievementValueFormat.Duration(r.Amount, _localizationService)),
+                            _                          => GetProductRewardText(r),
+                        },
                         StatusText = isDone && r.Status is { } status ? GetRewardStatusText(status) : string.Empty,
                     }).ToList(),
                 PopupWindowText = GetWindowText(c, isEnded, hasChip, popup: true),
                 PopupWindowIsWarning = isEnded,
             };
+        }
+
+        private string GetProductRewardText(UserChallengeReward reward)
+        {
+            string name = reward.ProductId is int id && _productNames.TryGetValue(id, out var productName)
+                ? productName
+                : _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CHALLENGES_REWARD_PRODUCT_UNKNOWN));
+
+            return reward.Amount > 1
+                ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CHALLENGES_REWARD_PRODUCT), name, reward.Amount)
+                : name;
         }
 
         private string GetWindowText(UserChallenge c, bool isEnded, bool hasChip, bool popup)

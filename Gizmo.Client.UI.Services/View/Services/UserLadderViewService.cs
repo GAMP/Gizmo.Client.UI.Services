@@ -1,3 +1,4 @@
+using System.Globalization;
 using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
@@ -165,8 +166,8 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.ScoreText = ViewState.ScoreUnitText = ViewState.ProgressGoalText = ViewState.BannerTitleText = ViewState.BannerDetailText = string.Empty;
                 ViewState.ProgressPercent = 0m;
                 ViewState.ProgressIsSecured = false;
-                ViewState.ShowStatusLine = ViewState.ShowSegments = ViewState.ShowRequirements = ViewState.ShowProgressUpdating = false;
-                ViewState.StatusLineText = ViewState.ProgressLabelText = ViewState.ProgressCountText = ViewState.ProgressUnitText = ViewState.RequirementsLabelText = ViewState.ProgressUpdatingText = string.Empty;
+                ViewState.ShowStatusLine = ViewState.ShowSegments = ViewState.ShowRequirements = ViewState.ShowProgressUpdating = ViewState.ShowKeepWarning = false;
+                ViewState.StatusLineText = ViewState.ProgressLabelText = ViewState.ProgressCountText = ViewState.ProgressUnitText = ViewState.RequirementsLabelText = ViewState.ProgressUpdatingText = ViewState.KeepWarningText = string.Empty;
                 ViewState.SegmentCount = ViewState.SegmentsLit = 0;
                 ViewState.Requirements = Enumerable.Empty<UserLadderRequirementViewState>();
                 return;
@@ -201,6 +202,9 @@ namespace Gizmo.Client.UI.View.Services
 
             ViewState.StatusLineText = UserLadderStatusText.RequirementsStatus(_localizationService, s);
             ViewState.ShowStatusLine = ViewState.StatusLineText.Length > 0;
+
+            ViewState.KeepWarningText = UserLadderStatusText.KeepWarning(_localizationService, s);
+            ViewState.ShowKeepWarning = ViewState.KeepWarningText.Length > 0;
 
             ViewState.ShowProgressUpdating = !s.IsFrozen && s.State is null && current is not null;
             ViewState.ProgressUpdatingText = ViewState.ShowProgressUpdating
@@ -286,27 +290,50 @@ namespace Gizmo.Client.UI.View.Services
                 }
             }
 
-            ViewState.Levels = s.Levels.Select((level, index) => new UserLadderLevelViewState
+            ViewState.Levels = s.Levels.Select((level, index) =>
             {
-                Rank = level.Rank,
-                Ordinal = index + 1,
-                Name = level.Name,
-                IsCurrent = level.Rank == s.CurrentRank,
-                IsSatisfied = level.IsSatisfied == true,
-                IsSelected = level.Rank == _selectedRank,
-                MetaText = isRequirements
-                    ? (level.Requirements is { Count: > 0 } requirements && level.MetCount is int metCount
-                        ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_MET_COUNT), metCount, requirements.Count)
-                        : string.Empty)
-                    : (level.Threshold is int threshold && threshold > 0
-                        ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_LEVEL_POINTS), AchievementValueFormat.Trim(threshold))
-                        : string.Empty),
-                IsNext = isRequirements && nextIndex >= 0 && index == nextIndex,
-                IsLocked = isRequirements && nextIndex >= 0 && index > nextIndex,
-                EmblemUrl = level.EmblemUrl,
-                Description = level.Description?.Trim() ?? string.Empty,
-                HasDescription = !string.IsNullOrWhiteSpace(level.Description),
+                var perkTexts = level.Perks.Select(GetPerkText).Where(text => text.Length > 0).ToList();
+                bool hasDescription = !string.IsNullOrWhiteSpace(level.Description);
+
+                return new UserLadderLevelViewState
+                {
+                    Rank = level.Rank,
+                    Ordinal = index + 1,
+                    Name = level.Name,
+                    IsCurrent = level.Rank == s.CurrentRank,
+                    IsSatisfied = level.IsSatisfied == true,
+                    IsSelected = level.Rank == _selectedRank,
+                    MetaText = isRequirements
+                        ? (level.Requirements is { Count: > 0 } requirements && level.MetCount is int metCount
+                            ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_MET_COUNT), metCount, requirements.Count)
+                            : string.Empty)
+                        : (level.Threshold is int threshold && threshold > 0
+                            ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_LEVEL_POINTS), AchievementValueFormat.Trim(threshold))
+                            : string.Empty),
+                    IsNext = isRequirements && nextIndex >= 0 && index == nextIndex,
+                    IsLocked = isRequirements && nextIndex >= 0 && index > nextIndex,
+                    EmblemUrl = level.EmblemUrl,
+                    Description = level.Description?.Trim() ?? string.Empty,
+                    HasDescription = hasDescription,
+                    PerkTexts = perkTexts,
+                    HasPerks = perkTexts.Count > 0,
+                    HasInfo = hasDescription || perkTexts.Count > 0,
+                };
             }).ToList();
+        }
+
+        // discount: operator-authored name and magnitude, "+" marks a bonus (manager convention)
+        private string GetPerkText(UserLadderPerk perk)
+        {
+            if (perk.Kind == LadderPerkKind.WaitingLine)
+                return _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_PERK_QUEUE_PRIORITY), perk.Priority);
+
+            string magnitude = (perk.IsBonus ? "+" : string.Empty)
+                + (perk.IsPercentage ? AchievementValueFormat.Trim(perk.Value) + "%" : perk.Value.ToString("C2", CultureInfo.CurrentCulture));
+
+            return string.IsNullOrWhiteSpace(perk.Name)
+                ? magnitude
+                : _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_PERK_DISCOUNT), perk.Name.Trim(), magnitude);
         }
 
         private void ApplyRequirements()
@@ -340,6 +367,12 @@ namespace Gizmo.Client.UI.View.Services
                         IsLink = !isMet && !row.achievement.IsHidden,
                         CountText = row.requirement.RequiredCount > 1 && row.achievement.CompletedCount is int done
                             ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_MET_COUNT), Math.Min(done, row.requirement.RequiredCount), row.requirement.RequiredCount)
+                            : string.Empty,
+                        // CurrentValue is the raw value of the whole range instance, not the progress of the next
+                        // completion: at or above the target (a completion already earned) it says nothing new
+                        ValueText = !isMet && !row.achievement.IsHidden && row.achievement.CurrentValue is decimal current
+                                && row.achievement.TargetValue > 0 && current < row.achievement.TargetValue
+                            ? AchievementValueFormat.Pair(Math.Max(current, 0m), row.achievement.TargetValue, row.achievement.Unit, _localizationService)
                             : string.Empty,
                     };
                 })

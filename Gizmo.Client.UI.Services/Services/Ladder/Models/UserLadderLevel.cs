@@ -38,6 +38,12 @@ public sealed class UserLadderLevel
     public IReadOnlyList<UserLadderRequirement>? Requirements { get; init; }
 
     /// <summary>
+    /// What the level is worth, in server display order; empty when the level confers no perks.
+    /// Structural — present regardless of progress collection.
+    /// </summary>
+    public IReadOnlyList<UserLadderPerk> Perks { get; init; } = Array.Empty<UserLadderPerk>();
+
+    /// <summary>
     /// The user's live completion of this level in percent (0–100); null when not collected or frozen.
     /// </summary>
     public decimal? Progress { get; init; }

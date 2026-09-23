@@ -27,6 +27,9 @@ namespace Gizmo.Client.UI.View.States
         public bool ShowStatusLine { get; internal set; }
         public string StatusLineText { get; internal set; } = string.Empty;
 
+        public bool ShowKeepWarning { get; internal set; }
+        public string KeepWarningText { get; internal set; } = string.Empty;
+
         public bool ShowProgressUpdating { get; internal set; }
         public string ProgressUpdatingText { get; internal set; } = string.Empty;
 

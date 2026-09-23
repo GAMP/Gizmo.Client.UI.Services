@@ -81,5 +81,23 @@ internal static class UserLadderStatusText
             : null;
     }
 
+    /// <summary>
+    /// Requirements-mode warning that the current level is not kept yet this period: the
+    /// requirements of the current level still unmet and the period end. Empty otherwise.
+    /// </summary>
+    internal static string KeepWarning(ILocalizationService loc, UserLadderStanding s)
+    {
+        var current = s.CurrentLevel();
+        if (s.Mode != LadderMode.Requirements || s.State != LadderStandingState.Earning || !IsProgressCollected(s)
+            || current is null || s.IsAtEntry() || s.IsOnlyLevel()
+            || current.Requirements is not { Count: > 0 } requirements || current.MetCount is not int met)
+            return string.Empty;
+
+        int remaining = requirements.Count - met;
+        return remaining > 0
+            ? loc.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_KEEP_LEFT), remaining, current.Name, ProfileDateFormat.MonthDay(s.PeriodEnd))
+            : string.Empty;
+    }
+
     private static string Points(decimal value) => AchievementValueFormat.Trim(decimal.Ceiling(Math.Max(0m, value)));
 }

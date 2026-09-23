@@ -31,6 +31,7 @@ internal static class UserLadderStandingMapper
         EmblemUrl    = source.EmblemGuid is null ? null : filesBaseUrl + source.EmblemGuid.Value.ToString("N"),
         Threshold    = source.Threshold,
         Requirements = source.Requirements?.Select(Map).ToList(),
+        Perks        = source.Perks.Select(Map).OfType<UserLadderPerk>().ToList(),
         Progress     = source.Progress,
         MetCount     = source.MetCount,
         IsSatisfied  = source.IsSatisfied,
@@ -47,7 +48,29 @@ internal static class UserLadderStandingMapper
         AchievementId  = source.AchievementId,
         Name           = source.Name,
         CompletedCount = source.CompletedCount,
+        CurrentValue   = source.CurrentValue,
+        TargetValue    = source.TargetValue,
+        Unit           = AchievementEnumMapper.Map(source.Unit),
         IsHidden       = source.IsHidden,
+    };
+
+    // perks are polymorphic by CLR type; a kind this client does not know is skipped
+    internal static UserLadderPerk? Map(LadderStandingPerkModel source) => source switch
+    {
+        LadderStandingDiscountPerkModel discount => new UserLadderPerk
+        {
+            Kind         = LadderPerkKind.Discount,
+            Name         = discount.Name,
+            Value        = discount.Value,
+            IsPercentage = discount.CalculationType == DiscountCalculationType.Percentage,
+            IsBonus      = discount.RewardType == DiscountRewardType.Bonus,
+        },
+        LadderStandingWaitingLinePerkModel waitingLine => new UserLadderPerk
+        {
+            Kind     = LadderPerkKind.WaitingLine,
+            Priority = waitingLine.Priority,
+        },
+        _ => null,
     };
 
     internal static UserLadderTransition Map(LadderStandingTransitionModel source) => new()

@@ -23,6 +23,23 @@ public sealed class UserLadderAchievement
     public int? CompletedCount { get; init; }
 
     /// <summary>
+    /// The user's raw signal value within the achievement's current range instance — progress
+    /// of the completion in work; null when not collected, frozen, or the signal is orphaned.
+    /// </summary>
+    public decimal? CurrentValue { get; init; }
+
+    /// <summary>
+    /// The achievement's target value per completion, in the unit of <see cref="Unit"/>.
+    /// </summary>
+    public decimal TargetValue { get; init; }
+
+    /// <summary>
+    /// The measurement unit of <see cref="CurrentValue"/> and <see cref="TargetValue"/>; null when
+    /// the signal has no registered provider.
+    /// </summary>
+    public AchievementSignalUnit? Unit { get; init; }
+
+    /// <summary>
     /// Hidden from customers: the achievements tab does not list the achievement until it is
     /// earned, so the ladder shows its name without a link.
     /// </summary>
