@@ -4,7 +4,8 @@ namespace Gizmo.Client.UI.Services;
 
 internal static class UserLadderStandingMapper
 {
-    internal static UserLadderStanding Map(LadderStandingModel source) => new()
+    /// <param name="filesBaseUrl">Absolute files endpoint base ending with "/files/".</param>
+    internal static UserLadderStanding Map(LadderStandingModel source, string filesBaseUrl) => new()
     {
         Mode          = LadderEnumMapper.Map(source.Mode),
         State         = LadderEnumMapper.Map(source.State),
@@ -16,16 +17,18 @@ internal static class UserLadderStandingMapper
         ProjectedRank = source.ProjectedRank,
         Score         = source.Score,
         LastScore     = source.LastScore,
-        Levels        = source.Levels.Select(Map).ToList(),
+        Levels        = source.Levels.Select(l => Map(l, filesBaseUrl)).ToList(),
         Achievements  = source.Achievements.Select(Map).ToList(),
         Transitions   = source.Transitions.Select(Map).ToList(),
     };
 
-    internal static UserLadderLevel Map(LadderStandingLevelModel source) => new()
+    /// <param name="filesBaseUrl">Absolute files endpoint base ending with "/files/".</param>
+    internal static UserLadderLevel Map(LadderStandingLevelModel source, string filesBaseUrl) => new()
     {
         Rank         = source.Rank,
         Name         = source.Name,
         Description  = source.Description,
+        EmblemUrl    = source.EmblemGuid is null ? null : filesBaseUrl + source.EmblemGuid.Value.ToString("N"),
         Threshold    = source.Threshold,
         Requirements = source.Requirements?.Select(Map).ToList(),
         Progress     = source.Progress,

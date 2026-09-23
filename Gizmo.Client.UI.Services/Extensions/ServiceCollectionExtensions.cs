@@ -198,6 +198,7 @@ namespace Gizmo.Client.UI.Services
             services.AddSingleton<IUserAchievementsService, UserAchievementsService>();
             services.AddSingleton<IUserChallengesService, UserChallengesService>();
             services.AddSingleton<IUserLadderService, UserLadderService>();
+            services.AddSingleton<IUserLadderStandingContext, UserLadderStandingContext>();
             services.AddSingleton<IQrCodeService, QrCodeService>();
 
             return services;

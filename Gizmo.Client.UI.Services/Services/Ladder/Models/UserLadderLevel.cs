@@ -21,6 +21,12 @@ public sealed class UserLadderLevel
     public string? Description { get; init; }
 
     /// <summary>
+    /// Absolute URL of the level's emblem image (files endpoint); null when the level has no
+    /// emblem.
+    /// </summary>
+    public string? EmblemUrl { get; init; }
+
+    /// <summary>
     /// Score required to reach the level (points mode); null in requirements mode.
     /// </summary>
     public int? Threshold { get; init; }

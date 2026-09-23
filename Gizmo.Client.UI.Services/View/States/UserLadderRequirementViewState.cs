@@ -10,5 +10,6 @@ namespace Gizmo.Client.UI.View.States
         public string Name { get; internal set; } = string.Empty;
         public bool IsMet { get; internal set; }
         public bool IsLink { get; internal set; }
+        public string CountText { get; internal set; } = string.Empty;
     }
 }

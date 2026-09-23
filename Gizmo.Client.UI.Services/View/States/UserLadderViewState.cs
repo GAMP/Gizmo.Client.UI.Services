@@ -18,6 +18,7 @@ namespace Gizmo.Client.UI.View.States
 
         public int CurrentOrdinal { get; internal set; }
         public string CurrentLevelName { get; internal set; } = string.Empty;
+        public string? CurrentEmblemUrl { get; internal set; }
 
         public bool ShowScore { get; internal set; }
         public string ScoreText { get; internal set; } = string.Empty;
@@ -25,6 +26,9 @@ namespace Gizmo.Client.UI.View.States
 
         public bool ShowStatusLine { get; internal set; }
         public string StatusLineText { get; internal set; } = string.Empty;
+
+        public bool ShowProgressUpdating { get; internal set; }
+        public string ProgressUpdatingText { get; internal set; } = string.Empty;
 
         public bool ShowProgress { get; internal set; }
         public decimal ProgressPercent { get; internal set; }
