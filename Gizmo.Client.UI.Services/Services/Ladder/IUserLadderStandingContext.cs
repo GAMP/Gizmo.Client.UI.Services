@@ -20,6 +20,7 @@ public interface IUserLadderStandingContext
     /// <summary>
     /// Re-requests the standing and stores it, then raises <see cref="Changed"/>. On failure the
     /// previous value is kept, <see cref="Changed"/> is not raised, and the exception is rethrown.
+    /// A result superseded by a later refresh or by <see cref="Clear"/> is discarded.
     /// </summary>
     Task RefreshAsync(CancellationToken ct = default);
 

@@ -350,7 +350,6 @@ namespace Gizmo.Client.UI.View.Services
             }).ToList();
         }
 
-        // discount: operator-authored name and magnitude, "+" marks a bonus (manager convention)
         private string GetPerkText(UserLadderPerk perk)
         {
             if (perk.Kind == LadderPerkKind.WaitingLine)
@@ -396,8 +395,6 @@ namespace Gizmo.Client.UI.View.Services
                         CountText = row.requirement.RequiredCount > 1 && row.achievement.CompletedCount is int done
                             ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_MET_COUNT), Math.Min(done, row.requirement.RequiredCount), row.requirement.RequiredCount)
                             : string.Empty,
-                        // CurrentValue is the raw value of the whole range instance, not the progress of the next
-                        // completion: at or above the target (a completion already earned) it says nothing new
                         ValueText = !isMet && !row.achievement.IsHidden && row.achievement.CurrentValue is decimal current
                                 && row.achievement.TargetValue > 0 && current < row.achievement.TargetValue
                             ? AchievementValueFormat.Pair(Math.Max(current, 0m), row.achievement.TargetValue, row.achievement.Unit, _localizationService)

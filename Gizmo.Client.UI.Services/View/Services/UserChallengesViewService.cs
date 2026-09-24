@@ -63,7 +63,6 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        // names come from the shop's product lookup: the user API carries product ids only
         private async Task<IReadOnlyDictionary<int, string>> LoadProductNamesAsync(IReadOnlyList<UserChallenge> challenges, CancellationToken cToken)
         {
             var ids = challenges

@@ -19,7 +19,9 @@ namespace Gizmo.Client.UI.Services
         public static string Pair(decimal current, decimal target, AchievementSignalUnit? unit, ILocalizationService localizationService) =>
             $"{Value(current, unit, localizationService)} / {Value(target, unit, localizationService)}";
 
-        /// <summary>Seconds → "4.5 h" / "6 h" / "45 min" with the localized short unit names.</summary>
+        /// <summary>
+        /// Seconds → "4.5 h" / "6 h" / "45 min" with the localized short unit names.
+        /// </summary>
         public static string Duration(decimal seconds, ILocalizationService localizationService)
         {
             var hours = seconds / 3600m;
@@ -28,7 +30,9 @@ namespace Gizmo.Client.UI.Services
                 : Trim(Math.Round(seconds / 60m, 0)) + " " + localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_ACHIEVEMENTS_UNIT_MINUTES));
         }
 
-        /// <summary>Whole numbers without decimals, fractions with up to two significant decimals ("6", "4.5", "0.75").</summary>
+        /// <summary>
+        /// Whole numbers without decimals, fractions with up to two significant decimals ("6", "4.5", "0.75").
+        /// </summary>
         public static string Trim(decimal value) =>
             value.ToString("#,0.##", CultureInfo.CurrentCulture);
 

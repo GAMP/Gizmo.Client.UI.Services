@@ -4,7 +4,8 @@ public sealed class UserLadderStandingContext : IUserLadderStandingContext
 {
     private readonly IUserLadderService _ladderService;
 
-    // guards against a refresh in flight at Clear() repopulating the context afterwards
+    // only the latest refresh may store its result: an older response or a refresh in flight at
+    // Clear() must not overwrite what came after it
     private int _generation;
 
     public UserLadderStandingContext(IUserLadderService ladderService)
@@ -18,7 +19,7 @@ public sealed class UserLadderStandingContext : IUserLadderStandingContext
 
     public async Task RefreshAsync(CancellationToken ct = default)
     {
-        var generation = _generation;
+        var generation = ++_generation;
 
         var standing = await _ladderService.GetStandingAsync(ct);
 

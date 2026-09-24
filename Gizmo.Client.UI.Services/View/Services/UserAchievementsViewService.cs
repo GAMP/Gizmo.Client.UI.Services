@@ -42,7 +42,6 @@ namespace Gizmo.Client.UI.View.Services
             }
             catch (OperationCanceledException)
             {
-                // navigation cancelled — leave state as is
             }
             catch (Exception ex)
             {
@@ -99,16 +98,13 @@ namespace Gizmo.Client.UI.View.Services
             base.OnDisposing(isDisposing);
         }
 
-        /// <summary>
-        /// All card/popup texts are computed at load time in the current culture — re-map the last
-        /// loaded data so an open achievements page follows a language change without a reload.
-        /// </summary>
         private void OnLanguageChanged(object? sender, EventArgs e)
         {
-            if (_loaded.Count == 0)
-                return;
-
             ViewState.Achievements = _loaded.Select(Map).ToList();
+
+            if (ViewState.HasError)
+                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
+
             ViewState.RaiseChanged();
         }
 
@@ -163,8 +159,6 @@ namespace Gizmo.Client.UI.View.Services
             decimal remainder = progress / 100m * a.TargetValue;
             string pair = AchievementValueFormat.Pair(remainder, a.TargetValue, a.Unit, _localizationService);
 
-            // duration/currency carry their own unit; points/days read in a localized short unit name;
-            // count has no noun on the user API (see Tech Debt 1)
             string? unitLabel = a.Unit switch
             {
                 AchievementSignalUnit.Points => _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_ACHIEVEMENTS_UNIT_POINTS)),
