@@ -52,6 +52,8 @@ internal static class UserLadderStandingMapper
         TargetValue    = source.TargetValue,
         Unit           = AchievementEnumMapper.Map(source.Unit),
         IsHidden       = source.IsHidden,
+        Points         = source.Points,
+        EarnedPoints   = source.EarnedPoints,
     };
 
     // perks are polymorphic by CLR type; a kind this client does not know is skipped

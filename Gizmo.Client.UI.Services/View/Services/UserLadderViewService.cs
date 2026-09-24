@@ -170,6 +170,9 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.StatusLineText = ViewState.ProgressLabelText = ViewState.ProgressCountText = ViewState.ProgressUnitText = ViewState.RequirementsLabelText = ViewState.ProgressUpdatingText = ViewState.KeepWarningText = string.Empty;
                 ViewState.SegmentCount = ViewState.SegmentsLit = 0;
                 ViewState.Requirements = Enumerable.Empty<UserLadderRequirementViewState>();
+                ViewState.ShowFrozen = ViewState.HasBreakdown = false;
+                ViewState.FrozenText = ViewState.BreakdownLabelText = string.Empty;
+                ViewState.BreakdownTexts = Array.Empty<string>();
                 return;
             }
 
@@ -200,6 +203,20 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.ScoreText = s.Score is decimal score ? AchievementValueFormat.Trim(decimal.Floor(score)) : string.Empty;
             ViewState.ScoreUnitText = GetScoreUnitText(s.PeriodKind);
 
+            var breakdownTexts = ViewState.ShowScore
+                ? s.Achievements
+                    .Where(achievement => achievement.EarnedPoints is > 0m)
+                    .OrderByDescending(achievement => achievement.EarnedPoints)
+                    .Select(achievement => $"{achievement.Name} · " + _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_LEVEL_POINTS),
+                        AchievementValueFormat.Trim(Math.Round(achievement.EarnedPoints!.Value, 1))))
+                    .ToList()
+                : new List<string>();
+            ViewState.HasBreakdown = breakdownTexts.Count > 0;
+            ViewState.BreakdownLabelText = ViewState.HasBreakdown
+                ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_BREAKDOWN))
+                : string.Empty;
+            ViewState.BreakdownTexts = breakdownTexts;
+
             ViewState.StatusLineText = UserLadderStatusText.RequirementsStatus(_localizationService, s);
             ViewState.ShowStatusLine = ViewState.StatusLineText.Length > 0;
 
@@ -209,6 +226,11 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.ShowProgressUpdating = !s.IsFrozen && s.State is null && current is not null;
             ViewState.ProgressUpdatingText = ViewState.ShowProgressUpdating
                 ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_PROGRESS_UPDATING))
+                : string.Empty;
+
+            ViewState.ShowFrozen = s.IsFrozen && current is not null;
+            ViewState.FrozenText = ViewState.ShowFrozen
+                ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_FROZEN))
                 : string.Empty;
 
             int? keep = (atEntry || s.IsOnlyLevel()) ? null : current?.Threshold;
@@ -259,11 +281,14 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.BannerTitleText = current is null
                 ? string.Empty
                 : _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_BANNER_SECURED), current.Name);
-            ViewState.BannerDetailText = next is null
-                ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_BANNER_TOP))
-                : s.Score is decimal sc && next.Threshold is int t
-                    ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_BANNER_NEXT), AchievementValueFormat.Trim(decimal.Ceiling(Math.Max(0m, t - sc))), next.Name)
-                    : string.Empty;
+            string awaiting = UserLadderStatusText.AwaitingStatus(_localizationService, s);
+            ViewState.BannerDetailText = awaiting.Length > 0
+                ? awaiting
+                : next is null
+                    ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_BANNER_TOP))
+                    : s.Score is decimal sc && next.Threshold is int t
+                        ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_BANNER_NEXT), AchievementValueFormat.Trim(decimal.Ceiling(Math.Max(0m, t - sc))), next.Name)
+                        : string.Empty;
         }
 
         private void ApplyLevels()
@@ -276,6 +301,7 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             bool isRequirements = s.Mode == LadderMode.Requirements;
+            int? projectedRank = UserLadderStatusText.IsProgressCollected(s) && s.ProjectedRank != s.CurrentRank ? s.ProjectedRank : null;
             var next = s.NextLevel();
             int nextIndex = -1;
             if (next is not null)
@@ -312,6 +338,8 @@ namespace Gizmo.Client.UI.View.Services
                             : string.Empty),
                     IsNext = isRequirements && nextIndex >= 0 && index == nextIndex,
                     IsLocked = isRequirements && nextIndex >= 0 && index > nextIndex,
+                    IsProjected = level.Rank == projectedRank,
+                    IsProjectedDown = level.Rank == projectedRank && level.Rank < s.CurrentRank,
                     EmblemUrl = level.EmblemUrl,
                     Description = level.Description?.Trim() ?? string.Empty,
                     HasDescription = hasDescription,

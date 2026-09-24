@@ -1,8 +1,8 @@
 namespace Gizmo.Client.UI.Services;
 
 /// <summary>
-/// One achievement referenced by the standing's level requirements, with the user's live
-/// completion count — listed once per standing and joined to requirement rows by id.
+/// One achievement involved in the standing, with the user's live completion count and, in
+/// points mode, earned points — listed once per standing and joined to requirement rows by id.
 /// </summary>
 public sealed class UserLadderAchievement
 {
@@ -44,4 +44,15 @@ public sealed class UserLadderAchievement
     /// earned, so the ladder shows its name without a link.
     /// </summary>
     public bool IsHidden { get; init; }
+
+    /// <summary>
+    /// Points awarded per completion in points mode; null in requirements mode.
+    /// </summary>
+    public int? Points { get; init; }
+
+    /// <summary>
+    /// Points earned within the current period (whole completions plus fractional live credit);
+    /// the standing's score is their sum. Null when not collected, frozen, or in requirements mode.
+    /// </summary>
+    public decimal? EarnedPoints { get; init; }
 }

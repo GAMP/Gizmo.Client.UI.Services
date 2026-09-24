@@ -24,6 +24,10 @@ namespace Gizmo.Client.UI.View.States
         public string ScoreText { get; internal set; } = string.Empty;
         public string ScoreUnitText { get; internal set; } = string.Empty;
 
+        public bool HasBreakdown { get; internal set; }
+        public string BreakdownLabelText { get; internal set; } = string.Empty;
+        public IReadOnlyList<string> BreakdownTexts { get; internal set; } = Array.Empty<string>();
+
         public bool ShowStatusLine { get; internal set; }
         public string StatusLineText { get; internal set; } = string.Empty;
 
@@ -32,6 +36,9 @@ namespace Gizmo.Client.UI.View.States
 
         public bool ShowProgressUpdating { get; internal set; }
         public string ProgressUpdatingText { get; internal set; } = string.Empty;
+
+        public bool ShowFrozen { get; internal set; }
+        public string FrozenText { get; internal set; } = string.Empty;
 
         public bool ShowProgress { get; internal set; }
         public decimal ProgressPercent { get; internal set; }

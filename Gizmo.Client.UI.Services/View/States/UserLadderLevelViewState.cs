@@ -15,6 +15,8 @@ namespace Gizmo.Client.UI.View.States
         public string MetaText { get; internal set; } = string.Empty;
         public bool IsNext { get; internal set; }
         public bool IsLocked { get; internal set; }
+        public bool IsProjected { get; internal set; }
+        public bool IsProjectedDown { get; internal set; }
         public string? EmblemUrl { get; internal set; }
         public string Description { get; internal set; } = string.Empty;
         public bool HasDescription { get; internal set; }

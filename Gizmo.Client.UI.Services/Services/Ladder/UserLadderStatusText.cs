@@ -10,6 +10,24 @@ internal static class UserLadderStatusText
 {
     internal static bool IsProgressCollected(UserLadderStanding s) => !s.IsFrozen && s.State is not null;
 
+    /// <summary>
+    /// The promotion waiting for the period end (<see cref="LadderStandingState.Awaiting"/>): the
+    /// projected level when it is above the current one, else the next level. Empty otherwise.
+    /// </summary>
+    internal static string AwaitingStatus(ILocalizationService loc, UserLadderStanding s)
+    {
+        if (s.State != LadderStandingState.Awaiting || !IsProgressCollected(s) || s.CurrentLevel() is null)
+            return string.Empty;
+
+        var target = s.ProjectedRank is int projected && projected > s.CurrentRank
+            ? s.Levels.FirstOrDefault(level => level.Rank == projected) ?? s.NextLevel()
+            : s.NextLevel();
+
+        return target is null
+            ? string.Empty
+            : loc.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_STATUS_AWAITING), target.Name);
+    }
+
     internal static string RequirementsStatus(ILocalizationService loc, UserLadderStanding s)
     {
         if (s.Mode != LadderMode.Requirements)
@@ -26,6 +44,10 @@ internal static class UserLadderStatusText
         if (!showStatusLine)
             return string.Empty;
 
+        string awaiting = AwaitingStatus(loc, s);
+        if (awaiting.Length > 0)
+            return awaiting;
+
         return target is null
             ? loc.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_BANNER_TOP))
             : remaining == 0
@@ -41,6 +63,10 @@ internal static class UserLadderStatusText
     {
         if (s.Mode != LadderMode.Points || !IsProgressCollected(s) || s.Score is not decimal score || s.CurrentLevel() is null)
             return string.Empty;
+
+        string awaiting = AwaitingStatus(loc, s);
+        if (awaiting.Length > 0)
+            return awaiting;
 
         var next = s.NextLevel();
         if (next is null)
