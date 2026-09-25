@@ -3,6 +3,7 @@ using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Messaging;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,20 +18,29 @@ namespace Gizmo.Client.UI.View.Services
             IUserLadderService ladderService,
             IUserLadderStandingContext standingContext,
             ILocalizationService localizationService,
+            IGizmoClient gizmoClient,
+            DebounceActionAsyncService debounceActionService,
             ILogger<UserLadderViewService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _ladderService = ladderService;
             _standingContext = standingContext;
             _localizationService = localizationService;
+            _gizmoClient = gizmoClient;
+            _debounceActionService = debounceActionService;
+            _debounceActionService.DebounceBufferTime = 500;
         }
 
         private readonly IUserLadderService _ladderService;
         private readonly IUserLadderStandingContext _standingContext;
         private readonly ILocalizationService _localizationService;
+        private readonly IGizmoClient _gizmoClient;
+        private readonly DebounceActionAsyncService _debounceActionService;
         private UserLadderStanding? _standing;
         private IReadOnlyList<UserLadderTransition> _transitions = Array.Empty<UserLadderTransition>();
         private int? _selectedRank;
+        private bool _isOpen;
+        private int _refreshPending;
 
         public async Task LoadAsync(CancellationToken cToken = default)
         {
@@ -109,19 +119,30 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
         {
+            _isOpen = true;
             _selectedRank = null;
             return LoadAsync(cToken);
+        }
+
+        protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cToken = default)
+        {
+            _isOpen = false;
+            return base.OnNavigatedOut(navigationParameters, cToken);
         }
 
         protected override Task OnInitializing(CancellationToken ct)
         {
             _localizationService.LanguageChanged += OnLanguageChanged;
+            _standingContext.Changed += OnStandingChanged;
+            _gizmoClient.OnAPIEventMessage += OnAPIEventMessage;
             return base.OnInitializing(ct);
         }
 
         protected override void OnDisposing(bool isDisposing)
         {
             _localizationService.LanguageChanged -= OnLanguageChanged;
+            _standingContext.Changed -= OnStandingChanged;
+            _gizmoClient.OnAPIEventMessage -= OnAPIEventMessage;
             base.OnDisposing(isDisposing);
         }
 
@@ -133,6 +154,67 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
 
             ViewState.RaiseChanged();
+        }
+
+        private void OnStandingChanged(object? sender, EventArgs e)
+        {
+            if (ViewState.IsLoading)
+                return;
+
+            _standing = _standingContext.Standing;
+
+            if (ViewState.HasError && _standing is not null)
+            {
+                _transitions = _standing.Transitions;
+                ViewState.HasError = false;
+                ViewState.ErrorMessage = string.Empty;
+            }
+
+            Apply();
+            DebounceViewStateChanged();
+        }
+
+        private void OnAPIEventMessage(object? sender, IAPIEventMessage e)
+        {
+            if (e is not UserAchievementLevelChangedEventMessage)
+                return;
+
+            Interlocked.Exchange(ref _refreshPending, 1);
+            _debounceActionService.Debounce(RefreshTransitionsAsync);
+        }
+
+        private async Task RefreshTransitionsAsync(CancellationToken cToken)
+        {
+            if (Interlocked.Exchange(ref _refreshPending, 0) == 0 || !_isOpen)
+                return;
+
+            if (ViewState.IsLoading)
+            {
+                Interlocked.Exchange(ref _refreshPending, 1);
+                _debounceActionService.Debounce(RefreshTransitionsAsync);
+                return;
+            }
+
+            try
+            {
+                _transitions = await _ladderService.GetTransitionsAsync(cToken);
+                ApplyHistory();
+                DebounceViewStateChanged();
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Failed to refresh user ladder transitions after a level change, falling back to the standing's newest transitions.");
+
+                if (_standing is not null)
+                {
+                    _transitions = _standing.Transitions;
+                    ApplyHistory();
+                    DebounceViewStateChanged();
+                }
+            }
         }
 
         private void Apply()
