@@ -38,6 +38,7 @@ namespace Gizmo.Client.UI.View.Services
         private IReadOnlyList<UserChallenge> _loaded = Array.Empty<UserChallenge>();
         private IReadOnlyDictionary<int, string> _productNames = new Dictionary<int, string>();
         private bool _isOpen;
+        private bool _hasLoaded;
         private int _refreshPending;
 
         public async Task LoadAsync(CancellationToken cToken = default)
@@ -52,6 +53,7 @@ namespace Gizmo.Client.UI.View.Services
                 _loaded = await _challengesService.GetChallengesAsync(cToken);
                 _productNames = await LoadProductNamesAsync(_loaded, cToken);
                 Apply();
+                _hasLoaded = true;
             }
             catch (OperationCanceledException)
             {
@@ -149,7 +151,7 @@ namespace Gizmo.Client.UI.View.Services
 
         private async Task RefreshAsync(CancellationToken cToken)
         {
-            if (Interlocked.Exchange(ref _refreshPending, 0) == 0 || !_isOpen)
+            if (Interlocked.Exchange(ref _refreshPending, 0) == 0 || !(_isOpen || _hasLoaded) || !_gizmoClient.IsUserLoggedIn)
                 return;
 
             if (ViewState.IsLoading)

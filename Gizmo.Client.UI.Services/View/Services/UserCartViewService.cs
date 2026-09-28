@@ -28,7 +28,6 @@ namespace Gizmo.Client.UI.View.Services
             IClientNotificationService notificationService,
             IGizmoClient gizmoClient,
             ILocalizationService localizationService,
-            UserBalanceViewState userBalanceViewState,
             IOptions<ClientShopOptions> shopOptions,
             ClientServerCartViewService clientServerCartViewService,
             UserProductViewStateLookupService userProductViewStateLookupService,
@@ -38,7 +37,6 @@ namespace Gizmo.Client.UI.View.Services
             _notificationService = notificationService;
             _gizmoClient = gizmoClient;
             _localizationService = localizationService;
-            _userBalanceViewState = userBalanceViewState;
             _shopOptions = shopOptions;
             _clientServerCartViewService = clientServerCartViewService;
             _userProductViewStateLookupService = userProductViewStateLookupService;
@@ -51,13 +49,13 @@ namespace Gizmo.Client.UI.View.Services
         private readonly IClientNotificationService _notificationService;
         private readonly IGizmoClient _gizmoClient;
         private readonly ILocalizationService _localizationService;
-        private readonly UserBalanceViewState _userBalanceViewState;
         private readonly IOptions<ClientShopOptions> _shopOptions;
         private readonly ClientServerCartViewService _clientServerCartViewService;
         private readonly UserProductViewStateLookupService _userProductViewStateLookupService;
         private readonly IAssemblyResourcesLocalizationService _assemblyResourcesLocalizationService;
 
         private Guid? _lastCartId = null;
+        private decimal _balance;
         private AddDialogResult<EmptyComponentResult>? _checkoutDialog = null;
         #endregion
 
@@ -72,6 +70,19 @@ namespace Gizmo.Client.UI.View.Services
             catch (Exception ex)
             {
                 Logger.LogError(ex, "Cart reset error.");
+            }
+        }
+
+        private async Task RefreshBalanceAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var userBalance = await _gizmoClient.UserBalanceGetAsync(cancellationToken);
+                _balance = userBalance.Balance;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Failed to refresh user balance.");
             }
         }
 
@@ -194,64 +205,59 @@ namespace Gizmo.Client.UI.View.Services
 
             _checkoutDialog = await _dialogService.ShowCheckoutDialogAsync();
             if (_checkoutDialog.Result == AddComponentResultCode.Opened)
+            {
+                await RefreshBalanceAsync();
+
+                if (ViewState.PaymentMethodId.HasValue)
+                    ValidateProperty(() => ViewState.PaymentMethodId);
+
                 await _checkoutDialog.WaitForResultAsync();
+            }
 
             _checkoutDialog = null;
         }
 
         public async Task CheckoutAsync()
         {
-            Validate();
-
-            if (ViewState.IsValid != true)
+            if (ViewState.IsLoading)
                 return;
 
             ViewState.IsLoading = true;
             ViewState.RaiseChanged();
 
+            await RefreshBalanceAsync();
+
+            Validate();
+
+            if (ViewState.IsValid != true)
+            {
+                ViewState.IsLoading = false;
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = EditContext.GetValidationMessages().FirstOrDefault()
+                    ?? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
+                ViewState.RaiseChanged();
+                return;
+            }
+
+            var isPlaced = false;
+
             try
             {
+                await _clientServerCartViewService.AcceptAsync(ViewState.Notes);
 
-                try
-                {
-                    await _clientServerCartViewService.AcceptAsync(ViewState.Notes);
-
-                    ViewState.HasError = false;
-                    ViewState.ErrorMessage = string.Empty;
-                }
-                catch (WebApiClientException wace)
-                {
-                    if (wace.ErrorCode.HasValue)
-                    {
-                        if (wace.IsExceptionCode(ExceptionCode.Cart))
-                        {
-                            ViewState.HasError = true;
-                            ViewState.ErrorMessage = _assemblyResourcesLocalizationService.GetLocalizedStringValue((CartErrorCode)wace.ErrorCode);
-                        }
-                        else if (wace.IsExceptionCode(ExceptionCode.Promotion))
-                        {
-                            ViewState.HasError = true;
-                            ViewState.ErrorMessage = _assemblyResourcesLocalizationService.GetLocalizedStringValue((PromotionErrorCode)wace.ErrorCode);
-                        }
-                        else
-                        {
-                            throw;
-                        }
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                finally
-                {
-                    ViewState.IsComplete = true;
-                    ViewState.IsLoading = false;
-                    ViewState.RaiseChanged();
-
-                    //Clear
-                    await TryResetCart();
-                }
+                ViewState.HasError = false;
+                ViewState.ErrorMessage = string.Empty;
+                isPlaced = true;
+            }
+            catch (WebApiClientException wace) when (wace.ErrorCode.HasValue && wace.IsExceptionCode(ExceptionCode.Cart))
+            {
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = _assemblyResourcesLocalizationService.GetLocalizedStringValue((CartErrorCode)wace.ErrorCode);
+            }
+            catch (WebApiClientException wace) when (wace.ErrorCode.HasValue && wace.IsExceptionCode(ExceptionCode.Promotion))
+            {
+                ViewState.HasError = true;
+                ViewState.ErrorMessage = _assemblyResourcesLocalizationService.GetLocalizedStringValue((PromotionErrorCode)wace.ErrorCode);
             }
             catch (Exception ex)
             {
@@ -260,6 +266,15 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.HasError = true;
                 ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
             }
+            finally
+            {
+                ViewState.IsComplete = true;
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
+            }
+
+            if (isPlaced)
+                await TryResetCart();
         }
 
         public void ClearCart()
@@ -304,10 +319,17 @@ namespace Gizmo.Client.UI.View.Services
         {
             switch (e.State)
             {
+                case LoginState.LoggedIn:
+
+                    await RefreshBalanceAsync();
+
+                    break;
+
                 case LoginState.LoggingOut:
 
                     await TryResetCart();
                     ClearCart();
+                    _balance = 0;
 
                     break;
 
@@ -390,7 +412,7 @@ namespace Gizmo.Client.UI.View.Services
                     {
                         AddError(() => ViewState.PaymentMethodId, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_NAMED_FIELD), nameof(ViewState.PaymentMethodId)));
                     }
-                    else if (ViewState.PaymentMethodId.Value == -3 && _clientServerCartViewService.ViewState.Total > _userBalanceViewState.Balance)
+                    else if (ViewState.PaymentMethodId.Value == -3 && _clientServerCartViewService.ViewState.Total > _balance)
                     {
                         AddError(() => ViewState.PaymentMethodId, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_INSUFFICIENT_DEPOSITS_MESSAGE), nameof(ViewState.PaymentMethodId)));
                     }
@@ -400,6 +422,7 @@ namespace Gizmo.Client.UI.View.Services
 
         private void OnUserBalanceChange(object? sender, UserBalanceChangeEventArgs e)
         {
+            _balance = e.Balance;
             ValidateProperty(() => ViewState.PaymentMethodId);
         }
     }
