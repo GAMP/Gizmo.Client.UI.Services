@@ -2,6 +2,7 @@ using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -14,23 +15,29 @@ namespace Gizmo.Client.UI.View.Services
             IGizmoClient gizmoClient,
             IUserLadderStandingContext standingContext,
             ILocalizationService localizationService,
+            DebounceActionAsyncService debounceActionService,
             ILogger<UserLadderSummaryViewService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _standingContext = standingContext;
             _localizationService = localizationService;
+            _debounceActionService = debounceActionService;
+            _debounceActionService.DebounceBufferTime = 500;
         }
 
         private readonly IGizmoClient _gizmoClient;
         private readonly IUserLadderStandingContext _standingContext;
         private readonly ILocalizationService _localizationService;
+        private readonly DebounceActionAsyncService _debounceActionService;
+        private int _refreshPending;
 
         public void OpenLadder() => NavigationService.NavigateTo(ClientRoutes.UserLadderRoute);
 
         protected override Task OnInitializing(CancellationToken ct)
         {
             _gizmoClient.LoginStateChange += OnLoginStateChange;
+            _gizmoClient.OnAPIEventMessage += OnAPIEventMessage;
             _standingContext.Changed += OnStandingChanged;
             _localizationService.LanguageChanged += OnLanguageChanged;
             return base.OnInitializing(ct);
@@ -39,6 +46,7 @@ namespace Gizmo.Client.UI.View.Services
         protected override void OnDisposing(bool isDisposing)
         {
             _gizmoClient.LoginStateChange -= OnLoginStateChange;
+            _gizmoClient.OnAPIEventMessage -= OnAPIEventMessage;
             _standingContext.Changed -= OnStandingChanged;
             _localizationService.LanguageChanged -= OnLanguageChanged;
             base.OnDisposing(isDisposing);
@@ -70,6 +78,33 @@ namespace Gizmo.Client.UI.View.Services
         {
             Apply();
             DebounceViewStateChanged();
+        }
+
+        private void OnAPIEventMessage(object? sender, IAPIEventMessage e)
+        {
+            if (e is not (UserAchievementCompletedEventMessage or UserAchievementLevelChangedEventMessage))
+                return;
+
+            Interlocked.Exchange(ref _refreshPending, 1);
+            _debounceActionService.Debounce(RefreshStandingAsync);
+        }
+
+        private async Task RefreshStandingAsync(CancellationToken cToken)
+        {
+            if (Interlocked.Exchange(ref _refreshPending, 0) == 0 || !_gizmoClient.IsUserLoggedIn)
+                return;
+
+            try
+            {
+                await _standingContext.RefreshAsync(cToken);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Failed to refresh ladder standing after an achievement event.");
+            }
         }
 
         private void OnLanguageChanged(object? sender, EventArgs e)

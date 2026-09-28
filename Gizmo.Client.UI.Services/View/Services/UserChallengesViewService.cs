@@ -2,6 +2,7 @@ using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Messaging;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -16,19 +17,28 @@ namespace Gizmo.Client.UI.View.Services
             IUserChallengesService challengesService,
             UserProductViewStateLookupService productLookupService,
             ILocalizationService localizationService,
+            IGizmoClient gizmoClient,
+            DebounceActionAsyncService debounceActionService,
             ILogger<UserChallengesViewService> logger,
             IServiceProvider serviceProvider) : base(viewState, logger, serviceProvider)
         {
             _challengesService = challengesService;
             _productLookupService = productLookupService;
             _localizationService = localizationService;
+            _gizmoClient = gizmoClient;
+            _debounceActionService = debounceActionService;
+            _debounceActionService.DebounceBufferTime = 500;
         }
 
         private readonly IUserChallengesService _challengesService;
         private readonly UserProductViewStateLookupService _productLookupService;
         private readonly ILocalizationService _localizationService;
+        private readonly IGizmoClient _gizmoClient;
+        private readonly DebounceActionAsyncService _debounceActionService;
         private IReadOnlyList<UserChallenge> _loaded = Array.Empty<UserChallenge>();
         private IReadOnlyDictionary<int, string> _productNames = new Dictionary<int, string>();
+        private bool _isOpen;
+        private int _refreshPending;
 
         public async Task LoadAsync(CancellationToken cToken = default)
         {
@@ -93,17 +103,28 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
-            => LoadAsync(cToken);
+        {
+            _isOpen = true;
+            return LoadAsync(cToken);
+        }
+
+        protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cToken = default)
+        {
+            _isOpen = false;
+            return base.OnNavigatedOut(navigationParameters, cToken);
+        }
 
         protected override Task OnInitializing(CancellationToken ct)
         {
             _localizationService.LanguageChanged += OnLanguageChanged;
+            _gizmoClient.OnAPIEventMessage += OnAPIEventMessage;
             return base.OnInitializing(ct);
         }
 
         protected override void OnDisposing(bool isDisposing)
         {
             _localizationService.LanguageChanged -= OnLanguageChanged;
+            _gizmoClient.OnAPIEventMessage -= OnAPIEventMessage;
             base.OnDisposing(isDisposing);
         }
 
@@ -115,6 +136,45 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
 
             ViewState.RaiseChanged();
+        }
+
+        private void OnAPIEventMessage(object? sender, IAPIEventMessage e)
+        {
+            if (e is not (UserAchievementChallengeCompletedEventMessage or UserAchievementRewardStatusChangedEventMessage))
+                return;
+
+            Interlocked.Exchange(ref _refreshPending, 1);
+            _debounceActionService.Debounce(RefreshAsync);
+        }
+
+        private async Task RefreshAsync(CancellationToken cToken)
+        {
+            if (Interlocked.Exchange(ref _refreshPending, 0) == 0 || !_isOpen)
+                return;
+
+            if (ViewState.IsLoading)
+            {
+                Interlocked.Exchange(ref _refreshPending, 1);
+                _debounceActionService.Debounce(RefreshAsync);
+                return;
+            }
+
+            try
+            {
+                _loaded = await _challengesService.GetChallengesAsync(cToken);
+                _productNames = await LoadProductNamesAsync(_loaded, cToken);
+                Apply();
+                ViewState.HasError = false;
+                ViewState.ErrorMessage = string.Empty;
+                DebounceViewStateChanged();
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Failed to refresh user challenges after an achievement event.");
+            }
         }
 
         private void Apply()
