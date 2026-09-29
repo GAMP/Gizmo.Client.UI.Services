@@ -36,6 +36,7 @@ namespace Gizmo.Client.UI.View.Services
         private IReadOnlyList<UserAchievement> _loaded = Array.Empty<UserAchievement>();
         private int? _highlightedId;
         private bool _isOpen;
+        private bool _hasLoaded;
         private int _refreshPending;
 
         public async Task LoadAsync(CancellationToken cToken = default)
@@ -49,6 +50,7 @@ namespace Gizmo.Client.UI.View.Services
             {
                 _loaded = await _achievementsService.GetAchievementsAsync(cToken);
                 ViewState.Achievements = _loaded.Select(Map).ToList();
+                _hasLoaded = true;
             }
             catch (OperationCanceledException)
             {
@@ -138,7 +140,7 @@ namespace Gizmo.Client.UI.View.Services
 
         private async Task RefreshAsync(CancellationToken cToken)
         {
-            if (Interlocked.Exchange(ref _refreshPending, 0) == 0 || !_isOpen)
+            if (Interlocked.Exchange(ref _refreshPending, 0) == 0 || !(_isOpen || _hasLoaded) || !_gizmoClient.IsUserLoggedIn)
                 return;
 
             if (ViewState.IsLoading)
