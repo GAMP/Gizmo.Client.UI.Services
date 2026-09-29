@@ -264,10 +264,10 @@ namespace Gizmo.Client.UI.View.Services
             bool atEntry = s.IsAtEntry();
 
             bool isRequirements = s.Mode == LadderMode.Requirements;
-            var target = GetRequirementsTarget(s, out bool isKeep);
+            var target = next;
             int? total = target?.Requirements?.Count;
             int? met = target?.MetCount;
-            bool hasTarget = target is not null && total is > 0;
+            bool hasTarget = isRequirements && current is not null && target is not null && total is > 0;
 
             ViewState.PeriodText = GetPeriodText(s.PeriodKind);
             ViewState.PeriodEndsLabelText = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_PERIOD_ENDS));
@@ -350,11 +350,9 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.ShowSegments = hasTarget && met is not null;
             ViewState.SegmentCount = ViewState.ShowSegments ? total!.Value : 0;
             ViewState.SegmentsLit = ViewState.ShowSegments ? Math.Clamp(met!.Value, 0, ViewState.SegmentCount) : 0;
-            ViewState.ProgressLabelText = !ViewState.ShowSegments
-                ? string.Empty
-                : isKeep
-                    ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_PROGRESS_KEEP), target!.Name)
-                    : _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_PROGRESS_TO), target!.Name);
+            ViewState.ProgressLabelText = ViewState.ShowSegments
+                ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_PROGRESS_TO), target!.Name)
+                : string.Empty;
             ViewState.ProgressCountText = ViewState.ShowSegments
                 ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_MET_COUNT), ViewState.SegmentsLit, ViewState.SegmentCount)
                 : string.Empty;
@@ -462,9 +460,8 @@ namespace Gizmo.Client.UI.View.Services
         private void ApplyRequirements()
         {
             var s = _standing;
-            bool isKeep = false;
-            var target = s is not null ? GetRequirementsTarget(s, out isKeep) : null;
-            var requirements = s is not null && UserLadderStatusText.IsProgressCollected(s)
+            var target = s?.NextLevel();
+            var requirements = s is not null && s.Mode == LadderMode.Requirements && s.CurrentLevel() is not null && UserLadderStatusText.IsProgressCollected(s)
                 ? target?.Requirements
                 : null;
 
@@ -487,30 +484,8 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             ViewState.ShowRequirements = true;
-            ViewState.RequirementsLabelText = isKeep
-                ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_REQUIREMENTS_KEEP), target.Name)
-                : _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_REQUIREMENTS_FOR), target.Name);
+            ViewState.RequirementsLabelText = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_REQUIREMENTS_FOR), target.Name);
             ViewState.Requirements = rows;
-        }
-
-        private static UserLadderLevel? GetRequirementsTarget(UserLadderStanding s, out bool isKeep)
-        {
-            isKeep = false;
-
-            var current = s.CurrentLevel();
-            if (s.Mode != LadderMode.Requirements || current is null)
-                return null;
-
-            var next = s.NextLevel();
-            if (UserLadderStatusText.IsProgressCollected(s) && !s.IsAtEntry() && !s.IsOnlyLevel()
-                && current.Requirements is { Count: > 0 }
-                && (s.State == LadderStandingState.Earning || next is null))
-            {
-                isKeep = true;
-                return current;
-            }
-
-            return next;
         }
 
         private List<UserLadderRequirementViewState> ProjectRequirements(UserLadderStanding s, IReadOnlyList<UserLadderRequirement> requirements) => requirements
