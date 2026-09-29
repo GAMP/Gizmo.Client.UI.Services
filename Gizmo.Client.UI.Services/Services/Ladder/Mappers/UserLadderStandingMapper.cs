@@ -13,6 +13,7 @@ internal static class UserLadderStandingMapper
         PeriodKind    = LadderEnumMapper.Map(source.PeriodKind),
         PeriodStart   = source.PeriodStart,
         PeriodEnd     = source.PeriodEnd,
+        IsStepwise    = source.IsStepwise,
         CurrentRank   = source.CurrentRank,
         ProjectedRank = source.ProjectedRank,
         Score         = source.Score,

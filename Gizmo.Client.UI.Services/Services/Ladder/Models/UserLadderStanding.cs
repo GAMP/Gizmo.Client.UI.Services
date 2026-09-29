@@ -39,6 +39,12 @@ public sealed class UserLadderStanding
     public DateTime PeriodEnd { get; init; }
 
     /// <summary>
+    /// Promotions are capped at one level per period, so a level is reachable only from the one
+    /// below it. Reserved on the server (always false until stepwise promotion ships).
+    /// </summary>
+    public bool IsStepwise { get; init; }
+
+    /// <summary>
     /// Rank of the user's current level; expected to match one of <see cref="Levels"/>.
     /// </summary>
     public int CurrentRank { get; init; }

@@ -264,10 +264,10 @@ namespace Gizmo.Client.UI.View.Services
             bool atEntry = s.IsAtEntry();
 
             bool isRequirements = s.Mode == LadderMode.Requirements;
-            var target = next;
+            var target = GetRequirementsTarget(s, out bool isKeep);
             int? total = target?.Requirements?.Count;
             int? met = target?.MetCount;
-            bool hasTarget = isRequirements && current is not null && target is not null && total is > 0;
+            bool hasTarget = target is not null && total is > 0;
 
             ViewState.PeriodText = GetPeriodText(s.PeriodKind);
             ViewState.PeriodEndsLabelText = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_PERIOD_ENDS));
@@ -289,6 +289,7 @@ namespace Gizmo.Client.UI.View.Services
                 ? s.Achievements
                     .Where(achievement => achievement.EarnedPoints is > 0m)
                     .OrderByDescending(achievement => achievement.EarnedPoints)
+                    .Take(5)
                     .Select(achievement => $"{achievement.Name} · " + _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_LEVEL_POINTS),
                         AchievementValueFormat.Trim(Math.Round(achievement.EarnedPoints!.Value, 1))))
                     .ToList()
@@ -349,9 +350,11 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.ShowSegments = hasTarget && met is not null;
             ViewState.SegmentCount = ViewState.ShowSegments ? total!.Value : 0;
             ViewState.SegmentsLit = ViewState.ShowSegments ? Math.Clamp(met!.Value, 0, ViewState.SegmentCount) : 0;
-            ViewState.ProgressLabelText = ViewState.ShowSegments
-                ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_PROGRESS_TO), target!.Name)
-                : string.Empty;
+            ViewState.ProgressLabelText = !ViewState.ShowSegments
+                ? string.Empty
+                : isKeep
+                    ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_PROGRESS_KEEP), target!.Name)
+                    : _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_PROGRESS_TO), target!.Name);
             ViewState.ProgressCountText = ViewState.ShowSegments
                 ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_MET_COUNT), ViewState.SegmentsLit, ViewState.SegmentCount)
                 : string.Empty;
@@ -383,7 +386,8 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             bool isRequirements = s.Mode == LadderMode.Requirements;
-            int? projectedRank = UserLadderStatusText.IsProgressCollected(s) && s.ProjectedRank != s.CurrentRank ? s.ProjectedRank : null;
+            bool collected = UserLadderStatusText.IsProgressCollected(s);
+            int? projectedRank = collected && s.ProjectedRank != s.CurrentRank ? s.ProjectedRank : null;
             var next = s.NextLevel();
             int nextIndex = -1;
             if (next is not null)
@@ -402,6 +406,13 @@ namespace Gizmo.Client.UI.View.Services
             {
                 var perkTexts = level.Perks.Select(GetPerkText).Where(text => text.Length > 0).ToList();
                 bool hasDescription = !string.IsNullOrWhiteSpace(level.Description);
+                bool isLocked = isRequirements && nextIndex >= 0 && index > nextIndex;
+                var requirementRows = isRequirements && collected && level.Requirements is { Count: > 0 } levelRequirements
+                    ? ProjectRequirements(s, levelRequirements)
+                    : new List<UserLadderRequirementViewState>();
+                string reachFirstText = s.IsStepwise && isLocked && index > 0
+                    ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_REACH_FIRST), s.Levels[index - 1].Name)
+                    : string.Empty;
 
                 return new UserLadderLevelViewState
                 {
@@ -419,7 +430,7 @@ namespace Gizmo.Client.UI.View.Services
                             ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_LEVEL_POINTS), AchievementValueFormat.Trim(threshold))
                             : string.Empty),
                     IsNext = isRequirements && nextIndex >= 0 && index == nextIndex,
-                    IsLocked = isRequirements && nextIndex >= 0 && index > nextIndex,
+                    IsLocked = isLocked,
                     IsProjected = level.Rank == projectedRank,
                     IsProjectedDown = level.Rank == projectedRank && level.Rank < s.CurrentRank,
                     EmblemUrl = level.EmblemUrl,
@@ -427,7 +438,10 @@ namespace Gizmo.Client.UI.View.Services
                     HasDescription = hasDescription,
                     PerkTexts = perkTexts,
                     HasPerks = perkTexts.Count > 0,
-                    HasInfo = hasDescription || perkTexts.Count > 0,
+                    Requirements = requirementRows,
+                    HasRequirements = requirementRows.Count > 0,
+                    ReachFirstText = reachFirstText,
+                    HasInfo = hasDescription || perkTexts.Count > 0 || requirementRows.Count > 0 || reachFirstText.Length > 0,
                 };
             }).ToList();
         }
@@ -448,8 +462,9 @@ namespace Gizmo.Client.UI.View.Services
         private void ApplyRequirements()
         {
             var s = _standing;
-            var target = s?.NextLevel();
-            var requirements = s is not null && s.Mode == LadderMode.Requirements && s.CurrentLevel() is not null && UserLadderStatusText.IsProgressCollected(s)
+            bool isKeep = false;
+            var target = s is not null ? GetRequirementsTarget(s, out isKeep) : null;
+            var requirements = s is not null && UserLadderStatusText.IsProgressCollected(s)
                 ? target?.Requirements
                 : null;
 
@@ -461,29 +476,7 @@ namespace Gizmo.Client.UI.View.Services
                 return;
             }
 
-            var rows = requirements
-                .Select(requirement => new { requirement, achievement = s.FindAchievement(requirement.AchievementId) })
-                .Where(row => row.achievement is not null)
-                .Select(row =>
-                {
-                    bool isMet = row.achievement!.CompletedCount >= row.requirement.RequiredCount;
-
-                    return new UserLadderRequirementViewState
-                    {
-                        AchievementId = row.requirement.AchievementId,
-                        Name = row.achievement.Name,
-                        IsMet = isMet,
-                        IsLink = !isMet && !row.achievement.IsHidden,
-                        CountText = row.requirement.RequiredCount > 1 && row.achievement.CompletedCount is int done
-                            ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_MET_COUNT), Math.Min(done, row.requirement.RequiredCount), row.requirement.RequiredCount)
-                            : string.Empty,
-                        ValueText = !isMet && !row.achievement.IsHidden && row.achievement.CurrentValue is decimal current
-                                && row.achievement.TargetValue > 0 && current < row.achievement.TargetValue
-                            ? AchievementValueFormat.Pair(Math.Max(current, 0m), row.achievement.TargetValue, row.achievement.Unit, _localizationService)
-                            : string.Empty,
-                    };
-                })
-                .ToList();
+            var rows = ProjectRequirements(s, requirements);
 
             if (rows.Count == 0)
             {
@@ -494,9 +487,55 @@ namespace Gizmo.Client.UI.View.Services
             }
 
             ViewState.ShowRequirements = true;
-            ViewState.RequirementsLabelText = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_REQUIREMENTS_FOR), target.Name);
+            ViewState.RequirementsLabelText = isKeep
+                ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_REQUIREMENTS_KEEP), target.Name)
+                : _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_REQUIREMENTS_FOR), target.Name);
             ViewState.Requirements = rows;
         }
+
+        private static UserLadderLevel? GetRequirementsTarget(UserLadderStanding s, out bool isKeep)
+        {
+            isKeep = false;
+
+            var current = s.CurrentLevel();
+            if (s.Mode != LadderMode.Requirements || current is null)
+                return null;
+
+            var next = s.NextLevel();
+            if (UserLadderStatusText.IsProgressCollected(s) && !s.IsAtEntry() && !s.IsOnlyLevel()
+                && current.Requirements is { Count: > 0 }
+                && (s.State == LadderStandingState.Earning || next is null))
+            {
+                isKeep = true;
+                return current;
+            }
+
+            return next;
+        }
+
+        private List<UserLadderRequirementViewState> ProjectRequirements(UserLadderStanding s, IReadOnlyList<UserLadderRequirement> requirements) => requirements
+            .Select(requirement => new { requirement, achievement = s.FindAchievement(requirement.AchievementId) })
+            .Where(row => row.achievement is not null)
+            .Select(row =>
+            {
+                bool isMet = row.achievement!.CompletedCount >= row.requirement.RequiredCount;
+
+                return new UserLadderRequirementViewState
+                {
+                    AchievementId = row.requirement.AchievementId,
+                    Name = row.achievement.Name,
+                    IsMet = isMet,
+                    IsLink = !isMet && !row.achievement.IsHidden,
+                    CountText = row.requirement.RequiredCount > 1 && row.achievement.CompletedCount is int done
+                        ? _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_MET_COUNT), Math.Min(done, row.requirement.RequiredCount), row.requirement.RequiredCount)
+                        : string.Empty,
+                    ValueText = !isMet && !row.achievement.IsHidden && row.achievement.CurrentValue is decimal current
+                            && row.achievement.TargetValue > 0 && current < row.achievement.TargetValue
+                        ? AchievementValueFormat.Pair(Math.Max(current, 0m), row.achievement.TargetValue, row.achievement.Unit, _localizationService)
+                        : string.Empty,
+                };
+            })
+            .ToList();
 
         private void ApplyHistory()
         {
