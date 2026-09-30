@@ -35,6 +35,12 @@ namespace Gizmo.Client.UI.View.States
 
         public string QrImage { get; internal set; } = string.Empty;
 
+        public Guid? PaymentIntent { get; internal set; }
+
+        public bool IsPaid { get; internal set; }
+
+        public bool IsPaymentFailed { get; internal set; }
+
         public bool IsLoading { get; internal set; }
 
         public bool HasError { get; internal set; }
