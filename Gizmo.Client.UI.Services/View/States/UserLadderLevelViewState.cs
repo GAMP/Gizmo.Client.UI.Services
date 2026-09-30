@@ -22,6 +22,9 @@ namespace Gizmo.Client.UI.View.States
         public bool HasDescription { get; internal set; }
         public IReadOnlyList<string> PerkTexts { get; internal set; } = Array.Empty<string>();
         public bool HasPerks { get; internal set; }
+        public IReadOnlyList<UserLadderRequirementViewState> Requirements { get; internal set; } = Array.Empty<UserLadderRequirementViewState>();
+        public bool HasRequirements { get; internal set; }
+        public string ReachFirstText { get; internal set; } = string.Empty;
         public bool HasInfo { get; internal set; }
     }
 }
