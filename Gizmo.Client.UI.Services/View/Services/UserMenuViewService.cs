@@ -1,5 +1,6 @@
 ﻿using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
+using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -28,6 +29,7 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.NotificationsIsVisible = false;
                 ViewState.AssistanceRequestsIsVisible = false;
                 ViewState.UserLinksIsVisible = false;
+                ViewState.LadderIsVisible = false;
             }
 
             ViewState.RaiseChanged();
@@ -41,6 +43,7 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.NotificationsIsVisible = false;
             ViewState.AssistanceRequestsIsVisible = false;
             ViewState.UserLinksIsVisible = false;
+            ViewState.LadderIsVisible = false;
 
             ViewState.RaiseChanged();
         }
@@ -62,6 +65,7 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.NotificationsIsVisible = false;
                 ViewState.AssistanceRequestsIsVisible = false;
                 ViewState.UserLinksIsVisible = false;
+                ViewState.LadderIsVisible = false;
             }
 
             ViewState.RaiseChanged();
@@ -84,6 +88,7 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.ActiveAppsIsVisible = false;
                 ViewState.AssistanceRequestsIsVisible = false;
                 ViewState.UserLinksIsVisible = false;
+                ViewState.LadderIsVisible = false;
             }
 
             ViewState.RaiseChanged();
@@ -106,6 +111,7 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.ActiveAppsIsVisible = false;
                 ViewState.NotificationsIsVisible = false;
                 ViewState.UserLinksIsVisible = false;
+                ViewState.LadderIsVisible = false;
             }
 
             ViewState.RaiseChanged();
@@ -128,6 +134,7 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.ActiveAppsIsVisible = false;
                 ViewState.NotificationsIsVisible = false;
                 ViewState.AssistanceRequestsIsVisible = false;
+                ViewState.LadderIsVisible = false;
             }
 
             ViewState.RaiseChanged();
@@ -138,6 +145,40 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.UserLinksIsVisible = false;
 
             ViewState.RaiseChanged();
+        }
+
+        public void ToggleLadder()
+        {
+            ViewState.LadderIsVisible = !ViewState.LadderIsVisible;
+
+            if (ViewState.LadderIsVisible)
+            {
+                ViewState.UserOnlineDepositIsVisible = false;
+                ViewState.ActiveAppsIsVisible = false;
+                ViewState.NotificationsIsVisible = false;
+                ViewState.AssistanceRequestsIsVisible = false;
+                ViewState.UserLinksIsVisible = false;
+            }
+
+            ViewState.RaiseChanged();
+        }
+
+        public void CloseLadder()
+        {
+            ViewState.LadderIsVisible = false;
+
+            ViewState.RaiseChanged();
+        }
+
+        protected override Task OnLocationChanged(object? sender, LocationChangedEventArgs e)
+        {
+            if (ViewState.LadderIsVisible)
+            {
+                ViewState.LadderIsVisible = false;
+                ViewState.RaiseChanged();
+            }
+
+            return base.OnLocationChanged(sender, e);
         }
     }
 }
