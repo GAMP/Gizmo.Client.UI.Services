@@ -246,7 +246,7 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.ShowScore = ViewState.ShowProgress = ViewState.ShowBanner = false;
                 ViewState.ScoreText = ViewState.ScoreUnitText = ViewState.ProgressGoalText = ViewState.BannerTitleText = ViewState.BannerDetailText = string.Empty;
                 ViewState.ProgressPercent = 0m;
-                ViewState.ProgressIsSecured = false;
+                ViewState.ProgressIsFull = false;
                 ViewState.ShowStatusLine = ViewState.ShowSegments = ViewState.ShowRequirements = ViewState.ShowProgressUpdating = ViewState.ShowKeepWarning = false;
                 ViewState.StatusLineText = ViewState.ProgressLabelText = ViewState.ProgressCountText = ViewState.ProgressUnitText = ViewState.RequirementsLabelText = ViewState.ProgressUpdatingText = ViewState.KeepWarningText = string.Empty;
                 ViewState.SegmentCount = ViewState.SegmentsLit = 0;
@@ -302,7 +302,7 @@ namespace Gizmo.Client.UI.View.Services
             var progress = UserLadderCardText.Progress(_localizationService, s);
             ViewState.ShowProgress = progress.Show;
             ViewState.ProgressPercent = progress.Percent;
-            ViewState.ProgressIsSecured = progress.IsSecured;
+            ViewState.ProgressIsFull = progress.IsFull;
             ViewState.ProgressGoalText = progress.GoalText;
 
             var segments = UserLadderCardText.Segments(_localizationService, s);

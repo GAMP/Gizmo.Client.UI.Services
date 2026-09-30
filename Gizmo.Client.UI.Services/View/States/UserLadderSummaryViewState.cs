@@ -33,7 +33,7 @@ namespace Gizmo.Client.UI.View.States
         public bool ShowProgress { get; internal set; }
         public string ProgressTitleText { get; internal set; } = string.Empty;
         public decimal ProgressPercent { get; internal set; }
-        public bool ProgressIsSecured { get; internal set; }
+        public bool ProgressIsFull { get; internal set; }
         public string ProgressGoalText { get; internal set; } = string.Empty;
         public bool ShowSegments { get; internal set; }
         public int SegmentCount { get; internal set; }

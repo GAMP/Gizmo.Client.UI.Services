@@ -10,7 +10,7 @@ namespace Gizmo.Client.UI.Services;
 /// </summary>
 internal static class UserLadderCardText
 {
-    internal readonly record struct UserLadderCardProgress(bool Show, decimal Percent, bool IsSecured, bool GoalIsReach, string GoalText);
+    internal readonly record struct UserLadderCardProgress(bool Show, decimal Percent, bool IsFull, bool GoalIsReach, string GoalText);
 
     internal readonly record struct UserLadderCardSegments(bool Show, int Count, int Lit, string LabelText, string CountText, string UnitText);
 
@@ -85,7 +85,7 @@ internal static class UserLadderCardText
                 ? loc.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_GOAL_REACH), AchievementValueFormat.Trim(scale.Value), next!.Name)
                 : loc.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_LADDER_GOAL_RETAIN), AchievementValueFormat.Trim(scale.Value));
 
-        return new UserLadderCardProgress(show, percent, secured, goalIsReach, goalText);
+        return new UserLadderCardProgress(show, percent, show && percent >= 100m, goalIsReach, goalText);
     }
 
     internal static UserLadderCardSegments Segments(ILocalizationService loc, UserLadderStanding s)
