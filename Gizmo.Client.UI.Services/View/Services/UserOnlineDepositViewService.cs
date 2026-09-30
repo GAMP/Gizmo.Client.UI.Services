@@ -4,6 +4,7 @@ using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
 using Gizmo.UI.View.Services;
+using Gizmo.Web.Api.Messaging;
 using Gizmo.Web.Api.Models;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.DependencyInjection;
@@ -89,6 +90,9 @@ namespace Gizmo.Client.UI.View.Services
                 });
 
                 ViewState.PaymentUrl = result.PaymentUrl;
+                ViewState.PaymentIntent = result.PaymentIntent;
+                ViewState.IsPaid = false;
+                ViewState.IsPaymentFailed = false;
 
                 byte[] binaryQrImage = null;
 
@@ -127,6 +131,9 @@ namespace Gizmo.Client.UI.View.Services
             ViewState.Amount = null;
             ViewState.PaymentUrl = string.Empty;
             ViewState.QrImage = string.Empty;
+            ViewState.PaymentIntent = null;
+            ViewState.IsPaid = false;
+            ViewState.IsPaymentFailed = false;
             ViewState.RaiseChanged();
         }
 
@@ -137,11 +144,13 @@ namespace Gizmo.Client.UI.View.Services
         protected override Task OnInitializing(CancellationToken ct)
         {
             _gizmoClient.LoginStateChange += OnLoginStateChange;
+            _gizmoClient.OnAPIEventMessage += OnAPIEventMessage;
             return base.OnInitializing(ct);
         }
 
         protected override void OnDisposing(bool isDisposing)
         {
+            _gizmoClient.OnAPIEventMessage -= OnAPIEventMessage;
             _gizmoClient.LoginStateChange -= OnLoginStateChange;
             base.OnDisposing(isDisposing);
         }
@@ -173,6 +182,26 @@ namespace Gizmo.Client.UI.View.Services
         }
 
         #endregion
+
+        private void OnAPIEventMessage(object? sender, IAPIEventMessage e)
+        {
+            if (e is not PaymentIntentEventMessageBase paymentIntentEventMessage || paymentIntentEventMessage.Intent != ViewState.PaymentIntent)
+                return;
+
+            switch (paymentIntentEventMessage)
+            {
+                case PaymentIntentCompletedEventMessage:
+                    ViewState.IsPaid = true;
+                    break;
+                case PaymentIntentDeclinedEventMessage or PaymentIntentFailedEventMessage or PaymentIntentExpiredEventMessage or PaymentIntentCancelledEventMessage:
+                    ViewState.IsPaymentFailed = true;
+                    break;
+                default:
+                    return;
+            }
+
+            DebounceViewStateChanged();
+        }
 
         private async void OnLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)
         {
