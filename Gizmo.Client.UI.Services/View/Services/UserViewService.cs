@@ -96,6 +96,24 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.IsUserLockDisabled = _clientInterfaceOptions.Value.DisableUserLock;
                 ViewState.IsGuest = e.UserProfile.IsGuest;
 
+                if (e.UserProfile.IsGuest)
+                {
+                    ClearProfile();
+                }
+                else
+                {
+                    ViewState.FirstName = e.UserProfile.FirstName;
+                    ViewState.LastName = e.UserProfile.LastName;
+                    ViewState.BirthDate = e.UserProfile.BirthDate == DateTime.MinValue ? null : e.UserProfile.BirthDate;
+                    ViewState.Sex = e.UserProfile.Sex;
+                    ViewState.Country = e.UserProfile.Country;
+                    ViewState.Address = e.UserProfile.Address;
+                    ViewState.Email = e.UserProfile.Email;
+                    ViewState.Phone = e.UserProfile.Phone;
+                    ViewState.MobilePhone = e.UserProfile.MobilePhone;
+                    ViewState.RegistrationDate = e.UserProfile.Registered;
+                }
+
                 DebounceViewStateChanged();
             }
             else if (e.State == LoginState.LoggingOut)
@@ -106,8 +124,24 @@ namespace Gizmo.Client.UI.View.Services
                 ViewState.IsUserLockDisabled = true;
                 ViewState.IsGuest = false;
 
+                ClearProfile();
+
                 DebounceViewStateChanged();
             }
+        }
+
+        private void ClearProfile()
+        {
+            ViewState.FirstName = null;
+            ViewState.LastName = null;
+            ViewState.BirthDate = null;
+            ViewState.Sex = default;
+            ViewState.Country = null;
+            ViewState.Address = null;
+            ViewState.Email = null;
+            ViewState.Phone = null;
+            ViewState.MobilePhone = null;
+            ViewState.RegistrationDate = default;
         }
     }
 }
