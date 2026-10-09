@@ -89,10 +89,8 @@ namespace Gizmo.Client.UI.View.Services
 
         public async Task LoginAsync()
         {
-            //always validate state on submission
             Validate();
 
-            //model validation is pending, we cant proceed
             if (ViewState.IsValid != true)
                 return;
 
@@ -188,7 +186,6 @@ namespace Gizmo.Client.UI.View.Services
 
         protected override Task OnNavigatedOut(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            //whenever we move away from login page we should make full view state reset
             Reset();
             return base.OnNavigatedOut(navigationParameters, cancellationToken);
         }
@@ -209,7 +206,6 @@ namespace Gizmo.Client.UI.View.Services
 
         private void OnSystemUserIdleChange(object? sender, UserIdleEventArgs e)
         {
-            //once user becomes idle we need to clear any input made into login form
             if (e.IsIdle)
             {
                 Reset();
@@ -221,21 +217,26 @@ namespace Gizmo.Client.UI.View.Services
             switch (e.State)
             {
                 case LoginState.LoginFailed:
-                    switch (e.FailReason)
+                    if (ViewState.LoginType == UserLoginType.MobilePhone)
                     {
-                        //only clear password input in case of invalid password
-                        case Web.Api.Models.LoginResult.InvalidPassword:
-                            ViewState.Password = null;
-                            break;
-                        //clear both username and password in any other error case
-                        default:
-                            ViewState.LoginName = null;
-                            ViewState.Password = null;
-                            ViewState.Pin = null;
-                            break;
+                        ViewState.Password = null;
+                        ViewState.Pin = null;
+                    }
+                    else
+                    {
+                        switch (e.FailReason)
+                        {
+                            case Web.Api.Models.LoginResult.InvalidPassword:
+                                ViewState.Password = null;
+                                break;
+                            default:
+                                ViewState.LoginName = null;
+                                ViewState.Password = null;
+                                ViewState.Pin = null;
+                                break;
+                        }
                     }
 
-                    //process login error reason
                     ViewState.HasLoginError = true;
 
                     string ERROR_MESSAGE = string.Empty;
@@ -298,7 +299,6 @@ namespace Gizmo.Client.UI.View.Services
 
             switch (e.State)
             {
-                //LoggingIn state is the only state
                 case LoginState.LoggingIn:
                     ViewState.IsLogginIn = true;
                     break;

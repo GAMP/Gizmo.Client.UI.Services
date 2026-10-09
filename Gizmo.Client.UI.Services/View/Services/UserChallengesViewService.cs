@@ -64,7 +64,6 @@ namespace Gizmo.Client.UI.View.Services
                 _loaded = Array.Empty<UserChallenge>();
                 _productNames = new Dictionary<int, string>();
                 ViewState.Challenges = Enumerable.Empty<UserChallengeViewState>();
-                ViewState.CompletedCountText = string.Empty;
                 ViewState.HasError = true;
                 ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
             }
@@ -182,9 +181,6 @@ namespace Gizmo.Client.UI.View.Services
         private void Apply()
         {
             ViewState.Challenges = _loaded.Select(Map).ToList();
-            ViewState.CompletedCountText = _localizationService.GetString(
-                nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_USER_CHALLENGES_COMPLETED_COUNT),
-                _loaded.Count(challenge => challenge.CompletionsEarned > 0));
         }
 
         private UserChallengeViewState Map(UserChallenge c)

@@ -7,7 +7,6 @@ namespace Gizmo.Client.UI.View.States
     public sealed class UserChallengesViewState : ViewStateBase
     {
         public IEnumerable<UserChallengeViewState> Challenges { get; internal set; } = Enumerable.Empty<UserChallengeViewState>();
-        public string CompletedCountText { get; internal set; } = string.Empty;
         public bool IsLoading { get; internal set; }
         public bool HasError { get; internal set; }
         public string ErrorMessage { get; internal set; } = string.Empty;
