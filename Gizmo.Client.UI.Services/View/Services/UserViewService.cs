@@ -19,16 +19,19 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             IClientDialogService dialogService,
             ILocalizationService localizationService,
-            IOptions<ClientInterfaceOptions> clientInterfaceOptions) : base(viewState, logger, serviceProvider)
+            IOptions<ClientInterfaceOptions> clientInterfaceOptions,
+            IUserProfileService userProfileService) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _dialogService = dialogService;
             _localizationService = localizationService;
             _clientInterfaceOptions = clientInterfaceOptions;
+            _userProfileService = userProfileService;
         }
 
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
+        private readonly IUserProfileService _userProfileService;
         private readonly IClientDialogService _dialogService;
         private readonly ILocalizationService _localizationService;
         private readonly IOptions<ClientInterfaceOptions> _clientInterfaceOptions;
@@ -68,6 +71,7 @@ namespace Gizmo.Client.UI.View.Services
         protected override Task OnInitializing(CancellationToken ct)
         {
             _gizmoClient.LoginStateChange += OnUserLoginStateChange;
+            _userProfileService.Updated += OnUserProfileUpdated;
 
             return base.OnInitializing(ct);
         }
@@ -77,6 +81,25 @@ namespace Gizmo.Client.UI.View.Services
             base.OnDisposing(isDisposing);
 
             _gizmoClient.LoginStateChange -= OnUserLoginStateChange;
+            _userProfileService.Updated -= OnUserProfileUpdated;
+        }
+
+        private void OnUserProfileUpdated(object? sender, UserProfileUpdate e)
+        {
+            if (ViewState.Id == 0 || ViewState.IsGuest)
+                return;
+
+            if (e.FirstName != null) ViewState.FirstName = e.FirstName;
+            if (e.LastName != null) ViewState.LastName = e.LastName;
+            if (e.BirthDate != null) ViewState.BirthDate = e.BirthDate;
+            if (e.Sex != null) ViewState.Sex = UserProfileSexMapper.ToModel(e.Sex.Value);
+            if (e.Country != null) ViewState.Country = e.Country;
+            if (e.Address != null) ViewState.Address = e.Address;
+            if (e.Email != null) ViewState.Email = e.Email;
+            if (e.Phone != null) ViewState.Phone = e.Phone;
+            if (e.MobilePhone != null) ViewState.MobilePhone = e.MobilePhone;
+
+            DebounceViewStateChanged();
         }
 
         private void OnUserLoginStateChange(object? sender, UserLoginStateChangeEventArgs e)

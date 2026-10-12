@@ -1,4 +1,4 @@
-﻿using Gizmo.Client.UI.Services;
+using Gizmo.Client.UI.Services;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI;
 using Gizmo.UI.Services;
@@ -19,18 +19,29 @@ namespace Gizmo.Client.UI.View.Services
             IServiceProvider serviceProvider,
             IClientDialogService dialogService,
             IGizmoClient gizmoClient,
+            IUserProfileService userProfileService,
+            IPhoneValidationService phoneValidationService,
             ILocalizationService localizationService) : base(viewState, logger, serviceProvider)
         {
             _dialogService = dialogService;
             _gizmoClient = gizmoClient;
+            _userProfileService = userProfileService;
+            _phoneValidationService = phoneValidationService;
             _localizationService = localizationService;
         }
         #endregion
 
         #region FIELDS
+        private const int MIN_NATIONAL_PHONE_LENGTH = 7;
+
         private readonly IClientDialogService _dialogService;
         private readonly IGizmoClient _gizmoClient;
+        private readonly IUserProfileService _userProfileService;
+        private readonly IPhoneValidationService _phoneValidationService;
         private readonly ILocalizationService _localizationService;
+
+        private UserProfileModel? _profile;
+        private string? _mobileE164;
         #endregion
 
         #region FUNCTIONS
@@ -59,84 +70,136 @@ namespace Gizmo.Client.UI.View.Services
             ValidateProperty(() => ViewState.Sex);
         }
 
+        public void SetEmail(string value)
+        {
+            ViewState.Email = value;
+            ValidateProperty(() => ViewState.Email);
+        }
+
+        public void SetMobilePhone(string? value)
+        {
+            ViewState.MobilePhone = value;
+            _mobileE164 = null;
+            ValidateProperty(() => ViewState.MobilePhone);
+        }
+
+        public void SetPhoneRegionCode(string? value)
+        {
+            ViewState.PhoneRegionCode = value;
+            _mobileE164 = null;
+            ValidateProperty(() => ViewState.MobilePhone);
+        }
+
+        public void SetPhone(string value)
+        {
+            ViewState.Phone = value;
+            ValidateProperty(() => ViewState.Phone);
+        }
+
+        public void SetAddress(string value)
+        {
+            ViewState.Address = value;
+            ValidateProperty(() => ViewState.Address);
+        }
+
+        public void SetCity(string value)
+        {
+            ViewState.City = value;
+            ValidateProperty(() => ViewState.City);
+        }
+
+        public void SetPostCode(string value)
+        {
+            ViewState.PostCode = value;
+            ValidateProperty(() => ViewState.PostCode);
+        }
+
         public void SetCountry(string value)
         {
             ViewState.Country = value;
             ValidateProperty(() => ViewState.Country);
         }
 
-        public async Task StartAsync(CancellationToken cToken = default)
+        public Task StartAsync(CancellationToken cToken = default)
+        {
+            return StartCoreAsync(true, cToken);
+        }
+
+        public Task StartIfIncompleteAsync(CancellationToken cToken = default)
+        {
+            return StartCoreAsync(false, cToken);
+        }
+
+        private async Task StartCoreAsync(bool isPersonalInfoRequested, CancellationToken cToken)
         {
             try
             {
                 await ResetAsync();
 
-                ViewState.IsInitializing = true;
-                ViewState.IsInitialized = false;
+                UserModelRequiredInfo? required;
+                UserProfileModel profile;
 
-                ViewState.RequiredUserInformation = await _gizmoClient.UserGroupCurrentRequiredInfoGetAsync(cToken);
-
-                if ((ViewState.RequiredUserInformation?.FirstName == true) ||
-                    (ViewState.RequiredUserInformation?.LastName == true) ||
-                    (ViewState.RequiredUserInformation?.BirthDate == true) ||
-                    (ViewState.RequiredUserInformation?.Sex == true) ||
-                    (ViewState.RequiredUserInformation?.Country == true))
+                try
                 {
-                    var s = await _dialogService.ShowChangeProfileDialogAsync();
-                    if (s.Result == AddComponentResultCode.Opened)
-                    {
-                        //_ = await s.WaitForDialogResultAsync();
-                    }
-
-                    try
-                    {
-                        var profile = await _gizmoClient.UserProfileGetAsync(cToken);
-
-                        ViewState.Username = profile.Username;
-                        ViewState.FirstName = profile.FirstName;
-                        ViewState.LastName = profile.LastName;
-                        ViewState.BirthDate = profile.BirthDate;
-                        ViewState.Sex = profile.Sex;
-                        ViewState.Country = profile.Country;
-
-                        //Validate();
-
-                        ValidateProperty(() => ViewState.FirstName);
-                        ValidateProperty(() => ViewState.LastName);
-                        ValidateProperty(() => ViewState.BirthDate);
-                        ValidateProperty(() => ViewState.Sex);
-                        ValidateProperty(() => ViewState.Country);
-
-                        ViewState.IsInitialized = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError(ex, "User profile get error.");
-
-                        ViewState.HasError = true;
-                        ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
-
-                        ViewState.IsComplete = true;
-
-                        throw;
-                    }
-                    finally
-                    {
-                        ViewState.IsInitializing = false;
-
-                        ViewState.RaiseChanged();
-                    }
+                    required = await _gizmoClient.UserGroupCurrentRequiredInfoGetAsync(cToken);
+                    profile = await _gizmoClient.UserProfileGetAsync(cToken);
                 }
-                else
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
-                    ViewState.IsInitializing = false;
-
-                    ViewState.RaiseChanged();
+                    Logger.LogError(ex, "Failed to load required info or profile.");
+                    return;
                 }
+
+                if (required == null)
+                    return;
+
+                _profile = profile;
+
+                ViewState.ShowFirstName = IsShown(isPersonalInfoRequested, required.FirstName, string.IsNullOrEmpty(profile.FirstName));
+                ViewState.ShowLastName = IsShown(isPersonalInfoRequested, required.LastName, string.IsNullOrEmpty(profile.LastName));
+                ViewState.ShowBirthDate = IsShown(isPersonalInfoRequested, required.BirthDate, profile.BirthDate == null);
+                ViewState.ShowSex = IsShown(isPersonalInfoRequested, required.Sex, profile.Sex == Sex.Unspecified);
+                ViewState.ShowEmail = IsShown(isPersonalInfoRequested, required.Email, string.IsNullOrEmpty(profile.Email));
+                ViewState.ShowMobilePhone = IsShown(isPersonalInfoRequested, required.Mobile, string.IsNullOrEmpty(profile.MobilePhone));
+                ViewState.ShowPhone = IsShown(isPersonalInfoRequested, required.Phone, string.IsNullOrEmpty(profile.Phone));
+                ViewState.ShowAddress = IsShown(isPersonalInfoRequested, required.Address, string.IsNullOrEmpty(profile.Address));
+                ViewState.ShowCity = IsShown(isPersonalInfoRequested, required.City, string.IsNullOrEmpty(profile.City));
+                ViewState.ShowPostCode = IsShown(isPersonalInfoRequested, required.PostCode, string.IsNullOrEmpty(profile.PostCode));
+                ViewState.ShowCountry = IsShown(isPersonalInfoRequested, required.Country, string.IsNullOrEmpty(profile.Country));
+
+                if (!ViewState.ShowFirstName && !ViewState.ShowLastName && !ViewState.ShowBirthDate && !ViewState.ShowSex &&
+                    !ViewState.ShowEmail && !ViewState.ShowMobilePhone && !ViewState.ShowPhone && !ViewState.ShowAddress &&
+                    !ViewState.ShowCity && !ViewState.ShowPostCode && !ViewState.ShowCountry)
+                {
+                    return;
+                }
+
+                ViewState.FirstName = ViewState.ShowFirstName ? profile.FirstName : null;
+                ViewState.LastName = ViewState.ShowLastName ? profile.LastName : null;
+                ViewState.BirthDate = ViewState.ShowBirthDate ? profile.BirthDate : null;
+                ViewState.Sex = ViewState.ShowSex ? profile.Sex : Sex.Unspecified;
+                ViewState.Email = ViewState.ShowEmail ? profile.Email : null;
+                ViewState.MobilePhone = ViewState.ShowMobilePhone ? profile.MobilePhone?.TrimStart('+') : null;
+                ViewState.Phone = ViewState.ShowPhone ? profile.Phone : null;
+                ViewState.Address = ViewState.ShowAddress ? profile.Address : null;
+                ViewState.City = ViewState.ShowCity ? profile.City : null;
+                ViewState.PostCode = ViewState.ShowPostCode ? profile.PostCode : null;
+                ViewState.Country = ViewState.ShowCountry ? profile.Country : null;
+
+                if (ViewState.ShowMobilePhone && !string.IsNullOrEmpty(ViewState.MobilePhone))
+                    ViewState.PhoneRegionCode = await ResolvePhoneRegionCodeAsync(ViewState.MobilePhone, cToken);
+
+                ValidateShownProperties();
+
+                ViewState.RaiseChanged();
+
+                var dialogResult = await _dialogService.ShowChangeProfileDialogAsync();
+                if (dialogResult.Result == AddComponentResultCode.Opened)
+                    _ = await dialogResult.WaitForResultAsync();
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Failed to update user profile.");
+                Logger.LogError(ex, "Failed to complete user profile.");
             }
         }
 
@@ -147,30 +210,71 @@ namespace Gizmo.Client.UI.View.Services
             if (ViewState.IsValid != true)
                 return;
 
+            if (ViewState.ShowMobilePhone && string.IsNullOrEmpty(_mobileE164))
+            {
+                ValidateProperty(() => ViewState.MobilePhone);
+                return;
+            }
+
             ViewState.IsLoading = true;
+            ViewState.RaiseChanged();
+
+            if (!await ValidateAvailabilityAsync())
+            {
+                ViewState.IsLoading = false;
+                ViewState.RaiseChanged();
+                return;
+            }
+
+            ViewState.HasError = false;
+            ViewState.ErrorMessage = string.Empty;
             ViewState.RaiseChanged();
 
             try
             {
-                await _gizmoClient.UserProfileUpdateAsync(new UserProfileModelUpdate()
+                var result = await _userProfileService.UpdateAsync(new UserProfileUpdate()
                 {
-                    FirstName = ViewState.FirstName,
-                    LastName = ViewState.LastName,
-                    BirthDate = ViewState.BirthDate,
-                    Sex = ViewState.Sex,
-                    Country = ViewState.Country
+                    FirstName = ViewState.ShowFirstName ? ViewState.FirstName ?? string.Empty : null,
+                    LastName = ViewState.ShowLastName ? ViewState.LastName ?? string.Empty : null,
+                    BirthDate = ViewState.ShowBirthDate ? ViewState.BirthDate : null,
+                    Sex = ViewState.ShowSex ? UserProfileSexMapper.FromModel(ViewState.Sex) : null,
+                    Email = ViewState.ShowEmail ? ViewState.Email ?? string.Empty : null,
+                    MobilePhone = ViewState.ShowMobilePhone ? _mobileE164 : null,
+                    Phone = ViewState.ShowPhone ? ViewState.Phone ?? string.Empty : null,
+                    Address = ViewState.ShowAddress ? ViewState.Address ?? string.Empty : null,
+                    City = ViewState.ShowCity ? ViewState.City ?? string.Empty : null,
+                    PostCode = ViewState.ShowPostCode ? ViewState.PostCode ?? string.Empty : null,
+                    Country = ViewState.ShowCountry ? ViewState.Country ?? string.Empty : null,
                 });
+
+                switch (result)
+                {
+                    case UserProfileUpdateCode.Success:
+                        ViewState.IsComplete = true;
+                        break;
+                    case UserProfileUpdateCode.NonUniqueValue:
+                        if (ViewState.ShowEmail)
+                            ValidateProperty(() => ViewState.Email);
+                        if (ViewState.ShowMobilePhone)
+                            ValidateProperty(() => ViewState.MobilePhone);
+                        SetGenericError();
+                        break;
+                    default:
+                        SetGenericError();
+                        break;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex, "User profile update error.");
-
-                ViewState.HasError = true;
-                ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
+                SetGenericError();
             }
             finally
             {
-                ViewState.IsComplete = true;
                 ViewState.IsLoading = false;
                 ViewState.RaiseChanged();
             }
@@ -178,17 +282,36 @@ namespace Gizmo.Client.UI.View.Services
 
         public Task ResetAsync()
         {
-            ViewState.Username = string.Empty;
-            ViewState.FirstName = string.Empty;
-            ViewState.LastName = string.Empty;
+            _profile = null;
+            _mobileE164 = null;
+
+            ViewState.FirstName = null;
+            ViewState.LastName = null;
             ViewState.BirthDate = null;
             ViewState.Sex = Sex.Unspecified;
-            ViewState.Country = string.Empty;
-            ViewState.Picture = string.Empty;
+            ViewState.Email = null;
+            ViewState.MobilePhone = null;
+            ViewState.PhoneRegionCode = null;
+            ViewState.Phone = null;
+            ViewState.Address = null;
+            ViewState.City = null;
+            ViewState.PostCode = null;
+            ViewState.Country = null;
 
-            ViewState.IsInitializing = false;
-            ViewState.IsInitialized = null;
+            ViewState.ShowFirstName = false;
+            ViewState.ShowLastName = false;
+            ViewState.ShowBirthDate = false;
+            ViewState.ShowSex = false;
+            ViewState.ShowEmail = false;
+            ViewState.ShowMobilePhone = false;
+            ViewState.ShowPhone = false;
+            ViewState.ShowAddress = false;
+            ViewState.ShowCity = false;
+            ViewState.ShowPostCode = false;
+            ViewState.ShowCountry = false;
+
             ViewState.IsComplete = false;
+            ViewState.IsLoading = false;
             ViewState.HasError = false;
             ViewState.ErrorMessage = string.Empty;
 
@@ -199,49 +322,252 @@ namespace Gizmo.Client.UI.View.Services
             return Task.CompletedTask;
         }
 
+        private static bool IsShown(bool isPersonalInfoRequested, bool isRequired, bool isMissing)
+        {
+            return isRequired && (isPersonalInfoRequested || isMissing);
+        }
+
+        private void ValidateShownProperties()
+        {
+            if (ViewState.ShowFirstName) ValidateProperty(() => ViewState.FirstName);
+            if (ViewState.ShowLastName) ValidateProperty(() => ViewState.LastName);
+            if (ViewState.ShowBirthDate) ValidateProperty(() => ViewState.BirthDate);
+            if (ViewState.ShowSex) ValidateProperty(() => ViewState.Sex);
+            if (ViewState.ShowEmail) ValidateProperty(() => ViewState.Email);
+            if (ViewState.ShowMobilePhone) ValidateProperty(() => ViewState.MobilePhone);
+            if (ViewState.ShowPhone) ValidateProperty(() => ViewState.Phone);
+            if (ViewState.ShowAddress) ValidateProperty(() => ViewState.Address);
+            if (ViewState.ShowCity) ValidateProperty(() => ViewState.City);
+            if (ViewState.ShowPostCode) ValidateProperty(() => ViewState.PostCode);
+            if (ViewState.ShowCountry) ValidateProperty(() => ViewState.Country);
+        }
+
+        private async Task<string?> ResolvePhoneRegionCodeAsync(string phoneDigits, CancellationToken cancellationToken)
+        {
+            var countries = await _phoneValidationService.GetCountriesAsync(cancellationToken);
+
+            var match = countries
+                .Where(country => phoneDigits.StartsWith(country.CallingCode.TrimStart('+')))
+                .OrderByDescending(country => country.CallingCode.Length)
+                .FirstOrDefault();
+
+            //Russia and Kazakhstan share the +7 calling code, Kazakhstan numbers start with 6 or 7 after it
+            if (match?.CallingCode.TrimStart('+') == "7" && phoneDigits.Length > 1 && (phoneDigits[1] == '6' || phoneDigits[1] == '7'))
+                return countries.FirstOrDefault(country => country.RegionCode == "KZ")?.RegionCode ?? match.RegionCode;
+
+            return match?.RegionCode;
+        }
+
+        private static bool IsSamePhone(string e164, string? profilePhone)
+        {
+            var current = new string(e164.Where(char.IsDigit).ToArray());
+            var original = new string((profilePhone ?? string.Empty).Where(char.IsDigit).ToArray()).TrimStart('0');
+
+            //a suffix shorter than a national number would match unrelated numbers
+            return original.Length >= MIN_NATIONAL_PHONE_LENGTH && current.EndsWith(original);
+        }
+
+        private bool IsEmailChecked => ViewState.ShowEmail
+            && !string.IsNullOrEmpty(ViewState.Email)
+            && !string.Equals(ViewState.Email, _profile?.Email, StringComparison.OrdinalIgnoreCase);
+
+        private async Task<bool> ValidateAvailabilityAsync()
+        {
+            var isAvailable = true;
+
+            if (IsEmailChecked)
+            {
+                var emailError = await GetEmailAvailabilityErrorAsync(default);
+                if (emailError != null)
+                {
+                    AddError(() => ViewState.Email, emailError);
+                    isAvailable = false;
+                }
+            }
+
+            if (ViewState.ShowMobilePhone && !string.IsNullOrEmpty(_mobileE164))
+            {
+                var mobileError = await GetMobileAvailabilityErrorAsync(_mobileE164, default);
+                if (mobileError != null)
+                {
+                    AddError(() => ViewState.MobilePhone, mobileError);
+                    isAvailable = false;
+                }
+            }
+
+            return isAvailable;
+        }
+
+        private async Task<string?> GetEmailAvailabilityErrorAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (await _userProfileService.EmailExistAsync(ViewState.Email!, cancellationToken))
+                    return _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_EMAIL_ADDRESS_USED));
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                Logger.LogError(ex, "Cannot validate email.");
+                return _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_CANNOT_VALIDATE_EMAIL));
+            }
+
+            return null;
+        }
+
+        private async Task<string?> GetMobileAvailabilityErrorAsync(string e164, CancellationToken cancellationToken)
+        {
+            //the own number of the user is not a conflict, legacy profiles may store it in a non E164 form
+            if (IsSamePhone(e164, _profile?.MobilePhone))
+                return null;
+
+            try
+            {
+                if (await _userProfileService.MobilePhoneExistAsync(e164.TrimStart('+'), cancellationToken))
+                    return _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_MOBILE_PHONE_USED));
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                Logger.LogError(ex, "Cannot validate phone.");
+                return _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_CANNOT_VALIDATE_PHONE));
+            }
+
+            return null;
+        }
+
+        private void SetGenericError()
+        {
+            ViewState.HasError = true;
+            ViewState.ErrorMessage = _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED));
+        }
+
+        private void AddRequiredError<T>(System.Linq.Expressions.Expression<Func<T>> accessor)
+        {
+            AddError(accessor, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
+        }
+
         #endregion
 
         protected override void OnValidate(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger)
         {
             if (fieldIdentifier.FieldEquals(() => ViewState.FirstName))
             {
-                if (ViewState.RequiredUserInformation?.FirstName == true && string.IsNullOrEmpty(ViewState.FirstName))
-                {
-                    AddError(() => ViewState.FirstName, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
-                }
+                if (ViewState.ShowFirstName && string.IsNullOrEmpty(ViewState.FirstName))
+                    AddRequiredError(() => ViewState.FirstName);
             }
 
             if (fieldIdentifier.FieldEquals(() => ViewState.LastName))
             {
-                if (ViewState.RequiredUserInformation?.LastName == true && string.IsNullOrEmpty(ViewState.LastName))
-                {
-                    AddError(() => ViewState.LastName, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
-                }
+                if (ViewState.ShowLastName && string.IsNullOrEmpty(ViewState.LastName))
+                    AddRequiredError(() => ViewState.LastName);
             }
 
             if (fieldIdentifier.FieldEquals(() => ViewState.BirthDate))
             {
-                if (ViewState.RequiredUserInformation?.BirthDate == true && !ViewState.BirthDate.HasValue)
-                {
-                    AddError(() => ViewState.BirthDate, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
-                }
-            }
-
-            if (fieldIdentifier.FieldEquals(() => ViewState.Country))
-            {
-                if (ViewState.RequiredUserInformation?.Country == true && string.IsNullOrEmpty(ViewState.Country))
-                {
-                    AddError(() => ViewState.Country, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
-                }
+                if (ViewState.ShowBirthDate && !ViewState.BirthDate.HasValue)
+                    AddRequiredError(() => ViewState.BirthDate);
             }
 
             if (fieldIdentifier.FieldEquals(() => ViewState.Sex))
             {
-                if (ViewState.RequiredUserInformation?.Sex == true && ViewState.Sex == Sex.Unspecified)
-                {
-                    AddError(() => ViewState.Sex, _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_VE_REQUIRED_FIELD)));
-                }
+                if (ViewState.ShowSex && ViewState.Sex == Sex.Unspecified)
+                    AddRequiredError(() => ViewState.Sex);
             }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.Email))
+            {
+                if (ViewState.ShowEmail && string.IsNullOrEmpty(ViewState.Email))
+                    AddRequiredError(() => ViewState.Email);
+            }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.MobilePhone))
+            {
+                if (ViewState.ShowMobilePhone && string.IsNullOrEmpty(ViewState.MobilePhone))
+                    AddRequiredError(() => ViewState.MobilePhone);
+            }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.Phone))
+            {
+                if (ViewState.ShowPhone && string.IsNullOrEmpty(ViewState.Phone))
+                    AddRequiredError(() => ViewState.Phone);
+            }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.Address))
+            {
+                if (ViewState.ShowAddress && string.IsNullOrEmpty(ViewState.Address))
+                    AddRequiredError(() => ViewState.Address);
+            }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.City))
+            {
+                if (ViewState.ShowCity && string.IsNullOrEmpty(ViewState.City))
+                    AddRequiredError(() => ViewState.City);
+            }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.PostCode))
+            {
+                if (ViewState.ShowPostCode && string.IsNullOrEmpty(ViewState.PostCode))
+                    AddRequiredError(() => ViewState.PostCode);
+            }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.Country))
+            {
+                if (ViewState.ShowCountry && string.IsNullOrEmpty(ViewState.Country))
+                    AddRequiredError(() => ViewState.Country);
+            }
+        }
+
+        protected override async Task<IEnumerable<string>> OnValidateAsync(FieldIdentifier fieldIdentifier, ValidationTrigger validationTrigger, CancellationToken cancellationToken = default)
+        {
+            if (fieldIdentifier.FieldEquals(() => ViewState.Email) && IsEmailChecked)
+            {
+                var emailError = await GetEmailAvailabilityErrorAsync(cancellationToken);
+                if (emailError != null)
+                    return new string[] { emailError };
+            }
+
+            if (fieldIdentifier.FieldEquals(() => ViewState.MobilePhone)
+                && ViewState.ShowMobilePhone
+                && !string.IsNullOrEmpty(ViewState.MobilePhone))
+            {
+                if (string.IsNullOrEmpty(ViewState.PhoneRegionCode))
+                    return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_SELECT_COUNTRY)) };
+
+                var result = await _phoneValidationService.ValidateAsync(ViewState.MobilePhone, ViewState.PhoneRegionCode, cancellationToken);
+                if (!result.IsValid)
+                    return new string[] { _localizationService.GetString(result.ErrorKey ?? nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_GEN_AN_ERROR_HAS_OCCURRED)) };
+
+                if (string.IsNullOrWhiteSpace(result.E164))
+                    return new string[] { _localizationService.GetString(nameof(Gizmo.Client.UI.Resources.Properties.Resources.GIZ_REGISTRATION_VE_CANNOT_VALIDATE_PHONE)) };
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+                _mobileE164 = result.E164;
+
+                var mobileError = await GetMobileAvailabilityErrorAsync(result.E164, cancellationToken);
+                if (mobileError != null)
+                    return new string[] { mobileError };
+            }
+
+            return await base.OnValidateAsync(fieldIdentifier, validationTrigger, cancellationToken);
+        }
+
+        protected override AsyncValidatedDetermineResult OnDetermineIsAsyncPropertiesValidated()
+        {
+            if (ViewState.ShowMobilePhone
+                && !string.IsNullOrEmpty(ViewState.MobilePhone)
+                && !IsAsyncValidated(() => ViewState.MobilePhone))
+            {
+                return base.OnDetermineIsAsyncPropertiesValidated();
+            }
+
+            if (ViewState.ShowEmail
+                && !string.IsNullOrEmpty(ViewState.Email)
+                && !IsAsyncValidated(() => ViewState.Email))
+            {
+                return base.OnDetermineIsAsyncPropertiesValidated();
+            }
+
+            return AsyncValidatedDetermineResult.DefaultTrue;
         }
     }
 }

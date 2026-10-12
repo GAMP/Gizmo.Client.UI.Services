@@ -196,6 +196,7 @@ namespace Gizmo.Client.UI.Services
             services.AddSingleton<IPasswordRecoveryService, PasswordRecoveryService>();
             services.AddSingleton<IPhoneValidationService, PhoneValidationService>();
             services.AddSingleton<IUserAchievementsService, UserAchievementsService>();
+            services.AddSingleton<IUserProfileService, UserProfileService>();
             services.AddSingleton<IUserChallengesService, UserChallengesService>();
             services.AddSingleton<IUserLadderService, UserLadderService>();
             services.AddSingleton<IUserLadderStandingContext, UserLadderStandingContext>();

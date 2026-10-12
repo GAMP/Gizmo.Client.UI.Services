@@ -198,6 +198,10 @@ namespace Gizmo.Client.UI.View.Services
                 {
                     await _userChangeProfileViewService.StartAsync();
                 }
+                else if (e.State == LoginState.LoginCompleted && e.UserProfile?.IsGuest == false)
+                {
+                    await _userChangeProfileViewService.StartIfIncompleteAsync();
+                }
             }
             catch (Exception ex)
             {
