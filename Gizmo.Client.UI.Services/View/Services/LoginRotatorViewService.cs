@@ -1,4 +1,5 @@
-﻿using Gizmo.Client.Options;
+﻿using System.Runtime.InteropServices;
+using Gizmo.Client.Options;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
 using Microsoft.AspNetCore.Components;
@@ -17,14 +18,21 @@ namespace Gizmo.Client.UI.View.Services
             IGizmoClient gizmoClient,
             ILogger<LoginRotatorViewService> logger,
             IServiceProvider serviceProvider,
-            IOptionsMonitor<LoginRotatorOptions> loginRotatorOptions) : base(viewState, logger, serviceProvider)
+            IOptionsMonitor<LoginRotatorOptions> loginRotatorOptions,
+            IOptionsMonitor<ClientNetworkOptions> networkOptions) : base(viewState, logger, serviceProvider)
         {
             _gizmoClient = gizmoClient;
             _loginRotatorOptions = loginRotatorOptions;
+            _networkOptions = networkOptions;
         }
         #endregion
 
         #region STATIC FIELDS
+
+        private const int ResyncEveryMs = 30_000;
+        private const double SeekToleranceSeconds = 0.5;
+        private const double MinimumTickSeconds = 0.05;
+        private const int ClockTimeoutMs = 3_000;
 
         private static readonly string[] IMAGE_EXTENSIONS = new string[]
         {
@@ -50,218 +58,465 @@ namespace Gizmo.Client.UI.View.Services
         #region FIELDS
         private readonly IGizmoClient _gizmoClient;
         private readonly IOptionsMonitor<LoginRotatorOptions> _loginRotatorOptions;
-        private Timer? _rotatateTimer;
-        private List<LoginRotatorItemViewState> _items = new();
-        private int _index = 0;
+        private readonly IOptionsMonitor<ClientNetworkOptions> _networkOptions;
         private readonly object _itemsLock = new object();
-        private bool _paused = false;
+        private List<RotatorSlot> _slots = new();
+        private double _cycleSeconds;
+        private TimeSpan _serverClockOffset;
+        private Timer? _rotatateTimer;
+        private int _timerGeneration;
+        private int _timelineVersion;
+        private bool _disposed;
         #endregion
 
         #region FUNCTIONS
 
-        private int GetRotateMills()
+        private double GetSlideSeconds()
         {
+            // A missing interval used to fall back to 6 seconds. Keep that for pictures and for videos whose duration cannot be read.
             if (_loginRotatorOptions.CurrentValue.RotateEvery <= 0)
-                return 6000; //just in case check that correct value is set and provide default value if not
+                return 6;
 
-            return (int)TimeSpan.FromSeconds(_loginRotatorOptions.CurrentValue.RotateEvery).TotalMilliseconds;
+            return _loginRotatorOptions.CurrentValue.RotateEvery;
+        }
+
+        private List<RotatorSlot> BuildSlots(string rotateFolder)
+        {
+            var slots = new List<RotatorSlot>();
+
+            if (!Directory.Exists(rotateFolder))
+            {
+                Logger.LogError("Login rotator directory {directory} not found.", rotateFolder);
+                return slots;
+            }
+
+            var slideSeconds = GetSlideSeconds();
+            var startSeconds = 0d;
+
+            foreach (var relativePath in GetRelativePaths(rotateFolder)
+                         .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
+                         .ThenBy(path => path, StringComparer.Ordinal))
+            {
+                var isVideo = VIDEO_EXTENSIONS.Any(extension => relativePath.EndsWith(extension, StringComparison.OrdinalIgnoreCase));
+                var durationSeconds = slideSeconds;
+
+                if (isVideo)
+                {
+                    var fullPath = Path.Combine(rotateFolder, relativePath);
+                    if (LoginRotatorDuration.TryGetSeconds(fullPath, out var mediaSeconds) && mediaSeconds > 0)
+                        durationSeconds = mediaSeconds;
+                    else
+                        Logger.LogDebug("Login rotator duration unreadable for {file}, using the slide interval.", relativePath);
+                }
+
+                slots.Add(new RotatorSlot(new LoginRotatorItemViewState()
+                {
+                    MediaPath = Path.Combine("https://", "rotator", relativePath).Replace('\\', '/'),
+                    IsVideo = isVideo
+                }, durationSeconds, startSeconds));
+
+                startSeconds += durationSeconds;
+            }
+
+            return slots;
+
+            static IEnumerable<string> GetRelativePaths(string root)
+            {
+                int rootLength = root.Length + (root[^1] == '\\' ? 0 : 1);
+
+                foreach (string path in Directory.GetFiles(root, "*.*", SearchOption.AllDirectories)
+                                       .Where(fileName => ALL_EXTENSIONS.Any(extension => fileName.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))))
+                {
+                    yield return path.Remove(0, rootLength);
+                }
+            }
+        }
+
+        private async Task<TimeSpan> SyncServerClockAsync(CancellationToken cancellationToken)
+        {
+            var serverUri = _networkOptions.CurrentValue.ServerUri;
+            if (string.IsNullOrWhiteSpace(serverUri) || !Uri.TryCreate(serverUri, UriKind.Absolute, out var uri))
+            {
+                Logger.LogWarning("Login rotator clock sync skipped, server uri is not set.");
+                return TimeSpan.Zero;
+            }
+
+            var offset = TimeSpan.Zero;
+            var gotDate = false;
+
+            try
+            {
+                using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                timeout.CancelAfter(ClockTimeoutMs);
+
+                using var handler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                };
+                using var client = new HttpClient(handler)
+                {
+                    Timeout = TimeSpan.FromMilliseconds(ClockTimeoutMs)
+                };
+                using var request = new HttpRequestMessage(HttpMethod.Get, uri);
+
+                var started = DateTime.UtcNow;
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token).ConfigureAwait(false);
+                var finished = DateTime.UtcNow;
+
+                if (response.Headers.Date is not DateTimeOffset serverDate)
+                {
+                    Logger.LogWarning("Login rotator clock sync got no Date header from {serverUri}.", serverUri);
+                    return TimeSpan.Zero;
+                }
+
+                // Date is when the server sent the response. Half of the round trip places that moment on our clock.
+                // Keep the value even if disposing the unread body throws.
+                var localAtServer = started + TimeSpan.FromTicks((finished - started).Ticks / 2);
+                offset = serverDate.UtcDateTime - localAtServer;
+                gotDate = true;
+                Logger.LogInformation("Login rotator server clock offset is {offsetMs} ms.", (int)offset.TotalMilliseconds);
+            }
+            catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+            {
+                if (gotDate)
+                    return offset;
+
+                Logger.LogWarning("Login rotator clock sync timed out for {serverUri}.", serverUri);
+                return TimeSpan.Zero;
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                if (gotDate)
+                    return offset;
+
+                Logger.LogWarning(ex, "Login rotator clock sync failed for {serverUri}.", serverUri);
+                return TimeSpan.Zero;
+            }
+
+            return gotDate ? offset : TimeSpan.Zero;
+        }
+
+        private bool TryLocate(out RotatorSlot slot, out double intoSeconds, out double remainingSeconds)
+        {
+            slot = default;
+            intoSeconds = 0;
+            remainingSeconds = 0;
+
+            if (_slots.Count == 0 || _cycleSeconds <= 0)
+                return false;
+
+            var cycleTicks = (long)Math.Round(_cycleSeconds * TimeSpan.TicksPerSecond);
+            if (cycleTicks <= 0)
+                return false;
+
+            var positionTicks = (DateTime.UtcNow + _serverClockOffset).Ticks % cycleTicks;
+            if (positionTicks < 0)
+                positionTicks += cycleTicks;
+
+            var positionSeconds = positionTicks / (double)TimeSpan.TicksPerSecond;
+
+            for (var i = 0; i < _slots.Count; i++)
+            {
+                var candidate = _slots[i];
+                var end = candidate.StartSeconds + candidate.DurationSeconds;
+                if (positionSeconds < end || i == _slots.Count - 1)
+                {
+                    slot = candidate;
+                    intoSeconds = positionSeconds - candidate.StartSeconds;
+                    if (intoSeconds < 0)
+                        intoSeconds = 0;
+                    else if (intoSeconds > candidate.DurationSeconds)
+                        intoSeconds = candidate.DurationSeconds;
+
+                    remainingSeconds = end - positionSeconds;
+                    if (remainingSeconds < MinimumTickSeconds)
+                        remainingSeconds = MinimumTickSeconds;
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void ShowCurrent(TimerSignal? signal = null)
+        {
+            var changed = false;
+
+            lock (_itemsLock)
+            {
+                if (_disposed)
+                    return;
+
+                if (signal != null && (signal.Generation != _timerGeneration || signal.Timeline != _timelineVersion))
+                    return;
+
+                if (!TryLocate(out var slot, out var intoSeconds, out var remainingSeconds))
+                {
+                    StopTimer();
+                    return;
+                }
+
+                var item = slot.Item;
+                var position = item.IsVideo ? intoSeconds : 0;
+                var sameSlide = ReferenceEquals(ViewState.CurrentItem, item);
+
+                // The clock owns the index. A repeated pass over the same picture does nothing.
+                // A video is seeked again only when the playhead we published is off by more than the tolerance;
+                // the player itself ignores a seek that it is already close to.
+                if (!sameSlide)
+                {
+                    item.PositionSeconds = position;
+                    ViewState.CurrentItem = item;
+                    ViewState.IsEnabled = _loginRotatorOptions.CurrentValue.Enabled;
+                    changed = true;
+                }
+                else if (item.IsVideo && Math.Abs(item.PositionSeconds - position) >= SeekToleranceSeconds)
+                {
+                    item.PositionSeconds = position;
+                    changed = true;
+                }
+
+                ArmTimer(remainingSeconds);
+            }
+
+            if (changed)
+                DebounceViewStateChanged();
+        }
+
+        private void StopTimer()
+        {
+            Interlocked.Increment(ref _timerGeneration);
+            _rotatateTimer?.Dispose();
+            _rotatateTimer = null;
+        }
+
+        private void ArmTimer(double remainingSeconds)
+        {
+            StopTimer();
+
+            if (_disposed)
+                return;
+
+            var delayMs = (int)Math.Min(ResyncEveryMs, Math.Max(MinimumTickSeconds * 1000, Math.Round(remainingSeconds * 1000)));
+            _rotatateTimer = new Timer(OnTimer, new TimerSignal(_timerGeneration, _timelineVersion), delayMs, Timeout.Infinite);
+        }
+
+        private void OnTimer(object? state)
+        {
+            try
+            {
+                ShowCurrent(state as TimerSignal);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to adjust rotator item based on the server clock.");
+            }
+        }
+
+        private void ClearTimeline()
+        {
+            StopTimer();
+            _slots = new List<RotatorSlot>();
+            _cycleSeconds = 0;
+            ViewState.CurrentItem = null;
+            ViewState.IsEnabled = false;
         }
 
         #endregion
 
-        private void OnTimerCallback(object? state)
-        {
-            if (Monitor.TryEnter(_itemsLock))
-            {
-                try
-                {
-                    _index += 1;
-
-                    if (_index == _items.Count)
-                        _index = 0;
-
-                    ViewState.CurrentItem = _items[_index];
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Failed to adjust rotator item based on index within timer callback.");
-                }
-                finally
-                {
-                    Monitor.Exit(_itemsLock);
-                }
-            }
-
-            if (ViewState.CurrentItem?.IsVideo == true)
-            {
-                _rotatateTimer?.Dispose();
-            }
-
-            DebounceViewStateChanged();
-        }
-
-        public bool PlayNext()
-        {
-            if (_paused)
-                return false;
-
-            if (_items.Count <= 1)
-                return false;
-
-            if (Monitor.TryEnter(_itemsLock))
-            {
-                try
-                {
-                    _index += 1;
-
-                    if (_index == _items.Count)
-                        _index = 0;
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Failed to play next item based on index.");
-                }
-                finally
-                {
-                    Monitor.Exit(_itemsLock);
-                }
-            }
-
-            ViewState.CurrentItem = _items[_index];
-
-            if (ViewState.CurrentItem?.IsVideo == false)
-            {
-                _rotatateTimer?.Dispose();
-                _rotatateTimer = new Timer(OnTimerCallback, null, GetRotateMills(), GetRotateMills());
-            }
-
-            DebounceViewStateChanged();
-
-            return true;
-        }
-
-        private void OnSystemUserIdleChange(object? sender, UserIdleEventArgs e)
-        {
-            if (e.IsIdle)
-            {
-                _paused = false;
-                PlayNext();
-            }
-            else
-            {
-                _paused = true;
-                _rotatateTimer?.Dispose();
-            }
-        }
-
         #region OVERRIDES
 
-        protected override Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cToken = default)
+        protected override async Task OnNavigatedIn(NavigationParameters navigationParameters, CancellationToken cancellationToken = default)
         {
-            if (_loginRotatorOptions.CurrentValue.Enabled)
+            if (!_loginRotatorOptions.CurrentValue.Enabled)
+                return;
+
+            var rotateFolder = _gizmoClient.GetCurrentRotatorPath();
+            if (string.IsNullOrEmpty(rotateFolder))
+                return;
+
+            List<RotatorSlot> slots;
+            try
             {
-                _paused = !_gizmoClient.IsUserIdle;
+                slots = BuildSlots(rotateFolder);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Failed to initialize login rotator.");
+                return;
+            }
 
-                //get current rotator folder
-                var rotateFolder = _gizmoClient.GetCurrentRotatorPath();
+            var cycleSeconds = 0d;
+            foreach (var slot in slots)
+                cycleSeconds += slot.DurationSeconds;
 
-                if (!string.IsNullOrEmpty(rotateFolder))
+            int version;
+            var hadItem = false;
+
+            lock (_itemsLock)
+            {
+                hadItem = ViewState.CurrentItem != null || ViewState.IsEnabled;
+                version = ++_timelineVersion;
+                _serverClockOffset = TimeSpan.Zero;
+
+                if (slots.Count == 0)
                 {
-                    static IEnumerable<string> GetRelativePaths(string root)
-                    {
-                        int rootLength = root.Length + (root[^1] == '\\' ? 0 : 1);
-
-                        foreach (string path in Directory.GetFiles(root, "*.*", SearchOption.AllDirectories)
-                                               .Where(fileName => ALL_EXTENSIONS.Any(extension => fileName.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))))
-                        {
-                            yield return path.Remove(0, rootLength);
-                        }
-                    }
-
-                    var items = new List<LoginRotatorItemViewState>();
-
-                    try
-                    {
-                        if (!Directory.Exists(rotateFolder))
-                        {
-                            Logger.LogError("Login rotator directory {directory} not found.", rotateFolder);
-                        }
-                        else
-                        {
-                            items = GetRelativePaths(rotateFolder).Select(fileName => new LoginRotatorItemViewState()
-                            {
-                                MediaPath = Path.Combine("https://", "rotator", fileName).Replace('\\', '/'),
-                                IsVideo = VIDEO_EXTENSIONS.Any(extension => fileName.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))
-                            }).ToList();
-
-                            items.Shuffle(); //randomize
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError(ex, "Failed to initialize login rotator.");
-                    }
-
-                    //swap in the freshly built list under lock and restart from the beginning
-                    if (Monitor.TryEnter(_itemsLock, Timeout.Infinite))
-                    {
-                        try
-                        {
-                            _items = items;
-                            _index = 0;
-                        }
-                        finally
-                        {
-                            Monitor.Exit(_itemsLock);
-                        }
-                    }
-
-                    if (_items.Count != 0)
-                    {
-                        ViewState.IsEnabled = _loginRotatorOptions.CurrentValue.Enabled;
-                        ViewState.CurrentItem = _items[_index];
-
-                        if (!_paused && ViewState.CurrentItem?.IsVideo == false && _items.Count > 1)
-                        {
-                            _rotatateTimer?.Dispose();
-                            _rotatateTimer = new Timer(OnTimerCallback, null, GetRotateMills(), GetRotateMills());
-                        }
-                    }
+                    ClearTimeline();
+                }
+                else
+                {
+                    StopTimer();
+                    _slots = slots;
+                    _cycleSeconds = cycleSeconds;
                 }
             }
 
-            return Task.CompletedTask;
-        }
+            if (slots.Count == 0)
+            {
+                if (hadItem)
+                    DebounceViewStateChanged();
+                return;
+            }
 
-        protected override Task OnInitializing(CancellationToken ct)
-        {
-            _gizmoClient.UserIdleChange += OnSystemUserIdleChange;
-            return base.OnInitializing(ct);
+            var offset = await SyncServerClockAsync(cancellationToken).ConfigureAwait(false);
+
+            lock (_itemsLock)
+            {
+                if (_disposed || version != _timelineVersion || cancellationToken.IsCancellationRequested)
+                    return;
+
+                _serverClockOffset = offset;
+            }
+
+            ShowCurrent();
         }
 
         protected override void OnDisposing(bool isDisposing)
         {
-            _gizmoClient.UserIdleChange -= OnSystemUserIdleChange;
-            _rotatateTimer?.Dispose();
+            lock (_itemsLock)
+            {
+                _disposed = true;
+                StopTimer();
+            }
+
             base.OnDisposing(isDisposing);
         }
 
         #endregion
+
+        private readonly record struct RotatorSlot(LoginRotatorItemViewState Item, double DurationSeconds, double StartSeconds);
+
+        private sealed class TimerSignal
+        {
+            public TimerSignal(int generation, int timeline)
+            {
+                Generation = generation;
+                Timeline = timeline;
+            }
+
+            public int Generation { get; }
+            public int Timeline { get; }
+        }
     }
 
-    static class ShuffleListExtension
+    static class LoginRotatorDuration
     {
-        public static void Shuffle<T>(this IList<T> list)
+        // PKEY_Media_Duration, 100-nanosecond units.
+        private static readonly Guid MediaDurationFormat = new("64440490-4C8B-11D1-8B70-080036B11A03");
+        private const int MediaDurationId = 3;
+        private const uint OpenSlowItem = 0x10;
+        private const ushort VT_I8 = 20;
+        private const ushort VT_UI8 = 21;
+
+        public static bool TryGetSeconds(string path, out double seconds)
         {
-            int n = list.Count;
-            while (n > 1)
+            seconds = 0;
+            IPropertyStore? store = null;
+
+            try
             {
-                n--;
-                int k = Random.Shared.Next(n + 1);
-                T value = list[k];
-                list[k] = list[n];
-                list[n] = value;
+                var iid = typeof(IPropertyStore).GUID;
+                var hr = SHGetPropertyStoreFromParsingName(path, IntPtr.Zero, OpenSlowItem, ref iid, out store);
+                if (hr < 0 || store == null)
+                    return false;
+
+                var key = new PropertyKey(MediaDurationFormat, MediaDurationId);
+                store.GetValue(ref key, out var value);
+                try
+                {
+                    long ticks;
+                    if (value.vt == VT_UI8)
+                        ticks = unchecked((long)value.uhVal);
+                    else if (value.vt == VT_I8)
+                        ticks = value.hVal;
+                    else
+                        return false;
+
+                    if (ticks <= 0)
+                        return false;
+
+                    seconds = ticks / (double)TimeSpan.TicksPerSecond;
+                    return seconds > 0;
+                }
+                finally
+                {
+                    PropVariantClear(ref value);
+                }
             }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                if (store != null && OperatingSystem.IsWindows())
+                    Marshal.ReleaseComObject(store);
+            }
+        }
+
+        [DllImport("propsys.dll", CharSet = CharSet.Unicode, PreserveSig = true)]
+        private static extern int SHGetPropertyStoreFromParsingName(
+            string pszPath,
+            IntPtr pbc,
+            uint flags,
+            ref Guid riid,
+            [MarshalAs(UnmanagedType.Interface)] out IPropertyStore? propertyStore);
+
+        [DllImport("ole32.dll")]
+        private static extern int PropVariantClear(ref PropVariant pvar);
+
+        [ComImport]
+        [Guid("886d8eeb-8cf2-4446-8d02-cdba1dbdcf99")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        private interface IPropertyStore
+        {
+            void GetCount(out int count);
+            void GetAt(int iProp, out PropertyKey pkey);
+            void GetValue(ref PropertyKey key, out PropVariant pv);
+            void SetValue(ref PropertyKey key, ref PropVariant propvar);
+            void Commit();
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct PropertyKey
+        {
+            public PropertyKey(Guid formatId, int propertyId)
+            {
+                fmtid = formatId;
+                pid = propertyId;
+            }
+
+            public Guid fmtid;
+            public int pid;
+        }
+
+        [StructLayout(LayoutKind.Explicit, Size = 24)]
+        private struct PropVariant
+        {
+            [FieldOffset(0)] public ushort vt;
+            [FieldOffset(8)] public long hVal;
+            [FieldOffset(8)] public ulong uhVal;
         }
     }
 }

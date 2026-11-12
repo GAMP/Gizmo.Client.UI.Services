@@ -12,6 +12,11 @@ namespace Gizmo.Client.UI.View.States
 
         public bool IsVideo { get; internal set; }
 
+        /// <summary>
+        /// Offset inside a video, in seconds. Pictures stay at 0.
+        /// </summary>
+        public double PositionSeconds { get; internal set; }
+
         #endregion
     }
 }
