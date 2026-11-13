@@ -73,7 +73,7 @@ namespace Gizmo.Client.UI.View.Services
 
         private double GetSlideSeconds()
         {
-            // A missing interval used to fall back to 6 seconds. Keep that for pictures and for videos whose duration cannot be read.
+            // A missing interval used to fall back to 6 seconds. Pictures use that. A video uses it only when its duration cannot be read.
             if (_loginRotatorOptions.CurrentValue.RotateEvery <= 0)
                 return 6;
 
@@ -106,7 +106,7 @@ namespace Gizmo.Client.UI.View.Services
                     if (LoginRotatorDuration.TryGetSeconds(fullPath, out var mediaSeconds) && mediaSeconds > 0)
                         durationSeconds = mediaSeconds;
                     else
-                        Logger.LogDebug("Login rotator duration unreadable for {file}, using the slide interval.", relativePath);
+                        Logger.LogError("Login rotator duration unreadable for {file}, using the slide interval.", relativePath);
                 }
 
                 slots.Add(new RotatorSlot(new LoginRotatorItemViewState()
@@ -422,17 +422,54 @@ namespace Gizmo.Client.UI.View.Services
 
     static class LoginRotatorDuration
     {
-        // PKEY_Media_Duration, 100-nanosecond units.
+        // PKEY_Media_Duration and MF_PD_DURATION, both in 100-nanosecond units.
         private static readonly Guid MediaDurationFormat = new("64440490-4C8B-11D1-8B70-080036B11A03");
+        private static readonly Guid MediaFoundationDuration = new("6c990d33-bb8e-477a-8598-0d5d96fcd88a");
         private const int MediaDurationId = 3;
         private const uint OpenSlowItem = 0x10;
+        private const uint COINIT_MULTITHREADED = 0;
+        private const uint MediaFoundationVersion = 0x00020070;
+        private const uint MediaFoundationStartupNoSocket = 0x1;
+        private const uint MediaSource = 0xFFFFFFFF;
         private const ushort VT_I8 = 20;
         private const ushort VT_UI8 = 21;
+        private static readonly int PropVariantNativeSize = IntPtr.Size == 8 ? 24 : 16;
 
         public static bool TryGetSeconds(string path, out double seconds)
         {
             seconds = 0;
+            if (!OperatingSystem.IsWindows())
+                return false;
+
+            var initialized = false;
+
+            try
+            {
+                var hrInit = CoInitializeEx(IntPtr.Zero, COINIT_MULTITHREADED);
+                initialized = hrInit >= 0;
+
+                if (TryGetShellSeconds(path, out seconds))
+                    return true;
+
+                return TryGetMediaFoundationSeconds(path, out seconds);
+            }
+            catch
+            {
+                seconds = 0;
+                return false;
+            }
+            finally
+            {
+                if (initialized)
+                    CoUninitialize();
+            }
+        }
+
+        private static bool TryGetShellSeconds(string path, out double seconds)
+        {
+            seconds = 0;
             IPropertyStore? store = null;
+            var value = IntPtr.Zero;
 
             try
             {
@@ -441,41 +478,103 @@ namespace Gizmo.Client.UI.View.Services
                 if (hr < 0 || store == null)
                     return false;
 
+                value = AllocPropVariant();
                 var key = new PropertyKey(MediaDurationFormat, MediaDurationId);
-                store.GetValue(ref key, out var value);
-                try
-                {
-                    long ticks;
-                    if (value.vt == VT_UI8)
-                        ticks = unchecked((long)value.uhVal);
-                    else if (value.vt == VT_I8)
-                        ticks = value.hVal;
-                    else
-                        return false;
+                hr = store.GetValue(ref key, value);
+                if (hr < 0)
+                    return false;
 
-                    if (ticks <= 0)
-                        return false;
-
-                    seconds = ticks / (double)TimeSpan.TicksPerSecond;
-                    return seconds > 0;
-                }
-                finally
-                {
-                    PropVariantClear(ref value);
-                }
+                return TryReadHundredNanoseconds(value, out seconds);
             }
             catch
             {
+                seconds = 0;
                 return false;
             }
             finally
             {
+                FreePropVariant(value);
                 if (store != null && OperatingSystem.IsWindows())
                     Marshal.ReleaseComObject(store);
             }
         }
 
-        [DllImport("propsys.dll", CharSet = CharSet.Unicode, PreserveSig = true)]
+        private static bool TryGetMediaFoundationSeconds(string path, out double seconds)
+        {
+            seconds = 0;
+            IMFSourceReader? reader = null;
+            var started = false;
+            var value = IntPtr.Zero;
+
+            try
+            {
+                var hr = MFStartup(MediaFoundationVersion, MediaFoundationStartupNoSocket);
+                if (hr < 0)
+                    return false;
+
+                started = true;
+                hr = MFCreateSourceReaderFromURL(path, IntPtr.Zero, out reader);
+                if (hr < 0 || reader == null)
+                    return false;
+
+                value = AllocPropVariant();
+                var attribute = MediaFoundationDuration;
+                hr = reader.GetPresentationAttribute(MediaSource, ref attribute, value);
+                if (hr < 0)
+                    return false;
+
+                return TryReadHundredNanoseconds(value, out seconds);
+            }
+            finally
+            {
+                FreePropVariant(value);
+                if (reader != null && OperatingSystem.IsWindows())
+                    Marshal.ReleaseComObject(reader);
+                if (started)
+                    MFShutdown();
+            }
+        }
+
+        private static bool TryReadHundredNanoseconds(IntPtr value, out double seconds)
+        {
+            seconds = 0;
+            var vt = (ushort)Marshal.ReadInt16(value, 0);
+            if (vt != VT_UI8 && vt != VT_I8)
+                return false;
+
+            var ticks = Marshal.ReadInt64(value, 8);
+            if (ticks <= 0)
+                return false;
+
+            seconds = ticks / (double)TimeSpan.TicksPerSecond;
+            return seconds > 0;
+        }
+
+        private static IntPtr AllocPropVariant()
+        {
+            var pointer = Marshal.AllocCoTaskMem(PropVariantNativeSize);
+            for (var offset = 0; offset < PropVariantNativeSize; offset += 4)
+                Marshal.WriteInt32(pointer, offset, 0);
+
+            return pointer;
+        }
+
+        private static void FreePropVariant(IntPtr value)
+        {
+            if (value == IntPtr.Zero)
+                return;
+
+            PropVariantClear(value);
+            Marshal.FreeCoTaskMem(value);
+        }
+
+        [DllImport("ole32.dll", ExactSpelling = true)]
+        private static extern int CoInitializeEx(IntPtr pvReserved, uint dwCoInit);
+
+        [DllImport("ole32.dll", ExactSpelling = true)]
+        private static extern void CoUninitialize();
+
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode, PreserveSig = true)]
         private static extern int SHGetPropertyStoreFromParsingName(
             string pszPath,
             IntPtr pbc,
@@ -483,22 +582,51 @@ namespace Gizmo.Client.UI.View.Services
             ref Guid riid,
             [MarshalAs(UnmanagedType.Interface)] out IPropertyStore? propertyStore);
 
-        [DllImport("ole32.dll")]
-        private static extern int PropVariantClear(ref PropVariant pvar);
+        [DllImport("ole32.dll", ExactSpelling = true)]
+        private static extern int PropVariantClear(IntPtr pvar);
+
+        [DllImport("mfplat.dll", ExactSpelling = true)]
+        private static extern int MFStartup(uint version, uint flags);
+
+        [DllImport("mfplat.dll", ExactSpelling = true)]
+        private static extern int MFShutdown();
+
+        [DllImport("mfreadwrite.dll", ExactSpelling = true, CharSet = CharSet.Unicode, PreserveSig = true)]
+        private static extern int MFCreateSourceReaderFromURL(
+            string url,
+            IntPtr attributes,
+            [MarshalAs(UnmanagedType.Interface)] out IMFSourceReader? reader);
 
         [ComImport]
         [Guid("886d8eeb-8cf2-4446-8d02-cdba1dbdcf99")]
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         private interface IPropertyStore
         {
-            void GetCount(out int count);
-            void GetAt(int iProp, out PropertyKey pkey);
-            void GetValue(ref PropertyKey key, out PropVariant pv);
-            void SetValue(ref PropertyKey key, ref PropVariant propvar);
-            void Commit();
+            [PreserveSig] int GetCount(out int count);
+            [PreserveSig] int GetAt(int index, IntPtr key);
+            [PreserveSig] int GetValue(ref PropertyKey key, IntPtr value);
+            [PreserveSig] int SetValue(ref PropertyKey key, IntPtr value);
+            [PreserveSig] int Commit();
         }
 
-        [StructLayout(LayoutKind.Sequential)]
+        [ComImport]
+        [Guid("70ae66f2-c809-4e4f-8915-bdcb406b7993")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        private interface IMFSourceReader
+        {
+            [PreserveSig] int GetStreamSelection(uint streamIndex, [MarshalAs(UnmanagedType.Bool)] out bool selected);
+            [PreserveSig] int SetStreamSelection(uint streamIndex, [MarshalAs(UnmanagedType.Bool)] bool selected);
+            [PreserveSig] int GetNativeMediaType(uint streamIndex, uint mediaTypeIndex, out IntPtr mediaType);
+            [PreserveSig] int GetCurrentMediaType(uint streamIndex, out IntPtr mediaType);
+            [PreserveSig] int SetCurrentMediaType(uint streamIndex, IntPtr reserved, IntPtr mediaType);
+            [PreserveSig] int SetCurrentPosition(ref Guid timeFormat, IntPtr position);
+            [PreserveSig] int ReadSample(uint streamIndex, uint controlFlags, IntPtr actualStreamIndex, IntPtr streamFlags, IntPtr timestamp, IntPtr sample);
+            [PreserveSig] int Flush(uint streamIndex);
+            [PreserveSig] int GetServiceForStream(uint streamIndex, ref Guid service, ref Guid iid, out IntPtr instance);
+            [PreserveSig] int GetPresentationAttribute(uint streamIndex, ref Guid attribute, IntPtr value);
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
         private struct PropertyKey
         {
             public PropertyKey(Guid formatId, int propertyId)
@@ -509,14 +637,6 @@ namespace Gizmo.Client.UI.View.Services
 
             public Guid fmtid;
             public int pid;
-        }
-
-        [StructLayout(LayoutKind.Explicit, Size = 24)]
-        private struct PropVariant
-        {
-            [FieldOffset(0)] public ushort vt;
-            [FieldOffset(8)] public long hVal;
-            [FieldOffset(8)] public ulong uhVal;
         }
     }
 }
