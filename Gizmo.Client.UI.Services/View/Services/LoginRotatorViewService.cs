@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Globalization;
+using System.Runtime.InteropServices;
 using Gizmo.Client.Options;
 using Gizmo.Client.UI.View.States;
 using Gizmo.UI.View.Services;
@@ -30,9 +31,15 @@ namespace Gizmo.Client.UI.View.Services
         #region STATIC FIELDS
 
         private const int ResyncEveryMs = 30_000;
-        private const double SeekToleranceSeconds = 0.5;
+        private const int VideoResyncEveryMs = 2_000;
+        private const double SeekToleranceSeconds = 0.15;
         private const double MinimumTickSeconds = 0.05;
-        private const int ClockTimeoutMs = 3_000;
+        private const int ClockSampleCount = 4;
+        private const int ClockSampleTimeoutMs = 500;
+        private const double ClockRefineThresholdMs = 40;
+        private const double ClockRefreshThresholdMs = 80;
+        private const int ClockRefreshMinutes = 5;
+        private const string ServerTimeHeader = "X-Server-Time";
 
         private static readonly string[] IMAGE_EXTENSIONS = new string[]
         {
@@ -67,6 +74,10 @@ namespace Gizmo.Client.UI.View.Services
         private int _timerGeneration;
         private int _timelineVersion;
         private bool _disposed;
+        private long _acceptedRttTicks = long.MaxValue;
+        private bool _hasClockSample;
+        private DateTime _nextClockSyncUtc = DateTime.MaxValue;
+        private int _clockSurveys;
         #endregion
 
         #region FUNCTIONS
@@ -132,22 +143,34 @@ namespace Gizmo.Client.UI.View.Services
             }
         }
 
-        private async Task<TimeSpan> SyncServerClockAsync(CancellationToken cancellationToken)
+        private bool TryCreateClockUri(out Uri uri)
         {
             var serverUri = _networkOptions.CurrentValue.ServerUri;
-            if (string.IsNullOrWhiteSpace(serverUri) || !Uri.TryCreate(serverUri, UriKind.Absolute, out var uri))
-            {
-                Logger.LogWarning("Login rotator clock sync skipped, server uri is not set.");
-                return TimeSpan.Zero;
-            }
+            if (!string.IsNullOrWhiteSpace(serverUri) && Uri.TryCreate(serverUri, UriKind.Absolute, out uri!))
+                return true;
 
-            var offset = TimeSpan.Zero;
-            var gotDate = false;
+            uri = null!;
+            Logger.LogWarning("Login rotator clock sync skipped, server uri is not set.");
+            return false;
+        }
+
+        private async Task SurveyClockAsync(int version, CancellationToken cancellationToken, bool initial)
+        {
+            Interlocked.Increment(ref _clockSurveys);
 
             try
             {
-                using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                timeout.CancelAfter(ClockTimeoutMs);
+                if (!TryCreateClockUri(out var uri))
+                {
+                    if (initial)
+                        ShowIfCurrent(version);
+                    return;
+                }
+
+                var showed = false;
+                var anySample = false;
+                ClockSample? periodicBest = null;
+                Exception? failure = null;
 
                 using var handler = new HttpClientHandler
                 {
@@ -155,45 +178,215 @@ namespace Gizmo.Client.UI.View.Services
                 };
                 using var client = new HttpClient(handler)
                 {
-                    Timeout = TimeSpan.FromMilliseconds(ClockTimeoutMs)
+                    Timeout = TimeSpan.FromMilliseconds(ClockSampleTimeoutMs)
                 };
-                using var request = new HttpRequestMessage(HttpMethod.Get, uri);
 
+                for (var sampleIndex = 0; sampleIndex < ClockSampleCount; sampleIndex++)
+                {
+                    if (cancellationToken.IsCancellationRequested || !IsTimeline(version))
+                        break;
+
+                    ClockSample? sample;
+                    try
+                    {
+                        sample = await TrySampleClockAsync(client, uri, cancellationToken).ConfigureAwait(false);
+                    }
+                    catch (Exception ex) when (ex is not OperationCanceledException)
+                    {
+                        failure = ex;
+                        continue;
+                    }
+
+                    if (sample == null)
+                        continue;
+
+                    anySample = true;
+
+                    if (!initial)
+                    {
+                        if (periodicBest == null || sample.Value.RttTicks < periodicBest.Value.RttTicks)
+                            periodicBest = sample;
+                        continue;
+                    }
+
+                    // The first answer starts the reel. A later sample replaces it only when the
+                    // round trip is no worse and the offset moved by more than the refine threshold.
+                    if (!TryAcceptClock(version, sample.Value, ClockRefineThresholdMs, acceptFirst: !showed))
+                        continue;
+
+                    showed = true;
+                    ShowCurrent();
+                }
+
+                if (!initial && periodicBest != null && TryAcceptClock(version, periodicBest.Value, ClockRefreshThresholdMs, acceptFirst: false))
+                    ShowCurrent();
+
+                if (initial && !showed)
+                    ShowIfCurrent(version);
+
+                if (!anySample && !cancellationToken.IsCancellationRequested && IsTimeline(version))
+                {
+                    if (failure != null)
+                        Logger.LogWarning(failure, "Login rotator clock sync failed for {serverUri}.", uri);
+                    else
+                        Logger.LogWarning("Login rotator clock sync failed for {serverUri}.", uri);
+                }
+            }
+            finally
+            {
+                lock (_itemsLock)
+                {
+                    if (version == _timelineVersion)
+                        _nextClockSyncUtc = DateTime.UtcNow.AddMinutes(ClockRefreshMinutes);
+                }
+
+                Interlocked.Decrement(ref _clockSurveys);
+            }
+        }
+
+        private async Task<ClockSample?> TrySampleClockAsync(HttpClient client, Uri uri, CancellationToken cancellationToken)
+        {
+            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeout.CancelAfter(ClockSampleTimeoutMs);
+
+            try
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Get, uri);
                 var started = DateTime.UtcNow;
                 using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token).ConfigureAwait(false);
                 var finished = DateTime.UtcNow;
 
-                if (response.Headers.Date is not DateTimeOffset serverDate)
-                {
-                    Logger.LogWarning("Login rotator clock sync got no Date header from {serverUri}.", serverUri);
-                    return TimeSpan.Zero;
-                }
+                if (!TryReadServerUtc(response, out var serverUtc))
+                    return null;
 
-                // Date is when the server sent the response. Half of the round trip places that moment on our clock.
-                // Keep the value even if disposing the unread body throws.
-                var localAtServer = started + TimeSpan.FromTicks((finished - started).Ticks / 2);
-                offset = serverDate.UtcDateTime - localAtServer;
-                gotDate = true;
-                Logger.LogInformation("Login rotator server clock offset is {offsetMs} ms.", (int)offset.TotalMilliseconds);
+                // The header is the moment the server sent the response. Half of the round trip places that moment on our clock.
+                var rttTicks = (finished - started).Ticks;
+                if (rttTicks < 0)
+                    rttTicks = 0;
+
+                var localAtServer = started + TimeSpan.FromTicks(rttTicks / 2);
+                return new ClockSample(serverUtc - localAtServer, rttTicks);
             }
             catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
             {
-                if (gotDate)
-                    return offset;
+                return null;
+            }
+        }
 
-                Logger.LogWarning("Login rotator clock sync timed out for {serverUri}.", serverUri);
-                return TimeSpan.Zero;
+        private static bool TryReadServerUtc(HttpResponseMessage response, out DateTime serverUtc)
+        {
+            if (response.Headers.TryGetValues(ServerTimeHeader, out var values))
+            {
+                var raw = values.FirstOrDefault();
+                if (long.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var ticks)
+                    && ticks > DateTime.MinValue.Ticks
+                    && ticks <= DateTime.MaxValue.Ticks)
+                {
+                    serverUtc = new DateTime(ticks, DateTimeKind.Utc);
+                    return true;
+                }
+            }
+
+            if (response.Headers.Date is DateTimeOffset serverDate)
+            {
+                serverUtc = serverDate.UtcDateTime;
+                return true;
+            }
+
+            serverUtc = default;
+            return false;
+        }
+
+        private bool IsTimeline(int version)
+        {
+            lock (_itemsLock)
+                return !_disposed && version == _timelineVersion;
+        }
+
+        private void ShowIfCurrent(int version)
+        {
+            if (!IsTimeline(version))
+                return;
+
+            ShowCurrent();
+        }
+
+        private bool TryAcceptClock(int version, ClockSample sample, double thresholdMs, bool acceptFirst)
+        {
+            lock (_itemsLock)
+            {
+                if (_disposed || version != _timelineVersion)
+                    return false;
+
+                if (acceptFirst && !_hasClockSample)
+                {
+                    StoreClock(sample);
+                    return true;
+                }
+
+                if (_hasClockSample && sample.RttTicks > _acceptedRttTicks)
+                    return false;
+
+                if (!_hasClockSample || sample.RttTicks < _acceptedRttTicks)
+                    _acceptedRttTicks = sample.RttTicks;
+
+                var deltaMs = Math.Abs((sample.Offset - _serverClockOffset).TotalMilliseconds);
+                if (deltaMs <= thresholdMs)
+                {
+                    _hasClockSample = true;
+                    return false;
+                }
+
+                StoreClock(sample);
+                return true;
+            }
+        }
+
+        private void StoreClock(ClockSample sample)
+        {
+            _serverClockOffset = sample.Offset;
+            _acceptedRttTicks = sample.RttTicks;
+            _hasClockSample = true;
+            Logger.LogInformation("Login rotator server clock offset is {offsetMs} ms, round trip {rttMs} ms.",
+                (int)sample.Offset.TotalMilliseconds,
+                (int)(sample.RttTicks / TimeSpan.TicksPerMillisecond));
+        }
+
+        private void TryStartClockRefresh(TimerSignal? signal)
+        {
+            if (Volatile.Read(ref _clockSurveys) > 0)
+                return;
+
+            int version;
+            lock (_itemsLock)
+            {
+                if (_disposed || _slots.Count == 0)
+                    return;
+
+                if (signal != null && signal.Timeline != _timelineVersion)
+                    return;
+
+                if (DateTime.UtcNow < _nextClockSyncUtc)
+                    return;
+
+                // Hold the slot until this survey finishes, so the 2 s video tick cannot start a second one.
+                _nextClockSyncUtc = DateTime.MaxValue;
+                version = _timelineVersion;
+            }
+
+            _ = RefreshClockAsync(version);
+        }
+
+        private async Task RefreshClockAsync(int version)
+        {
+            try
+            {
+                await SurveyClockAsync(version, CancellationToken.None, initial: false).ConfigureAwait(false);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                if (gotDate)
-                    return offset;
-
-                Logger.LogWarning(ex, "Login rotator clock sync failed for {serverUri}.", serverUri);
-                return TimeSpan.Zero;
+                Logger.LogWarning(ex, "Login rotator clock sync failed.");
             }
-
-            return gotDate ? offset : TimeSpan.Zero;
         }
 
         private bool TryLocate(out RotatorSlot slot, out double intoSeconds, out double remainingSeconds)
@@ -277,11 +470,11 @@ namespace Gizmo.Client.UI.View.Services
                     changed = true;
                 }
 
-                ArmTimer(remainingSeconds);
+                ArmTimer(remainingSeconds, item.IsVideo);
             }
 
             if (changed)
-                DebounceViewStateChanged();
+                RaiseViewStateChanged();
         }
 
         private void StopTimer()
@@ -291,22 +484,26 @@ namespace Gizmo.Client.UI.View.Services
             _rotatateTimer = null;
         }
 
-        private void ArmTimer(double remainingSeconds)
+        private void ArmTimer(double remainingSeconds, bool isVideo)
         {
             StopTimer();
 
             if (_disposed)
                 return;
 
-            var delayMs = (int)Math.Min(ResyncEveryMs, Math.Max(MinimumTickSeconds * 1000, Math.Round(remainingSeconds * 1000)));
+            var capMs = isVideo ? VideoResyncEveryMs : ResyncEveryMs;
+            var delayMs = (int)Math.Min(capMs, Math.Max(MinimumTickSeconds * 1000, Math.Round(remainingSeconds * 1000)));
             _rotatateTimer = new Timer(OnTimer, new TimerSignal(_timerGeneration, _timelineVersion), delayMs, Timeout.Infinite);
         }
 
         private void OnTimer(object? state)
         {
+            var signal = state as TimerSignal;
+
             try
             {
-                ShowCurrent(state as TimerSignal);
+                ShowCurrent(signal);
+                TryStartClockRefresh(signal);
             }
             catch (Exception ex)
             {
@@ -359,6 +556,8 @@ namespace Gizmo.Client.UI.View.Services
                 hadItem = ViewState.CurrentItem != null || ViewState.IsEnabled;
                 version = ++_timelineVersion;
                 _serverClockOffset = TimeSpan.Zero;
+                _hasClockSample = false;
+                _acceptedRttTicks = long.MaxValue;
 
                 if (slots.Count == 0)
                 {
@@ -379,17 +578,7 @@ namespace Gizmo.Client.UI.View.Services
                 return;
             }
 
-            var offset = await SyncServerClockAsync(cancellationToken).ConfigureAwait(false);
-
-            lock (_itemsLock)
-            {
-                if (_disposed || version != _timelineVersion || cancellationToken.IsCancellationRequested)
-                    return;
-
-                _serverClockOffset = offset;
-            }
-
-            ShowCurrent();
+            await SurveyClockAsync(version, cancellationToken, initial: true).ConfigureAwait(false);
         }
 
         protected override void OnDisposing(bool isDisposing)
@@ -406,6 +595,8 @@ namespace Gizmo.Client.UI.View.Services
         #endregion
 
         private readonly record struct RotatorSlot(LoginRotatorItemViewState Item, double DurationSeconds, double StartSeconds);
+
+        private readonly record struct ClockSample(TimeSpan Offset, long RttTicks);
 
         private sealed class TimerSignal
         {
@@ -448,10 +639,11 @@ namespace Gizmo.Client.UI.View.Services
                 var hrInit = CoInitializeEx(IntPtr.Zero, COINIT_MULTITHREADED);
                 initialized = hrInit >= 0;
 
-                if (TryGetShellSeconds(path, out seconds))
+                // Media Foundation first: one Windows API on every client, and closer to the duration WebView2 plays.
+                if (TryGetMediaFoundationSeconds(path, out seconds))
                     return true;
 
-                return TryGetMediaFoundationSeconds(path, out seconds);
+                return TryGetShellSeconds(path, out seconds);
             }
             catch
             {
